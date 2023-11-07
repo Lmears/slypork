@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.25">
+    <title>Mastering | Slypork Studio</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/favicon-192x192.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .player-wrapper {
+            margin-bottom: 1rem;
+        }
+
+        .album-name,
+        .credits {
+            color: rgba(209, 213, 219);
+            text-align: start;
+            font-size: 0.8em;
+        }
+
+        .album-name {
+            padding-top: 0.5rem;
+        }
+
+        .credits {
+            padding-bottom: 0.5rem;
+            font-weight: 100;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-800 text-gray-300">
+    <div id="container">
+        <nav>
+            <ul>
+                <li> <a href="index.html" id="homeLink">
+                        <img src="assets/images/home.png" alt="Home" class="home-logo">
+                    </a>
+                </li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="mastering.html" class="font-bold">Mastering</a></li>
+                <li><a href="music.html">Music</a></li>
+                <li><a href="software.html">Software</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div id="content">
+            <h1 class="w-full text-5xl leading-tight px-4">Mastering</h1>
+            <div class="padding-above-border">
+                <div class="visual-container">
+                    <div class="flex flex-col sm:flex-row my-4 sm:my-4">
+                        <div class="px-4">
+                            <p class="text-base font-light">
+                                I have been mastering audio for upwards of four years now, working with a wide range of
+                                styles from
+                                underground electronica through to pop and acoustic. I'm particularly drawn to
+                                outdoor sound system
+                                culture,
+                                but have spent my fair share of time in the clubs as well.
+                                <br>
+                                <br>
+                                While I like to focus on stereo mastering, I am happy to work with stems for
+                                those looking for a more collaborative approach.
+                                <br>
+                                I use a fully digital, in-the-box setup, allowing for low costs and fast turnarounds.
+                                Because of this, my mastering chain is always evolving. If you want to know more
+                                about the tools I use just ask!
+                                <br>
+                                <br>
+                                Connect with me through <a href="mailto:keithunsheathed@gmail.com" target="_blank"
+                                    class="subtle-underline">email</a> or
+                                <a href="https://www.instagram.com/keithunsheathed" target="_blank"
+                                    class="subtle-underline">Instagram</a>. A <a
+                                    href="https://forms.gle/eX6ChXJJtzQWtVws7" target="_blank"
+                                    class="subtle-underline">Google form</a> is provided
+                                for additional details too. Please note that the
+                                form is for enquiry, not confirmation of service. I encourage an open line of
+                                communication at all stages.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="padding-below-border"></div>
+            </div>
+            <div class="visual-container-bottom">
+                <div id="bandcampGrid" class="px-4">
+                    <h2 class="mb-4">Past work: </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="songsGrid">
+                        <!-- Items will be added here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="padding-below-border"></div>
+            <script>
+                var links = [
+                    { id: 'playlists/1717724526', name: 'Sound Salad - Lettuce Begin', credits: 'Credits: Mastering', date: '2023-11-03', type: 'soundcloud' },
+                    { id: 'spotify:track:45qXRq6fkLxcA8i7N7PnDO', name: 'bobby mayo - Dance Attack!', credits: 'Credits: Mastering', date: '2023-09-29', type: 'spotify' },
+                    { id: 'tracks/1603868022', name: 'LŪNA - Funk', credits: 'Credits: Mastering', date: '2023-08-30', type: 'soundcloud' },
+                    { id: 'album=1182416007', name: 'Khz Collective - Various Artists: Vol. 2', credits: 'Credits: Mastering', date: '2023-08-25', type: 'bandcamp' },
+                    { id: 'album=1916604811', name: 'Sauin x Root Basis - Above the Abject Tide', credits: 'Credits: Co-Writing, Co-Mixing, Mastering', date: '2023-08-04', type: 'bandcamp' },
+                    { id: 'playlists/1546172593', name: 'Alley - snake oil', credits: 'Credits: Mastering', date: '2023-01-01', type: 'soundcloud' },
+                    { id: 'track=864865153', name: 'Sano - Scandi', credits: 'Credits: Mastering', date: '2022-12-24', type: 'bandcamp' },
+                    { id: 'album=2085826436', name: 'Keith - In a Crockpot', credits: 'Credits: Writing, Mixing, Mastering', date: '2022-03-04', type: 'bandcamp' },
+                    { id: 'tracks/1214910616', name: 'Sauin - Wharariki', credits: 'Credits: Mastering', date: '2023-02-13', type: 'soundcloud' },
+                    { id: 'album=2595562505', name: 'Grains - Dualism', credits: 'Credits: Mastering', date: '2021-11-27', type: 'bandcamp' },
+                    { id: 'tracks/1165075729', name: 'Sano - Lost Some Of Me', credits: 'Credits: Mastering', date: '2021-11-23', type: 'soundcloud' },
+                    { id: 'tracks/1164338554', name: 'PLISSKIN - Turn And Twist', credits: 'Credits: Mastering', date: '2021-11-21', type: 'soundcloud' },
+                    { id: 'album=343771191', name: 'DESTROY WITH SCIENCE - A New View', credits: 'Credits: Mastering', date: '2021-03-12', type: 'bandcamp' },
+                    { id: 'album=1891136990', name: 'Grains - ζ', credits: 'Credits: Mastering', date: '2020-09-19', type: 'bandcamp' },
+                ];
+
+                var linkColor = '63b2cc';
+
+                // Sort by date
+                links.sort(function (a, b) {
+                    return new Date(b.date) - new Date(a.date);
+                });
+
+
+                // Create a common iframe
+                function createIframe(src, allowAutoplay = false) {
+                    var iframe = document.createElement('iframe');
+                    iframe.style.cssText = 'border: 0; width: 100%; height: 100%;';
+                    iframe.src = src;
+                    if (allowAutoplay) {
+                        iframe.allow = 'autoplay';
+                    }
+                    return iframe;
+                }
+
+                // Create common elements for the embed
+                function createEmbedElements(item, iframeSrc, allowAutoplay = false) {
+                    var wrapperDiv = document.createElement('div');
+                    wrapperDiv.className = 'player-wrapper';
+
+                    var iframeDiv = document.createElement('div');
+                    iframeDiv.className = 'embed-responsive aspect-ratio-1/1';
+
+                    var iframe = createIframe(iframeSrc, allowAutoplay);
+                    iframeDiv.appendChild(iframe);
+
+                    wrapperDiv.appendChild(iframeDiv);
+                    wrapperDiv.appendChild(createElementWithText('div', item.name, 'album-name'));
+                    wrapperDiv.appendChild(createElementWithText('div', item.credits, 'credits'));
+
+                    return wrapperDiv;
+                }
+
+                // Create an element with text
+                function createElementWithText(tag, text, className) {
+                    var element = document.createElement(tag);
+                    element.textContent = text;
+                    element.className = className;
+                    return element;
+                }
+
+                // Create an embed based on item type
+                function createEmbed(item) {
+                    var embedSrc = '';
+                    if (item.type === 'bandcamp') {
+                        embedSrc = `https://bandcamp.com/EmbeddedPlayer/${item.id}/size=large/bgcol=333333/linkcol=${linkColor}/tracklist=false/transparent=true/`;
+                    } else if (item.type === 'soundcloud') {
+                        embedSrc = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/${item.id}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
+                    } else if (item.type === 'spotify') {
+                        // Convert Spotify URI to a format suitable for embedding
+                        var spotifyURI = item.id.replace(/:/g, '/');
+                        embedSrc = `https://open.spotify.com/embed/${spotifyURI.split('spotify/')[1]}`;
+                    }
+                    return createEmbedElements(item, embedSrc);
+                }
+
+                // Add all iframes to the grid
+                function populateGrid() {
+                    var grid = document.getElementById('songsGrid');
+                    links.forEach(function (item) {
+                        grid.appendChild(createEmbed(item));
+                    });
+                }
+
+                // Populate the grid when the page loads
+                window.onload = populateGrid;
+            </script>
+        </div>
+    </div>
+    <script src="script.js" async></script>
+</body>
+
+</html>
