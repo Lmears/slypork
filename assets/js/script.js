@@ -4,15 +4,23 @@ var homeLogo = document.querySelector('.home-logo');
 
 var isHovering = false;
 
-function getLogoPath(file) {
+function getBaseURL() {
+    // Get the current relative path from the root of the domain
     var path = window.location.pathname;
+    // Count the number of slashes to determine the depth
     var depth = (path.match(/\//g) || []).length;
+    // At root (e.g., /index.html or /<repository>/index.html), depth will be 1 or 2 respectively
+    var atRoot = (path.endsWith('/') || path.endsWith('index.html'));
+    var atGitHubPagesRoot = path.includes('/slypork-studio/') && atRoot;
 
-    // Check if running on GitHub Pages and adjust the depth accordingly
-    var onGitHubPages = path.includes('/<repository>/'); // Replace <repository> with your actual repository name
-    var pathPrefix = depth > (onGitHubPages ? 2 : 1) ? '../' : './';
+    // On GitHub Pages, the root will be /<repository-name>/, so depth will be 2
+    var pathPrefix = (depth === 1 || atGitHubPagesRoot) ? './' : '../';
+    return pathPrefix + 'assets/images/';
+}
 
-    return pathPrefix + 'assets/images/' + file;
+function getLogoPath(file) {
+    var baseURL = getBaseURL();
+    return baseURL + file;
 }
 
 
