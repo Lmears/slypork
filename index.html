@@ -13,9 +13,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="./assets/css/styles.css">
     <style>
-        @media (max-width: 576px) {
+        @media (max-width: 750px) {
             nav {
-                padding-top: 9rem !important;
+                padding-top: 6rem !important;
+            }
+
+            #hamburger-menu {
+                display: block;
+                /* Show hamburger menu */
+            }
+
+            /* Ensure all links except the first are hidden */
+            nav ul li:not(:first-child) {
+                display: none;
+                /* Hide all links except the first one (home) */
+            }
+
+            /* Additional styles for when the menu is active */
+            nav.nav-active ul li:not(:first-child) {
+                display: block;
+                /* Show links */
+            }
+
+            nav ul {
+                display: flex;
+                flex-direction: column !important;
+                justify-content: space-around;
+                align-items: center;
+            }
+
+            nav {
+                padding-bottom: 3rem !important;
+            }
+
+            .home-logo {
+                /* width: 80px !important; */
+                min-width: 80px !important;
             }
 
             /* Other adjustments for mobile view */
@@ -25,17 +58,18 @@
 
 <body class="bg-gray-800 text-gray-300">
     <div id="container">
-        <nav>
+        <nav class="nav-active">
+            <div id="hamburger-menu">&#9776;</div>
             <ul>
                 <li> <a href="./" id="homeLink">
                         <img src="./assets/images/home.png" alt="Home" class="home-logo">
                     </a>
                 </li>
-                <li><a href="./about/">About</a></li>
-                <li><a href="./mastering/">Mastering</a></li>
-                <li><a href="./music/">Music</a></li>
-                <li><a href="./software/">Software</a></li>
-                <li><a href="./contact/">Contact</a></li>
+                <li><a href="./about/"><span class="nav-link-text">About</span></a></li>
+                <li><a href="./mastering/"><span class="nav-link-text">Mastering</span></a></li>
+                <li><a href="./music/"><span class="nav-link-text">Music</span></a></li>
+                <li><a href="./software/"><span class="nav-link-text">Software</span></a></li>
+                <li><a href="./contact/"><span class="nav-link-text">Contact</span></a></li>
             </ul>
 
             <!-- Social Media Links -->
@@ -55,7 +89,7 @@
             slypork.studio
         </footer>
     </div>
-    <script src="./assets/js/script.js" async></script>
+    <script src="./assets/js/script.js"></script>
 </body>
 
 </html>

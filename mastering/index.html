@@ -37,16 +37,17 @@
 <body class="bg-gray-800 text-gray-300">
     <div id="container">
         <nav>
+            <div id="hamburger-menu">&#9776;</div>
             <ul>
                 <li> <a href=".." id="homeLink">
                         <img src="../assets/images/home.png" alt="Home" class="home-logo">
                     </a>
                 </li>
-                <li><a href="../about/">About</a></li>
-                <li><a href="./" class="font-bold">Mastering</a></li>
-                <li><a href="../music/">Music</a></li>
-                <li><a href="../software/">Software</a></li>
-                <li><a href="../contact/">Contact</a></li>
+                <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
+                <li><a href="./" class="selected"><span class="nav-link-text">Mastering</span></a></li>
+                <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
+                <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
+                <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
             </ul>
         </nav>
         <div id="content">
@@ -187,7 +188,7 @@
             </script>
         </div>
     </div>
-    <script src="../assets/js/script.js" async></script>
+    <script src="../assets/js/script.js"></script>
 </body>
 
 </html>
