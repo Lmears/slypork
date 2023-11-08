@@ -5,22 +5,22 @@ var homeLogo = document.querySelector('.home-logo');
 var isHovering = false;
 
 homeLink.addEventListener('mouseover', function () {
-    homeLogo.src = 'assets/images/home-hover.png';
+    homeLogo.src = '../assets/images/home-hover.png';
     isHovering = true;
 });
 
 homeLink.addEventListener('mouseout', function () {
-    homeLogo.src = 'assets/images/home.png';
+    homeLogo.src = '../assets/images/home.png';
     isHovering = false;
 });
 
 homeLink.addEventListener('mousedown', function () {
-    homeLogo.src = 'assets/images/home.png';
+    homeLogo.src = '../assets/images/home.png';
 });
 
 homeLink.addEventListener('mouseup', function () {
     if (isHovering) {
-        homeLogo.src = 'assets/images/home-hover.png';
+        homeLogo.src = '../assets/images/home-hover.png';
     }
 });
 
