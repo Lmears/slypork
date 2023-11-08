@@ -4,23 +4,33 @@ var homeLogo = document.querySelector('.home-logo');
 
 var isHovering = false;
 
+function getLogoPath(file) {
+    // Get the current relative path from the root of the domain
+    var path = window.location.pathname;
+    // Count the number of slashes to determine the depth
+    var depth = (path.match(/\//g) || []).length;
+    // At root (e.g., /index.html), no need to go up a directory
+    var pathPrefix = depth > 1 ? '../' : './';
+    return pathPrefix + 'assets/images/' + file;
+}
+
 homeLink.addEventListener('mouseover', function () {
-    homeLogo.src = '../assets/images/home-hover.png';
+    homeLogo.src = getLogoPath('home-hover.png');
     isHovering = true;
 });
 
 homeLink.addEventListener('mouseout', function () {
-    homeLogo.src = '../assets/images/home.png';
+    homeLogo.src = getLogoPath('home.png');
     isHovering = false;
 });
 
 homeLink.addEventListener('mousedown', function () {
-    homeLogo.src = '../assets/images/home.png';
+    homeLogo.src = getLogoPath('home.png');
 });
 
 homeLink.addEventListener('mouseup', function () {
     if (isHovering) {
-        homeLogo.src = '../assets/images/home-hover.png';
+        homeLogo.src = getLogoPath('home-hover.png');
     }
 });
 
