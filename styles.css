@@ -6,6 +6,7 @@ body {
     font-family: sans-serif;
     font-size: 125%;
     scrollbar-gutter: stable both-edges;
+    background-color: rgb(31 41 55);
 }
 
 /* Firefox */
