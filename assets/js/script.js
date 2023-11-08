@@ -5,7 +5,12 @@ var homeLogo = document.querySelector('.home-logo');
 var isHovering = false;
 
 function getLogoPath(file) {
-    var baseURL = 'assets/images/';
+    // This variable will check if the pathname is exactly '/' 
+    // or '/<repository-name>/' for GitHub Pages
+    var atRoot = window.location.pathname === '/' || window.location.pathname === '/slypork-studio/';
+
+    // If we're at the root, we use 'assets/images/', else '../assets/images/'
+    var baseURL = atRoot ? 'assets/images/' : '../assets/images/';
     return baseURL + file;
 }
 
