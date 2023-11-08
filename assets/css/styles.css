@@ -100,7 +100,7 @@ h1 {
     }
 
     nav {
-        padding-bottom: 3rem !important;
+        padding-bottom: 1.5rem !important;
     }
 
     .home-logo {
@@ -136,9 +136,14 @@ h1 {
         /* flex-wrap: wrap; */
     }
 
-    h1,
+
     nav ul li a {
         font-size: smaller;
+    }
+
+    #content h1.text-5xl {
+        font-size: 1.875rem;
+        transform: translateY(1rem);
     }
 
     nav ul li {
