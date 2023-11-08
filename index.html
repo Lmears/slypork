@@ -20,38 +20,24 @@
 
             #hamburger-menu {
                 display: block;
-                /* Show hamburger menu */
             }
 
-            /* Ensure all links except the first are hidden */
             nav ul li:not(:first-child) {
                 display: none;
-                /* Hide all links except the first one (home) */
             }
 
-            /* Additional styles for when the menu is active */
             nav.nav-active ul li:not(:first-child) {
                 display: block;
-                /* Show links */
             }
 
             nav ul {
-                display: flex;
                 flex-direction: column !important;
-                justify-content: space-around;
                 align-items: center;
             }
 
-            nav {
-                padding-bottom: 3rem !important;
-            }
-
             .home-logo {
-                /* width: 80px !important; */
                 min-width: 80px !important;
             }
-
-            /* Other adjustments for mobile view */
         }
     </style>
 </head>
