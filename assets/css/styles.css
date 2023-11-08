@@ -1,33 +1,13 @@
+/* Layout */
 html,
 body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 125%;
     scrollbar-gutter: stable both-edges;
     background-color: rgb(31 41 55);
-}
-
-/* Firefox */
-html {
-    scrollbar-width: thin;
-    scrollbar-color: #7a7f89 #35373b;
-}
-
-/* Webkit */
-::-webkit-scrollbar {
-    width: 12px;
-}
-
-::-webkit-scrollbar-track {
-    background: #35373b;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #7a7f89;
-    border-radius: 6px;
-    border: 3px solid #35373b;
 }
 
 #container {
@@ -51,22 +31,38 @@ h1 {
     min-width: 303.44px;
 }
 
+/* Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #7a7f89 #35373b;
+}
+
+/* Webkit */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #35373b;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #7a7f89;
+    border-radius: 6px;
+    border: 3px solid #35373b;
+}
+
+/* Mobile responsiveness */
 #hamburger-menu {
     font-size: 36px;
-    /* Adjust size as needed */
     cursor: pointer;
     display: none;
-    /* Initially hidden */
     position: absolute;
     top: 0;
     right: 0;
     padding: 0.625rem 1.25rem;
     z-index: 1000;
-    /* Ensuring it's above other elements */
     color: rgba(209, 213, 219);
-    /* Making sure it's visible, set a contrasting color if necessary */
-    /* background: rgba(0, 0, 0, 0.5); */
-    /* Optional: Adds a background to make it stand out */
 }
 
 #hamburger-menu:hover {
@@ -77,19 +73,14 @@ h1 {
 
     #hamburger-menu {
         display: block;
-        /* Show hamburger menu */
     }
 
-    /* Ensure all links except the first are hidden */
     nav ul li:not(:first-child) {
         display: none;
-        /* Hide all links except the first one (home) */
     }
 
-    /* Additional styles for when the menu is active */
     nav.nav-active ul li:not(:first-child) {
         display: block;
-        /* Show links */
     }
 
     nav ul {
@@ -104,11 +95,8 @@ h1 {
     }
 
     .home-logo {
-        /* width: 80px !important; */
         min-width: 80px !important;
     }
-
-    /* Other adjustments for mobile view */
 }
 
 @media (max-width: 750px) {
@@ -120,7 +108,6 @@ h1 {
     .home-logo {
         padding-bottom: 10px !important;
         max-width: 48px;
-        /* max-width: 48px; */
     }
 
     #content,
@@ -133,7 +120,6 @@ h1 {
         display: flex;
         flex-direction: row;
         justify-content: center;
-        /* flex-wrap: wrap; */
     }
 
 
@@ -151,19 +137,14 @@ h1 {
     }
 
     .nav-link-text {
-        /* Set a fixed width suitable for your longest item */
         text-align: center !important;
-        /* Center the text if that's what you want */
     }
-
-    /* Other adjustments for mobile view */
 }
 
 /* Nav bar */
 nav {
     display: flex;
     flex-direction: column;
-    /* height: 100%; */
     padding: 0.75rem 0;
     min-width: 170px;
 }
@@ -181,21 +162,19 @@ nav ul li {
 .nav-link-text {
     display: block;
     width: 92.22px;
-    /* Set a fixed width suitable for your longest item */
     text-align: start;
-    /* Center the text if that's what you want */
 }
 
 nav ul li a {
     display: inline-block;
     text-decoration: none;
     color: inherit;
-    font-weight: 100;
+    font-weight: 200;
 }
 
 nav ul li a.selected .nav-link-text {
     font-weight: bold;
-    text-indent: -1.5px;
+    text-indent: -1px;
 }
 
 
@@ -204,7 +183,6 @@ nav ul li a:hover {
 }
 
 .home-logo {
-    /* min-width: 48px; */
     width: 80px;
     padding-bottom: 60px;
 }
