@@ -1,3 +1,5 @@
+console.log('Script is running');
+
 // Home image animation
 var homeLink = document.getElementById('homeLink');
 var homeLogo = document.querySelector('.home-logo');
@@ -36,33 +38,50 @@ homeLink.addEventListener('mouseup', function () {
 });
 
 
-
 // Lightbox modal
 var modal = document.getElementById("myModal");
 var img = document.querySelector('.modal-trigger');
 var modalImg = document.getElementById("img01");
-img.onclick = function () {
-    modal.style.display = "block";
-    modalImg.src = this.src;
-    captionText.innerHTML = this.alt;
-}
 
-var span = document.getElementsByClassName("close")[0];
-
-span.onclick = function () {
-    modal.style.display = "none";
-}
-
-window.onclick = function (event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
+// Only set up the modal if the elements exist
+if (modal && img && modalImg) {
+    img.onclick = function () {
+        modal.style.display = "block";
+        modalImg.src = this.src;
     }
-}
 
-document.onkeydown = function (event) {
-    if (event.key === "Escape") {
-        if (modal.style.display === "block") {
+    var span = document.getElementsByClassName("close")[0];
+
+    if (span) {
+        span.onclick = function () {
             modal.style.display = "none";
         }
     }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.onkeydown = function (event) {
+        if (event.key === "Escape") {
+            if (modal && modal.style.display === "block") {
+                modal.style.display = "none";
+            }
+        }
+    }
 }
+
+
+
+// Hamburger menu
+document.addEventListener('DOMContentLoaded', function () {
+    var hamburger = document.getElementById('hamburger-menu');
+    var nav = document.querySelector('nav');
+
+    hamburger.addEventListener('click', function () {
+        console.log('Hamburger clicked');
+        nav.classList.toggle('nav-active');
+    });
+});

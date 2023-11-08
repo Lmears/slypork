@@ -51,7 +51,46 @@ h1 {
     min-width: 303.44px;
 }
 
+#hamburger-menu {
+    font-size: 36px;
+    /* Adjust size as needed */
+    cursor: pointer;
+    display: none;
+    /* Initially hidden */
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.625rem 1.25rem;
+    z-index: 1000;
+    /* Ensuring it's above other elements */
+    color: rgba(209, 213, 219);
+    /* Making sure it's visible, set a contrasting color if necessary */
+    /* background: rgba(0, 0, 0, 0.5); */
+    /* Optional: Adds a background to make it stand out */
+}
+
+#hamburger-menu:hover {
+    color: rgba(209, 213, 219, 0.75);
+}
+
 @media (max-width: 576px) {
+
+    #hamburger-menu {
+        display: block;
+        /* Show hamburger menu */
+    }
+
+    /* Ensure all links except the first are hidden */
+    nav ul li:not(:first-child) {
+        display: none;
+        /* Hide all links except the first one (home) */
+    }
+
+    /* Additional styles for when the menu is active */
+    nav.nav-active ul li:not(:first-child) {
+        display: block;
+        /* Show links */
+    }
 
     nav ul {
         display: flex;
@@ -62,6 +101,11 @@ h1 {
 
     nav {
         padding-bottom: 3rem !important;
+    }
+
+    .home-logo {
+        /* width: 80px !important; */
+        min-width: 80px !important;
     }
 
     /* Other adjustments for mobile view */
@@ -75,6 +119,7 @@ h1 {
 
     .home-logo {
         padding-bottom: 10px !important;
+        max-width: 48px;
         /* max-width: 48px; */
     }
 
@@ -97,7 +142,13 @@ h1 {
     }
 
     nav ul li {
-        padding: 0.125rem 0.5rem !important;
+        padding: 0.125rem 0rem !important;
+    }
+
+    .nav-link-text {
+        /* Set a fixed width suitable for your longest item */
+        text-align: center !important;
+        /* Center the text if that's what you want */
     }
 
     /* Other adjustments for mobile view */
@@ -122,6 +173,14 @@ nav ul li {
     padding: 0.625rem 1.25rem;
 }
 
+.nav-link-text {
+    display: block;
+    width: 92.22px;
+    /* Set a fixed width suitable for your longest item */
+    text-align: start;
+    /* Center the text if that's what you want */
+}
+
 nav ul li a {
     display: inline-block;
     text-decoration: none;
@@ -129,12 +188,18 @@ nav ul li a {
     font-weight: 100;
 }
 
+nav ul li a.selected .nav-link-text {
+    font-weight: bold;
+    text-indent: -1.5px;
+}
+
+
 nav ul li a:hover {
     color: rgba(209, 213, 219, 0.75);
 }
 
 .home-logo {
-    min-width: 48px;
+    /* min-width: 48px; */
     width: 80px;
     padding-bottom: 60px;
 }
