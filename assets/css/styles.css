@@ -99,7 +99,7 @@ html {
     }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 768px) {
     #container {
         flex-direction: column;
         padding: 1rem;
@@ -305,4 +305,9 @@ nav ul li a:hover {
     color: #bbb;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Font awesome styling */
+.fa-code {
+    transform: scale(0.9);
 }
