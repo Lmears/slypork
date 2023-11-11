@@ -36,10 +36,10 @@
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <main id="container">
+    <main id="container" class="flex p-10 max-w-7xl mx-auto">
         <header>
-            <nav>
-                <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
+            <nav class="py-3 flex flex-col">
+                <button id="hamburger-menu" aria-label="Menu" class="sm:block">&#9776;</button>
                 <ul>
                     <li> <a href=".." id="homeLink">
                             <img src="../assets/images/home.png" alt="Home" class="home-logo">
@@ -53,9 +53,9 @@
                 </ul>
             </nav>
         </header>
-        <section id="content">
+        <section id="content" class="flex-1 p-5 flex flex-col">
             <h1 class="w-full text-5xl leading-tight px-4">Mastering</h1>
-            <div class="padding-above-border">
+            <div class="pt-12">
                 <article id="blurb">
                     <div class="visual-container">
                         <div class="flex flex-col sm:flex-row my-4 sm:my-4">
@@ -93,7 +93,7 @@
                         </div>
                 </article>
             </div>
-            <div class="padding-below-border"></div>
+            <div class="pb-12"></div>
             </article>
             <section id="playerGrid" class="visual-container-bottom">
                 <div class="px-4">
@@ -103,7 +103,7 @@
                     </div>
                 </div>
             </section>
-            <div class="padding-below-border"></div>
+            <div class="pb-12"></div>
             <script>
                 var links = [
                     { id: 'playlists/1717724526', name: 'Sound Salad - Lettuce Begin', credits: 'Credits: Mastering', date: '2023-11-03', type: 'soundcloud' },
