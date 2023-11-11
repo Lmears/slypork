@@ -37,7 +37,7 @@ html {
     scrollbar-color: #7a7f89 #35373b;
 }
 
-/* Webkit */
+/* Webkit scrollbar */
 ::-webkit-scrollbar {
     width: 12px;
 }
@@ -50,6 +50,11 @@ html {
     background-color: #7a7f89;
     border-radius: 6px;
     border: 3px solid #35373b;
+}
+
+/* Common Cursor */
+.cursor-pointer {
+    cursor: pointer;
 }
 
 /* Mobile responsiveness */
@@ -67,6 +72,52 @@ html {
 
 #hamburger-menu:hover {
     color: rgba(209, 213, 219, 0.75);
+}
+
+/* Nav bar */
+nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 0;
+    min-width: 170px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    padding: 0.625rem 1.25rem;
+}
+
+.nav-link-text {
+    display: block;
+    width: 92.22px;
+    text-align: start;
+}
+
+nav ul li a {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 100;
+}
+
+nav ul li a.selected .nav-link-text {
+    font-weight: 500;
+    text-indent: -1px;
+}
+
+
+nav ul li a:hover {
+    color: rgba(209, 213, 219, 0.75);
+}
+
+.home-logo {
+    width: 80px;
+    padding-bottom: 60px;
 }
 
 @media (max-width: 576px) {
@@ -119,7 +170,7 @@ html {
     nav ul {
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        justify-content: space-between;
     }
 
 
@@ -139,52 +190,6 @@ html {
     .nav-link-text {
         text-align: center !important;
     }
-}
-
-/* Nav bar */
-nav {
-    display: flex;
-    flex-direction: column;
-    padding: 0.75rem 0;
-    min-width: 170px;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-nav ul li {
-    padding: 0.625rem 1.25rem;
-}
-
-.nav-link-text {
-    display: block;
-    width: 92.22px;
-    text-align: start;
-}
-
-nav ul li a {
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    font-weight: 200;
-}
-
-nav ul li a.selected .nav-link-text {
-    font-weight: bold;
-    text-indent: -1px;
-}
-
-
-nav ul li a:hover {
-    color: rgba(209, 213, 219, 0.75);
-}
-
-.home-logo {
-    width: 80px;
-    padding-bottom: 60px;
 }
 
 /* Container with border */
@@ -210,8 +215,7 @@ nav ul li a:hover {
 
 /* Links */
 .subtle-underline {
-    text-decoration-color: rgba(209, 213, 219);
-    font-weight: bold;
+    font-weight: 500;
 }
 
 .subtle-underline:hover {
@@ -220,14 +224,10 @@ nav ul li a:hover {
     text-underline-offset: 3px;
 }
 
-.hover-effect:hover {
+.hover-effect:hover,
+.hover-effect:hover .project-name {
     color: rgba(209, 213, 219, 0.75);
 }
-
-.hover-effect:hover .artist-name {
-    color: rgba(209, 213, 219, 0.75);
-}
-
 
 /* Content squares */
 .aspect-ratio-1\/1 {
@@ -269,10 +269,6 @@ nav ul li a:hover {
     max-width: 700px;
 }
 
-.modal-trigger {
-    cursor: pointer;
-}
-
 /* Modal caption */
 #caption {
     margin: auto;
@@ -297,14 +293,12 @@ nav ul li a:hover {
     transition: color 0.2s;
     background: transparent;
     border: none;
-    cursor: pointer;
 }
 
 .close:hover,
 .close:focus {
     color: #bbb;
     text-decoration: none;
-    cursor: pointer;
 }
 
 /* Font awesome styling */
