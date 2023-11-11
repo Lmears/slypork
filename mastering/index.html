@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -17,14 +17,14 @@
             margin-bottom: 1rem;
         }
 
-        .album-name,
+        .release-name,
         .credits {
             color: rgba(209, 213, 219);
             text-align: start;
             font-size: 0.8em;
         }
 
-        .album-name {
+        .release-name {
             padding-top: 0.5rem;
         }
 
@@ -36,67 +36,73 @@
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <div id="container">
-        <nav>
-            <div id="hamburger-menu">&#9776;</div>
-            <ul>
-                <li> <a href=".." id="homeLink">
-                        <img src="../assets/images/home.png" alt="Home" class="home-logo">
-                    </a>
-                </li>
-                <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
-                <li><a href="./" class="selected"><span class="nav-link-text">Mastering</span></a></li>
-                <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
-                <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
-                <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
-            </ul>
-        </nav>
-        <div id="content">
+    <main id="container">
+        <header>
+            <nav>
+                <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
+                <ul>
+                    <li> <a href=".." id="homeLink">
+                            <img src="../assets/images/home.png" alt="Home" class="home-logo">
+                        </a>
+                    </li>
+                    <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
+                    <li><a href="./" class="selected"><span class="nav-link-text">Mastering</span></a></li>
+                    <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
+                    <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
+                    <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content">
             <h1 class="w-full text-5xl leading-tight px-4">Mastering</h1>
             <div class="padding-above-border">
-                <div class="visual-container">
-                    <div class="flex flex-col sm:flex-row my-4 sm:my-4">
-                        <div class="px-4">
-                            <p class="text-base font-light">
-                                I have been mastering audio for upwards of four years now, working with a wide range of
-                                styles from
-                                underground electronica through to pop and acoustic. I'm particularly drawn to
-                                outdoor sound system
-                                culture,
-                                but have spent my fair share of time in the clubs as well.
-                                <br>
-                                <br>
-                                While I like to focus on stereo mastering, I am happy to work with stems for
-                                those looking for a more collaborative approach.
-                                <br>
-                                I use a fully digital, in-the-box setup, allowing for low costs and fast turnarounds.
-                                Because of this, my mastering chain is always evolving. If you want to know more
-                                about the tools I use just ask!
-                                <br>
-                                <br>
-                                Connect with me through <a href="mailto:mastering@slypork.net" target="_blank"
-                                    class="subtle-underline">email</a> or
-                                <a href="https://www.instagram.com/keithunsheathed" target="_blank"
-                                    class="subtle-underline">Instagram</a>. A <a
-                                    href="https://forms.gle/eX6ChXJJtzQWtVws7" target="_blank"
-                                    class="subtle-underline">Google form</a> is provided
-                                for additional details too. Please note that the
-                                form is for enquiry, not confirmation of service. I encourage an open line of
-                                communication at all stages.
-                            </p>
+                <article id="blurb">
+                    <div class="visual-container">
+                        <div class="flex flex-col sm:flex-row my-4 sm:my-4">
+                            <div class="px-4">
+                                <p class="text-base font-light">
+                                    I have been mastering audio for upwards of four years now, working with a wide range
+                                    of
+                                    styles from
+                                    underground electronica through to pop and acoustic. I'm particularly drawn to
+                                    outdoor sound system
+                                    culture,
+                                    but have spent my fair share of time in the clubs as well.
+                                    <br>
+                                    <br>
+                                    While I like to focus on stereo mastering, I am happy to work with stems for
+                                    those looking for a more collaborative approach.
+                                    <br>
+                                    I use a fully digital, in-the-box setup, allowing for low costs and fast
+                                    turnarounds.
+                                    Because of this, my mastering chain is always evolving. If you want to know more
+                                    about the tools I use just ask!
+                                    <br>
+                                    <br>
+                                    Connect with me through <a href="mailto:mastering@slypork.net" target="_blank"
+                                        class="subtle-underline">email</a> or
+                                    <a href="https://www.instagram.com/keithunsheathed" target="_blank"
+                                        class="subtle-underline">Instagram</a>. A <a
+                                        href="https://forms.gle/eX6ChXJJtzQWtVws7" target="_blank"
+                                        class="subtle-underline">Google form</a> is provided
+                                    for additional details too. Please note that the
+                                    form is for enquiry, not confirmation of service. I encourage an open line of
+                                    communication at all stages.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="padding-below-border"></div>
+                </article>
             </div>
-            <div class="visual-container-bottom">
-                <div id="bandcampGrid" class="px-4">
+            <div class="padding-below-border"></div>
+            </article>
+            <section id="playerGrid" class="visual-container-bottom">
+                <div class="px-4">
                     <h2 class="mb-4">Past work: </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="songsGrid">
                         <!-- Items will be added here by JavaScript -->
                     </div>
                 </div>
-            </div>
+            </section>
             <div class="padding-below-border"></div>
             <script>
                 var links = [
@@ -118,7 +124,6 @@
 
                 var linkColor = '63b2cc';
 
-                // Sort by date
                 links.sort(function (a, b) {
                     return new Date(b.date) - new Date(a.date);
                 });
@@ -147,7 +152,7 @@
                     iframeDiv.appendChild(iframe);
 
                     wrapperDiv.appendChild(iframeDiv);
-                    wrapperDiv.appendChild(createElementWithText('div', item.name, 'album-name'));
+                    wrapperDiv.appendChild(createElementWithText('div', item.name, 'release-name'));
                     wrapperDiv.appendChild(createElementWithText('div', item.credits, 'credits'));
 
                     return wrapperDiv;
@@ -187,8 +192,8 @@
                 // Populate the grid when the page loads
                 window.onload = populateGrid;
             </script>
-        </div>
-    </div>
+        </section>
+    </main>
     <script src="../assets/js/script.js"></script>
 </body>
 

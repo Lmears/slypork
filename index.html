@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -43,38 +43,32 @@
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <div id="container">
-        <nav class="nav-active">
-            <div id="hamburger-menu">&#9776;</div>
-            <ul>
-                <li> <a href="./" id="homeLink">
-                        <img src="./assets/images/home.png" alt="Home" class="home-logo">
-                    </a>
-                </li>
-                <li><a href="./about/"><span class="nav-link-text">About</span></a></li>
-                <li><a href="./mastering/"><span class="nav-link-text">Mastering</span></a></li>
-                <li><a href="./music/"><span class="nav-link-text">Music</span></a></li>
-                <li><a href="./software/"><span class="nav-link-text">Software</span></a></li>
-                <li><a href="./contact/"><span class="nav-link-text">Contact</span></a></li>
-            </ul>
+    <main id="container">
+        <header>
+            <nav class="nav-active">
+                <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
+                <ul>
+                    <li> <a href="./" id="homeLink">
+                            <img src="./assets/images/home.png" alt="Home" class="home-logo">
+                        </a>
+                    </li>
+                    <li><a href="./about/"><span class="nav-link-text">About</span></a></li>
+                    <li><a href="./mastering/"><span class="nav-link-text">Mastering</span></a></li>
+                    <li><a href="./music/"><span class="nav-link-text">Music</span></a></li>
+                    <li><a href="./software/"><span class="nav-link-text">Software</span></a></li>
+                    <li><a href="./contact/"><span class="nav-link-text">Contact</span></a></li>
+                </ul>
+            </nav>
+        </header>
 
-            <!-- Social Media Links -->
-            <!-- <ul class="social-media">
-                <li><a href="#" class="fab fa-facebook-f"></a></li>
-                <li><a href="#" class="fab fa-twitter"></a></li>
-                <li><a href="#" class="fab fa-instagram"></a></li>
-                <li><a href="#" class="fab fa-youtube"></a></li>
-            </ul> -->
-        </nav>
-
-        <div id="content" style="padding: 1;">
-            <!-- Your Content Here -->
-        </div>
+        <section id="content">
+            <!-- Content Here -->
+        </section>
 
         <footer class="text-center py-4 px-5" style="font-size:larger">
             slypork.net
         </footer>
-    </div>
+    </main>
     <script src="./assets/js/script.js"></script>
 </body>
 

@@ -1,4 +1,4 @@
-/* Layout */
+/* Base styles */
 html,
 body {
     height: 100%;
@@ -6,45 +6,27 @@ body {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 125%;
-    scrollbar-gutter: stable both-edges;
     background-color: rgb(31 41 55);
+    scrollbar-gutter: stable both-edges;
 }
 
-#container {
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-    padding: 2.5rem;
-    box-sizing: border-box;
-    max-width: 1160px;
-    margin: 0 auto;
-}
-
-#content {
-    flex: 1;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-}
-
-h1 {
-    min-width: 303.44px;
-}
-
-/* Firefox */
+/* Firefox scrollbar */
 html {
     scrollbar-width: thin;
     scrollbar-color: #7a7f89 #35373b;
 }
 
-/* Webkit */
+/* Webkit scrollbar */
 ::-webkit-scrollbar {
     width: 12px;
+    background: #35373b;
 }
+
 
 ::-webkit-scrollbar-track {
     background: #35373b;
 }
+
 
 ::-webkit-scrollbar-thumb {
     background-color: #7a7f89;
@@ -52,10 +34,92 @@ html {
     border: 3px solid #35373b;
 }
 
-/* Mobile responsiveness */
+/* Main container */
+#container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    max-width: 1160px;
+    margin: auto;
+    /* Simplified margin */
+}
+
+/* Content area */
+#content {
+    flex: 1;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Headings */
+h1 {
+    min-width: 303.44px;
+}
+
+/* Pointer cursor for interactive elements */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Navigation styles */
+nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 0;
+    min-width: 170px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    padding: 0.625rem 1.25rem;
+}
+
+nav ul li a {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 100;
+}
+
+.nav-link-text {
+    display: block;
+    width: 92.22px;
+    text-align: start;
+}
+
+/* Hover states */
+nav ul li a:hover,
+#hamburger-menu:hover,
+.subtle-underline:hover,
+.hover-effect:hover,
+.hover-effect:hover .project-name,
+.close:hover,
+.close:focus {
+    color: rgba(209, 213, 219, 0.75);
+}
+
+nav ul li a.selected .nav-link-text {
+    font-weight: 500;
+    text-indent: -1px;
+}
+
+/* Home logo styles */
+.home-logo {
+    width: 80px;
+    padding-bottom: 60px;
+}
+
+/* Hamburger menu */
 #hamburger-menu {
     font-size: 36px;
-    cursor: pointer;
     display: none;
     position: absolute;
     top: 0;
@@ -65,12 +129,8 @@ html {
     color: rgba(209, 213, 219);
 }
 
-#hamburger-menu:hover {
-    color: rgba(209, 213, 219, 0.75);
-}
-
+/* Media queries */
 @media (max-width: 576px) {
-
     #hamburger-menu {
         display: block;
     }
@@ -113,15 +173,14 @@ html {
     #content,
     .visual-container,
     .visual-container-bottom {
-        padding: 0rem;
+        padding: 0;
     }
 
     nav ul {
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        justify-content: space-between;
     }
-
 
     nav ul li a {
         font-size: smaller;
@@ -133,7 +192,7 @@ html {
     }
 
     nav ul li {
-        padding: 0.125rem 0rem !important;
+        padding: 0.125rem 0 !important;
     }
 
     .nav-link-text {
@@ -141,63 +200,16 @@ html {
     }
 }
 
-/* Nav bar */
-nav {
-    display: flex;
-    flex-direction: column;
-    padding: 0.75rem 0;
-    min-width: 170px;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-nav ul li {
-    padding: 0.625rem 1.25rem;
-}
-
-.nav-link-text {
-    display: block;
-    width: 92.22px;
-    text-align: start;
-}
-
-nav ul li a {
-    display: inline-block;
-    text-decoration: none;
-    color: inherit;
-    font-weight: 200;
-}
-
-nav ul li a.selected .nav-link-text {
-    font-weight: bold;
-    text-indent: -1px;
-}
-
-
-nav ul li a:hover {
-    color: rgba(209, 213, 219, 0.75);
-}
-
-.home-logo {
-    width: 80px;
-    padding-bottom: 60px;
-}
-
-/* Container with border */
-.visual-container {
-    border-top: 0.5px solid rgba(209, 213, 219, 0.5);
-    border-bottom: 0.5px solid rgba(209, 213, 219, 0.5);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
-
+/* Border container styles */
+.visual-container,
 .visual-container-bottom {
     border-bottom: 0.5px solid rgba(209, 213, 219, 0.5);
     padding-bottom: 1rem;
+}
+
+.visual-container {
+    border-top: 0.5px solid rgba(209, 213, 219, 0.5);
+    padding-top: 1rem;
 }
 
 .padding-above-border {
@@ -208,28 +220,17 @@ nav ul li a:hover {
     padding-bottom: 3rem;
 }
 
-/* Links */
+/* Link styles */
 .subtle-underline {
-    text-decoration-color: rgba(209, 213, 219);
-    font-weight: bold;
+    font-weight: 500;
 }
 
 .subtle-underline:hover {
-    text-decoration: underline;
-    text-decoration-thickness: 1.5px;
+    text-decoration: underline 1.5px;
     text-underline-offset: 3px;
 }
 
-.hover-effect:hover {
-    color: rgba(209, 213, 219, 0.75);
-}
-
-.hover-effect:hover .artist-name {
-    color: rgba(209, 213, 219, 0.75);
-}
-
-
-/* Content squares */
+/* Aspect ratio styles */
 .aspect-ratio-1\/1 {
     position: relative;
     width: 100%;
@@ -245,8 +246,7 @@ nav ul li a:hover {
     border-radius: 12px;
 }
 
-
-/* Modal (background) */
+/* Modal styles */
 .modal {
     display: none;
     position: fixed;
@@ -257,11 +257,9 @@ nav ul li a:hover {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-/* Modal content (image) */
 .modal-content {
     margin: auto;
     display: block;
@@ -269,11 +267,6 @@ nav ul li a:hover {
     max-width: 700px;
 }
 
-.modal-trigger {
-    cursor: pointer;
-}
-
-/* Modal caption */
 #caption {
     margin: auto;
     display: block;
@@ -286,7 +279,6 @@ nav ul li a:hover {
     font-style: italic;
 }
 
-/* Modal close button */
 .close {
     position: absolute;
     top: 10px;
@@ -297,17 +289,9 @@ nav ul li a:hover {
     transition: color 0.2s;
     background: transparent;
     border: none;
-    cursor: pointer;
 }
 
-.close:hover,
-.close:focus {
-    color: #bbb;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Font awesome styling */
+/* Font awesome icon */
 .fa-code {
     transform: scale(0.9);
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,500&display=swap">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <style>
-        .artist-container {
+        .project-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,98 +21,100 @@
             padding-top: 12px;
         }
 
-        .artist-logo {
+        .project-logo {
             width: 100%;
             max-width: 180px;
             margin-bottom: 1rem;
         }
 
-        .artist-name,
-        .artist-info {
+        .project-name,
+        .project-info {
             color: rgba(209, 213, 219);
-        }
-
-        .artist-name {
-            padding-top: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .project-name {
+            padding-top: 0.5rem;
             font-weight: 500;
         }
 
-        .artist-info {
+        .project-info {
             padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
     </style>
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <div id="container">
-        <nav>
-            <div id="hamburger-menu">&#9776;</div>
-            <ul>
-                <li> <a href=".." id="homeLink">
-                        <img src="../assets/images/home.png" alt="Home" class="home-logo">
-                    </a>
-                </li>
-                <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
-                <li><a href="../mastering/"><span class="nav-link-text">Mastering</span></a></li>
-                <li><a href="./" class="selected"><span class="nav-link-text">Music</span></a></li>
-                <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
-                <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
-            </ul>
-        </nav>
+    <main id="container">
+        <header>
+            <nav>
+                <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
+                <ul>
+                    <li> <a href=".." id="homeLink">
+                            <img src="../assets/images/home.png" alt="Home" class="home-logo">
+                        </a>
+                    </li>
+                    <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
+                    <li><a href="../mastering/"><span class="nav-link-text">Mastering</span></a></li>
+                    <li><a href="./" class="selected"><span class="nav-link-text">Music</span></a></li>
+                    <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
+                    <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
+                </ul>
+            </nav>
+        </header>
         <div id="content">
             <h1 class="w-full text-5xl leading-tight px-4">Music</h1>
             <div class="padding-above-border">
-                <div class="visual-container">
-                    <div class="flex flex-col my-4 sm:my-4">
-                        <div class="px-4">
-                            <div class="mb-4">My projects:</div>
-                            <div class="text-base font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
-                                <div class="artist-container">
-                                    <a href="https://linktr.ee/keithunsheathed" title="Keith" target="_blank"
-                                        class="hover-effect">
-                                        <img src="../assets/images/project-logos/keith.png" alt="Keith"
-                                            class="artist-logo">
-                                        <div class="artist-name">Keith</div>
-                                    </a>
-                                    <div class="artist-info text-xs">experimental • psychedelic • slambient • post core
+                <section id="links">
+                    <div class="visual-container">
+                        <div class="flex flex-col my-4 sm:my-4">
+                            <div class="px-4">
+                                <div class="mb-4">My projects:</div>
+                                <div class="text-base font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
+                                    <div class="project-container">
+                                        <a href="https://linktr.ee/keithunsheathed" title="Keith" target="_blank"
+                                            class="hover-effect">
+                                            <img src="../assets/images/project-logos/keith.png" alt="Keith"
+                                                class="project-logo">
+                                            <div class="project-name">Keith</div>
+                                        </a>
+                                        <div class="project-info text-xs">experimental • psychedelic • slambient • post
+                                            core
+                                        </div>
+                                    </div>
+                                    <div class="project-container">
+                                        <a href="https://linktr.ee/djpretence" title="DJ PRETENCE" target="_blank"
+                                            class="hover-effect">
+                                            <img src="../assets/images/project-logos/DJ-PRETENCE.png" alt="DJ PRETENCE"
+                                                class="project-logo">
+                                            <div class="project-name">DJ PRETENCE</div>
+                                        </a>
+                                        <div class="project-info text-xs">club • techno • trance • post goa
+                                        </div>
+                                    </div>
+                                    <div class="project-container">
+                                        <a href="https://linktr.ee/rootbasis" title="Root Basis" target="_blank"
+                                            class="hover-effect">
+                                            <img src="../assets/images/project-logos/Root-Basis.png" alt="Root Basis"
+                                                class="project-logo">
+                                            <div class="project-name">Root Basis</div>
+                                        </a>
+                                        <div class="project-info text-xs">ambient • dub techno / house • bass adjacent •
+                                            post dub
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="artist-container">
-                                    <a href="https://linktr.ee/djpretence" title="DJ PRETENCE" target="_blank"
-                                        class="hover-effect">
-                                        <img src="../assets/images/project-logos/DJ-PRETENCE.png" alt="DJ PRETENCE"
-                                            class="artist-logo">
-                                        <div class="artist-name">DJ PRETENCE</div>
-                                    </a>
-                                    <div class="artist-info text-xs">club • techno • trance • post goa
-                                    </div>
-                                </div>
-                                <div class="artist-container">
-                                    <a href="https://linktr.ee/rootbasis" title="Root Basis" target="_blank"
-                                        class="hover-effect">
-                                        <img src="../assets/images/project-logos/Root-Basis.png" alt="Root Basis"
-                                            class="artist-logo">
-                                        <div class="artist-name">Root Basis</div>
-                                    </a>
-                                    <div class="artist-info text-xs">ambient • dub techno / house • bass adjacent •
-                                        post dub
-                                    </div>
-                                </div>
-                            </div>
 
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="padding-below-border"></div>
+                    <div class="padding-below-border"></div>
+                </section>
             </div>
-            <div class="visual-container-bottom">
-                <div id="bandcampGrid" class="px-4">
+            <section id="playerGrid" class="visual-container-bottom">
+                <div class="px-4">
                     <h2 class="mb-4">Latest mixes: </h2>
                     <div class="mb-6 grid grid-cols-1 gap-8">
                         <div>
@@ -146,11 +148,10 @@
                                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1480906258&color=%231f2937&inverse=true&auto_play=false&show_user=true"></iframe>
                         </div>
                     </div>
-                </div>
-            </div>
+            </section>
             <div class="padding-below-border"></div>
         </div>
-    </div>
+    </main>
     <script src="../assets/js/script.js"></script>
 </body>
 
