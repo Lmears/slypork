@@ -38,6 +38,7 @@ html {
 #container {
     height: 100%;
     box-sizing: border-box;
+    max-width: 1160px;
 }
 
 /* Headings */
