@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -16,22 +16,24 @@
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <div id="container">
-        <nav>
-            <div id="hamburger-menu">&#9776;</div>
-            <ul>
-                <li> <a href=".." id="homeLink">
-                        <img src="../assets/images/home.png" alt="Home" class="home-logo">
-                    </a>
-                </li>
-                <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
-                <li><a href="../mastering/"><span class="nav-link-text">Mastering</span></a></li>
-                <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
-                <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
-                <li><a href="./" class="selected"><span class="nav-link-text">Contact</span></a></li>
-            </ul>
-        </nav>
-        <div id="content">
+    <main id="container">
+        <header>
+            <nav>
+                <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
+                <ul>
+                    <li> <a href=".." id="homeLink">
+                            <img src="../assets/images/home.png" alt="Home" class="home-logo">
+                        </a>
+                    </li>
+                    <li><a href="../about/"><span class="nav-link-text">About</span></a></li>
+                    <li><a href="../mastering/"><span class="nav-link-text">Mastering</span></a></li>
+                    <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
+                    <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
+                    <li><a href="./" class="selected"><span class="nav-link-text">Contact</span></a></li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content">
             <h1 class="w-full text-5xl leading-tight px-4">Contact</h1>
             <div class="padding-above-border">
                 <div class="visual-container">
@@ -39,35 +41,27 @@
                         <div class="px-4">
                             <p class="text-base font-light">
                                 <a href="mailto:mastering@slypork.net" class="hover-effect">
-                                    <i class="fas fa-headphones"></i> mastering@slypork.net
+                                    <i class="fas fa-headphones" style="width: 30px; text-align: center;"></i>
+                                    mastering@slypork.net
                                 </a>
                                 <br><br>
                                 <a href="mailto:bookings@slypork.net" class="hover-effect">
-                                    <i class="fas fa-calendar-check"></i> bookings@slypork.net
+                                    <i class="fas fa-calendar-check" style="width: 30px; text-align: center;"></i>
+                                    bookings@slypork.net
                                 </a>
                                 <br><br>
                                 <a href="mailto:dev@slypork.net" class="hover-effect">
-                                    <i class="fas fa-code"></i> dev@slypork.net
+                                    <i class="fas fa-code" style="width: 30px; text-align: center;"></i> dev@slypork.net
                                 </a>
-                                <!-- <br><br> -->
-                                <!-- <a href="https://www.instagram.com/keithunsheathed" target="_blank"
-                                    class="hover-effect">
-                                    <i class="fab fa-instagram"></i> keithunsheathed
-                                </a> -->
-                                <!-- <br><br> -->
-                                <!-- Linktree link with Font Awesome icon -->
-                                <!-- <a href="https://linktr.ee/keithunsheathed" target="_blank" class="hover-effect">
-                                    <i class="fas fa-link"></i> linktr.ee/keithunsheathed
-                                </a> -->
                             </p>
                         </div>
 
                     </div>
                 </div>
-                <div class="padding-below-border"></div>
             </div>
-        </div>
-    </div>
+            <div class="padding-below-border"></div>
+        </section>
+    </main>
     <script src="../assets/js/script.js"></script>
 </body>
 
