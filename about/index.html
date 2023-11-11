@@ -36,9 +36,9 @@
 </head>
 
 <body class="bg-gray-800 text-gray-300">
-    <main id="container">
+    <main id="container" class="flex p-10 max-w-7xl mx-auto">
         <header>
-            <nav>
+            <nav class="py-3 flex flex-col">
                 <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
                 <ul>
                     <li> <a href=".." id="homeLink">
@@ -53,9 +53,9 @@
                 </ul>
             </nav>
         </header>
-        <section id="content">
+        <section id="content" class="flex-1 p-5 flex flex-col">
             <h1 class="w-full text-5xl leading-tight px-4">About</h1>
-            <div class="padding-above-border">
+            <div class="pt-12">
                 <div class="visual-container">
                     <div class="flex flex-col sm:flex-row justify-center my-4 sm:my-4">
                         <div class="sm:w-2/3 px-4">
@@ -116,7 +116,7 @@
                     </div>
                 </div>
             </div>
-            <div class="padding-below-border"></div>
+            <div class="pb-12"></div>
         </section>
     </main>
     <script src="../assets/js/script.js"></script>
