@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var nav = document.querySelector('nav');
 
     hamburger.addEventListener('click', function () {
-        console.log('Hamburger clicked');
         nav.classList.toggle('nav-active');
     });
 });
