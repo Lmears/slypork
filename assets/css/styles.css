@@ -56,6 +56,11 @@ nav {
     min-width: 170px;
 }
 
+nav.nav-active {
+    margin-bottom: 0px;
+}
+
+
 nav ul {
     list-style: none;
     padding: 0;
@@ -136,10 +141,12 @@ nav ul li a.selected .nav-link-text {
 
     nav {
         padding-bottom: 1.5rem !important;
+        margin-bottom: -41.5px;
     }
 
     .home-logo {
         min-width: 80px !important;
+
     }
 }
 
