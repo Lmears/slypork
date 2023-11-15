@@ -113,7 +113,7 @@ nav ul li a.selected .nav-link-text {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 0.625rem 1.25rem;
+    padding: 1.25rem 1.25rem;
     z-index: 1000;
     color: rgba(209, 213, 219);
 }
@@ -137,15 +137,19 @@ nav ul li a.selected .nav-link-text {
         flex-direction: column !important;
         justify-content: space-around;
         align-items: center;
+        transform: translateY(-8px);
     }
+
 
     nav {
         padding-bottom: 1.5rem !important;
-        margin-bottom: -41.5px;
+        margin-bottom: -28.5px;
     }
 
     .home-logo {
-        min-width: 80px !important;
+        min-width: 64px !important;
+        /* transform: translateY(-8px); */
+        /* padding-bottom: 0px !important; */
 
     }
 }
