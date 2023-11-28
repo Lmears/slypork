@@ -106,6 +106,7 @@
             <div class="pb-12"></div>
             <script>
                 var links = [
+                    { id: 'album=1188484858', name: 'ACOLDPLACE - ACP 2.1', credits: 'Credits: Contributor, Mastering', date: '2023-12-01', type: 'bandcamp' },
                     { id: 'playlists/1717724526', name: 'Sound Salad - Lettuce Begin', credits: 'Credits: Mastering', date: '2023-11-03', type: 'soundcloud' },
                     { id: 'spotify:track:45qXRq6fkLxcA8i7N7PnDO', name: 'bobby mayo - Dance Attack!', credits: 'Credits: Mastering', date: '2023-09-29', type: 'spotify' },
                     { id: 'tracks/1603868022', name: 'LŪNA - Funk', credits: 'Credits: Mastering', date: '2023-08-30', type: 'soundcloud' },
@@ -127,7 +128,6 @@
                 links.sort(function (a, b) {
                     return new Date(b.date) - new Date(a.date);
                 });
-
 
                 // Create a common iframe
                 function createIframe(src, allowAutoplay = false) {
