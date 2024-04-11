@@ -41,6 +41,13 @@ html {
     max-width: 1160px;
 }
 
+/* Booking container */
+#booking-container {
+    height: 100%;
+    box-sizing: border-box;
+    max-width: 1160px;
+}
+
 /* Headings */
 h1 {
     min-width: 303.44px;
@@ -158,6 +165,15 @@ nav ul li a.selected .nav-link-text {
     #container {
         flex-direction: column;
         padding: 1rem;
+    }
+
+    #booking-container {
+        flex-direction: column;
+        padding-top: 1rem;
+        padding-right: 0.5rem;
+        padding-bottom: 1rem;
+        padding-left: 0.5rem;
+
     }
 
     .home-logo {
