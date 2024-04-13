@@ -1,0 +1,42 @@
+.project-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 12px;
+}
+
+.project-logo {
+    width: 100%;
+    max-width: 180px;
+    margin-bottom: 1rem;
+}
+
+.project-name,
+.project-info {
+    color: rgba(209, 213, 219);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.project-name {
+    padding-top: 0.5rem;
+    font-weight: 500;
+}
+
+.project-info {
+    padding-bottom: 0.5rem;
+}
+
+.soundcloud-artist {
+    font-size: 18px;
+    color: #d1d5db;
+    line-break: anywhere;
+    word-break: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: Interstate, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Garuda, Verdana, Tahoma, sans-serif;
+    font-weight: 100;
+}

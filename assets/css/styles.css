@@ -10,48 +10,39 @@ body {
     scrollbar-gutter: stable both-edges;
 }
 
-/* Firefox scrollbar */
-html {
-    scrollbar-width: thin;
-    scrollbar-color: #7a7f89 #35373b;
+/* Typography */
+h1 {
+    min-width: 303.44px;
 }
 
-/* Webkit scrollbar */
-::-webkit-scrollbar {
-    width: 12px;
-    background: #35373b;
+.subtle-underline {
+    font-weight: 500;
 }
 
-
-::-webkit-scrollbar-track {
-    background: #35373b;
+.subtle-underline:hover {
+    text-decoration: underline 1.5px;
+    text-underline-offset: 3px;
 }
 
-
-::-webkit-scrollbar-thumb {
-    background-color: #7a7f89;
-    border-radius: 6px;
-    border: 3px solid #35373b;
-}
-
-/* Main container */
+/* Layout */
 #container {
     height: 100%;
     box-sizing: border-box;
     max-width: 1160px;
 }
 
-/* Headings */
-h1 {
-    min-width: 303.44px;
+.visual-container,
+.visual-container-bottom {
+    border-bottom: 0.5px solid rgba(209, 213, 219, 0.5);
+    padding-bottom: 1rem;
 }
 
-/* Pointer cursor for interactive elements */
-.cursor-pointer {
-    cursor: pointer;
+.visual-container {
+    border-top: 0.5px solid rgba(209, 213, 219, 0.5);
+    padding-top: 1rem;
 }
 
-/* Navigation styles */
+/* Navigation */
 nav {
     min-width: 170px;
 }
@@ -59,7 +50,6 @@ nav {
 nav.nav-active {
     margin-bottom: 0px;
 }
-
 
 nav ul {
     list-style: none;
@@ -84,23 +74,12 @@ nav ul li a {
     text-align: start;
 }
 
-/* Hover states */
-nav ul li a:hover,
-#hamburger-menu:hover,
-.subtle-underline:hover,
-.hover-effect:hover,
-.hover-effect:hover .project-name,
-.close:hover,
-.close:focus {
-    color: rgba(209, 213, 219, 0.75);
-}
-
 nav ul li a.selected .nav-link-text {
     font-weight: 500;
     text-indent: -1px;
 }
 
-/* Home logo styles */
+/* Home logo */
 .home-logo {
     width: 80px;
     padding-bottom: 60px;
@@ -118,111 +97,23 @@ nav ul li a.selected .nav-link-text {
     color: rgba(209, 213, 219);
 }
 
-/* Media queries */
-@media (max-width: 576px) {
-    #hamburger-menu {
-        display: block;
-    }
-
-    nav ul li:not(:first-child) {
-        display: none;
-    }
-
-    nav.nav-active ul li:not(:first-child) {
-        display: block;
-    }
-
-    nav ul {
-        display: flex;
-        flex-direction: column !important;
-        justify-content: space-around;
-        align-items: center;
-        transform: translateY(-8px);
-    }
-
-
-    nav {
-        padding-bottom: 1.5rem !important;
-        margin-bottom: -28.5px;
-    }
-
-    .home-logo {
-        min-width: 64px !important;
-        /* transform: translateY(-8px); */
-        /* padding-bottom: 0px !important; */
-
-    }
+/* Cursor */
+.cursor-pointer {
+    cursor: pointer;
 }
 
-@media (max-width: 768px) {
-
-
-    #container {
-        flex-direction: column;
-        padding-top: 1rem;
-        padding-right: 0.5rem;
-        padding-bottom: 1rem;
-        padding-left: 0.5rem;
-    }
-
-    .home-logo {
-        padding-bottom: 10px !important;
-        max-width: 48px;
-    }
-
-    #content,
-    .visual-container,
-    .visual-container-bottom {
-        padding: 0;
-    }
-
-    nav ul {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
-    nav ul li a {
-        font-size: smaller;
-    }
-
-    #content h1.text-5xl {
-        font-size: 1.875rem;
-        transform: translateY(1rem);
-    }
-
-    nav ul li {
-        padding: 0.125rem 0 !important;
-    }
-
-    .nav-link-text {
-        text-align: center !important;
-    }
+/* Hover effects */
+nav ul li a:hover,
+#hamburger-menu:hover,
+.subtle-underline:hover,
+.hover-effect:hover,
+.hover-effect:hover .project-name,
+.close:hover,
+.close:focus {
+    color: rgba(209, 213, 219, 0.75);
 }
 
-/* Border container styles */
-.visual-container,
-.visual-container-bottom {
-    border-bottom: 0.5px solid rgba(209, 213, 219, 0.5);
-    padding-bottom: 1rem;
-}
-
-.visual-container {
-    border-top: 0.5px solid rgba(209, 213, 219, 0.5);
-    padding-top: 1rem;
-}
-
-/* Link styles */
-.subtle-underline {
-    font-weight: 500;
-}
-
-.subtle-underline:hover {
-    text-decoration: underline 1.5px;
-    text-underline-offset: 3px;
-}
-
-/* Aspect ratio styles */
+/* Aspect ratio */
 .aspect-ratio-1\/1 {
     position: relative;
     width: 100%;
@@ -238,7 +129,7 @@ nav ul li a.selected .nav-link-text {
     border-radius: 12px;
 }
 
-/* Modal styles */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -283,7 +174,101 @@ nav ul li a.selected .nav-link-text {
     border: none;
 }
 
-/* Font awesome icon */
+/* Font Awesome icon */
 .fa-code {
     transform: scale(0.9);
+}
+
+/* Scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #7a7f89 #35373b;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    background: #35373b;
+}
+
+::-webkit-scrollbar-track {
+    background: #35373b;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #7a7f89;
+    border-radius: 6px;
+    border: 3px solid #35373b;
+}
+
+/* Media queries */
+@media (max-width: 576px) {
+    #hamburger-menu {
+        display: block;
+    }
+
+    nav ul li:not(:first-child) {
+        display: none;
+    }
+
+    nav.nav-active ul li:not(:first-child) {
+        display: block;
+    }
+
+    nav ul {
+        display: flex;
+        flex-direction: column !important;
+        justify-content: space-around;
+        align-items: center;
+        transform: translateY(-8px);
+    }
+
+    nav {
+        padding-bottom: 1.5rem !important;
+        margin-bottom: -28.5px;
+    }
+
+    .home-logo {
+        min-width: 64px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #container {
+        flex-direction: column;
+        padding: 1rem 0.5rem;
+    }
+
+    .home-logo {
+        padding-bottom: 10px !important;
+        max-width: 48px;
+    }
+
+    #content,
+    .visual-container,
+    .visual-container-bottom {
+        padding: 0;
+    }
+
+    nav ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    nav ul li a {
+        font-size: smaller;
+    }
+
+    #content h1.text-5xl {
+        font-size: 1.875rem;
+        transform: translateY(1rem);
+    }
+
+    nav ul li {
+        padding: 0.125rem 0 !important;
+    }
+
+    .nav-link-text {
+        text-align: center !important;
+    }
 }
