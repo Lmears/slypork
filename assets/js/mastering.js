@@ -1,7 +1,7 @@
 var linkColor = '63b2cc';
 
 var links = [
-    // { id: 'spotify:track:32GAT5y3WYNpvBHAaRk8XU', name: 'bobby mayo - Axolotl', credits: 'Credits: Mastering', date: '2024-03-08', type: 'spotify' },
+    { id: 'spotify:track:32GAT5y3WYNpvBHAaRk8XU', name: 'bobby mayo - Axolotl', credits: 'Credits: Mastering', date: '2024-03-08', type: 'spotify' },
     { id: 'playlists/1754058492', name: 'Zero Plussed - Zero Plussed plates', credits: 'Credits: Mastering', date: '2024-02-10', type: 'soundcloud' },
     { id: 'album=4074789862', name: 'Lü Ka - Burning Bedroom', credits: 'Credits: Mastering', date: '2023-12-08', type: 'bandcamp' },
     { id: 'spotify:track:5GBzndCuV6kqYZQm3DY78x', name: 'bobby mayo - Funk It Up', credits: 'Credits: Mastering', date: '2023-12-01', type: 'spotify' },
@@ -23,11 +23,12 @@ var links = [
     { id: 'album=1891136990', name: 'Grains - ζ', credits: 'Credits: Mastering', date: '2020-09-19', type: 'bandcamp' },
 ];
 
-links.sort(function (a, b) {
+// Sort links by date in descending order
+function sortLinks(a, b) {
     return new Date(b.date) - new Date(a.date);
-});
+}
 
-// Create a common iframe
+// Create a common iframe element
 function createIframe(src, allowAutoplay = false) {
     var iframe = document.createElement('iframe');
     iframe.style.cssText = 'border: 0; width: 100%; height: 100%;';
@@ -36,6 +37,14 @@ function createIframe(src, allowAutoplay = false) {
         iframe.allow = 'autoplay';
     }
     return iframe;
+}
+
+// Create an element with text content and class name
+function createElementWithText(tag, text, className) {
+    var element = document.createElement(tag);
+    element.textContent = text;
+    element.className = className;
+    return element;
 }
 
 // Create common elements for the embed
@@ -56,25 +65,20 @@ function createEmbedElements(item, iframeSrc, allowAutoplay = false) {
     return wrapperDiv;
 }
 
-// Create an element with text
-function createElementWithText(tag, text, className) {
-    var element = document.createElement(tag);
-    element.textContent = text;
-    element.className = className;
-    return element;
-}
-
 // Create an embed based on item type
 function createEmbed(item) {
     var embedSrc = '';
-    if (item.type === 'bandcamp') {
-        embedSrc = `https://bandcamp.com/EmbeddedPlayer/${item.id}/size=large/bgcol=333333/linkcol=${linkColor}/tracklist=false/transparent=true/`;
-    } else if (item.type === 'soundcloud') {
-        embedSrc = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/${item.id}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
-    } else if (item.type === 'spotify') {
-        // Convert Spotify URI to a format suitable for embedding
-        var spotifyURI = item.id.replace(/:/g, '/');
-        embedSrc = `https://open.spotify.com/embed/${spotifyURI.split('spotify/')[1]}`;
+    switch (item.type) {
+        case 'bandcamp':
+            embedSrc = `https://bandcamp.com/EmbeddedPlayer/${item.id}/size=large/bgcol=333333/linkcol=${linkColor}/tracklist=false/transparent=true/`;
+            break;
+        case 'soundcloud':
+            embedSrc = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/${item.id}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
+            break;
+        case 'spotify':
+            var spotifyURI = item.id.replace(/:/g, '/');
+            embedSrc = `https://open.spotify.com/embed/${spotifyURI.split('spotify/')[1]}`;
+            break;
     }
     return createEmbedElements(item, embedSrc);
 }
@@ -87,9 +91,8 @@ function populateGrid() {
     });
 }
 
+// Initialize the grid on window load
 window.addEventListener('load', function () {
-    links.sort(function (a, b) {
-        return new Date(b.date) - new Date(a.date);
-    });
+    links.sort(sortLinks);
     populateGrid();
 });

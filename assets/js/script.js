@@ -1,86 +1,85 @@
-console.log('Script is running');
-
-// Home image animation
-var homeLink = document.getElementById('homeLink');
-var homeLogo = document.querySelector('.home-logo');
-
-var isHovering = false;
-
+// Utility functions
 function getLogoPath(file) {
-    // This variable will check if the pathname is exactly '/' 
-    // or '/<repository-name>/' for GitHub Pages
     var atRoot = window.location.pathname === '/' || window.location.pathname === '/slypork-studio/';
-
-    // If we're at the root, we use 'assets/images/', else '../assets/images/'
     var baseURL = atRoot ? 'assets/images/' : '../assets/images/';
     return baseURL + file;
 }
 
+// Home image animation
+var homeLink = document.getElementById('homeLink');
+var homeLogo = document.querySelector('.home-logo');
+var isHovering = false;
 
-homeLink.addEventListener('mouseover', function () {
+function handleHomeLinkMouseOver() {
     homeLogo.src = getLogoPath('home-hover.png');
     isHovering = true;
-});
+}
 
-homeLink.addEventListener('mouseout', function () {
+function handleHomeLinkMouseOut() {
     homeLogo.src = getLogoPath('home.png');
     isHovering = false;
-});
+}
 
-homeLink.addEventListener('mousedown', function () {
+function handleHomeLinkMouseDown() {
     homeLogo.src = getLogoPath('home.png');
-});
+}
 
-homeLink.addEventListener('mouseup', function () {
+function handleHomeLinkMouseUp() {
     if (isHovering) {
         homeLogo.src = getLogoPath('home-hover.png');
     }
-});
+}
 
+homeLink.addEventListener('mouseover', handleHomeLinkMouseOver);
+homeLink.addEventListener('mouseout', handleHomeLinkMouseOut);
+homeLink.addEventListener('mousedown', handleHomeLinkMouseDown);
+homeLink.addEventListener('mouseup', handleHomeLinkMouseUp);
 
 // Lightbox modal
 var modal = document.getElementById("myModal");
 var img = document.querySelector('.modal-trigger');
 var modalImg = document.getElementById("img01");
 
-// Only set up the modal if the elements exist
-if (modal && img && modalImg) {
-    img.onclick = function () {
-        modal.style.display = "block";
-        modalImg.src = this.src;
-    }
+function openModal() {
+    modal.style.display = "block";
+    modalImg.src = this.src;
+}
 
-    var span = document.getElementsByClassName("close")[0];
+function closeModal() {
+    modal.style.display = "none";
+}
 
-    if (span) {
-        span.onclick = function () {
-            modal.style.display = "none";
-        }
-    }
-
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    document.onkeydown = function (event) {
-        if (event.key === "Escape") {
-            if (modal && modal.style.display === "block") {
-                modal.style.display = "none";
-            }
-        }
+function handleOutsideClick(event) {
+    if (event.target === modal) {
+        closeModal();
     }
 }
 
+function handleEscapeKey(event) {
+    if (event.key === "Escape" && modal.style.display === "block") {
+        closeModal();
+    }
+}
 
+if (modal && img && modalImg) {
+    img.onclick = openModal;
+
+    var closeButton = document.getElementsByClassName("close")[0];
+    if (closeButton) {
+        closeButton.onclick = closeModal;
+    }
+
+    window.onclick = handleOutsideClick;
+    document.onkeydown = handleEscapeKey;
+}
 
 // Hamburger menu
+function toggleNavMenu() {
+    var nav = document.querySelector('nav');
+    nav.classList.toggle('nav-active');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var hamburger = document.getElementById('hamburger-menu');
-    var nav = document.querySelector('nav');
-
-    hamburger.addEventListener('click', function () {
-        nav.classList.toggle('nav-active');
-    });
+    hamburger.addEventListener('click', toggleNavMenu);
 });

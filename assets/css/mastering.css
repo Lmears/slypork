@@ -1,0 +1,19 @@
+.player-wrapper {
+    margin-bottom: 1rem;
+}
+
+.release-name,
+.credits {
+    color: rgba(209, 213, 219);
+    text-align: start;
+    font-size: 0.8em;
+}
+
+.release-name {
+    padding-top: 0.5rem;
+}
+
+.credits {
+    padding-bottom: 0.5rem;
+    font-weight: 100;
+}
