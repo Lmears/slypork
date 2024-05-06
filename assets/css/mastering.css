@@ -7,13 +7,22 @@
     color: rgba(209, 213, 219);
     text-align: start;
     font-size: 0.8em;
+    line-height: 1.2;
 }
 
 .release-name {
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.25rem;
 }
 
 .credits {
     padding-bottom: 0.5rem;
+    font-weight: 100;
+}
+
+.various-artists {
+    color: rgba(209, 213, 219);
+    text-align: start;
+    font-size: 0.8em;
     font-weight: 100;
 }
