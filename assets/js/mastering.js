@@ -4,15 +4,16 @@ var linkColor = '63b2cc';
 var links = [
     { id: 'album=4108014993', name: 'Nomali - Dubcore', credits: 'Credits: Mastering', date: '2024-05-03', type: 'bandcamp' },
     { id: 'spotify:track:32GAT5y3WYNpvBHAaRk8XU', name: 'bobby mayo - Axolotl', credits: 'Credits: Mastering', date: '2024-03-08', type: 'spotify' },
+    { id: 'album=3993366517', name: 'Teeth and Tail - Air [TNT001]', credits: 'Credits: Mastering', date: '2024-03-01', type: 'bandcamp', isVariousArtists: true },
     { id: 'playlists/1754058492', name: 'Zero Plussed - Zero Plussed plates', credits: 'Credits: Mastering', date: '2024-02-10', type: 'soundcloud' },
     { id: 'album=4074789862', name: 'Lü Ka - Burning Bedroom', credits: 'Credits: Mastering', date: '2023-12-08', type: 'bandcamp' },
     { id: 'spotify:track:5GBzndCuV6kqYZQm3DY78x', name: 'bobby mayo - Funk It Up', credits: 'Credits: Mastering', date: '2023-12-01', type: 'spotify' },
-    { id: 'album=1188484858', name: 'ACOLDPLACE - ACP 2.1', credits: 'Credits: Contributor, Mastering', date: '2023-12-01', type: 'bandcamp' },
+    { id: 'album=1188484858', name: 'ACOLDPLACE - ACP 2.1', credits: 'Credits: Contributor, Mastering', date: '2023-12-01', type: 'bandcamp', isVariousArtists: true },
     { id: 'album=79054116', name: 'xtopher - FOR PSY-IENCE', credits: 'Credits: Mastering', date: '2023-11-29', type: 'bandcamp' },
     { id: 'playlists/1717724526', name: 'Sound Salad - Lettuce Begin', credits: 'Credits: Mastering', date: '2023-11-03', type: 'soundcloud' },
     { id: 'spotify:track:45qXRq6fkLxcA8i7N7PnDO', name: 'bobby mayo - Dance Attack!', credits: 'Credits: Mastering', date: '2023-09-29', type: 'spotify' },
     { id: 'tracks/1603868022', name: 'LŪNA - Funk', credits: 'Credits: Mastering', date: '2023-08-30', type: 'soundcloud' },
-    { id: 'album=1182416007', name: 'Khz Collective - Various Artists: Vol. 2', credits: 'Credits: Mastering', date: '2023-08-25', type: 'bandcamp' },
+    { id: 'album=1182416007', name: 'Khz Collective - Various Artists: Vol. 2', credits: 'Credits: Mastering', date: '2023-08-25', type: 'bandcamp', isVariousArtists: true },
     { id: 'album=1916604811', name: 'Sauin x Root Basis - Above the Abject Tide', credits: 'Credits: Co-Writing, Co-Mixing, Mastering', date: '2023-08-04', type: 'bandcamp' },
     { id: 'playlists/1546172593', name: 'Alley - snake oil', credits: 'Credits: Mastering', date: '2023-01-01', type: 'soundcloud' },
     { id: 'track=864865153', name: 'Sano - Scandi', credits: 'Credits: Mastering', date: '2022-12-24', type: 'bandcamp' },
@@ -61,7 +62,14 @@ function createEmbedElements(item, iframeSrc, allowAutoplay = false) {
     iframeDiv.appendChild(iframe);
 
     wrapperDiv.appendChild(iframeDiv);
-    wrapperDiv.appendChild(createElementWithText('div', item.name, 'release-name'));
+
+    var nameDiv = createElementWithText('div', item.name, 'release-name');
+    if (item.isVariousArtists) {
+        var variousArtistsSpan = createElementWithText('span', ' (Various Artists)', 'various-artists');
+        nameDiv.appendChild(variousArtistsSpan);
+    }
+    wrapperDiv.appendChild(nameDiv);
+
     wrapperDiv.appendChild(createElementWithText('div', item.credits, 'credits'));
 
     return wrapperDiv;
