@@ -1,6 +1,8 @@
+// Config
 var linkColor = '63b2cc';
 
 var links = [
+    { id: 'album=4108014993', name: 'Nomali - Dubcore', credits: 'Credits: Mastering', date: '2024-05-03', type: 'bandcamp' },
     { id: 'spotify:track:32GAT5y3WYNpvBHAaRk8XU', name: 'bobby mayo - Axolotl', credits: 'Credits: Mastering', date: '2024-03-08', type: 'spotify' },
     { id: 'playlists/1754058492', name: 'Zero Plussed - Zero Plussed plates', credits: 'Credits: Mastering', date: '2024-02-10', type: 'soundcloud' },
     { id: 'album=4074789862', name: 'Lü Ka - Burning Bedroom', credits: 'Credits: Mastering', date: '2023-12-08', type: 'bandcamp' },
