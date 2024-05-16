@@ -17,6 +17,7 @@ function createImageElement(src) {
     var img = document.createElement('img');
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
     img.src = src;
+    img.classList.add('modal-trigger', 'cursor-pointer');
     return img;
 }
 
@@ -42,7 +43,44 @@ function populateGrid() {
     });
 }
 
-// Initialize the grid on window load
+// Lightbox modal
+var modal = document.getElementById("myModal");
+var modalImg = document.getElementById("img01");
+
+function openModal(event) {
+    modal.style.display = "block";
+    modalImg.src = event.target.src;
+}
+
+function closeModal() {
+    modal.style.display = "none";
+}
+
+function handleOutsideClick(event) {
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+function handleEscapeKey(event) {
+    if (event.key === "Escape" && modal.style.display === "block") {
+        closeModal();
+    }
+}
+
 window.addEventListener('load', function () {
     populateGrid();
+
+    var images = document.querySelectorAll('.modal-trigger');
+    images.forEach(function (image) {
+        image.onclick = openModal;
+    });
+
+    var closeButton = document.getElementsByClassName("close")[0];
+    if (closeButton) {
+        closeButton.onclick = closeModal;
+    }
+
+    window.onclick = handleOutsideClick;
+    document.onkeydown = handleEscapeKey;
 });

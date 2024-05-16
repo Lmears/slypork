@@ -38,18 +38,22 @@
             <div class="pt-12">
                 <div class="visual-container">
                     <div class="px-4 my-4">
-                        <!-- <div class="pb-4">
-                            <p class="text-base font-light">
-                                Example works
-                            </p>
-                        </div> -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="imageGrid">
                             <!-- Items will be added here by JavaScript -->
                         </div>
                     </div>
                 </div>
                 <div class="pb-12"></div>
+            </div>
         </section>
+
+        <!-- Lightbox Modal -->
+        <div id="myModal" class="modal">
+            <span class="close cursor-pointer">&times;</span>
+            <img class="modal-content" id="img01">
+            <div id="caption"></div>
+        </div>
+
     </main>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/design.js"></script>
