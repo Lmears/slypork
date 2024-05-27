@@ -202,6 +202,7 @@ function createElementWithText(tag, text, className, url) {
     if (url != null) {
         element.href = url;
         element.target = '_blank';
+        element.style.display = 'block';
     }
     element.textContent = text;
     element.className = className;
