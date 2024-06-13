@@ -4,7 +4,7 @@
 
 .release-name,
 .credits {
-    color: rgba(209, 213, 219);
+    color: rgba(23, 23, 23);
     text-align: start;
     font-size: 0.8em;
     line-height: 1.2;
@@ -21,7 +21,7 @@
 }
 
 .various-artists {
-    color: rgba(209, 213, 219);
+    color: rgba(23, 23, 23);
     text-align: start;
     font-size: 0.8em;
     font-weight: 100;
