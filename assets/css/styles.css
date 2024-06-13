@@ -6,7 +6,7 @@ body {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 125%;
-    background-color: rgb(31 41 55);
+    background-color: rgb(243, 244, 241);
     scrollbar-gutter: stable both-edges;
 }
 
@@ -33,12 +33,12 @@ h1 {
 
 .visual-container,
 .visual-container-bottom {
-    border-bottom: 0.5px solid rgba(209, 213, 219, 0.5);
+    border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
     padding-bottom: 1rem;
 }
 
 .visual-container {
-    border-top: 0.5px solid rgba(209, 213, 219, 0.5);
+    border-top: 0.5px solid rgba(23, 23, 23, 0.5);
     padding-top: 1rem;
 }
 
@@ -94,7 +94,7 @@ nav ul li a.selected .nav-link-text {
     right: 0;
     padding: 1.25rem 1.25rem;
     z-index: 1000;
-    color: rgba(209, 213, 219);
+    color: rgba(23, 23, 23);
 }
 
 /* Cursor */
@@ -110,7 +110,7 @@ nav ul li a:hover,
 .hover-effect:hover .project-name,
 .close:hover,
 .close:focus {
-    color: rgba(209, 213, 219, 0.75);
+    color: rgba(23, 23, 23, 0.7);
 }
 
 /* Aspect ratio */
