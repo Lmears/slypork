@@ -182,23 +182,24 @@ nav ul li a:hover,
 /* Scrollbar */
 html {
     scrollbar-width: thin;
-    scrollbar-color: #7a7f89 #35373b;
+    scrollbar-color: #a8acb1 #e9ebed;
 }
 
 ::-webkit-scrollbar {
     width: 12px;
-    background: #35373b;
+    background: #e9ebed;
 }
 
 ::-webkit-scrollbar-track {
-    background: #35373b;
+    background: #e9ebed;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #7a7f89;
+    background-color: #a8acb1;
     border-radius: 6px;
-    border: 3px solid #35373b;
+    border: 3px solid #e9ebed;
 }
+
 
 /* Media queries */
 @media (max-width: 576px) {
