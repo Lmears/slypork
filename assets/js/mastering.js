@@ -3,6 +3,14 @@ var linkColor = '63b2cc';
 
 var links = [
     {
+        name: 'B​ü​ka - B​ü​ka',
+        credits: 'Credits: Mastering',
+        date: '2024-06-02',
+        id: 'album=940964128',
+        url: 'https://bukabass.bandcamp.com/album/b-ka',
+        type: 'bandcamp',
+    },
+    {
         name: 'Nomali - Dubcore',
         credits: 'Credits: Mastering',
         date: '2024-05-03',
