@@ -24,6 +24,16 @@ h1 {
     text-underline-offset: 3px;
 }
 
+.link-underline {
+    text-decoration: underline 1px;
+    text-underline-offset: 3px;
+}
+
+.link-underline:hover {
+    text-decoration: underline 2px;
+    text-underline-offset: 3px;
+}
+
 /* Layout */
 #container {
     height: 100%;
@@ -106,6 +116,7 @@ nav ul li a.selected .nav-link-text {
 nav ul li a:hover,
 #hamburger-menu:hover,
 .subtle-underline:hover,
+.link-underline:hover,
 .hover-effect:hover,
 .hover-effect:hover .project-name,
 .close:hover,
