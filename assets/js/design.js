@@ -1,8 +1,8 @@
 // Config
 var imagePaths = [
-    '../assets/images/posters/experiment.png',
-    '../assets/images/posters/psy.png',
-    '../assets/images/posters/womp.png',
+    '../assets/images/posters/experiment.jpg',
+    '../assets/images/posters/psy.jpg',
+    '../assets/images/posters/womp.jpg',
 ];
 
 // Create an element with class name
