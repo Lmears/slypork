@@ -45,11 +45,11 @@ h1 {
 .visual-container-bottom {
     border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
     padding-bottom: 1rem;
+    padding-top: 1rem;
 }
 
 .visual-container {
     border-top: 0.5px solid rgba(23, 23, 23, 0.5);
-    padding-top: 1rem;
 }
 
 /* Navigation */
@@ -213,7 +213,7 @@ html {
 
 
 /* Media queries */
-@media (max-width: 576px) {
+@media (max-width: 642px) {
     #hamburger-menu {
         display: block;
     }
