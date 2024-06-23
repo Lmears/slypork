@@ -83,3 +83,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var hamburger = document.getElementById('hamburger-menu');
     hamburger.addEventListener('click', toggleNavMenu);
 });
+
+// software iframes
+function adjustIframeHeight() {
+    const iframes = document.querySelectorAll('.software-iframe');
+    const viewportHeight = window.innerHeight;
+    const maxHeight = Math.min(800, viewportHeight * 0.8);
+
+    iframes.forEach(iframe => {
+        iframe.style.height = `${maxHeight}px`;
+    });
+}
+
+window.addEventListener('load', adjustIframeHeight);
+window.addEventListener('resize', adjustIframeHeight);
