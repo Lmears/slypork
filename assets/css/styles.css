@@ -146,6 +146,7 @@ nav ul li a:hover,
     position: fixed;
     z-index: 9999;
     padding-top: 100px;
+    padding-bottom: 100px;
     left: 0;
     top: 0;
     width: 100%;
@@ -211,6 +212,11 @@ html {
     border: 3px solid #e9ebed;
 }
 
+/* Software iframes */
+.software-iframe {
+    width: 100%;
+    height: 800px;
+}
 
 /* Media queries */
 @media (max-width: 642px) {
