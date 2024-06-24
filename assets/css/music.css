@@ -10,6 +10,11 @@
     width: 100%;
     max-width: 180px;
     margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.hover-effect:hover .project-logo {
+    transform: scale(1.05);
 }
 
 .project-name,
