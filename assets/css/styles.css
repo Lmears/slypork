@@ -8,6 +8,7 @@ body {
     font-size: 125%;
     background-color: rgb(243, 244, 241);
     scrollbar-gutter: stable both-edges;
+    color: rgba(23, 23, 23);
 }
 
 /* Typography */
