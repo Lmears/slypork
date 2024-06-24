@@ -198,6 +198,7 @@ function createIframe(src, allowAutoplay = false) {
     var iframe = document.createElement('iframe');
     iframe.style.cssText = 'border: 0; width: 100%; height: 100%;';
     iframe.src = src;
+    iframe.loading = 'lazy';
     if (allowAutoplay) {
         iframe.allow = 'autoplay';
     }
