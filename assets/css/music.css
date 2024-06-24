@@ -25,6 +25,11 @@
     font-weight: 500;
 }
 
+.project-name:hover {
+    text-decoration: underline 1.5px;
+    text-underline-offset: 3px;
+}
+
 .project-info {
     padding-bottom: 0.5rem;
 }
@@ -33,10 +38,5 @@
     font-size: 18px;
     color: rgba(23, 23, 23);
     line-break: anywhere;
-    word-break: normal;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-family: Interstate, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Garuda, Verdana, Tahoma, sans-serif;
-    font-weight: 100;
+    font-weight: 300;
 }

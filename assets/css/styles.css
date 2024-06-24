@@ -15,8 +15,9 @@ h1 {
     min-width: 303.44px;
 }
 
-.subtle-underline {
-    font-weight: 500;
+.thin-underline:hover {
+    text-decoration: underline 1px;
+    text-underline-offset: 3px;
 }
 
 .subtle-underline:hover {
@@ -31,7 +32,6 @@ h1 {
 }
 
 .link-underline:hover {
-    /* text-decoration: underline 2px; */
     text-underline-offset: 6px;
 }
 
