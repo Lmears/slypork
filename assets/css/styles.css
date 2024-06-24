@@ -25,13 +25,14 @@ h1 {
 }
 
 .link-underline {
-    text-decoration: underline 1px;
+    text-decoration: underline 1.5px;
     text-underline-offset: 3px;
+    transition: text-underline-offset 0.2s ease;
 }
 
 .link-underline:hover {
-    text-decoration: underline 2px;
-    text-underline-offset: 3px;
+    /* text-decoration: underline 2px; */
+    text-underline-offset: 6px;
 }
 
 /* Layout */
