@@ -36,6 +36,10 @@ h1 {
     text-underline-offset: 6px;
 }
 
+.hover-effect:hover .link-underline {
+    text-underline-offset: 6px;
+}
+
 /* Layout */
 #container {
     height: 100%;
@@ -185,11 +189,6 @@ nav ul li a:hover,
     transition: color 0.2s;
     background: transparent;
     border: none;
-}
-
-/* Font Awesome icon */
-.fa-code {
-    transform: scale(0.9);
 }
 
 /* Scrollbar */
