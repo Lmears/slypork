@@ -4,11 +4,11 @@ const ctx = canvas.getContext('2d');
 const speedSlider = document.getElementById('speedSlider');
 const speedValue = document.getElementById('speedValue');
 
-let speedMultiplier = 0.5;
+let speedMultiplier = 1;
 let isScattering = false;
 
 const logoImg = new Image();
-logoImg.src = '../assets/images/home.png';
+logoImg.src = '../assets/images/favicon-96x96.png';
 
 class Vector {
     constructor(x, y) {
@@ -49,13 +49,9 @@ class Boid {
         this.scatterState = 0;
         this.cooldownTimer = 0;
         this.depth = Math.random();
-        // this.minSize = 2 + this.depth * 2;
-        // this.maxSize = this.minSize * 2;
         this.size = 20 + this.depth * 10;
         this.oscillationOffset = Math.random() * Math.PI * 2;
         this.oscillationSpeed = 0.002 + Math.random() * 0.002;
-        this.hue = Math.random() * 60 + 180; // Blue to green range
-        this.saturation = 50 + Math.random() * 50; // 50-100%
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = 0.1;
     }
@@ -204,10 +200,6 @@ class Boid {
             this.depth = Math.max(0, Math.min(1, this.depth));
         }
 
-        // Subtle color shift
-        this.hue += (Math.random() - 0.5) * 0.5;
-        this.hue = (this.hue + 360) % 360;
-
         let targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
         let rotationDiff = targetRotation - this.rotation;
 
@@ -320,7 +312,7 @@ function initBoidSimulator() {
     });
 
     speedSlider.addEventListener('input', function () {
-        speedMultiplier = (this.value / 100) * 0.5;
+        speedMultiplier = (this.value / 100);
         speedValue.textContent = `${this.value}%`;
     });
 }
