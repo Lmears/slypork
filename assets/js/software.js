@@ -52,12 +52,29 @@ function setupEasterEgg() {
             tapCount++;
 
             if (tapCount === 3) {
-                // Reveal boid simulator
-                boidCanvas.style.display = 'block';
-                controls.style.display = 'flex';
                 setTimeout(() => {
-                    initBoidSimulator();
-                }, 1000);
+                    boidCanvas.style.display = 'block';
+                    boidCanvas.style.opacity = '0';
+                    boidCanvas.style.transition = 'opacity 0.5s ease-in';
+
+                    setTimeout(() => {
+                        boidCanvas.style.opacity = '1';
+
+                        setTimeout(() => {
+                            controls.style.display = 'flex';
+                            controls.style.opacity = '0';
+                            controls.style.transition = 'opacity 0.5s ease-in';
+
+                            setTimeout(() => {
+                                controls.style.opacity = '1';
+
+                                setTimeout(() => {
+                                    initBoidSimulator();
+                                }, 250);
+                            }, 50);
+                        }, 500);
+                    }, 50);
+                }, 500);
             }
         });
     }
