@@ -7,8 +7,13 @@ const speedValue = document.getElementById('speedValue');
 let speedMultiplier = 1;
 let isScattering = false;
 
-const logoImg = new Image();
-logoImg.src = '../assets/images/favicon-96x96.png';
+// const logoImg = new Image();
+// logoImg.src = '../assets/images/favicon-96x96.png';
+
+const boidSvgUrl = '../assets/images/slypork-svg.svg';
+
+const boidImage = new Image();
+boidImage.src = boidSvgUrl;
 
 class Vector {
     constructor(x, y) {
@@ -224,13 +229,10 @@ class Boid {
             size *= 1 + 0.5 * (this.cooldownTimer / cooldownDuration);
         }
 
-        const lightness = 50 + this.depth * 30; // Lighter as depth increases
-        ctx.fillStyle = `hsl(${this.hue}, ${this.saturation}%, ${lightness}%)`;
-
         ctx.save();
         ctx.translate(this.position.x, this.position.y);
         ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
+        ctx.drawImage(boidImage, -size / 2, -size / 2, size, size);
         ctx.restore();
     }
 }
