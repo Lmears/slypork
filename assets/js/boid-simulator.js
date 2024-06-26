@@ -7,6 +7,9 @@ const speedValue = document.getElementById('speedValue');
 let speedMultiplier = 0.5;
 let isScattering = false;
 
+const logoImg = new Image();
+logoImg.src = '../assets/images/home.png';
+
 class Vector {
     constructor(x, y) {
         this.x = x;
@@ -46,12 +49,15 @@ class Boid {
         this.scatterState = 0;
         this.cooldownTimer = 0;
         this.depth = Math.random();
-        this.minSize = 2 + this.depth * 2;
-        this.maxSize = this.minSize * 2;
+        // this.minSize = 2 + this.depth * 2;
+        // this.maxSize = this.minSize * 2;
+        this.size = 20 + this.depth * 10;
         this.oscillationOffset = Math.random() * Math.PI * 2;
         this.oscillationSpeed = 0.002 + Math.random() * 0.002;
         this.hue = Math.random() * 60 + 180; // Blue to green range
         this.saturation = 50 + Math.random() * 50; // 50-100%
+        this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
+        this.rotationSpeed = 0.1;
     }
 
     edges() {
@@ -201,12 +207,24 @@ class Boid {
         // Subtle color shift
         this.hue += (Math.random() - 0.5) * 0.5;
         this.hue = (this.hue + 360) % 360;
+
+        let targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
+        let rotationDiff = targetRotation - this.rotation;
+
+        // Normalize the rotation difference to be between -PI and PI
+        rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
+
+        // Apply smooth rotation
+        this.rotation += rotationDiff * this.rotationSpeed * speedMultiplier;
+
+        // Normalize rotation to be between 0 and 2*PI
+        this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
     show() {
         let time = performance.now();
         let oscillation = Math.sin(time * this.oscillationSpeed + this.oscillationOffset);
-        let size = this.minSize + (this.maxSize - this.minSize) * (oscillation * 0.5 + 0.5);
+        let size = this.size * (1 + oscillation * 0.1);
 
         if (this.scatterState === 1) {
             size *= 1.5;
@@ -217,9 +235,11 @@ class Boid {
         const lightness = 50 + this.depth * 30; // Lighter as depth increases
         ctx.fillStyle = `hsl(${this.hue}, ${this.saturation}%, ${lightness}%)`;
 
-        ctx.beginPath();
-        ctx.arc(this.position.x, this.position.y, size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.save();
+        ctx.translate(this.position.x, this.position.y);
+        ctx.rotate(this.rotation + Math.PI / 2);
+        ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
+        ctx.restore();
     }
 }
 
