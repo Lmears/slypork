@@ -7,13 +7,11 @@ const speedValue = document.getElementById('speedValue');
 let speedMultiplier = 1;
 let isScattering = false;
 
-// const logoImg = new Image();
-// logoImg.src = '../assets/images/favicon-96x96.png';
+const logoImg = new Image();
+logoImg.src = '../assets/images/favicon-96x96.png';
 
-const boidSvgUrl = '../assets/images/slypork-svg.svg';
-
-const boidImage = new Image();
-boidImage.src = boidSvgUrl;
+// const boidImage = new Image();
+// boidImage.src = '../assets/images/slypork-svg.svg';
 
 class Vector {
     constructor(x, y) {
@@ -232,7 +230,7 @@ class Boid {
         ctx.save();
         ctx.translate(this.position.x, this.position.y);
         ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(boidImage, -size / 2, -size / 2, size, size);
+        ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
         ctx.restore();
     }
 }
