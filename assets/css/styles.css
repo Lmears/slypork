@@ -6,7 +6,8 @@ body {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 125%;
-    background-color: rgb(243, 244, 241);
+    /* background-color: rgb(243, 244, 241); */
+    z-index: 3;
     scrollbar-gutter: stable both-edges;
     color: rgba(23, 23, 23);
 }
@@ -49,13 +50,22 @@ h1 {
 
 .visual-container,
 .visual-container-bottom {
+    border-top: 0.5px solid rgba(23, 23, 23, 0.5);
+    margin-top: -0.5px;
     border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
     padding-bottom: 1rem;
     padding-top: 1rem;
+    position: relative;
+    z-index: 1;
+    /* background-color: rgb(243, 244, 241); */
 }
 
 .visual-container {
     border-top: 0.5px solid rgba(23, 23, 23, 0.5);
+}
+
+.visual-container-bottom {
+    position: relative;
 }
 
 /* Navigation */
