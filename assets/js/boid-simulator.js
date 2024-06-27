@@ -11,16 +11,22 @@ const HOLD_SCATTER_DURATION = 45;
 const NORMAL_MAX_SPEED = 5;
 const SCATTER_MAX_SPEED = 15;
 const COOLDOWN_DURATION = 30;
+const INITIAL_BOOST = 10;
+const BOOST_DECAY = 0.95;
+const EASTER_EGG_WIDTH = 45;
+const EASTER_EGG_HEIGHT = 40;
+const EASTER_EGG_RIGHT = 25;
+const EASTER_EGG_BOTTOM = 21;
 
 let speedMultiplier = 1;
 let isScattering = false;
 let mouse = { x: 0, y: 0 };
 let mouseInfluence = false;
+let animationFrameId = null;
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
 
-// Vector class
 class Vector {
     constructor(x, y) {
         this.x = x;
@@ -40,10 +46,15 @@ class Vector {
     static random2D() { return new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1); }
 }
 
-// Boid class
 class Boid {
     constructor() {
-        this.position = new Vector(Math.random() * canvas.width, Math.random() * canvas.height);
+        const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+        const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2;
+        const spreadFactor = 0.1; // Adjust this value to control the spread (smaller = tighter)
+        this.position = new Vector(
+            easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * spreadFactor,
+            easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * spreadFactor
+        );
         this.velocity = Vector.random2D();
         this.velocity.setMag(Math.random() * 2 + 2);
         this.acceleration = new Vector(0, 0);
@@ -57,6 +68,7 @@ class Boid {
         this.oscillationSpeed = 0.002 + Math.random() * 0.002;
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = 0.1;
+        this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
     }
 
     edges() {
@@ -139,6 +151,12 @@ class Boid {
     }
 
     update(boids) {
+        // Apply the boost
+        this.velocity.add(this.boost);
+
+        // Decay the boost
+        this.boost.mult(BOOST_DECAY);
+
         this.position.add(this.velocity);
         this.velocity.add(this.acceleration);
 
@@ -236,19 +254,41 @@ function animate() {
         boid.show();
     }
 
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
+}
+
+function stopAnimation() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+}
+
+
+function resetBoidSimulator() {
+    stopAnimation();
+
+    flock.length = 0;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < FLOCK_SIZE; i++) {
+        flock.push(new Boid());
+    }
+
+    isScattering = false;
+    mouseInfluence = false;
+    speedMultiplier = 1;
+    speedSlider.value = "100";
+    speedValue.textContent = "100%";
 }
 
 function initBoidSimulator() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    for (let i = 0; i < FLOCK_SIZE; i++) {
-        flock.push(new Boid());
-    }
-
+    resetBoidSimulator();
     animate();
-
     setupEventListeners();
 }
 
@@ -288,3 +328,7 @@ function setupEventListeners() {
         speedValue.textContent = `${this.value}%`;
     });
 }
+
+window.resetBoidSimulator = resetBoidSimulator;
+window.stopAnimation = stopAnimation;
+

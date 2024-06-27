@@ -75,6 +75,26 @@ function setupEasterEgg() {
                         }, 500);
                     }, 50);
                 }, 500);
+            } else if (tapCount === 4) {
+                // Reset everything on the fourth click
+                boidCanvas.style.opacity = '0';
+                controls.style.opacity = '0';
+
+                setTimeout(() => {
+                    boidCanvas.style.display = 'none';
+                    controls.style.display = 'none';
+
+                    // Stop the animation and reset the boid simulator
+                    if (typeof window.stopAnimation === 'function') {
+                        window.stopAnimation();
+                    }
+                    if (typeof window.resetBoidSimulator === 'function') {
+                        window.resetBoidSimulator();
+                    }
+
+                    // Reset tap count to start the cycle again
+                    tapCount = 0;
+                }, 500);
             }
         });
     }
