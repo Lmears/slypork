@@ -10,9 +10,6 @@ let isScattering = false;
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
 
-// const boidImage = new Image();
-// boidImage.src = '../assets/images/slypork-svg.svg';
-
 class Vector {
     constructor(x, y) {
         this.x = x;
@@ -316,6 +313,3 @@ function initBoidSimulator() {
         speedValue.textContent = `${this.value}%`;
     });
 }
-
-// Export the initialization function
-// window.initBoidSimulator = initBoidSimulator;
