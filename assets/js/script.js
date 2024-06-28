@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hamburger.addEventListener('click', toggleNavMenu);
 });
 
-// software iframes
+// Software iframes
 function adjustIframeHeight() {
     const iframes = document.querySelectorAll('.software-iframe');
     const viewportHeight = window.innerHeight;
@@ -93,6 +93,11 @@ function adjustIframeHeight() {
     iframes.forEach(iframe => {
         iframe.style.height = `${maxHeight}px`;
     });
+}
+
+// Check for dark mode
+function isDarkReaderActive() {
+    return document.documentElement.getAttribute('data-darkreader-mode') !== null;
 }
 
 window.addEventListener('load', adjustIframeHeight);

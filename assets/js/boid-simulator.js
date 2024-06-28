@@ -237,7 +237,12 @@ function scatter(duration) {
 }
 
 function animate() {
-    ctx.fillStyle = 'rgba(243, 244, 241, 0.1)';
+    if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
+        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
+    } else {
+        ctx.fillStyle = 'rgba(243, 244, 241, 0.1)';
+    }
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (isScattering) {
