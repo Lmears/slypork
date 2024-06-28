@@ -1,13 +1,3 @@
-// Easing function
-function easeInOutElastic(x) {
-    const c5 = (2 * Math.PI) / 4.5;
-    return x === 0 ? 0
-        : x === 1 ? 1
-            : x < 0.5 ? -(Math.pow(2, 20 * x - 10) * Math.sin((20 * x - 11.125) * c5)) / 2
-                : (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * c5)) / 2 + 1;
-}
-
-// Easter Egg Animation
 function setupEasterEgg() {
     const easterEgg = document.getElementById('easterEgg');
     const boidCanvas = document.getElementById('boidCanvas');
@@ -95,12 +85,11 @@ function setupEasterEgg() {
                         }
 
                         tapCount = 0;
-                    }, 1000); // Increased timeout to match END_ANIMATION_DURATION
+                    }, 1000);
                 }, 50);
             }
         });
     }
 }
 
-// Call this function when the DOM is loaded
 document.addEventListener('DOMContentLoaded', setupEasterEgg);
