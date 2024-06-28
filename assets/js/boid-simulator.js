@@ -17,6 +17,7 @@ const EASTER_EGG_HEIGHT = 40;
 const EASTER_EGG_RIGHT = 25;
 const EASTER_EGG_BOTTOM = 21;
 const SPREAD_FACTOR = 0.1;
+const END_ANIMATION_DURATION = 1000;
 
 let speedMultiplier = 1;
 let isScattering = false;
@@ -251,11 +252,32 @@ function animate() {
 
     flock.sort((a, b) => a.depth - b.depth);
 
+    const currentTime = performance.now();
+    const endProgress = isEnding ? (currentTime - endStartTime) / END_ANIMATION_DURATION : 0;
+
     for (let boid of flock) {
-        boid.edges();
-        boid.flock(flock);
-        boid.update(flock);
+        if (isEnding) {
+            // Calculate target position (bottom right corner)
+            const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+            const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+
+            // Move boid towards target
+            boid.position.x = boid.position.x + (targetX - boid.position.x) * endProgress;
+            boid.position.y = boid.position.y + (targetY - boid.position.y) * endProgress;
+
+            // Reduce size as they approach target
+            boid.size = boid.size * (1 - endProgress);
+        } else {
+            boid.edges();
+            boid.flock(flock);
+            boid.update(flock);
+        }
         boid.show();
+    }
+
+    if (isEnding && endProgress >= 1) {
+        stopAnimation();
+        return;
     }
 
     animationFrameId = requestAnimationFrame(animate);
@@ -285,6 +307,7 @@ function resetBoidSimulator() {
     speedMultiplier = 1;
     speedSlider.value = "100";
     speedValue.textContent = "100%";
+    isEnding = false;
 }
 
 function initBoidSimulator() {
@@ -294,6 +317,11 @@ function initBoidSimulator() {
     resetBoidSimulator();
     animate();
     setupEventListeners();
+}
+
+function endSimulation() {
+    isEnding = true;
+    endStartTime = performance.now();
 }
 
 function setupEventListeners() {
@@ -335,4 +363,5 @@ function setupEventListeners() {
 
 window.resetBoidSimulator = resetBoidSimulator;
 window.stopAnimation = stopAnimation;
+window.endSimulation = endSimulation;
 

@@ -74,23 +74,29 @@ function setupEasterEgg() {
                     }, 50);
                 }, 500);
             } else if (tapCount === 4) {
-                boidCanvas.style.opacity = '0';
-                controls.style.opacity = '0';
+                if (typeof window.endSimulation === 'function') {
+                    window.endSimulation();
+                }
 
                 setTimeout(() => {
-                    boidCanvas.style.display = 'none';
-                    controls.style.display = 'none';
-                    document.body.classList.remove('boid-active');
+                    boidCanvas.style.opacity = '0';
+                    controls.style.opacity = '0';
 
-                    if (typeof window.stopAnimation === 'function') {
-                        window.stopAnimation();
-                    }
-                    if (typeof window.resetBoidSimulator === 'function') {
-                        window.resetBoidSimulator();
-                    }
+                    setTimeout(() => {
+                        boidCanvas.style.display = 'none';
+                        controls.style.display = 'none';
+                        document.body.classList.remove('boid-active');
 
-                    tapCount = 0;
-                }, 500);
+                        if (typeof window.stopAnimation === 'function') {
+                            window.stopAnimation();
+                        }
+                        if (typeof window.resetBoidSimulator === 'function') {
+                            window.resetBoidSimulator();
+                        }
+
+                        tapCount = 0;
+                    }, 1000); // Increased timeout to match END_ANIMATION_DURATION
+                }, 50);
             }
         });
     }
