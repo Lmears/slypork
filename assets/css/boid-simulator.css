@@ -1,0 +1,69 @@
+#boidCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+#controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+#controls:hover {
+    opacity: 1;
+}
+
+#speedSlider {
+    width: 200px;
+    height: 5px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+#speedSlider:hover {
+    opacity: 1;
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+#speedValue {
+    color: white;
+    margin-left: 10px;
+    width: 30px;
+    text-align: right;
+    font-size: 16px;
+}
+
+#boidCanvas,
+#controls {
+    display: none;
+}

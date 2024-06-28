@@ -6,10 +6,15 @@ body {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 125%;
-    /* background-color: rgb(243, 244, 241); */
+    background-color: rgb(243, 244, 241);
     z-index: 3;
     scrollbar-gutter: stable both-edges;
     color: rgba(23, 23, 23);
+    transition: background-color 0.5s ease;
+}
+
+.boid-active {
+    background-color: transparent !important;
 }
 
 /* Typography */

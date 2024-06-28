@@ -39,7 +39,7 @@ function setupEasterEgg() {
                 } else {
                     isAnimating = false;
                     if (direction === 'down') {
-                        setTimeout(() => animate('up'), 500);
+                        setTimeout(() => animate('up'), 200);
                     }
                 }
             }
@@ -59,6 +59,7 @@ function setupEasterEgg() {
 
                     setTimeout(() => {
                         boidCanvas.style.opacity = '1';
+                        document.body.classList.add('boid-active');
 
                         setTimeout(() => {
                             controls.style.display = 'flex';
@@ -67,24 +68,20 @@ function setupEasterEgg() {
 
                             setTimeout(() => {
                                 controls.style.opacity = '1';
-
-                                setTimeout(() => {
-                                    initBoidSimulator();
-                                }, 250);
+                                initBoidSimulator();
                             }, 50);
                         }, 500);
                     }, 50);
                 }, 500);
             } else if (tapCount === 4) {
-                // Reset everything on the fourth click
                 boidCanvas.style.opacity = '0';
                 controls.style.opacity = '0';
 
                 setTimeout(() => {
                     boidCanvas.style.display = 'none';
                     controls.style.display = 'none';
+                    document.body.classList.remove('boid-active');
 
-                    // Stop the animation and reset the boid simulator
                     if (typeof window.stopAnimation === 'function') {
                         window.stopAnimation();
                     }
@@ -92,7 +89,6 @@ function setupEasterEgg() {
                         window.resetBoidSimulator();
                     }
 
-                    // Reset tap count to start the cycle again
                     tapCount = 0;
                 }, 500);
             }
