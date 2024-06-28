@@ -1,10 +1,9 @@
-// Constants and DOM elements
 const canvas = document.getElementById('boidCanvas');
 const ctx = canvas.getContext('2d');
 const speedSlider = document.getElementById('speedSlider');
 const speedValue = document.getElementById('speedValue');
 
-const FLOCK_SIZE = 200;
+const FLOCK_SIZE = 100;
 const MOUSE_INFLUENCE_RADIUS = 200;
 const CLICK_SCATTER_DURATION = 22;
 const HOLD_SCATTER_DURATION = 45;
@@ -17,6 +16,7 @@ const EASTER_EGG_WIDTH = 45;
 const EASTER_EGG_HEIGHT = 40;
 const EASTER_EGG_RIGHT = 25;
 const EASTER_EGG_BOTTOM = 21;
+const SPREAD_FACTOR = 0.1;
 
 let speedMultiplier = 1;
 let isScattering = false;
@@ -50,10 +50,9 @@ class Boid {
     constructor() {
         const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-        const spreadFactor = 0.1; // Adjust this value to control the spread (smaller = tighter)
         this.position = new Vector(
-            easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * spreadFactor,
-            easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * spreadFactor
+            easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * SPREAD_FACTOR,
+            easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * SPREAD_FACTOR
         );
         this.velocity = Vector.random2D();
         this.velocity.setMag(Math.random() * 2 + 2);
