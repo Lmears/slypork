@@ -49,7 +49,7 @@ class Vector {
 class Boid {
     constructor() {
         const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-        const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2;
+        const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         const spreadFactor = 0.1; // Adjust this value to control the spread (smaller = tighter)
         this.position = new Vector(
             easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * spreadFactor,
