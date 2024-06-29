@@ -88,7 +88,7 @@ class Boid {
         else if (this.position.y < 0) this.position.y = canvas.height;
     }
 
-    align(boids) {
+    alignment(boids) {
         return this.calculateSteering(boids, 50, (other) => other.velocity);
     }
 
@@ -144,7 +144,7 @@ class Boid {
     }
 
     flock(boids) {
-        const alignment = this.align(boids);
+        const alignment = this.alignment(boids);
         const cohesion = this.cohesion(boids);
         const separation = this.separation(boids);
         const mouseForce = this.mouseAttraction();
