@@ -389,6 +389,10 @@ function setupEventListeners() {
         }
     });
 
+    document.addEventListener('touchend', () => {
+        mouseInfluence = false;
+    });
+
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
