@@ -391,8 +391,6 @@ function setupEventListeners() {
 
     document.addEventListener('touchend', () => {
         mouseInfluence = false;
-        mouse.x = -1;
-        mouse.y = -1;
     });
 
     window.addEventListener('resize', () => {
