@@ -64,9 +64,10 @@ class Boid {
         );
         this.velocity = Vector.random2D();
         this.velocity.setMag(Math.random() * 2 + 2);
-        this.acceleration = new Vector(0, 0);
         this.maxForce = 0.2;
         this.maxSpeed = NORMAL_MAX_SPEED;
+        this.desiredVelocity = new Vector(0, 0);
+        this.velocityIntertia = 0.3;
         this.scatterState = 0;
         this.cooldownTimer = 0;
         this.depth = Math.random();
@@ -75,6 +76,7 @@ class Boid {
         this.oscillationSpeed = 0.002 + Math.random() * 0.002;
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = 0.1;
+        this.rotationInertia = 0.3;
         this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
         this.renderSize = this.calculateRenderSize();
     }
@@ -152,21 +154,23 @@ class Boid {
         separation.mult(1.5);
         mouseForce.mult(this.scatterState === 1 ? 2.5 : 1.5);
 
-        this.acceleration.add(alignment);
-        this.acceleration.add(cohesion);
-        this.acceleration.add(separation);
-        this.acceleration.add(mouseForce);
+        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
+        this.desiredVelocity.add(alignment);
+        this.desiredVelocity.add(cohesion);
+        this.desiredVelocity.add(separation);
+        this.desiredVelocity.add(mouseForce);
+        this.desiredVelocity.limit(this.maxSpeed);
     }
 
     update(boids) {
-        // Apply the boost
+        this.velocity.x = this.velocity.x * this.velocityIntertia + this.desiredVelocity.x * (1 - this.velocityIntertia);
+        this.velocity.y = this.velocity.y * this.velocityIntertia + this.desiredVelocity.y * (1 - this.velocityIntertia);
+
         this.velocity.add(this.boost);
 
-        // Decay the boost
         this.boost.mult(BOOST_DECAY);
 
         this.position.add(this.velocity);
-        this.velocity.add(this.acceleration);
 
         this.updateScatterState();
         this.updateMaxSpeed();
@@ -174,7 +178,6 @@ class Boid {
         this.updateRotation();
 
         this.velocity.limit(this.maxSpeed);
-        this.acceleration.mult(0);
         this.renderSize = this.calculateRenderSize();
     }
 
@@ -212,7 +215,10 @@ class Boid {
         const targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
         let rotationDiff = targetRotation - this.rotation;
         rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
-        this.rotation += rotationDiff * this.rotationSpeed * speedMultiplier;
+
+        const smoothedRotationDiff = rotationDiff * (1 - this.rotationInertia) * this.rotationSpeed * speedMultiplier;
+        this.rotation += smoothedRotationDiff;
+
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
@@ -293,15 +299,12 @@ function animate() {
 
     for (let boid of flock) {
         if (isEnding) {
-            // Calculate target position (bottom right corner)
             const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
             const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
 
-            // Move boid towards target
             boid.position.x = boid.position.x + (targetX - boid.position.x) * endProgress;
             boid.position.y = boid.position.y + (targetY - boid.position.y) * endProgress;
 
-            // Reduce size as they approach target
             boid.size = boid.size * (1 - endProgress);
         } else {
             boid.edges();
