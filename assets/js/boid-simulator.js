@@ -18,7 +18,13 @@ const EASTER_EGG_RIGHT = 25;
 const EASTER_EGG_BOTTOM = 21;
 const SPREAD_FACTOR = 0.1;
 const END_ANIMATION_DURATION = 1000;
-const EDGE_FADE_DISTANCE = 50;
+const EDGE_BUFFER_POSITIONS = [
+    { dx: 0, dy: 0 },
+    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+    { dx: -1, dy: -1 }, { dx: 1, dy: -1 },
+    { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
+];
 
 let speedMultiplier = 1;
 let isScattering = false;
@@ -70,6 +76,7 @@ class Boid {
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = 0.1;
         this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
+        this.renderSize = this.calculateRenderSize();
     }
 
     edges() {
@@ -77,21 +84,6 @@ class Boid {
         else if (this.position.x < 0) this.position.x = canvas.width;
         if (this.position.y > canvas.height) this.position.y = 0;
         else if (this.position.y < 0) this.position.y = canvas.height;
-    }
-
-    calculateEdgeOpacity() {
-        let distanceFromEdge = Math.min(
-            this.position.x,
-            this.position.y,
-            canvas.width - this.position.x,
-            canvas.height - this.position.y
-        );
-
-        if (distanceFromEdge > EDGE_FADE_DISTANCE) {
-            return 1;
-        } else {
-            return distanceFromEdge / EDGE_FADE_DISTANCE;
-        }
     }
 
     align(boids) {
@@ -183,6 +175,7 @@ class Boid {
 
         this.velocity.limit(this.maxSpeed);
         this.acceleration.mult(0);
+        this.renderSize = this.calculateRenderSize();
     }
 
     updateScatterState() {
@@ -223,7 +216,38 @@ class Boid {
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
-    show() {
+    drawWithEdgeBuffering() {
+        EDGE_BUFFER_POSITIONS.forEach(offset => {
+            const position = this.calculateBufferPosition(offset);
+            if (this.isPositionVisible(position)) {
+                this.drawAt(position);
+            }
+        });
+    }
+
+    calculateBufferPosition(offset) {
+        return {
+            x: this.position.x + offset.dx * canvas.width,
+            y: this.position.y + offset.dy * canvas.height
+        };
+    }
+
+    drawAt(position) {
+        ctx.save();
+        ctx.translate(position.x, position.y);
+        ctx.rotate(this.rotation + Math.PI / 2);
+        ctx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
+        ctx.restore();
+    }
+
+    isPositionVisible(pos) {
+        return pos.x + this.renderSize / 2 > 0 &&
+            pos.x - this.renderSize / 2 < canvas.width &&
+            pos.y + this.renderSize / 2 > 0 &&
+            pos.y - this.renderSize / 2 < canvas.height;
+    }
+
+    calculateRenderSize() {
         const time = performance.now();
         const oscillation = Math.sin(time * this.oscillationSpeed + this.oscillationOffset);
         let size = this.size * (1 + oscillation * 0.1);
@@ -234,38 +258,7 @@ class Boid {
             size *= 1 + 0.5 * (this.cooldownTimer / COOLDOWN_DURATION);
         }
 
-        this.drawBoidWithEdgeBuffering(size);
-    }
-
-    drawBoidWithEdgeBuffering(size) {
-        const positions = [
-            { x: this.position.x, y: this.position.y },
-            { x: this.position.x - canvas.width, y: this.position.y },
-            { x: this.position.x + canvas.width, y: this.position.y },
-            { x: this.position.x, y: this.position.y - canvas.height },
-            { x: this.position.x, y: this.position.y + canvas.height },
-            { x: this.position.x - canvas.width, y: this.position.y - canvas.height },
-            { x: this.position.x + canvas.width, y: this.position.y - canvas.height },
-            { x: this.position.x - canvas.width, y: this.position.y + canvas.height },
-            { x: this.position.x + canvas.width, y: this.position.y + canvas.height }
-        ];
-
-        positions.forEach(pos => {
-            if (this.isPositionVisible(pos, size)) {
-                ctx.save();
-                ctx.translate(pos.x, pos.y);
-                ctx.rotate(this.rotation + Math.PI / 2);
-                ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
-                ctx.restore();
-            }
-        });
-    }
-
-    isPositionVisible(pos, size) {
-        return pos.x + size / 2 > 0 &&
-            pos.x - size / 2 < canvas.width &&
-            pos.y + size / 2 > 0 &&
-            pos.y - size / 2 < canvas.height;
+        return size;
     }
 }
 
@@ -315,7 +308,7 @@ function animate() {
             boid.flock(flock);
             boid.update(flock);
         }
-        boid.show();
+        boid.drawWithEdgeBuffering();
     }
 
     if (isEnding && endProgress >= 1) {
