@@ -18,6 +18,7 @@ const EASTER_EGG_RIGHT = 25;
 const EASTER_EGG_BOTTOM = 21;
 const SPREAD_FACTOR = 0.1;
 const END_ANIMATION_DURATION = 1000;
+const EDGE_FADE_DISTANCE = 50;
 
 let speedMultiplier = 1;
 let isScattering = false;
@@ -76,6 +77,21 @@ class Boid {
         else if (this.position.x < 0) this.position.x = canvas.width;
         if (this.position.y > canvas.height) this.position.y = 0;
         else if (this.position.y < 0) this.position.y = canvas.height;
+    }
+
+    calculateEdgeOpacity() {
+        let distanceFromEdge = Math.min(
+            this.position.x,
+            this.position.y,
+            canvas.width - this.position.x,
+            canvas.height - this.position.y
+        );
+
+        if (distanceFromEdge > EDGE_FADE_DISTANCE) {
+            return 1;
+        } else {
+            return distanceFromEdge / EDGE_FADE_DISTANCE;
+        }
     }
 
     align(boids) {
@@ -218,11 +234,38 @@ class Boid {
             size *= 1 + 0.5 * (this.cooldownTimer / COOLDOWN_DURATION);
         }
 
-        ctx.save();
-        ctx.translate(this.position.x, this.position.y);
-        ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
-        ctx.restore();
+        this.drawBoidWithEdgeBuffering(size);
+    }
+
+    drawBoidWithEdgeBuffering(size) {
+        const positions = [
+            { x: this.position.x, y: this.position.y },
+            { x: this.position.x - canvas.width, y: this.position.y },
+            { x: this.position.x + canvas.width, y: this.position.y },
+            { x: this.position.x, y: this.position.y - canvas.height },
+            { x: this.position.x, y: this.position.y + canvas.height },
+            { x: this.position.x - canvas.width, y: this.position.y - canvas.height },
+            { x: this.position.x + canvas.width, y: this.position.y - canvas.height },
+            { x: this.position.x - canvas.width, y: this.position.y + canvas.height },
+            { x: this.position.x + canvas.width, y: this.position.y + canvas.height }
+        ];
+
+        positions.forEach(pos => {
+            if (this.isPositionVisible(pos, size)) {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate(this.rotation + Math.PI / 2);
+                ctx.drawImage(logoImg, -size / 2, -size / 2, size, size);
+                ctx.restore();
+            }
+        });
+    }
+
+    isPositionVisible(pos, size) {
+        return pos.x + size / 2 > 0 &&
+            pos.x - size / 2 < canvas.width &&
+            pos.y + size / 2 > 0 &&
+            pos.y - size / 2 < canvas.height;
     }
 }
 
