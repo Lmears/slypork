@@ -3,6 +3,7 @@ function setupEasterEgg() {
     const boidCanvas = document.getElementById('boidCanvas');
     const controls = document.getElementById('controls');
     let tapCount = 0;
+    let canIncrement = true;
 
     if (easterEgg) {
         let isAnimating = false;
@@ -30,6 +31,8 @@ function setupEasterEgg() {
                     isAnimating = false;
                     if (direction === 'down') {
                         setTimeout(() => animate('up'), 200);
+                    } else if (direction === 'up') {
+                        canIncrement = true;
                     }
                 }
             }
@@ -38,55 +41,58 @@ function setupEasterEgg() {
         }
 
         easterEgg.addEventListener('click', () => {
-            animate('down');
-            tapCount++;
+            if (canIncrement) {
+                canIncrement = false;
+                animate('down');
+                tapCount++;
 
-            if (tapCount === 3) {
-                setTimeout(() => {
-                    boidCanvas.style.display = 'block';
-                    boidCanvas.style.opacity = '0';
-                    boidCanvas.style.transition = 'opacity 0.5s ease-in';
-
+                if (tapCount === 3) {
                     setTimeout(() => {
-                        boidCanvas.style.opacity = '1';
-                        document.body.classList.add('boid-active');
+                        boidCanvas.style.display = 'block';
+                        boidCanvas.style.opacity = '0';
+                        boidCanvas.style.transition = 'opacity 0.5s ease-in';
 
                         setTimeout(() => {
-                            controls.style.display = 'flex';
-                            controls.style.opacity = '0';
-                            controls.style.transition = 'opacity 0.5s ease-in';
+                            boidCanvas.style.opacity = '1';
+                            document.body.classList.add('boid-active');
 
                             setTimeout(() => {
-                                controls.style.opacity = '1';
-                                initBoidSimulator();
-                            }, 50);
-                        }, 500);
-                    }, 50);
-                }, 500);
-            } else if (tapCount === 4) {
-                if (typeof window.endSimulation === 'function') {
-                    window.endSimulation();
-                }
+                                controls.style.display = 'flex';
+                                controls.style.opacity = '0';
+                                controls.style.transition = 'opacity 0.5s ease-in';
 
-                setTimeout(() => {
-                    boidCanvas.style.opacity = '0';
-                    controls.style.opacity = '0';
+                                setTimeout(() => {
+                                    controls.style.opacity = '1';
+                                    initBoidSimulator();
+                                }, 50);
+                            }, 500);
+                        }, 50);
+                    }, 500);
+                } else if (tapCount === 4) {
+                    if (typeof window.endSimulation === 'function') {
+                        window.endSimulation();
+                    }
 
                     setTimeout(() => {
-                        boidCanvas.style.display = 'none';
-                        controls.style.display = 'none';
-                        document.body.classList.remove('boid-active');
+                        boidCanvas.style.opacity = '0';
+                        controls.style.opacity = '0';
 
-                        if (typeof window.stopAnimation === 'function') {
-                            window.stopAnimation();
-                        }
-                        if (typeof window.resetBoidSimulator === 'function') {
-                            window.resetBoidSimulator();
-                        }
+                        setTimeout(() => {
+                            boidCanvas.style.display = 'none';
+                            controls.style.display = 'none';
+                            document.body.classList.remove('boid-active');
 
-                        tapCount = 0;
-                    }, 1000);
-                }, 50);
+                            if (typeof window.stopAnimation === 'function') {
+                                window.stopAnimation();
+                            }
+                            if (typeof window.resetBoidSimulator === 'function') {
+                                window.resetBoidSimulator();
+                            }
+
+                            tapCount = 0;
+                        }, 1000);
+                    }, 50);
+                }
             }
         });
     }
