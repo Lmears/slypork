@@ -3,6 +3,7 @@ var imagePaths = [
     '../assets/images/posters/experiment.jpg',
     '../assets/images/posters/psy.jpg',
     '../assets/images/posters/womp.jpg',
+    '../assets/images/posters/southerly.jpg',
 ];
 
 // Create an element with class name
