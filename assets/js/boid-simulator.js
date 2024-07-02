@@ -1,23 +1,57 @@
+// Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
 const ctx = canvas.getContext('2d');
 const speedSlider = document.getElementById('speedSlider');
 const speedValue = document.getElementById('speedValue');
 
+// Simulation parameters
 const FLOCK_SIZE = 100;
+const NORMAL_MAX_SPEED = 5;
+const SCATTER_MAX_SPEED = 15;
+const INITIAL_BOOST = 10;
+const BOOST_DECAY = 0.95;
+
+// Mouse interaction
 const MOUSE_INFLUENCE_RADIUS = 200;
 const CLICK_SCATTER_DURATION = 22;
 const HOLD_SCATTER_DURATION = 45;
-const NORMAL_MAX_SPEED = 5;
-const SCATTER_MAX_SPEED = 15;
 const COOLDOWN_DURATION = 30;
-const INITIAL_BOOST = 10;
-const BOOST_DECAY = 0.95;
+
+// Boid behavior forces
+const ALIGNMENT_FORCE = 1.1;
+const COHESION_FORCE = 0.7;
+const SEPARATION_FORCE = 1.7;
+const MOUSE_FORCE_NORMAL = 2.5;
+const MOUSE_FORCE_SCATTER = 2.5;
+
+// Boid behavior radii
+const ALIGNMENT_RADIUS = 50;
+const SEPARATION_RADIUS = 50;
+const COHESION_RADIUS = 400;
+
+// Additional Boid-specific constants
+const BOID_MAX_FORCE = 0.2;
+const BOID_SIZE_BASE = 20;
+const BOID_SIZE_VARIATION = 10;
+const BOID_OSCILLATION_SPEED_BASE = 0.002;
+const BOID_OSCILLATION_SPEED_VARIATION = 0.002;
+const BOID_ROTATION_SPEED = 0.1;
+
+// Inertia values (0 - 1)
+const VELOCITY_INERTIA = 0.4;
+const ROTATION_INERTIA = 0.3;
+
+// Easter egg parameters
 const EASTER_EGG_WIDTH = 45;
 const EASTER_EGG_HEIGHT = 40;
 const EASTER_EGG_RIGHT = 25;
 const EASTER_EGG_BOTTOM = 21;
 const SPREAD_FACTOR = 0.1;
+
+// Animation
 const END_ANIMATION_DURATION = 1000;
+
+// Edge buffering for wraparound effect
 const EDGE_BUFFER_POSITIONS = [
     { dx: 0, dy: 0 },
     { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
@@ -26,12 +60,14 @@ const EDGE_BUFFER_POSITIONS = [
     { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
 ];
 
+// Global variables
 let speedMultiplier = 1;
 let isScattering = false;
 let mouse = { x: 0, y: 0 };
 let mouseInfluence = false;
 let animationFrameId = null;
 
+// Assets
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
 
@@ -56,29 +92,40 @@ class Vector {
 
 class Boid {
     constructor() {
+        // Position initialization
         const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         this.position = new Vector(
             easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * SPREAD_FACTOR,
             easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * SPREAD_FACTOR
         );
+
+        // Velocity and movement properties
         this.velocity = Vector.random2D();
         this.velocity.setMag(Math.random() * 2 + 2);
-        this.maxForce = 0.2;
-        this.maxSpeed = NORMAL_MAX_SPEED;
         this.desiredVelocity = new Vector(0, 0);
-        this.velocityIntertia = 0.3;
+        this.maxForce = BOID_MAX_FORCE;
+        this.maxSpeed = NORMAL_MAX_SPEED;
+        this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
+
+        // Inertia and rotation properties
+        this.velocityInertia = VELOCITY_INERTIA;
+        this.rotationInertia = ROTATION_INERTIA;
+        this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
+        this.rotationSpeed = BOID_ROTATION_SPEED;
+
+        // Visual properties
+        this.depth = Math.random();
+        this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
+        this.renderSize = this.calculateRenderSize();
+
+        // Oscillation properties
+        this.oscillationOffset = Math.random() * Math.PI * 2;
+        this.oscillationSpeed = BOID_OSCILLATION_SPEED_BASE + Math.random() * BOID_OSCILLATION_SPEED_VARIATION;
+
+        // State properties
         this.scatterState = 0;
         this.cooldownTimer = 0;
-        this.depth = Math.random();
-        this.size = 20 + this.depth * 10;
-        this.oscillationOffset = Math.random() * Math.PI * 2;
-        this.oscillationSpeed = 0.002 + Math.random() * 0.002;
-        this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
-        this.rotationSpeed = 0.1;
-        this.rotationInertia = 0.3;
-        this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
-        this.renderSize = this.calculateRenderSize();
     }
 
     edges() {
@@ -89,11 +136,13 @@ class Boid {
     }
 
     alignment(boids) {
-        return this.calculateSteering(boids, 50, (other) => other.velocity);
+        return this.calculateSteering(boids, ALIGNMENT_RADIUS, (other, d) => {
+            return other.velocity;
+        });
     }
 
     separation(boids) {
-        return this.calculateSteering(boids, 50, (other, d) => {
+        return this.calculateSteering(boids, SEPARATION_RADIUS, (other, d) => {
             const diff = Vector.sub(this.position, other.position);
             diff.div(d * d);
             return diff;
@@ -101,10 +150,14 @@ class Boid {
     }
 
     cohesion(boids) {
-        return this.calculateSteering(boids, 100, (other) => other.position, true);
+        return this.calculateSteering(boids, COHESION_RADIUS, (other, d) => {
+            const diff = Vector.sub(other.position, this.position);
+            diff.mult(1 - d / COHESION_RADIUS);
+            return diff;
+        });
     }
 
-    calculateSteering(boids, radius, vectorFunc, subtractPosition = false) {
+    calculateSteering(boids, radius, vectorFunc) {
         let steering = new Vector(0, 0);
         let total = 0;
         for (let other of boids) {
@@ -117,7 +170,6 @@ class Boid {
         }
         if (total > 0) {
             steering.div(total);
-            if (subtractPosition) steering.sub(this.position);
             steering.setMag(this.maxSpeed);
             steering.sub(this.velocity);
             steering.limit(this.maxForce);
@@ -149,10 +201,10 @@ class Boid {
         const separation = this.separation(boids);
         const mouseForce = this.mouseAttraction();
 
-        alignment.mult(1.0);
-        cohesion.mult(1.0);
-        separation.mult(1.5);
-        mouseForce.mult(this.scatterState === 1 ? 2.5 : 1.5);
+        alignment.mult(ALIGNMENT_FORCE);
+        cohesion.mult(COHESION_FORCE);
+        separation.mult(SEPARATION_FORCE);
+        mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
 
         this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
         this.desiredVelocity.add(alignment);
@@ -163,8 +215,8 @@ class Boid {
     }
 
     update(boids) {
-        this.velocity.x = this.velocity.x * this.velocityIntertia + this.desiredVelocity.x * (1 - this.velocityIntertia);
-        this.velocity.y = this.velocity.y * this.velocityIntertia + this.desiredVelocity.y * (1 - this.velocityIntertia);
+        this.velocity.x = this.velocity.x * this.velocityInertia + this.desiredVelocity.x * (1 - this.velocityInertia);
+        this.velocity.y = this.velocity.y * this.velocityInertia + this.desiredVelocity.y * (1 - this.velocityInertia);
 
         this.velocity.add(this.boost);
 
