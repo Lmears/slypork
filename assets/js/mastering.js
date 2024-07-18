@@ -90,14 +90,14 @@ var links = [
         url: 'https://open.spotify.com/track/45qXRq6fkLxcA8i7N7PnDO?si=2dacfa4254eb4948',
         type: 'spotify',
     },
-    {
-        name: 'LŪNA - Funk',
-        credits: 'Credits: Mastering',
-        date: '2023-08-30',
-        id: 'tracks/1603868022',
-        url: 'https://soundcloud.com/lunanz/funk',
-        type: 'soundcloud',
-    },
+    // {
+    //     name: 'LŪNA - Funk',
+    //     credits: 'Credits: Mastering',
+    //     date: '2023-08-30',
+    //     id: 'tracks/1603868022',
+    //     url: 'https://soundcloud.com/lunanz/funk',
+    //     type: 'soundcloud',
+    // },
     {
         name: 'Khz Collective - Various Artists: Vol. 2',
         credits: 'Credits: Mastering',
