@@ -3,6 +3,22 @@ var linkColor = '63b2cc';
 
 var links = [
     {
+        name: 'Sauin - Wharariki',
+        credits: 'Credits: Co-Mixing, Mastering',
+        date: '2024-09-06',
+        id: 'album=4246940979',
+        url: 'https://teethandtail.bandcamp.com/album/wharariki',
+        type: 'bandcamp',
+    },
+    {
+        name: 'Necropolis - Prophecy Of Ruin',
+        credits: 'Credits: Mixing, Mastering',
+        date: '2024-09-06',
+        id: 'album=788398486',
+        url: 'https://necropolis-siege.bandcamp.com/album/prophecy-of-ruin',
+        type: 'bandcamp',
+    },
+    {
         name: 'B​ü​ka - B​ü​ka',
         credits: 'Credits: Mastering',
         date: '2024-06-02',
