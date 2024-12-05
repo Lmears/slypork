@@ -3,6 +3,14 @@ var linkColor = '63b2cc';
 
 var links = [
     {
+        name: 'Büka - Bitches Cauldron',
+        credits: 'Credits: Mastering',
+        date: '2024-11-27',
+        id: 'album=816268342',
+        url: 'https://bukabass.bandcamp.com/album/bitches-cauldron',
+        type: 'bandcamp',
+    },
+    {
         name: 'Sauin - Wharariki',
         credits: 'Credits: Co-Mixing, Mastering',
         date: '2024-09-06',
