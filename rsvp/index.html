@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Booking | Slypork</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192x192.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/boid-simulator.css">
+</head>
+<style>
+    .iframe-container {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+</style>
+
+<body class="text-neutral-900">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue">100%</span>
+    </div>
+    <main id="container" class="flex p-10 max-w-7xl mx-auto">
+        <section id="content" class="flex-1 p-5 flex flex-col">
+            <div class="flex flex-col items-center">
+                <a href=".." id="homeLink" class="mb-4">
+                    <img src="../assets/images/home.png" alt="Home" class="rsvp-logo">
+                </a>
+                <h1 class="text-5xl leading-tight px-4">Southerly II</h1>
+            </div>
+            <div class="pt-12">
+                <div class="visual-container">
+                    <div class="flex flex-col sm:flex-row justify-start my-4">
+                        <div class="sm:px-0 md:px-4 w-full">
+                            <div class="iframe-container">
+                                <iframe src="https://forms.gle/3xfkkoPS21XaigZA8" style="color-scheme: dark; border: 0;"
+                                    width="100%" height="634" frameborder="0">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pb-12"></div>
+        </section>
+    </main>
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/easter-egg.js"></script>
+    <script src="../assets/js/boid-simulator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEasterEgg();
+        });
+    </script>
+    <div class="easter-egg" id="easterEgg"></div>
+</body>
+
+
+</html>

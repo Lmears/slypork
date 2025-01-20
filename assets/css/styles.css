@@ -115,6 +115,11 @@ nav ul li a.selected .nav-link-text {
     padding-bottom: 60px;
 }
 
+/* Home logo */
+.rsvp-logo {
+    width: 80px;
+}
+
 /* Hamburger menu */
 #hamburger-menu {
     font-size: 36px;
