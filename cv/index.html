@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV | Slypork</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=4.4">
+    <link rel="stylesheet" href="../assets/css/boid-simulator.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#073b4c',
+                        heading: '#193a4a',
+                        body: '#333333',
+                        light: '#f3f5f6',
+                        section: '#e7ebed',
+                    },
+                }
+            },
+            plugins: [],
+        }
+    </script>
+    <style>
+        body.cv-font {
+            /* font-size: 100%; */
+            font-family: 'Inter', sans-serif;
+        }
+
+        .header-font {
+            /* font-size: 100%; */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        .a4-dimensions {
+            width: 210mm;
+            height: 297mm;
+        }
+
+        .cv-container {
+            border-top: 0.5px solid rgba(23, 23, 23, 0.5);
+            border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        @media print {
+
+            html,
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+                scrollbar-gutter: auto !important;
+            }
+
+            .cv-container {
+                border-top: none;
+                margin-top: 0;
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                padding-top: 0;
+                width: 100% !important;
+            }
+
+            /* Remove padding from website shell elements for print */
+            #container,
+            #content {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .page-break {
+                page-break-after: always;
+            }
+
+            .shadow-lg {
+                box-shadow: none !important;
+            }
+
+            .print\:my-0 {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-neutral-900 cv-font">
+    <canvas id="boidCanvas" class="no-print"></canvas>
+    <div id="controls" class="no-print">
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue">100%</span>
+    </div>
+
+    <main id="container" class="flex px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
+        <section id="content" class="flex-1 flex flex-col">
+            <div class="flex flex-col items-center w-full no-print">
+                <a href=".." id="homeLink" class="mb-4">
+                    <img src="../assets/images/home.png" alt="Home" class="rsvp-logo">
+                </a>
+                <h1
+                    class="text-3xl md:text-5xl pb-8 md:pb-12 header-font font-medium leading-tight px-4 text-center w-full">
+                    Curriculum Vitae
+                </h1>
+            </div>
+
+            <div class="cv-container">
+                <div class="flex flex-col sm:flex-row my-4 md:my-8 sm:mx-0 md:mx-4 print:my-0">
+                    <div class="w-full flex flex-col">
+                        <header class="bg-primary text-white text-center p-6 rounded-t-lg print:rounded-none">
+                            <p class="text-3xl font-bold text-white">LACHLAN MEARS</p>
+                            <p class="text-lg text-gray-200 font-medium">Full-Stack Developer | Front-End
+                                Specialist</p>
+                        </header>
+
+                        <div class="flex flex-col md:flex-row print:flex-row flex-grow">
+                            <div
+                                class="md:w-1/3 print:w-1/3 bg-white md:bg-section print:bg-section p-6 space-y-6 mt-0 md:rounded-bl-lg print:rounded-none">
+                                <section>
+                                    <ul class="space-y-1.5 text-sm">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-phone fa-fw w-5 text-primary mr-2"></i>
+                                            <a href="tel:02040259238"
+                                                class="text-body hover:text-primary hover:underline">02040259238</a>
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-envelope fa-fw w-5 text-primary mr-2"></i>
+                                            <a href="mailto:dev@slypork.net"
+                                                class="text-body hover:text-primary hover:underline">dev@slypork.net</a>
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fab fa-github fa-fw w-5 text-primary mr-2"></i>
+                                            <a href="https://github.com/Lmears" target="_blank"
+                                                class="text-body hover:text-primary hover:underline">github.com/Lmears</a>
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-globe fa-fw w-5 text-primary mr-2"></i>
+                                            <a href="https://slypork.net/" target="_blank"
+                                                class="text-body hover:text-primary hover:underline">slypork.net</a>
+                                        </li>
+                                    </ul>
+                                </section>
+                                <hr class="border-gray-300 my-4">
+                                <section>
+                                    <h2 class="text-lg font-semibold text-heading border-b border-heading pb-1 mb-2">
+                                        PROFILE
+                                    </h2>
+                                    <p class="text-sm text-body">
+                                        Front-end focused full-stack developer with expertise in <strong
+                                            class="font-semibold text-primary">Flutter</strong>, <strong
+                                            class="font-semibold text-primary">React.js</strong>, and <strong
+                                            class="font-semibold text-primary">UI/UX design</strong>. Adept at
+                                        building
+                                        <strong class="font-semibold text-primary">accessible</strong>, <strong
+                                            class="font-semibold text-primary">responsive</strong>, and <strong
+                                            class="font-semibold text-primary">localized</strong> web
+                                        applications.
+                                        Passionate about
+                                        inclusive design and user-centered development. Proven ability to juggle
+                                        multiple
+                                        projects
+                                        and deliver high-quality results. Seeking to grow into a senior
+                                        front-end developer
+                                        role.
+                                    </p>
+                                </section>
+                                <hr class="border-gray-300 my-4">
+                                <section>
+                                    <h2 class="text-lg font-semibold text-heading border-b border-heading pb-1 mb-2">
+                                        TECHNICAL SKILLS
+                                    </h2>
+                                    <div class="space-y-2 text-sm">
+                                        <div>
+                                            <h4 class="font-semibold text-heading flex items-center text-sm">
+                                                <i class="fas fa-code fa-fw w-5 text-primary mr-1.5"></i>Languages
+                                            </h4>
+                                            <p class="text-body ml-6 text-xs">Dart, JavaScript, TypeScript,
+                                                HTML, CSS,
+                                                Python, Java
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-heading flex items-center text-sm">
+                                                <i class="fas fa-cubes fa-fw w-5 text-primary mr-1.5"></i>Frameworks
+                                                &
+                                                Libraries
+                                            </h4>
+                                            <p class="text-body ml-6 text-xs">Flutter, React.js, Tailwind CSS
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-heading flex items-center text-sm">
+                                                <i class="fas fa-tools fa-fw w-5 text-primary mr-1.5"></i>Tools
+                                                & Platforms
+                                            </h4>
+                                            <p class="text-body ml-6 text-xs">Firebase, Supabase, AWS, Git,
+                                                GraphQL, REST
+                                                APIs,
+                                                Figma</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-heading flex items-center text-sm">
+                                                <i
+                                                    class="fas fa-drafting-compass fa-fw w-5 text-primary mr-1.5"></i>Practices
+                                                &
+                                                Design
+                                            </h4>
+                                            <p class="text-body ml-6 text-xs">Responsive Design, Accessibility
+                                                (a11y),
+                                                Localization
+                                                (l10n), Agile</p>
+                                        </div>
+                                    </div>
+                                </section>
+                                <hr class="border-gray-300 my-4">
+                                <section class="hidden md:block print:block">
+                                    <h2 class="text-lg font-semibold text-heading border-b border-heading pb-1 mb-2">
+                                        INTERESTS
+                                    </h2>
+                                    <ul class="space-y-1 text-sm text-body">
+                                        <li class="flex items-center"><i
+                                                class="fas fa-gamepad fa-fw w-5 text-primary mr-2"></i>Indie
+                                            game
+                                            development</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-brain fa-fw w-5 text-primary mr-2"></i>Locally
+                                            hosted AI</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-mountain fa-fw w-5 text-primary mr-2"></i>Bouldering
+                                        </li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-film fa-fw w-5 text-primary mr-2"></i>Retro
+                                            sci-fi</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-balance-scale-right fa-fw w-5 text-primary mr-2"></i>Slacklining
+                                        </li>
+                                    </ul>
+                                </section>
+                            </div>
+                            <div
+                                class="md:w-2/3 print:w-2/3 bg-white pl-6 pb-6 pr-6 md:pt-6 print:pt-6 space-y-6 rounded-bl-lg md:rounded-bl-none rounded-br-lg print:rounded-none">
+                                <section>
+                                    <h2 class="text-xl font-semibold text-heading border-b-2 border-heading pb-1 mb-3">
+                                        PROFESSIONAL EXPERIENCE
+                                    </h2>
+                                    <div class="mb-4">
+                                        <h3 class="text-lg font-semibold text-primary">Full-Stack Developer
+                                            <span class="font-normal text-sm text-gray-500">(Contract)</span>
+                                        </h3>
+                                        <div class="flex items-center">
+                                            <img src="../assets/images/navy-smart-access-logo.png"
+                                                alt="Smart Access logo" class="w-5 h-5 mr-2 print:hidden">
+                                            <p class="text-heading text-sm mb-0">
+                                                <strong class="font-semibold">Smart Access</strong> - <em
+                                                    class="font-medium">Accessibility
+                                                    Navigation App</em>
+                                            </p>
+                                        </div>
+                                        <p class="text-xs text-gray-600 mb-1.5">May 2023 - Present</p>
+                                        <ul class="list-disc list-outside ml-5 space-y-0.5 text-sm text-body">
+                                            <li>Developed features for a Flutter app creating custom navigation
+                                                routes for
+                                                users
+                                                with diverse accessibility needs.</li>
+                                            <li>Built visualization interfaces for algorithmic navigation
+                                                routes.</li>
+                                            <li>Created responsive UI for accessibility data (NZ/Tasmania
+                                                cities).</li>
+                                            <li>Improved usability & accessibility (screen readers, UI patterns)
+                                                via user
+                                                feedback.
+                                            </li>
+                                            <li>Ensured cross-platform (iOS/Android/Web) compatibility.</li>
+                                        </ul>
+                                    </div>
+                                    <div class="mb-4">
+                                        <h3 class="text-lg font-semibold text-primary">Full-Stack Developer
+                                            <span class="font-normal text-sm text-gray-500">(Contract)</span>
+                                        </h3>
+                                        <div class="flex items-center">
+                                            <img src="../assets/images/navy-mlmv-logo.png" alt="My Life My Voice logo"
+                                                class="w-5 h-5 mr-2 print:hidden">
+                                            <p class="text-heading text-sm mb-0">
+                                                <strong class="font-semibold">My Life My Voice</strong> - <em
+                                                    class="font-medium">Peer
+                                                    Support Platform</em>
+                                            </p>
+                                        </div>
+                                        <p class="text-xs text-gray-600 mb-1.5">May 2023 - Present</p>
+                                        <ul class="list-disc list-outside ml-5 space-y-0.5 text-sm text-body">
+                                            <li>Developed Flutter front-end for peer support application.</li>
+                                            <li>Led implementation of a full forum system for community
+                                                discussion and knowledge sharing.</li>
+                                            <li>Integrated localization (l10n) for diverse language users.</li>
+                                            <li>Integrated accessibility features (screen readers, navigation).
+                                            </li>
+                                            <li>Used Firebase for real-time notifications & enhanced Supabase
+                                                backend.</li>
+                                            <li>Ensured responsive design across all device types.</li>
+                                        </ul>
+                                    </div>
+                                </section>
+                                <hr class="border-gray-300 my-4">
+                                <section>
+                                    <h2 class="text-xl font-semibold text-heading border-b-2 border-heading pb-1 mb-3">
+                                        INDEPENDENT PROJECTS
+                                    </h2>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-primary">Personal Portfolio
+                                            Website
+                                            <span class="font-normal text-sm text-gray-500">| 2023</span>
+                                        </h3>
+                                        <div class="flex items-center">
+                                            <img src="../assets/images/navy-slypork-logo.png" alt="Slypork logo"
+                                                class="w-6 h-6 mr-2 print:hidden">
+                                            <a href="https://slypork.net/" target="_blank"
+                                                class="text-primary hover:underline text-sm inline-flex items-center">
+                                                slypork.net <i
+                                                    class="fas fa-external-link-alt ml-1 text-xs print:hidden"></i>
+                                            </a>
+                                        </div>
+                                        <ul class="list-disc list-outside ml-5 mt-1 space-y-0.5 text-sm text-body">
+                                            <li>Built responsive portfolio to showcase projects and hobbies.
+                                            </li>
+                                            <li>Deployed and maintained via GitHub Pages.</li>
+                                            <li>Implemented an interactive boid flocking simulation (JavaScript)
+                                                as a visual
+                                                experiment in animation and emergent behavior</li>
+                                        </ul>
+                                    </div>
+                                </section>
+                                <hr class="border-gray-300 my-4">
+                                <section>
+                                    <h2 class="text-xl font-semibold text-heading border-b-2 border-heading pb-1 mb-3">
+                                        EDUCATION
+                                    </h2>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-primary">Bachelor of Science</h3>
+                                        <div class="flex items-center">
+                                            <img src="../assets/images/navy-vuw-logo.png"
+                                                alt="Victoria University of Wellington logo"
+                                                class="w-5 h-5 mr-2 print:hidden">
+                                            <p class="italic text-heading font-medium text-sm">Victoria
+                                                University of
+                                                Wellington</p>
+                                        </div>
+                                        <p class="text-sm text-body">Major: Computer Science | Minor: Psychology
+                                        </p>
+                                        <p class="text-xs text-gray-600">Graduated 2021</p>
+                                    </div>
+                                </section>
+                                <hr class="border-gray-300 my-4 md:hidden print:hidden">
+                                <section class="block md:hidden print:hidden">
+                                    <h2 class="text-lg font-semibold text-heading border-b border-heading pb-1 mb-2">
+                                        INTERESTS
+                                    </h2>
+                                    <ul class="space-y-1 text-sm text-body">
+                                        <li class="flex items-center"><i
+                                                class="fas fa-gamepad fa-fw w-5 text-primary mr-2"></i>Indie
+                                            game
+                                            development</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-brain fa-fw w-5 text-primary mr-2"></i>Locally
+                                            hosted AI</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-mountain fa-fw w-5 text-primary mr-2"></i>Bouldering
+                                        </li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-film fa-fw w-5 text-primary mr-2"></i>Retro
+                                            sci-fi</li>
+                                        <li class="flex items-center"><i
+                                                class="fas fa-balance-scale-right fa-fw w-5 text-primary mr-2"></i>Slacklining
+                                        </li>
+                                    </ul>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/easter-egg.js"></script>
+    <script src="../assets/js/boid-simulator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEasterEgg();
+        });
+
+        const downloadBtn = document.getElementById('downloadPdfBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function () {
+                window.print();
+            });
+        }
+    </script>
+    <div class="easter-egg no-print" id="easterEgg"></div>
+</body>
+
+</html>

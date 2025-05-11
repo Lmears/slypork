@@ -13,16 +13,20 @@
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/images/favicon-192x192.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,500&display=swap">
-    <link rel="stylesheet" href="./assets/css/styles.css">
+    <link rel="stylesheet" href="./assets/css/styles.css?v=1.1">
     <link rel="stylesheet" href="./assets/css/boid-simulator.css">
     <style>
-        @media (max-width: 768px) {
-            nav {
-                padding-top: 6rem !important;
-            }
-
+        @media (max-width: 767px) {
             #hamburger-menu {
                 display: block;
+            }
+
+            nav.nav-active ul li:first-child {
+                padding-bottom: 16px !important;
+            }
+
+            nav ul li:not(:first-child) {
+                padding-block: 4px !important;
             }
 
             nav ul li:not(:first-child) {
@@ -36,7 +40,6 @@
             nav ul {
                 flex-direction: column !important;
                 align-items: center;
-                transform: translateY(0px) !important;
             }
 
             .home-logo {
@@ -52,13 +55,13 @@
         <input type="range" id="speedSlider" min="0" max="200" value="100">
         <span id="speedValue">100%</span>
     </div>
-    <main id="container" class="flex p-10 max-w-7xl mx-auto">
+    <main id="container" class="flex min-h-full px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
         <header>
-            <nav class="nav-active py-3 flex flex-col">
+            <nav class="flex flex-col text-2xl pt-24 md:pt-0 nav-active">
                 <button id="hamburger-menu" aria-label="Menu">&#9776;</button>
                 <ul>
                     <li> <a href="./" id="homeLink">
-                            <img src="./assets/images/home.png" alt="Home" class="home-logo w-20 pb-15">
+                            <img src="./assets/images/home.png" alt="Home" class="home-logo">
                         </a>
                     </li>
                     <li><a href="./about/"><span class="nav-link-text">About</span></a></li>
@@ -72,10 +75,10 @@
         </header>
 
         <section id="content" class="flex-1 p-5 flex flex-col">
-            <!-- Content Here -->
+            <!-- Potential Content Here -->
         </section>
 
-        <footer class="text-center py-4 px-5" style="font-size:larger">
+        <footer class="text-center text-3xl p-3">
             slypork.net
         </footer>
     </main>

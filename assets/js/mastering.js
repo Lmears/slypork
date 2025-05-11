@@ -9,6 +9,7 @@ var links = [
         id: 'album=2113246421',
         url: 'https://grainsnz.bandcamp.com/album/stems-grains-remixed',
         type: 'bandcamp',
+        isVariousArtists: true,
     },
     {
         name: 'Büka - Bitches Cauldron',
