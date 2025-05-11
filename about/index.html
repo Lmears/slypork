@@ -54,8 +54,9 @@
             <nav class="flex flex-col text-2xl">
                 <button id="hamburger-menu" aria-label="Menu" class="nav-hide:hidden">&#9776;</button>
                 <ul>
-                    <li> <a href=".." id="homeLink">
-                            <img src="../assets/images/home.png" alt="Home" class="home-logo">
+                    <li> <a href=".." id="homeLink" class="p-1 block">
+                            <img src=" ../assets/images/home.png" alt="Home"
+                                class="w-[64px] nav-hide:w-[48px] md:w-[80px] md:pb-9">
                         </a>
                     </li>
                     <li><a href="./" class="selected"><span class="nav-link-text">About</span></a></li>
@@ -70,8 +71,8 @@
         <section id="content" class="flex-1 md:px-4 flex flex-col">
             <h1 class="text-3xl md:text-5xl leading-tight px-4 pb-8 pt-10 md:pb-12 md:pt-7">About</h1>
             <div class="visual-container">
-                <div class="flex flex-col sm:flex-row justify-center my-4 md:my-8">
-                    <div class="sm:w-2/3 px-4">
+                <div class="flex flex-col nav-hide:flex-row justify-center my-4 md:my-8">
+                    <div class="nav-hide:w-2/3 px-4">
                         <article id="blurb">
                             <div class="text-lg font-light">
                                 Nestled amongst the beautiful Port Hills of Whakaraupō, the studio overlooks the
@@ -108,10 +109,10 @@
                             </div>
                         </article>
                     </div>
-                    <div class="sm:w-1/3 px-4">
+                    <div class="nav-hide:w-1/3 px-4">
                         <section>
                             <img src="../assets/images/about.jpg"
-                                class="w-full sm:h-auto mx-auto modal-trigger cursor-pointer"
+                                class="w-full nav-hide:h-auto mx-auto modal-trigger cursor-pointer"
                                 alt="Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a hi-tech morning at Twisted Frequency festival." />
                             <p class="text-center text-gray-500 text-sm mt-2">
                                 <em>
