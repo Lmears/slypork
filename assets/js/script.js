@@ -17,32 +17,34 @@ function easeInOutElastic(x) {
 // Home image animation
 var homeLink = document.getElementById('homeLink');
 var homeLogo = document.querySelector('.home-logo') || document.querySelector('.rsvp-logo');
-var isHovering = false;
+if (homeLink && homeLogo) {
+    var isHovering = false;
 
-function handleHomeLinkMouseOver() {
-    homeLogo.src = getLogoPath('home-hover.png');
-    isHovering = true;
-}
-
-function handleHomeLinkMouseOut() {
-    homeLogo.src = getLogoPath('home.png');
-    isHovering = false;
-}
-
-function handleHomeLinkMouseDown() {
-    homeLogo.src = getLogoPath('home.png');
-}
-
-function handleHomeLinkMouseUp() {
-    if (isHovering) {
+    function handleHomeLinkMouseOver() {
         homeLogo.src = getLogoPath('home-hover.png');
+        isHovering = true;
     }
-}
 
-homeLink.addEventListener('mouseover', handleHomeLinkMouseOver);
-homeLink.addEventListener('mouseout', handleHomeLinkMouseOut);
-homeLink.addEventListener('mousedown', handleHomeLinkMouseDown);
-homeLink.addEventListener('mouseup', handleHomeLinkMouseUp);
+    function handleHomeLinkMouseOut() {
+        homeLogo.src = getLogoPath('home.png');
+        isHovering = false;
+    }
+
+    function handleHomeLinkMouseDown() {
+        homeLogo.src = getLogoPath('home.png');
+    }
+
+    function handleHomeLinkMouseUp() {
+        if (isHovering) {
+            homeLogo.src = getLogoPath('home-hover.png');
+        }
+    }
+
+    homeLink.addEventListener('mouseover', handleHomeLinkMouseOver);
+    homeLink.addEventListener('mouseout', handleHomeLinkMouseOut);
+    homeLink.addEventListener('mousedown', handleHomeLinkMouseDown);
+    homeLink.addEventListener('mouseup', handleHomeLinkMouseUp);
+}
 
 // Lightbox modal
 var modal = document.getElementById("myModal");
@@ -85,23 +87,29 @@ if (modal && img && modalImg) {
 // Hamburger menu
 function toggleNavMenu() {
     var nav = document.querySelector('nav');
-    nav.classList.toggle('nav-active');
+    if (nav) {
+        nav.classList.toggle('nav-active');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     var hamburger = document.getElementById('hamburger-menu');
-    hamburger.addEventListener('click', toggleNavMenu);
+    if (hamburger) {
+        hamburger.addEventListener('click', toggleNavMenu);
+    }
 });
 
 // Software iframes
 function adjustIframeHeight() {
     const iframes = document.querySelectorAll('.software-iframe');
-    const viewportHeight = window.innerHeight;
-    const maxHeight = Math.min(800, viewportHeight * 0.8);
+    if (iframes.length > 0) {
+        const viewportHeight = window.innerHeight;
+        const maxHeight = Math.min(800, viewportHeight * 0.8);
 
-    iframes.forEach(iframe => {
-        iframe.style.height = `${maxHeight}px`;
-    });
+        iframes.forEach(iframe => {
+            iframe.style.height = `${maxHeight}px`;
+        });
+    }
 }
 
 // Check for dark mode

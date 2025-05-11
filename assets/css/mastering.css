@@ -1,12 +1,12 @@
 .player-wrapper {
-    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 .release-name,
 .credits {
     color: rgba(23, 23, 23);
     text-align: start;
-    font-size: 0.8em;
+    /* font-size: 0.8em; */
     line-height: 1.2;
 }
 
