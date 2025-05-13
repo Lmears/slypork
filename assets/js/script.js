@@ -48,16 +48,44 @@ if (homeLink && homeLogo) {
 
 // Lightbox modal
 var modal = document.getElementById("myModal");
-var img = document.querySelector('.modal-trigger');
-var modalImg = document.getElementById("img01");
+var modalImg = document.getElementById("modalImage");
+// var closeButton = document.querySelector("#myModal .close");
 
-function openModal() {
-    modal.style.display = "block";
-    modalImg.src = this.src;
+
+function lockBodyScroll() {
+    if (document.body.classList.contains('modal-open')) return; // Already locked
+    document.documentElement.classList.add('modal-open'); // For html element
+}
+
+function unlockBodyScroll() {
+    document.documentElement.classList.remove('modal-open');
+    document.body.classList.remove('modal-open');
+}
+
+function openModal(event) {
+    const triggerElement = event.target.closest('.modal-trigger');
+
+    if (triggerElement && modal && modalImg) {
+        const imgSrc = triggerElement.src || triggerElement.querySelector('img')?.src;
+
+        if (imgSrc) {
+            modal.style.display = "flex";
+            modalImg.src = imgSrc;
+            lockBodyScroll();
+        } else {
+            console.warn("Modal trigger clicked, but no image source found.", triggerElement);
+        }
+    }
 }
 
 function closeModal() {
-    modal.style.display = "none";
+    if (modal) {
+        modal.style.display = "none";
+        unlockBodyScroll();
+        if (modalImg) {
+            modalImg.src = "";
+        }
+    }
 }
 
 function handleOutsideClick(event) {
@@ -67,21 +95,29 @@ function handleOutsideClick(event) {
 }
 
 function handleEscapeKey(event) {
-    if (event.key === "Escape" && modal.style.display === "block") {
+    if (event.key === "Escape" && modal && modal.style.display === "flex") {
         closeModal();
     }
 }
 
-if (modal && img && modalImg) {
-    img.onclick = openModal;
+document.body.addEventListener('click', openModal);
 
-    var closeButton = document.getElementsByClassName("close")[0];
-    if (closeButton) {
-        closeButton.onclick = closeModal;
-    }
+if (modal) {
+    // if (closeButton) {
+    //     closeButton.onclick = closeModal;
+    // } else {
+    //     console.warn("Modal close button (.close) not found within #myModal.");
+    // }
 
-    window.onclick = handleOutsideClick;
-    document.onkeydown = handleEscapeKey;
+    window.addEventListener('click', handleOutsideClick);
+
+    document.addEventListener('keydown', handleEscapeKey);
+} else {
+    console.warn("Modal element (#myModal) not found. Modal functionality disabled.");
+}
+
+if (modal && !modalImg) {
+    console.warn("Modal image element (#modalImage) not found. Modal cannot display images.");
 }
 
 // Hamburger menu

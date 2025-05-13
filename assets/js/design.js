@@ -18,70 +18,32 @@ function createImageElement(src) {
     var img = document.createElement('img');
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
     img.src = src;
+    img.alt = "Design Poster";
     img.classList.add('modal-trigger', 'cursor-pointer');
+    img.loading = 'lazy';
     return img;
 }
 
 // Create common elements for the image
 function createImageWrapper(src) {
     var wrapperDiv = createElementWithClass('div', 'image-wrapper');
-
-    var imgDiv = createElementWithClass('div');
-
     var img = createImageElement(src);
-    imgDiv.appendChild(img);
-
-    wrapperDiv.appendChild(imgDiv);
-
+    wrapperDiv.appendChild(img);
     return wrapperDiv;
 }
 
 // Add all images to the grid
 function populateGrid() {
     var grid = document.getElementById('imageGrid');
+    if (!grid) {
+        console.error("Element with ID 'imageGrid' not found.");
+        return;
+    }
     imagePaths.forEach(function (src) {
         grid.appendChild(createImageWrapper(src));
     });
 }
 
-// Lightbox modal
-var modal = document.getElementById("myModal");
-var modalImg = document.getElementById("img01");
-
-function openModal(event) {
-    modal.style.display = "block";
-    modalImg.src = event.target.src;
-}
-
-function closeModal() {
-    modal.style.display = "none";
-}
-
-function handleOutsideClick(event) {
-    if (event.target === modal) {
-        closeModal();
-    }
-}
-
-function handleEscapeKey(event) {
-    if (event.key === "Escape" && modal.style.display === "block") {
-        closeModal();
-    }
-}
-
-window.addEventListener('load', function () {
+window.addEventListener('DOMContentLoaded', function () {
     populateGrid();
-
-    var images = document.querySelectorAll('.modal-trigger');
-    images.forEach(function (image) {
-        image.onclick = openModal;
-    });
-
-    var closeButton = document.getElementsByClassName("close")[0];
-    if (closeButton) {
-        closeButton.onclick = closeModal;
-    }
-
-    window.onclick = handleOutsideClick;
-    document.onkeydown = handleEscapeKey;
 });

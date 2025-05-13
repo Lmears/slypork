@@ -1,6 +1,6 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     './*.html',         // Scans HTML files in the root
     './*/**/*.html',    // Scans HTML files in immediate subdirectories (like cv/index.html)

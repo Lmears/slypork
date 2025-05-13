@@ -5,18 +5,28 @@
 /* Main Styles */
 
 /* Base styles */
-html,
+html {
+    scrollbar-gutter: stable both-edges;
+    height: 100%;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    html.modal-open {
+        scrollbar-gutter: auto;
+        overflow: hidden;
+        padding-inline: 11px;
+    }
+}
+
+
 body {
-    /* height: 100%; */
     margin: 0;
     padding: 0;
-    /* font-size: 100%; */
     font-family: 'Roboto', sans-serif;
     background-color: rgb(243, 244, 241);
-    z-index: 3;
-    scrollbar-gutter: stable both-edges;
-    color: rgba(23, 23, 23);
+    color: rgb(23, 23, 23);
     transition: background-color 0.5s ease;
+    min-height: 100%;
 }
 
 .boid-active {
@@ -170,22 +180,19 @@ nav ul li a:hover,
 .modal {
     display: none;
     position: fixed;
-    z-index: 9999;
-    padding-top: 100px;
-    padding-bottom: 100px;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.9);
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
+    max-width: 90%;
+    max-height: 90%;
 }
 
 #caption {
@@ -294,16 +301,18 @@ html {
 .easter-egg {
     position: fixed;
     bottom: -21px;
-    /* Position it so that only the top half is visible initially */
     right: 25px;
     width: 45px;
     height: 40px;
-    /* Full height of the image */
     background-image: url('../images/home.png');
     background-size: 45px 40px;
     background-position: center;
-    z-index: 1;
+    z-index: 2000;
     cursor: pointer;
+}
+
+html.modal-open .easter-egg {
+    right: 36px;
 }
 
 /* Mastering */
