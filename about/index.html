@@ -1,145 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>About | Slypork</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192x192.png">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <title>About | Slypork</title>
+        <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192x192.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.gstatic.com/s/roboto/v47/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2"
-        as="font" type="font/woff2" crossorigin="anonymous">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+        <link rel="preload" href="https://fonts.gstatic.com/s/roboto/v47/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:200,300,500&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="../assets/css/output.css" rel="stylesheet">
-    <style>
-        @media (max-width: 1080px) {
-            #content {
-                display: flex;
-                flex-direction: column;
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:200,300,500&display=swap">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link href="../assets/css/output.css" rel="stylesheet">
+        <style>
+            @media (max-width: 1080px) {
+                #content {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .visual-container .flex {
+                    flex-direction: column;
+                }
+
+                .visual-container .flex > div {
+                    width: 100% !important;
+                    max-width: 100%;
+                }
+
+                .text-lg.font-light {
+                    padding-bottom: 3rem;
+                }
             }
+        </style>
+    </head>
 
-            .visual-container .flex {
-                flex-direction: column;
-            }
-
-            .visual-container .flex>div {
-                width: 100% !important;
-                max-width: 100%;
-            }
-
-            .text-lg.font-light {
-                padding-bottom: 3rem;
-            }
-        }
-    </style>
-</head>
-
-<body class="text-neutral-900">
-    <canvas id="boidCanvas"></canvas>
-    <div id="controls">
-        <input type="range" id="speedSlider" min="0" max="200" value="100">
-        <span id="speedValue">100%</span>
-    </div>
-    <main id="container" class="flex px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
-        <header>
-            <nav class="flex flex-col text-2xl">
-                <button id="hamburger-menu" aria-label="Menu" class="nav-hide:hidden">&#9776;</button>
-                <ul>
-                    <li> <a href=".." id="homeLink" class="p-1 block">
-                            <img src=" ../assets/images/home.png" alt="Home"
-                                class="w-[64px] nav-hide:w-[48px] md:w-[80px] md:pb-9">
-                        </a>
-                    </li>
-                    <li><a href="./" class="selected"><span class="nav-link-text">About</span></a></li>
-                    <li><a href="../mastering/"><span class="nav-link-text">Mastering</span></a></li>
-                    <li><a href="../music/"><span class="nav-link-text">Music</span></a></li>
-                    <li><a href="../design/"><span class="nav-link-text">Design</span></a></li>
-                    <li><a href="../software/"><span class="nav-link-text">Software</span></a></li>
-                    <li><a href="../contact/"><span class="nav-link-text">Contact</span></a></li>
-                </ul>
-            </nav>
-        </header>
-        <section id="content" class="flex-1 md:px-4 flex flex-col">
-            <h1 class="text-3xl md:text-5xl leading-tight px-4 pb-8 pt-10 md:pb-12 md:pt-7">About</h1>
-            <div class="visual-container">
-                <div class="flex flex-col nav-hide:flex-row justify-center my-4 md:my-8">
-                    <div class="nav-hide:w-2/3 px-4">
-                        <article id="blurb">
-                            <div class="text-lg font-light">
-                                Nestled amongst the beautiful Port Hills of Whakaraupō, the studio overlooks the
-                                magnificent Banks Peninsula.
-                                <br><br>
-                                Slypork was set up in 2023 by Lachlan Mears with the help of some friends and a
-                                lifelong desire for a dedicated creative space.
-                                <br><br>
-                                A born and bred lover of music, Lachie has spent the past 10 years learning how to
-                                work with digital audio and has several years of experience mastering a wide range
-                                of music from the Aotearoa underground.
-                                <br><br>
-                                So far, this has culminated in three diverse musical projects, and the co-founding
-                                of a record label.
-                                <br><br>
-                                <div class="ml-4">
-                                    • <a href="../music/" class="link-underline">Music Projects</a>
+    <body class="text-neutral-900">
+        <canvas id="boidCanvas"></canvas>
+        <div id="controls">
+            <input type="range" id="speedSlider" min="0" max="200" value="100">
+            <span id="speedValue">100%</span>
+        </div>
+        <main id="container" class="flex px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
+            <header>
+                <nav class="flex flex-col text-2xl">
+                    <button id="hamburger-menu" aria-label="Menu" class="nav-hide:hidden">&#9776;</button>
+                    <ul>
+                        <li>
+                            <a href=".." id="homeLink" class="p-1 block">
+                                <img src=" ../assets/images/home.png" alt="Home" class="w-[64px] nav-hide:w-[48px] md:w-[80px] md:pb-9 home-logo">
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./" class="selected">
+                                <span class="nav-link-text">About</span></a>
+                        </li>
+                        <li>
+                            <a href="../mastering/">
+                                <span class="nav-link-text">Mastering</span></a>
+                        </li>
+                        <li>
+                            <a href="../music/">
+                                <span class="nav-link-text">Music</span></a>
+                        </li>
+                        <li>
+                            <a href="../design/">
+                                <span class="nav-link-text">Design</span></a>
+                        </li>
+                        <li>
+                            <a href="../software/">
+                                <span class="nav-link-text">Software</span></a>
+                        </li>
+                        <li>
+                            <a href="../contact/">
+                                <span class="nav-link-text">Contact</span></a>
+                        </li>
+                    </ul>
+                </nav>
+            </header>
+            <section id="content" class="flex-1 md:px-4 flex flex-col">
+                <h1 class="text-3xl md:text-5xl leading-tight px-4 pb-8 pt-10 md:pb-12 md:pt-7">About</h1>
+                <div class="visual-container">
+                    <div class="flex flex-col nav-hide:flex-row justify-center my-4 md:my-8">
+                        <div class="nav-hide:w-2/3 px-4">
+                            <article id="blurb">
+                                <div class="text-lg font-light">
+                                    Nestled amongst the beautiful Port Hills of Whakaraupō, the studio overlooks the magnificent Banks Peninsula.
+                                    <br><br>
+                                    Slypork was set up in 2023 by Lachlan Mears with the help of some friends and a lifelong desire for a dedicated creative space.
+                                    <br><br>
+                                    A born and bred lover of music, Lachie has spent the past 10 years learning how to work with digital audio and has several years of experience mastering a wide range of music from the Aotearoa underground.
+                                    <br><br>
+                                    So far, this has culminated in three diverse musical projects, and the co-founding of a record label.
+                                    <br><br>
+                                    <div class="ml-4">
+                                        •
+                                        <a href="../music/" class="link-underline">Music Projects</a>
+                                        <br>
+                                        •
+                                        <a href="https://teethandtail.bandcamp.com/" target="_blank" class="link-underline inline-flex items-center">
+                                            Record Label (Bandcamp)
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" style="text-align: center; display: inline-block; vertical-align: middle;">
+                                                <path d="M7 17L17 7M17 16L17 7L8 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="butt" stroke-linejoin="butt" fill="none"/>
+                                            </svg>
+                                        </a>
+                                    </div>
                                     <br>
-                                    • <a href="https://teethandtail.bandcamp.com/" target="_blank"
-                                        class="link-underline inline-flex items-center">
-                                        Record Label (Bandcamp)
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
-                                            height="24"
-                                            style="text-align: center; display: inline-block; vertical-align: middle;">
-                                            <path d="M7 17L17 7M17 16L17 7L8 7" stroke="currentColor" stroke-width="1.2"
-                                                stroke-linecap="butt" stroke-linejoin="butt" fill="none" />
-                                        </svg>
-                                    </a>
+                                    In 2021 Lachie finished a bachelor's degree in Computer Science & Psychology and has since grown a deep interest in software, UX, and graphic design, working on the development of a number of quality of life and accessibility apps.
                                 </div>
-                                <br>
-                                In 2021 Lachie finished a bachelor's degree in Computer Science & Psychology and has
-                                since grown a deep interest in software, UX, and graphic design, working on the
-                                development of a number of quality of life and accessibility apps.
-                            </div>
-                        </article>
-                    </div>
-                    <div class="nav-hide:w-1/3 px-4">
-                        <section>
-                            <img src="../assets/images/about.jpg"
-                                class="w-full nav-hide:h-auto mx-auto modal-trigger cursor-pointer"
-                                alt="Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a hi-tech morning at Twisted Frequency festival." />
-                            <p class="text-center text-gray-500 text-sm mt-2">
-                                <em>
-                                    Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a
-                                    morning of hi-tech music at Twisted Frequency festival.
-                                </em>
-                            </p>
-                            <!-- Lightbox Modal -->
-                            <div id="myModal" class="modal">
-                                <!-- <span class="close cursor-pointer">&times;</span> -->
-                                <img class="modal-content" id="img01">
-                            </div>
-                        </section>
+                            </article>
+                        </div>
+                        <div class="nav-hide:w-1/3 px-4">
+                            <section>
+                                <img src="../assets/images/about.jpg" class="w-full nav-hide:h-auto mx-auto modal-trigger cursor-pointer" alt="Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a hi-tech morning at Twisted Frequency festival."/>
+                                <p class="text-center text-gray-500 text-sm mt-2">
+                                    <em>
+                                        Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a morning of hi-tech music at Twisted Frequency festival.
+                                    </em>
+                                </p>
+                                <!-- Lightbox Modal -->
+                                <div id="myModal" class="modal">
+                                    <!-- <span class="close cursor-pointer">&times;</span> -->
+                                    <img class="modal-content" id="img01">
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
-    <script src="../assets/js/script.js"></script>
-    <script src="../assets/js/easter-egg.js"></script>
-    <script src="../assets/js/boid-simulator.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            setupEasterEgg();
-        });
-    </script>
-    <div class="easter-egg" id="easterEgg"></div>
-</body>
+            </section>
+        </main>
+        <script src="../assets/js/script.js"></script>
+        <script src="../assets/js/easter-egg.js"></script>
+        <script src="../assets/js/boid-simulator.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                setupEasterEgg();
+            });
+        </script>
+        <div class="easter-egg" id="easterEgg"></div>
+    </body>
 
 </html>
