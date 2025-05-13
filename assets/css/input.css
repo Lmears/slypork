@@ -12,10 +12,13 @@ html {
 
 @media (hover: hover) and (pointer: fine) {
     html.modal-open {
-        scrollbar-gutter: auto;
-        overflow: hidden;
         padding-inline: 11px;
     }
+}
+
+html.modal-open {
+    scrollbar-gutter: auto;
+    overflow: hidden;
 }
 
 
@@ -301,7 +304,7 @@ html {
 .easter-egg {
     position: fixed;
     bottom: -21px;
-    right: 25px;
+    right: 18px;
     width: 45px;
     height: 40px;
     background-image: url('../images/home.png');
@@ -312,7 +315,7 @@ html {
 }
 
 html.modal-open .easter-egg {
-    right: 36px;
+    right: 29px;
 }
 
 /* Mastering */
