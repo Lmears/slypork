@@ -248,18 +248,6 @@ nav ul li a:hover,
     nav.nav-active ul li:not(:first-child) {
         display: block;
     }
-
-    nav.nav-active ul li:first-child {
-        /* padding-bottom: 16px !important; */
-    }
-
-    nav ul {
-        display: flex;
-        flex-direction: column !important;
-        justify-content: space-around;
-        align-items: center;
-        padding-inline: 0rem !important;
-    }
 }
 
 @media (max-width: 767px) {
@@ -272,20 +260,8 @@ nav ul li a:hover,
         padding: 0;
     }
 
-    nav ul {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        min-height: 60.75px;
-    }
-
     nav ul li a {
         font-size: smaller;
-    }
-
-    nav ul li {
-        /* padding: 0 0 !important; */
     }
 }
 
