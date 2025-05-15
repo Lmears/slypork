@@ -25,38 +25,37 @@
             <input type="range" id="speedSlider" min="0" max="200" value="100">
             <span id="speedValue">100%</span>
         </div>
-        <main id="container" class="flex px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
-
+        <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
             <header>
                 <nav class="flex flex-col text-2xl">
-                    <button id="hamburger-menu" aria-label="Menu" class="nav-hide:hidden">&#9776;</button>
+                    <button id="hamburger-menu" aria-label="Menu" class="py-3 px-2 nav-hide:hidden">&#9776;</button>
                     <ul>
-                        <li>
+                        <li class="group-[.nav-active]:pb-4 nav-hide:group-[.nav-active]:pb-0 md:px-3 md:pt-3">
                             <a href=".." id="homeLink" class="p-1 block">
                                 <img src=" ../assets/images/home.png" alt="Home" class="w-[64px] nav-hide:w-[48px] md:w-[80px] md:pb-9 home-logo">
                             </a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="../about/">
                                 <span class="nav-link-text">About</span></a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="./" class="selected">
                                 <span class="nav-link-text">Mastering</span></a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="../music/">
                                 <span class="nav-link-text">Music</span></a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="../design/">
                                 <span class="nav-link-text">Design</span></a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="../software/">
                                 <span class="nav-link-text">Software</span></a>
                         </li>
-                        <li>
+                        <li class="p-0 md:p-3">
                             <a href="../contact/">
                                 <span class="nav-link-text">Contact</span></a>
                         </li>
@@ -64,10 +63,10 @@
                 </nav>
             </header>
             <section id="content" class="flex-1 md:px-4 flex flex-col">
-                <h1 class="text-3xl md:text-5xl leading-tight px-4 pb-8 pt-10 md:pb-12 md:pt-7">Mastering</h1>
+                <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">Mastering</h1>
                 <article id="blurb">
                     <div class="visual-container">
-                        <div class="m-4 md:my-8">
+                        <div class="mx-2 md:mx-4 my-4 md:my-8">
                             <div class="image-container mb-8">
                                 <img src="../assets/images/mastering/danger-zone-cropped.jpg" alt="Mastering Studio Image" style="max-width: 100%; height: auto;">
                             </div>
@@ -104,7 +103,7 @@
                     </div>
                 </article>
                 <section id="playerGrid" class="visual-container-bottom">
-                    <div class="m-4 md:my-8">
+                    <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <h2 class="text-2xl">Past work:
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-lg" id="songsGrid">

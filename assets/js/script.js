@@ -51,17 +51,6 @@ var modal = document.getElementById("myModal");
 var modalImg = document.getElementById("modalImage");
 // var closeButton = document.querySelector("#myModal .close");
 
-
-function lockBodyScroll() {
-    if (document.body.classList.contains('modal-open')) return; // Already locked
-    document.documentElement.classList.add('modal-open'); // For html element
-}
-
-function unlockBodyScroll() {
-    document.documentElement.classList.remove('modal-open');
-    document.body.classList.remove('modal-open');
-}
-
 function openModal(event) {
     const triggerElement = event.target.closest('.modal-trigger');
 
@@ -71,7 +60,7 @@ function openModal(event) {
         if (imgSrc) {
             modal.style.display = "flex";
             modalImg.src = imgSrc;
-            lockBodyScroll();
+            // lockHTMLScroll();
         } else {
             console.warn("Modal trigger clicked, but no image source found.", triggerElement);
         }
@@ -81,7 +70,7 @@ function openModal(event) {
 function closeModal() {
     if (modal) {
         modal.style.display = "none";
-        unlockBodyScroll();
+        // unlockHTMLScroll();
         if (modalImg) {
             modalImg.src = "";
         }
@@ -112,8 +101,6 @@ if (modal) {
     window.addEventListener('click', handleOutsideClick);
 
     document.addEventListener('keydown', handleEscapeKey);
-} else {
-    console.warn("Modal element (#myModal) not found. Modal functionality disabled.");
 }
 
 if (modal && !modalImg) {
