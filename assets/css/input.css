@@ -69,7 +69,7 @@ h1 {
 .visual-container,
 .visual-container-bottom {
     border-top: 0.5px solid rgba(23, 23, 23, 0.5);
-    margin-top: -0.5px;
+    /* margin-top: -0.5px; */
     border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
     position: relative;
     z-index: 1;
