@@ -3,3 +3,7 @@ assets/images/darkmode
 assets/images/lightmode
 .DS_Store
 node_modules
+assets/css/boid-simulator.css
+assets/css/mastering.css
+assets/css/music.css
+assets/css/styles.css
