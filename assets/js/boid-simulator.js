@@ -18,19 +18,20 @@ const HOLD_SCATTER_DURATION = 45;
 const COOLDOWN_DURATION = 30;
 
 // Boid behavior forces
-const ALIGNMENT_FORCE = 1.1;
+const ALIGNMENT_FORCE = 1.2;
 const COHESION_FORCE = 0.7;
 const SEPARATION_FORCE = 1.7;
-const MOUSE_FORCE_NORMAL = 2.5;
+const MOUSE_FORCE_NORMAL = 3.0;
 const MOUSE_FORCE_SCATTER = 2.5;
 
 // Boid behavior radii
 const ALIGNMENT_RADIUS = 50;
 const SEPARATION_RADIUS = 50;
 const COHESION_RADIUS = 300;
+const DEPTH_INFLUENCE_RADIUS = 50;
 
 // Additional Boid-specific constants
-const BOID_MAX_FORCE = 0.2;
+const BOID_MAX_FORCE = 0.175;
 const BOID_SIZE_BASE = 20;
 const BOID_SIZE_VARIATION = 10;
 const BOID_OSCILLATION_SPEED_BASE = 0.002;
@@ -38,7 +39,7 @@ const BOID_OSCILLATION_SPEED_VARIATION = 0.002;
 const BOID_ROTATION_SPEED = 0.1;
 
 // Inertia values (0 - 1)
-const VELOCITY_INERTIA = 0.4;
+const VELOCITY_INERTIA = 0.45;
 const ROTATION_INERTIA = 0.3;
 
 // Easter egg parameters
@@ -62,7 +63,7 @@ const EDGE_BUFFER_POSITIONS = [
 
 // --- Spatial Partitioning Settings ---
 // CELL_SIZE must be at least the largest interaction radius for the 3x3 neighborhood search to be sufficient.
-const CELL_SIZE = Math.max(ALIGNMENT_RADIUS, SEPARATION_RADIUS, COHESION_RADIUS, 50 /* for Boid.updateDepth radius */);
+const CELL_SIZE = Math.max(ALIGNMENT_RADIUS, SEPARATION_RADIUS, COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS);
 
 
 // Global variables
@@ -71,15 +72,14 @@ let isScattering = false;
 let mouse = { x: 0, y: 0 };
 let mouseInfluence = false;
 let animationFrameId = null;
-let isEnding = false; // Added for completeness from context
-let endStartTime = 0; // Added for completeness from context
-let spatialGrid; // Instance of SpatialGrid
+let isEnding = false;
+let endStartTime = 0;
+let spatialGrid;
 let debugDrawGrid = false;
 let debugSelectedBoid = null;
 
-// Assets
 const logoImg = new Image();
-logoImg.src = '../assets/images/favicon-96x96.png'; // Ensure this path is correct
+logoImg.src = '../assets/images/favicon-96x96.png';
 
 class Vector {
     constructor(x, y) {
@@ -143,17 +143,13 @@ class SpatialGrid {
 
     addBoid(boid) {
         const { col, row } = this._getCellCoords(boid.position);
-        // Add boid only if it's within the grid boundaries.
-        // boid.edges() should keep them within canvas, so they should be in grid.
         if (row >= 0 && row < this.numRows && col >= 0 && col < this.numCols) {
             this.grid[row][col].push(boid);
         }
-        // else: Boid is outside the defined grid. This might happen if boids
-        // are initialized outside or if edges() logic changes.
     }
 
     getNeighbors(boid) {
-        const neighbors = []; // Using array directly as duplicates are less likely / less harmful
+        const neighbors = [];
         const { col: boidCol, row: boidRow } = this._getCellCoords(boid.position);
 
         for (let rOffset = -1; rOffset <= 1; rOffset++) {
@@ -392,7 +388,7 @@ class Boid {
         const nearbyBoidsForDepth = [];
         for (const b of localNeighbors) {
             if (b === this) continue;
-            if (Vector.dist(this.position, b.position) < 50) { // 50 is the radius for depth influence
+            if (Vector.dist(this.position, b.position) < DEPTH_INFLUENCE_RADIUS) {
                 nearbyBoidsForDepth.push(b);
             }
         }
@@ -500,13 +496,6 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
             const actualCol = (neighborCol + gridInstance.numCols) % gridInstance.numCols;
 
             ctx.fillRect(actualCol * gridInstance.cellSize, actualRow * gridInstance.cellSize, gridInstance.cellSize, gridInstance.cellSize);
-
-            // Also draw non-wrapped for clarity if near edge (optional, can be noisy)
-            if (neighborRow < 0 || neighborRow >= gridInstance.numRows || neighborCol < 0 || neighborCol >= gridInstance.numCols) {
-                ctx.fillStyle = 'rgba(0, 100, 255, 0.05)'; // Blue for wrapped cells
-                ctx.fillRect(neighborCol * gridInstance.cellSize, neighborRow * gridInstance.cellSize, gridInstance.cellSize, gridInstance.cellSize);
-                ctx.fillStyle = 'rgba(0, 255, 0, 0.05)'; // Reset fillStyle
-            }
         }
     }
 
@@ -540,7 +529,6 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
 
 function scatter(duration) {
     flock.forEach(boid => {
-        // Scatter only affects boids near the mouse
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
             boid.scatterState = 1; // Active scatter state
             boid.cooldownTimer = duration;
@@ -549,23 +537,19 @@ function scatter(duration) {
 }
 
 function animate() {
-    // Basic DarkReader detection (assuming it's globally available)
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
-        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)'; // Dark mode trail
+        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
     } else {
-        ctx.fillStyle = 'rgba(243, 244, 241, 0.1)'; // Light mode trail
+        ctx.fillStyle = 'rgba(243, 244, 241, 0.1)';
     }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Removed duplicate fillRect
 
-    // --- DEBUG DRAWING ---
     if (debugDrawGrid) {
         drawGridVisualization(spatialGrid, ctx);
     }
     if (debugSelectedBoid) {
         drawNeighborhoodVisualization(debugSelectedBoid, spatialGrid, ctx);
     }
-    // --- END DEBUG DRAWING ---
 
     if (isScattering) {
         scatter(HOLD_SCATTER_DURATION); // Continuous scatter while mouse is down
@@ -580,7 +564,6 @@ function animate() {
         spatialGrid.addBoid(boid);
     }
 
-    // Sort for depth-based rendering (optional, but was in original)
     flock.sort((a, b) => a.depth - b.depth);
 
     const currentTime = performance.now();
