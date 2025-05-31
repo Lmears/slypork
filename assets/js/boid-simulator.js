@@ -2,9 +2,24 @@
 const canvas = document.getElementById('boidCanvas');
 const ctx = canvas.getContext('2d');
 const speedSlider = document.getElementById('speedSlider');
+const speedControls = document.getElementById('controls');
 const speedValue = document.getElementById('speedValue');
 
-// Simulation parameters
+// --- Tweakable Simulation Parameters (via experimental menu) ---
+let simParams = {
+    ALIGNMENT_FORCE: 1.2,
+    COHESION_FORCE: 0.7,
+    SEPARATION_FORCE: 1.5,
+    ALIGNMENT_RADIUS: 50,
+    SEPARATION_RADIUS: 50,
+    COHESION_RADIUS: 300,
+    VELOCITY_INERTIA: 0.45,
+    ROTATION_INERTIA: 0.3,
+};
+
+const defaultSimParams = { ...simParams }; // Store initial values for reset
+
+// --- Other Simulation parameters (mostly non-tweakable via new menu) ---
 const FLOCK_SIZE = 200;
 const NORMAL_MAX_SPEED = 5;
 const SCATTER_MAX_SPEED = 15;
@@ -17,17 +32,11 @@ const CLICK_SCATTER_DURATION = 22;
 const HOLD_SCATTER_DURATION = 45;
 const COOLDOWN_DURATION = 30;
 
-// Boid behavior forces
-const ALIGNMENT_FORCE = 1.2;
-const COHESION_FORCE = 0.7;
-const SEPARATION_FORCE = 1.7;
+// Boid behavior forces (related to mouse, not part of tweakable menu)
 const MOUSE_FORCE_NORMAL = 3.0;
 const MOUSE_FORCE_SCATTER = 2.5;
 
-// Boid behavior radii
-const ALIGNMENT_RADIUS = 50;
-const SEPARATION_RADIUS = 50;
-const COHESION_RADIUS = 300;
+// Boid behavior radii (DEPTH_INFLUENCE_RADIUS is used for CELL_SIZE but not in tweakable menu)
 const DEPTH_INFLUENCE_RADIUS = 50;
 
 // Additional Boid-specific constants
@@ -37,10 +46,6 @@ const BOID_SIZE_VARIATION = 10;
 const BOID_OSCILLATION_SPEED_BASE = 0.002;
 const BOID_OSCILLATION_SPEED_VARIATION = 0.002;
 const BOID_ROTATION_SPEED = 0.1;
-
-// Inertia values (0 - 1)
-const VELOCITY_INERTIA = 0.45;
-const ROTATION_INERTIA = 0.3;
 
 // Easter egg parameters
 const EASTER_EGG_WIDTH = 45;
@@ -62,8 +67,23 @@ const EDGE_BUFFER_POSITIONS = [
 ];
 
 // --- Spatial Partitioning Settings ---
-// CELL_SIZE must be at least the largest interaction radius for the 3x3 neighborhood search to be sufficient.
-const CELL_SIZE = Math.max(ALIGNMENT_RADIUS, SEPARATION_RADIUS, COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS);
+let CELL_SIZE; // Dynamically calculated based on simParams radii
+
+// Helper function to calculate CELL_SIZE
+function calculateCurrentCellSize() {
+    return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS);
+}
+
+// Function to update spatial grid parameters if radii change
+function updateSpatialGridParameters() {
+    const newCellSize = calculateCurrentCellSize();
+    CELL_SIZE = newCellSize;
+
+    if (spatialGrid) {
+        spatialGrid.cellSize = CELL_SIZE;
+        spatialGrid.resize(canvas.width, canvas.height);
+    }
+}
 
 
 // Global variables
@@ -75,8 +95,10 @@ let animationFrameId = null;
 let isEnding = false;
 let endStartTime = 0;
 let spatialGrid;
-let debugDrawGrid = false;
+let godMode = false;
+let debugCellsMode = false;
 let debugSelectedBoid = null;
+let isMouseOverControls = false;
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
@@ -105,7 +127,7 @@ class SpatialGrid {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.cellSize = cellSize;
-        this.resize(canvasWidth, canvasHeight); // Call resize to initialize grid
+        this.resize(canvasWidth, canvasHeight);
     }
 
     _initializeGrid() {
@@ -121,7 +143,6 @@ class SpatialGrid {
     resize(newWidth, newHeight) {
         this.canvasWidth = newWidth;
         this.canvasHeight = newHeight;
-        // Ensure numCols/numRows are at least 1, even if canvas is smaller than cellSize
         this.numCols = Math.max(1, Math.ceil(newWidth / this.cellSize));
         this.numRows = Math.max(1, Math.ceil(newHeight / this.cellSize));
         this._initializeGrid();
@@ -157,11 +178,9 @@ class SpatialGrid {
                 let neighborRow = boidRow + rOffset;
                 let neighborCol = boidCol + cOffset;
 
-                // Handle grid wraparound for neighbor cells
                 neighborRow = (neighborRow + this.numRows) % this.numRows;
                 neighborCol = (neighborCol + this.numCols) % this.numCols;
 
-                // Ensure row and col are valid before accessing (should be due to modulo, but defensive)
                 if (this.grid[neighborRow] && this.grid[neighborRow][neighborCol]) {
                     for (const otherBoid of this.grid[neighborRow][neighborCol]) {
                         neighbors.push(otherBoid);
@@ -169,15 +188,13 @@ class SpatialGrid {
                 }
             }
         }
-        return neighbors; // Note: This list includes the boid itself.
-        // Behavior calculations usually have `other !== this`.
+        return neighbors;
     }
 }
 
 
 class Boid {
     constructor() {
-        // Position initialization
         const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         this.position = new Vector(
@@ -185,7 +202,6 @@ class Boid {
             easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * SPREAD_FACTOR
         );
 
-        // Velocity and movement properties
         this.velocity = Vector.random2D();
         this.velocity.setMag(Math.random() * 2 + 2);
         this.desiredVelocity = new Vector(0, 0);
@@ -193,22 +209,16 @@ class Boid {
         this.maxSpeed = NORMAL_MAX_SPEED;
         this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
 
-        // Inertia and rotation properties
-        this.velocityInertia = VELOCITY_INERTIA;
-        this.rotationInertia = ROTATION_INERTIA;
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = BOID_ROTATION_SPEED;
 
-        // Visual properties
         this.depth = Math.random();
         this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
         this.renderSize = this.calculateRenderSize();
 
-        // Oscillation properties
         this.oscillationOffset = Math.random() * Math.PI * 2;
         this.oscillationSpeed = BOID_OSCILLATION_SPEED_BASE + Math.random() * BOID_OSCILLATION_SPEED_VARIATION;
 
-        // State properties
         this.scatterState = 0;
         this.cooldownTimer = 0;
     }
@@ -220,25 +230,24 @@ class Boid {
         else if (this.position.y < 0) this.position.y = canvas.height;
     }
 
-    // These methods now operate on `localNeighbors` passed from `flock()`
     alignment(localNeighbors) {
-        return this.calculateSteering(localNeighbors, ALIGNMENT_RADIUS, (other, d) => {
+        return this.calculateSteering(localNeighbors, simParams.ALIGNMENT_RADIUS, (other, d) => {
             return other.velocity;
         });
     }
 
     separation(localNeighbors) {
-        return this.calculateSteering(localNeighbors, SEPARATION_RADIUS, (other, d) => {
+        return this.calculateSteering(localNeighbors, simParams.SEPARATION_RADIUS, (other, d) => {
             const diff = Vector.sub(this.position, other.position);
-            diff.div(d * d); // d*d makes separation stronger for closer boids
+            diff.div(d * d);
             return diff;
         });
     }
 
     cohesion(localNeighbors) {
-        return this.calculateSteering(localNeighbors, COHESION_RADIUS, (other, d) => {
+        return this.calculateSteering(localNeighbors, simParams.COHESION_RADIUS, (other, d) => {
             const diff = Vector.sub(other.position, this.position);
-            diff.mult(1 - d / COHESION_RADIUS);
+            diff.mult(1 - d / simParams.COHESION_RADIUS);
             return diff;
         });
     }
@@ -247,11 +256,9 @@ class Boid {
         let steering = new Vector(0, 0);
         let total = 0;
         for (let other of boidsToConsider) {
-            // The boidsToConsider list might contain the boid itself, so filter it out.
             if (other === this) continue;
-
             let d = Vector.dist(this.position, other.position);
-            if (d > 0 && d < radius) { // d > 0 to avoid issues if somehow dist is 0
+            if (d > 0 && d < radius) {
                 let vec = vectorFunc(other, d);
                 steering.add(vec);
                 total++;
@@ -259,86 +266,50 @@ class Boid {
         }
         if (total > 0) {
             steering.div(total);
-            steering.setMag(this.maxSpeed); // Desired velocity towards average
-            steering.sub(this.velocity);   // Steering force = desired - current
+            steering.setMag(this.maxSpeed);
+            steering.sub(this.velocity);
             steering.limit(this.maxForce);
         }
         return steering;
     }
 
     mouseAttraction() {
-        if (!mouseInfluence) return new Vector(0, 0); // No influence, no force
-
-        let directionToMouse = Vector.sub(mouse, this.position); // Vector from boid to mouse
-        let distance = directionToMouse.mag(); // Distance to mouse
-
-        // Check if the boid is within the influence radius and not exactly at the mouse position
+        if (!mouseInfluence || isMouseOverControls) return new Vector(0, 0);
+        let directionToMouse = Vector.sub(mouse, this.position);
+        let distance = directionToMouse.mag();
         if (distance > 0 && distance < MOUSE_INFLUENCE_RADIUS) {
-            let steer; // This will be the calculated steering force
-
-            if (this.scatterState === 1) { // Scattering (repulsion) mode
-                // For scattering, boids flee directly away from the mouse.
-                // The boid's this.maxSpeed is already elevated to SCATTER_MAX_SPEED via updateMaxSpeed().
-
-                // Create a new vector for the desired repulsion velocity, initially pointing towards the mouse.
+            let steer;
+            if (this.scatterState === 1) {
                 let desiredRepulsionVelocity = new Vector(directionToMouse.x, directionToMouse.y);
-
-                // Set its magnitude to the boid's current (scatter) maxSpeed.
-                // setMag() normalizes the vector and then scales it.
                 desiredRepulsionVelocity.setMag(this.maxSpeed);
-
-                // Reverse the direction to make it point away from the mouse.
                 desiredRepulsionVelocity.mult(-1);
-
-                // Standard steering force calculation: desired velocity - current velocity.
                 steer = Vector.sub(desiredRepulsionVelocity, this.velocity);
-
-                // Apply a higher force limit for scattering.
-                // The MOUSE_FORCE_SCATTER multiplier will be applied later in flock().
                 steer.limit(this.maxForce * 3);
-
-            } else { // Normal attraction mode
-                // Calculate a strength factor based on proximity.
+            } else {
                 let strength = 1.0 - (distance / MOUSE_INFLUENCE_RADIUS);
-
-                // Optional: For an even gentler engagement at the edges, use a squared strength:
-                // strength = strength * strength;
-
-                // The desired velocity is to move towards the mouse at the boid's current maxSpeed.
-                // Create a new vector for the desired attraction velocity.
                 let desiredAttractionVelocity = new Vector(directionToMouse.x, directionToMouse.y);
-
-                // Set its magnitude to the boid's current maxSpeed, pointing towards the mouse.
-                // setMag() normalizes the vector and then scales it.
                 desiredAttractionVelocity.setMag(this.maxSpeed);
-
-                // Standard steering force calculation: desired velocity - current velocity.
                 steer = Vector.sub(desiredAttractionVelocity, this.velocity);
-
-                // Crucially, scale the *entire calculated steering force* by the strength factor.
                 steer.mult(strength);
-
-                // Limit the steering force to the boid's general max force capability.
-                // The MOUSE_FORCE_NORMAL multiplier will be applied later in flock().
                 steer.limit(this.maxForce);
             }
-            return steer; // Return the calculated steering force
+            return steer;
         }
-        return new Vector(0, 0); // Outside influence radius, so no mouse force.
+        return new Vector(0, 0);
     }
 
-    flock(localNeighbors) { // Receives localNeighbors from the grid
+    flock(localNeighbors) {
         const alignment = this.alignment(localNeighbors);
         const cohesion = this.cohesion(localNeighbors);
         const separation = this.separation(localNeighbors);
         const mouseForce = this.mouseAttraction();
 
-        alignment.mult(ALIGNMENT_FORCE);
-        cohesion.mult(COHESION_FORCE);
-        separation.mult(SEPARATION_FORCE);
+        alignment.mult(simParams.ALIGNMENT_FORCE);
+        cohesion.mult(simParams.COHESION_FORCE);
+        separation.mult(simParams.SEPARATION_FORCE);
         mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
 
-        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y); // Start with current velocity
+        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
         this.desiredVelocity.add(alignment);
         this.desiredVelocity.add(cohesion);
         this.desiredVelocity.add(separation);
@@ -346,9 +317,9 @@ class Boid {
         this.desiredVelocity.limit(this.maxSpeed);
     }
 
-    update(localNeighbors) { // Receives localNeighbors for operations like updateDepth
-        this.velocity.x = this.velocity.x * this.velocityInertia + this.desiredVelocity.x * (1 - this.velocityInertia);
-        this.velocity.y = this.velocity.y * this.velocityInertia + this.desiredVelocity.y * (1 - this.velocityInertia);
+    update(localNeighbors) {
+        this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
+        this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
         this.velocity.add(this.boost);
         this.boost.mult(BOOST_DECAY);
@@ -356,7 +327,7 @@ class Boid {
 
         this.updateScatterState();
         this.updateMaxSpeed();
-        this.updateDepth(localNeighbors); // Pass localNeighbors for depth calculation
+        this.updateDepth(localNeighbors);
         this.updateRotation();
 
         this.velocity.limit(this.maxSpeed);
@@ -381,10 +352,10 @@ class Boid {
         } else {
             this.maxSpeed = NORMAL_MAX_SPEED * speedMultiplier;
         }
-        this.maxSpeed *= (0.5 + this.depth * 0.5); // Depth affects max speed
+        this.maxSpeed *= (0.5 + this.depth * 0.5);
     }
 
-    updateDepth(localNeighbors) { // Uses localNeighbors now
+    updateDepth(localNeighbors) {
         const nearbyBoidsForDepth = [];
         for (const b of localNeighbors) {
             if (b === this) continue;
@@ -395,7 +366,7 @@ class Boid {
 
         if (nearbyBoidsForDepth.length > 0) {
             const avgDepth = nearbyBoidsForDepth.reduce((sum, b) => sum + b.depth, 0) / nearbyBoidsForDepth.length;
-            this.depth = this.depth * 0.99 + avgDepth * 0.01; // Slow interpolation
+            this.depth = this.depth * 0.99 + avgDepth * 0.01;
             this.depth = Math.max(0, Math.min(1, this.depth));
         }
     }
@@ -403,12 +374,12 @@ class Boid {
     updateRotation() {
         const targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
         let rotationDiff = targetRotation - this.rotation;
-        rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff)); // Normalize angle diff
+        rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
 
-        const smoothedRotationDiff = rotationDiff * (1 - this.rotationInertia) * this.rotationSpeed * speedMultiplier;
+        const smoothedRotationDiff = rotationDiff * (1 - simParams.ROTATION_INERTIA) * this.rotationSpeed * speedMultiplier;
         this.rotation += smoothedRotationDiff;
 
-        this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI); // Keep rotation within [0, 2PI)
+        this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
     drawWithEdgeBuffering() {
@@ -430,7 +401,7 @@ class Boid {
     drawAt(position) {
         ctx.save();
         ctx.translate(position.x, position.y);
-        ctx.rotate(this.rotation + Math.PI / 2); // Boid image might be pointing up
+        ctx.rotate(this.rotation + Math.PI / 2);
         ctx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
         ctx.restore();
     }
@@ -445,13 +416,11 @@ class Boid {
     calculateRenderSize() {
         const time = performance.now();
         const oscillation = Math.sin(time * this.oscillationSpeed + this.oscillationOffset);
-        let size = this.size * (1 + oscillation * 0.1); // Base oscillation
+        let size = this.size * (1 + oscillation * 0.1);
 
-        // Scatter state visual feedback
         if (this.scatterState === 1) {
-            size *= 1.5; // Larger when actively scattering
+            size *= 1.5;
         } else if (this.scatterState === 2) {
-            // Transition back to normal size during cooldown
             size *= 1 + 0.5 * (this.cooldownTimer / COOLDOWN_DURATION);
         }
         return size;
@@ -462,7 +431,7 @@ const flock = [];
 
 function drawGridVisualization(gridInstance, ctx) {
     if (!gridInstance) return;
-    ctx.strokeStyle = 'rgba(128, 128, 128, 0.3)'; // Light gray, semi-transparent
+    ctx.strokeStyle = 'rgba(128, 128, 128, 0.3)';
     ctx.lineWidth = 0.5;
 
     for (let i = 0; i <= gridInstance.numCols; i++) {
@@ -484,45 +453,33 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
 
     const { col: boidCol, row: boidRow } = gridInstance._getCellCoords(boid.position);
 
-    // Highlight the 3x3 neighborhood cells
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.05)'; // Light green, very transparent
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
     for (let rOffset = -1; rOffset <= 1; rOffset++) {
         for (let cOffset = -1; cOffset <= 1; cOffset++) {
             let neighborRow = boidRow + rOffset;
             let neighborCol = boidCol + cOffset;
-
-            // Handle grid wraparound for drawing
             const actualRow = (neighborRow + gridInstance.numRows) % gridInstance.numRows;
             const actualCol = (neighborCol + gridInstance.numCols) % gridInstance.numCols;
-
             ctx.fillRect(actualCol * gridInstance.cellSize, actualRow * gridInstance.cellSize, gridInstance.cellSize, gridInstance.cellSize);
         }
     }
 
-    // Draw lines to its actual neighbors considered (from spatialGrid.getNeighbors)
     const localNeighbors = gridInstance.getNeighbors(boid);
-    ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)'; // Red lines to neighbors
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
     ctx.lineWidth = 1;
-    let linesDrawn = 0;
-
     for (const other of localNeighbors) {
         if (other === boid) continue;
-
         const distanceToOther = Vector.dist(boid.position, other.position);
-        // ADD THIS LOG:
-
         if (distanceToOther <= CELL_SIZE) {
             ctx.beginPath();
             ctx.moveTo(boid.position.x, boid.position.y);
             ctx.lineTo(other.position.x, other.position.y);
             ctx.stroke();
-            linesDrawn++; // Increment counter
         }
     }
-    // Highlight the selected boid
     ctx.beginPath();
     ctx.arc(boid.position.x, boid.position.y, boid.renderSize / 2 + 5, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)'; // Yellow outline
+    ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
     ctx.lineWidth = 2;
     ctx.stroke();
 }
@@ -530,7 +487,7 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
 function scatter(duration) {
     flock.forEach(boid => {
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
-            boid.scatterState = 1; // Active scatter state
+            boid.scatterState = 1;
             boid.cooldownTimer = duration;
         }
     });
@@ -544,7 +501,7 @@ function animate() {
     }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (debugDrawGrid) {
+    if (debugCellsMode) {
         drawGridVisualization(spatialGrid, ctx);
     }
     if (debugSelectedBoid) {
@@ -552,15 +509,11 @@ function animate() {
     }
 
     if (isScattering) {
-        scatter(HOLD_SCATTER_DURATION); // Continuous scatter while mouse is down
+        scatter(HOLD_SCATTER_DURATION);
     }
 
-    // Populate spatial grid for this frame
     spatialGrid.clear();
     for (let boid of flock) {
-        // Boids positions are updated, then they are added to grid.
-        // Edges are handled before this in the boid's own update cycle for next frame,
-        // but for adding to grid, current position is used.
         spatialGrid.addBoid(boid);
     }
 
@@ -573,37 +526,25 @@ function animate() {
         if (isEnding) {
             const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
             const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-
-            // Interpolate position towards target
-            boid.position.x = boid.position.x + (targetX - boid.position.x) * 0.1; // Smooth movement to target
+            boid.position.x = boid.position.x + (targetX - boid.position.x) * 0.1;
             boid.position.y = boid.position.y + (targetY - boid.position.y) * 0.1;
-
-            // Shrink boid based on endProgress
-            // Using original size to scale down correctly
-            const initialSizeFactor = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) / boid.size;
+            // const initialSizeFactor = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) / boid.size;
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
-            boid.renderSize = boid.calculateRenderSize(); // Recalculate render size
-
-            // If very close and almost done, snap to avoid infinite interpolation
+            boid.renderSize = boid.calculateRenderSize();
             if (endProgress > 0.95 && Vector.dist(boid.position, new Vector(targetX, targetY)) < 5) {
                 boid.position.x = targetX;
                 boid.position.y = targetY;
             }
         } else {
-            boid.edges(); // Apply screen wrapping
-
-            // Get local neighbors from the grid
+            boid.edges();
             const localNeighbors = spatialGrid.getNeighbors(boid);
-
-            boid.flock(localNeighbors); // Calculate flocking behaviors with local neighbors
-            boid.update(localNeighbors); // Update boid state, using local neighbors for depth
+            boid.flock(localNeighbors);
+            boid.update(localNeighbors);
         }
         boid.drawWithEdgeBuffering();
     }
 
     if (isEnding && endProgress >= 1) {
-        // stopAnimation();
-        // Potentially clear flock or hide canvas after animation
         console.log("End animation complete.");
         return;
     }
@@ -612,13 +553,23 @@ function animate() {
 }
 
 function resetBoidSimulator() {
-    stopAnimation(); // This should cancel the loop scheduled by the previous animate() call
+    stopAnimation();
+
+    CELL_SIZE = calculateCurrentCellSize();
+
+    if (spatialGrid) {
+        spatialGrid.cellSize = CELL_SIZE;
+        spatialGrid.resize(canvas.width, canvas.height);
+    } else {
+        spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
+    }
 
     flock.length = 0;
-    debugSelectedBoid = null; // Explicitly clear selected boid on reset
+    debugSelectedBoid = null;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear immediately
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Use the global FLOCK_SIZE constant
     for (let i = 0; i < FLOCK_SIZE; i++) {
         flock.push(new Boid());
     }
@@ -628,12 +579,11 @@ function resetBoidSimulator() {
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
     isEnding = false;
-
-    if (spatialGrid) {
-        spatialGrid.clear();
-    } else {
-        spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
+    const experimentalMenu = document.getElementById('experimentalMenu');
+    if (experimentalMenu) {
+        experimentalMenu.remove();
     }
+    isMouseOverControls = false;
 }
 
 function stopAnimation() {
@@ -643,16 +593,20 @@ function stopAnimation() {
     }
 }
 
+// Function to be called from another file
 function initBoidSimulator() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Initialize spatial grid
+    CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
 
     resetBoidSimulator();
     animate();
     setupEventListeners();
+    if (godMode) {
+        setupExperimentalMenu();
+    }
 }
 
 function endSimulation() {
@@ -664,10 +618,6 @@ function endSimulation() {
 
 
 function setupEventListeners() {
-    // To prevent adding multiple listeners if setupEventListeners is called more than once
-    // It's better to make this idempotent or ensure it's called only once.
-    // For this refactor, assuming it's called once during init.
-
     document.addEventListener('mousemove', (event) => {
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.clientX - rect.left;
@@ -677,24 +627,27 @@ function setupEventListeners() {
 
     document.addEventListener('mouseleave', () => {
         mouseInfluence = false;
-        isScattering = false; // Stop continuous scatter if mouse leaves
+        isScattering = false;
     });
 
     document.addEventListener('mousedown', (event) => {
-        if (event.button === 0 && !event.shiftKey) { // Left mouse button
+        if (isMouseOverControls) {
+            return;
+        }
+        if (event.button === 0 && !event.shiftKey) {
             isScattering = true;
-            scatter(CLICK_SCATTER_DURATION); // Initial scatter on click
+            scatter(CLICK_SCATTER_DURATION);
         }
     });
 
     document.addEventListener('mouseup', (event) => {
-        if (event.button === 0) { // Left mouse button
+        if (event.button === 0) {
             isScattering = false;
         }
     });
 
     document.addEventListener('touchstart', (event) => {
-        event.preventDefault(); // Prevent scrolling/default touch actions
+        event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
@@ -722,8 +675,6 @@ function setupEventListeners() {
         if (spatialGrid) {
             spatialGrid.resize(canvas.width, canvas.height);
         }
-        // Optional: redraw or re-initialize elements based on new size
-        // The animate loop will handle repainting.
     });
 
     speedSlider.addEventListener('input', function () {
@@ -731,14 +682,27 @@ function setupEventListeners() {
         speedValue.textContent = `${this.value}%`;
     });
 
+    speedControls.addEventListener('mouseenter', () => {
+        isMouseOverControls = true;
+    });
+
+    speedControls.addEventListener('mouseleave', () => {
+        isMouseOverControls = false;
+    });
+
+
     document.addEventListener('click', (event) => {
-        if (!event.shiftKey || !debugDrawGrid) { // MODIFIED: Require Shift key
-            if (!debugDrawGrid) {
+        if (!event.shiftKey || !debugCellsMode) {
+            if (!debugCellsMode) {
                 debugSelectedBoid = null;
             }
             return;
         }
-        console.log("Shift click detected, entering debug mode.");
+
+        if (isMouseOverControls || (document.getElementById('experimentalMenu') && document.getElementById('experimentalMenu').contains(event.target))) {
+            return;
+        }
+
         const rect = canvas.getBoundingClientRect();
         const clickX = event.clientX - rect.left;
         const clickY = event.clientY - rect.top;
@@ -748,7 +712,7 @@ function setupEventListeners() {
 
         for (const boid of flock) {
             const distSq = (boid.position.x - clickX) ** 2 + (boid.position.y - clickY) ** 2;
-            if (distSq < minDistSq && distSq < (boid.renderSize * 2) ** 2) { // Click within ~2x boid size
+            if (distSq < minDistSq && distSq < (boid.renderSize * 2) ** 2) {
                 minDistSq = distSq;
                 closestBoid = boid;
             }
@@ -757,7 +721,241 @@ function setupEventListeners() {
     });
 }
 
-// Expose functions to global scope if they are called from HTML (e.g., buttons)
+function setupExperimentalMenu() {
+    const menuContainer = document.createElement('div');
+    menuContainer.id = 'experimentalMenu';
+    Object.assign(menuContainer.style, {
+        position: 'fixed', bottom: '16px', left: '16px', backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#FFFFFF',
+        padding: '15px', zIndex: '1000', borderRadius: '8px',
+        fontFamily: 'Arial, sans-serif', fontSize: '12px', maxHeight: '90vh', overflowY: 'auto', backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)', minWidth: '240px'
+    });
+
+    menuContainer.addEventListener('mouseenter', () => {
+        isMouseOverControls = true;
+    });
+    menuContainer.addEventListener('mouseleave', () => {
+        isMouseOverControls = false;
+    });
+
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = `
+        #experimentalMenu input[type="number"] {
+            background-color: #444; color: white; border: 1px solid #666;
+            border-radius: 3px; padding: 2px 4px; text-align: right; width: 50px;
+        }
+        #experimentalMenu .control-row {
+             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+        }
+        #experimentalMenu .control-row label {
+            color: #FFFFFF; flex-basis: 60px; flex-shrink: 0;
+        }
+        #experimentalMenu .control-row input[type="range"] {
+             flex-grow: 1; max-width: 100px; /* Adjusted for better spacing */
+        }
+       #experimentalMenu .value-input {
+            width: 32px; text-align: center; color: #FFFFFF;
+            background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px; font-size: 11px;
+            font-family: Arial, sans-serif;
+        }
+        #experimentalMenu .value-input:focus {
+            outline: none; border-color: #2196F3;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    const title = document.createElement('h2');
+    title.textContent = 'God Mode';
+    Object.assign(title.style, { marginTop: '0', textAlign: 'center', color: '#FFFFFF', fontSize: '18px' });
+    menuContainer.appendChild(title);
+
+    const categorizedParamConfigs = {
+        Force: {
+            ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
+            COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
+            SEPARATION_FORCE: { label: 'Separation', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
+        },
+        Radius: {
+            ALIGNMENT_RADIUS: { label: 'Alignment', type: 'range', min: 10, max: 500, step: 5 },
+            COHESION_RADIUS: { label: 'Cohesion', type: 'range', min: 10, max: 750, step: 10 },
+            SEPARATION_RADIUS: { label: 'Separation', type: 'range', min: 10, max: 500, step: 5 },
+        },
+        Inertia: {
+            VELOCITY_INERTIA: { label: 'Velocity', type: 'range', min: 0, max: 2, step: 0.01, precision: 2 },
+            ROTATION_INERTIA: { label: 'Rotation', type: 'range', min: 0, max: 1.5, step: 0.01, precision: 2 },
+        }
+    };
+
+    const inputElements = {};
+
+    // Updated function to use CSS custom properties instead of inline background
+    const updateSliderFill = (slider) => {
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+        const val = parseFloat(slider.value);
+        const percentage = ((val - min) / (max - min)) * 100;
+        slider.style.setProperty('--value', percentage + '%');
+    };
+
+    for (const categoryName in categorizedParamConfigs) {
+        const categoryTitle = document.createElement('h4');
+        categoryTitle.textContent = categoryName;
+        Object.assign(categoryTitle.style, {
+            marginTop: '15px',
+            marginBottom: '10px',
+            color: '#E0E0E0',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+            paddingBottom: '5px'
+        });
+        menuContainer.appendChild(categoryTitle);
+
+        const paramsInCategory = categorizedParamConfigs[categoryName];
+
+        for (const key in paramsInCategory) {
+            const config = paramsInCategory[key];
+            const controlDiv = document.createElement('div');
+            controlDiv.className = 'control-row';
+
+            const labelEl = document.createElement('label');
+            labelEl.htmlFor = `param-${key}-input`;
+            labelEl.textContent = `${config.label}: `;
+
+            const inputEl = document.createElement('input');
+            inputEl.type = config.type;
+            inputEl.id = `param-${key}-input`;
+            inputEl.min = config.min;
+            inputEl.max = config.max;
+            inputEl.step = config.step;
+            inputEl.value = simParams[key];
+
+            // Create editable value input instead of span
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.id = `param-${key}-value`;
+            valueInput.className = 'value-input';
+            valueInput.value = config.precision ? simParams[key].toFixed(config.precision) : simParams[key].toString();
+
+            // Slider input event handler
+            inputEl.addEventListener('input', () => {
+                let newVal = config.type === 'number' ? parseInt(inputEl.value) : parseFloat(inputEl.value);
+                if (config.type === 'number') {
+                    if (isNaN(newVal)) newVal = config.min;
+                    newVal = Math.max(config.min, Math.min(config.max, newVal));
+                    inputEl.value = newVal;
+                }
+                simParams[key] = newVal;
+                valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
+                if (config.type === 'range') updateSliderFill(inputEl);
+                if (key.includes('RADIUS')) updateSpatialGridParameters();
+            });
+
+            // Value input event handlers
+            valueInput.addEventListener('input', () => {
+                let newVal = parseFloat(valueInput.value);
+                if (!isNaN(newVal)) {
+                    // Clamp the value to the slider's range
+                    newVal = Math.max(config.min, Math.min(config.max, newVal));
+                    simParams[key] = newVal;
+                    inputEl.value = newVal;
+                    if (config.type === 'range') updateSliderFill(inputEl);
+                    if (key.includes('RADIUS')) updateSpatialGridParameters();
+                }
+            });
+
+            valueInput.addEventListener('blur', () => {
+                // Ensure the display value is properly formatted on blur
+                const currentVal = simParams[key];
+                valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
+            });
+
+            valueInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    valueInput.blur();
+                }
+            });
+
+            // Initialize slider fill on creation
+            if (config.type === 'range') updateSliderFill(inputEl);
+
+            inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
+            controlDiv.appendChild(labelEl);
+            controlDiv.appendChild(inputEl);
+            controlDiv.appendChild(valueInput);
+            menuContainer.appendChild(controlDiv);
+        }
+    }
+
+    const debugSectionDiv = document.createElement('div');
+    Object.assign(debugSectionDiv.style, {
+        marginTop: '15px',
+        paddingTop: '10px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+    });
+
+    const debugToggleControlRow = document.createElement('div');
+    // Mimic .control-row styling for consistency (label left, control right)
+    Object.assign(debugToggleControlRow.style, {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '5px' // Less margin for a single toggle compared to parameter groups
+    });
+
+    const debugLabel = document.createElement('label');
+    debugLabel.htmlFor = 'debug-cells-toggle';
+    debugLabel.textContent = 'Debug Grid Cells';
+    Object.assign(debugLabel.style, {
+        color: '#FFFFFF' // Ensure text color
+        // No fixed flex-basis, let it size naturally
+    });
+
+    const debugCheckbox = document.createElement('input');
+    debugCheckbox.type = 'checkbox';
+    debugCheckbox.id = 'debug-cells-toggle';
+    debugCheckbox.checked = debugCellsMode; // Initialize with current state
+
+    debugCheckbox.addEventListener('change', () => {
+        debugCellsMode = debugCheckbox.checked;
+        if (!debugCellsMode) {
+            debugSelectedBoid = null; // Clear selected boid visualization if grid debug is turned off
+        }
+    });
+
+    debugToggleControlRow.appendChild(debugLabel);
+    debugToggleControlRow.appendChild(debugCheckbox);
+    debugSectionDiv.appendChild(debugToggleControlRow);
+    menuContainer.appendChild(debugSectionDiv);
+    // --- End Debug Cells Toggle Section ---
+
+
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset';
+    Object.assign(resetButton.style, {
+        marginTop: '8px', padding: '8px 12px', width: '100%', background: 'rgb(243, 244, 241)',
+        color: '#4A4A4A', borderRadius: '4px', cursor: 'pointer'
+    });
+    resetButton.addEventListener('mouseover', () => { resetButton.style.background = 'rgb(230, 231, 228)'; });
+    resetButton.addEventListener('mouseout', () => { resetButton.style.background = 'rgb(243, 244, 241)'; });
+
+    resetButton.addEventListener('click', () => {
+        simParams = { ...defaultSimParams };
+        for (const key in inputElements) {
+            const elGroup = inputElements[key];
+            elGroup.input.value = simParams[key];
+            elGroup.valueInput.value = elGroup.config.precision ? simParams[key].toFixed(elGroup.config.precision) : simParams[key].toString();
+            if (elGroup.input.type === 'range') updateSliderFill(elGroup.input);
+        }
+        updateSpatialGridParameters();
+    });
+
+    menuContainer.appendChild(resetButton);
+    document.body.appendChild(menuContainer);
+}
+
+
+// Expose functions to global scope if they are called from HTML
 window.resetBoidSimulator = resetBoidSimulator;
 window.stopAnimation = stopAnimation;
 window.endSimulation = endSimulation;

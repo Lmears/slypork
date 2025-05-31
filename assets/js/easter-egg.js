@@ -63,6 +63,7 @@ function setupEasterEgg() {
 
                                 setTimeout(() => {
                                     controls.style.opacity = '1';
+                                    initializeSlider('speedSlider', 'speedValue', '%');
                                     initBoidSimulator();
                                 }, 50);
                             }, 500);
@@ -99,3 +100,36 @@ function setupEasterEgg() {
 }
 
 document.addEventListener('DOMContentLoaded', setupEasterEgg);
+
+/**
+ * Initialize a single slider with blue fill effect
+ * @param {string} sliderId - The ID of the slider element
+ * @param {string} [displayId] - Optional ID of element to show the value
+ * @param {string} [suffix='%'] - Suffix to add to displayed value
+ */
+function initializeSlider(sliderId, displayId = null, suffix = '%') {
+    const slider = document.getElementById(sliderId);
+    const display = displayId ? document.getElementById(displayId) : null;
+
+    if (!slider) {
+        console.warn(`Slider with ID '${sliderId}' not found`);
+        return;
+    }
+
+    function updateSlider() {
+        const value = slider.value;
+        const percentage = ((value - slider.min) / (slider.max - slider.min)) * 100;
+
+        // Update the CSS custom property for the fill
+        slider.style.setProperty('--value', percentage + '%');
+
+        // Update the display value if display element exists
+        if (display) {
+            display.textContent = value + suffix;
+        }
+    }
+
+    // Initialize and add event listener
+    updateSlider();
+    slider.addEventListener('input', updateSlider);
+}
