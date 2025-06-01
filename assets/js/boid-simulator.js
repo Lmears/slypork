@@ -745,9 +745,10 @@ function setupExperimentalMenu() {
     menuContainer.id = 'experimentalMenu';
     Object.assign(menuContainer.style, {
         position: 'fixed', bottom: '16px', left: '16px', backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#FFFFFF',
-        padding: '15px', zIndex: '1000', borderRadius: '8px',
+        padding: '16px 12px', zIndex: '1000', borderRadius: '8px',
         fontFamily: 'Arial, sans-serif', fontSize: '12px', maxHeight: '90vh', overflowY: 'auto', backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)', minWidth: '240px'
+        WebkitBackdropFilter: 'blur(4px)', minWidth: '256px',
+        scrollbarGutter: 'stable both-edges'
     });
 
     menuContainer.addEventListener('mouseenter', () => {
@@ -771,9 +772,9 @@ function setupExperimentalMenu() {
             color: #FFFFFF; flex-basis: 60px; flex-shrink: 0;
         }
         #experimentalMenu .control-row input[type="range"] {
-             flex-grow: 1; max-width: 100px; /* Adjusted for better spacing */
+             flex-grow: 1; max-width: 100px;
         }
-       #experimentalMenu .value-input {
+        #experimentalMenu .value-input {
             width: 32px; text-align: center; color: #FFFFFF;
             background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px; font-size: 11px;
@@ -781,6 +782,13 @@ function setupExperimentalMenu() {
         }
         #experimentalMenu .value-input:focus {
             outline: none; border-color: #2196F3;
+        }
+        #experimentalMenu::-webkit-scrollbar-thumb {
+            background-color: #f3f4f1;
+        }
+        #experimentalMenu {
+            scrollbar-color: #f3f4f1 transparent;
+            scrollbar-width: thin;
         }
     `;
     document.head.appendChild(styleSheet);
@@ -808,15 +816,6 @@ function setupExperimentalMenu() {
     };
 
     const inputElements = {};
-
-    // Updated function to use CSS custom properties instead of inline background
-    const updateSliderFill = (slider) => {
-        const min = parseFloat(slider.min);
-        const max = parseFloat(slider.max);
-        const val = parseFloat(slider.value);
-        const percentage = ((val - min) / (max - min)) * 100;
-        slider.style.setProperty('--value', percentage + '%');
-    };
 
     for (const categoryName in categorizedParamConfigs) {
         const categoryTitle = document.createElement('h4');
@@ -896,7 +895,10 @@ function setupExperimentalMenu() {
             });
 
             // Initialize slider fill on creation
-            if (config.type === 'range') updateSliderFill(inputEl);
+            if (config.type === 'range') {
+                updateSliderFill(inputEl);
+                enableSliderWheelControl(inputEl);
+            }
 
             inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
             controlDiv.appendChild(labelEl);

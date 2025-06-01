@@ -702,10 +702,6 @@ video {
   display: inline-block;
 }
 
-.inline {
-  display: inline;
-}
-
 .flex {
   display: flex;
 }
@@ -1445,25 +1441,25 @@ nav ul li a:hover,
 
 /* Scrollbar */
 
-/* body {
-    scrollbar-width: thin;
-    scrollbar-color: #a8acb1 #e9ebed;
-} */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #46474b transparent;
+}
 
-::-webkit-scrollbar {
-  width: 12px;
-  background: #e9ebed;
+/* ::-webkit-scrollbar {
+    width: 12px;
+    background: #e9ebed;
 }
 
 ::-webkit-scrollbar-track {
-  background: #e9ebed;
+    background: #e9ebed;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #a8acb1;
-  border-radius: 6px;
-  border: 3px solid #e9ebed;
-}
+    background-color: #a8acb1;
+    border-radius: 6px;
+    border: 3px solid #e9ebed;
+} */
 
 /* Software iframes */
 
@@ -1620,17 +1616,15 @@ nav ul li a:hover,
   z-index: 1000;
 }
 
-#controls:hover {
-  opacity: 1;
-}
-
 input[type=range] {
   -webkit-appearance: none;
   -moz-appearance: none;
-       appearance: none;
+  appearance: none;
   background: transparent;
   filter: brightness(0.9);
   transition: filter 0.2s;
+  padding: 8px 0;
+  cursor: pointer;
 }
 
 input[type=range]:hover {
@@ -1646,6 +1640,7 @@ input[type=range]::-webkit-slider-thumb {
   background: #2196F3;
   cursor: pointer;
   margin-top: -4.5px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -1653,7 +1648,26 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 6px;
   cursor: pointer;
   background: linear-gradient(to right, #2196F3 0%, #2196F3 var(--value, 50%), #d3d3d3 var(--value, 50%), #d3d3d3 100%);
-  border-radius: 5px;
+  border-radius: 6px;
+}
+
+input[type=range]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #2196F3;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: linear-gradient(to right, #2196F3 0%, #2196F3 var(--value, 50%), #d3d3d3 var(--value, 50%), #d3d3d3 100%);
+  border-radius: 6px;
+  border: none;
 }
 
 #speedValue {
