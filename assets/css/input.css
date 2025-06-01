@@ -14,17 +14,18 @@ html {
     color: rgb(23, 23, 23);
     transition: background-color 0.5s ease;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
+    scrollbar-gutter: stable both-edges;
 }
 
 body {
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    scrollbar-gutter: stable both-edges;
-    position: relative;
-    overflow-x: hidden;
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* overflow-y: auto; */
+    /* scrollbar-gutter: stable both-edges; */
+    /* position: relative; */
+    /* overflow-x: hidden; */
 }
 
 .boid-active {
@@ -128,7 +129,7 @@ nav ul li:first-child {
 
 /* Hamburger menu */
 #hamburger-menu {
-    font-size: 36px;
+    font-size: 2.25rem;
     position: absolute;
     top: 32px;
     right: 16px;
