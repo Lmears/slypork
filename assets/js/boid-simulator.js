@@ -650,7 +650,10 @@ function setupEventListeners() {
 
     document.addEventListener('touchstart', (event) => {
         const experimentalMenu = document.getElementById('experimentalMenu');
-        const touchIsOnControl = speedControls.contains(event.target) ||
+        const easterEgg = document.getElementById('easterEgg');
+
+        const touchIsOnControl = (easterEgg && easterEgg.contains(event.target)) ||
+            (speedControls && speedControls.contains(event.target)) ||
             (experimentalMenu && experimentalMenu.contains(event.target));
 
         isTouchOverControls = touchIsOnControl;
