@@ -142,3 +142,75 @@ function isDarkReaderActive() {
 
 window.addEventListener('load', adjustIframeHeight);
 window.addEventListener('resize', adjustIframeHeight);
+
+/**
+ * Updates the fill style of a range slider based on its current value.
+ * It sets a CSS custom property '--value' on the slider element.
+ * @param {HTMLInputElement} slider - The slider element.
+ */
+function updateSliderFill(slider) {
+    if (!slider || slider.type !== 'range') {
+        console.warn('Invalid element passed to updateSliderFill. Expected a range input.', slider);
+        return;
+    }
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const val = parseFloat(slider.value);
+    const percentage = ((val - min) / (max - min)) * 100;
+    slider.style.setProperty('--value', percentage + '%');
+}
+
+/**
+ * Adds mouse wheel control to a slider element.
+ * Changes the slider's value based on wheel scroll and dispatches an 'input' event.
+ * @param {HTMLInputElement} slider - The slider element to add wheel control to.
+ */
+function enableSliderWheelControl(slider) {
+    if (!slider || slider.type !== 'range') {
+        console.warn('Invalid element passed to enableSliderWheelControl. Expected a range input.', slider);
+        return;
+    }
+
+    slider.addEventListener('wheel', function (event) {
+        // Prevent the page from scrolling
+        event.preventDefault();
+
+        // Determine the step amount
+        const step = parseFloat(this.step) || 1; // Default to 1 if step is not defined or 0
+        let currentValue = parseFloat(this.value);
+        const min = parseFloat(this.min);
+        const max = parseFloat(this.max);
+
+        // deltaY is positive for scrolling down/forward, negative for up/backward
+        if (event.deltaY < 0) { // Scrolling up (increase value) - original logic was decreasing, assuming wheel up = increase value
+            currentValue += step; // Corrected: wheel up usually increases
+        } else if (event.deltaY > 0) { // Scrolling down (decrease value)
+            currentValue -= step; // Corrected: wheel down usually decreases
+        }
+
+        // Clamp the value to min/max
+        currentValue = Math.max(min, Math.min(max, currentValue));
+
+        // Round to the same precision as the step to avoid floating point issues
+        if (this.step && this.step.includes('.')) {
+            const precision = this.step.split('.')[1].length;
+            currentValue = parseFloat(currentValue.toFixed(precision));
+        } else {
+            // For integer steps, no specific rounding needed beyond clamp if currentValue is already number
+            // If step is 1, currentValue could be e.g. 50.1 after adding 0.1 from a previous non-integer step.
+            // However, typical range sliders with integer steps won't have this issue if step is enforced.
+            // Let's ensure it aligns with step:
+            currentValue = Math.round(currentValue / step) * step;
+            currentValue = parseFloat(currentValue.toFixed(10)); // Avoid long floating points from division
+            currentValue = Math.max(min, Math.min(max, currentValue)); // Re-clamp after rounding
+        }
+
+
+        this.value = currentValue;
+
+        // Manually trigger an 'input' event so updateSlider (and other listeners)
+        // react to the change.
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+
+    }, { passive: false }); // passive: false is important for preventDefault()
+}

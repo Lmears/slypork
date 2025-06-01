@@ -102,7 +102,7 @@ function setupEasterEgg() {
 document.addEventListener('DOMContentLoaded', setupEasterEgg);
 
 /**
- * Initialize a single slider with blue fill effect
+ * Initialize a single slider with blue fill effect and scroll wheel control
  * @param {string} sliderId - The ID of the slider element
  * @param {string} [displayId] - Optional ID of element to show the value
  * @param {string} [suffix='%'] - Suffix to add to displayed value
@@ -117,19 +117,24 @@ function initializeSlider(sliderId, displayId = null, suffix = '%') {
     }
 
     function updateSlider() {
-        const value = slider.value;
-        const percentage = ((value - slider.min) / (slider.max - slider.min)) * 100;
+        const value = parseFloat(slider.value);
 
-        // Update the CSS custom property for the fill
-        slider.style.setProperty('--value', percentage + '%');
+        updateSliderFill(slider);
 
         // Update the display value if display element exists
         if (display) {
-            display.textContent = value + suffix;
+            // For steps like 0.1, ensure fixed decimal places if step is a decimal
+            const step = slider.step;
+            if (step && step.includes('.')) {
+                const precision = step.split('.')[1].length;
+                display.textContent = value.toFixed(precision) + suffix;
+            } else {
+                display.textContent = value + suffix;
+            }
         }
     }
 
-    // Initialize and add event listener
     updateSlider();
     slider.addEventListener('input', updateSlider);
+    enableSliderWheelControl(slider);
 }
