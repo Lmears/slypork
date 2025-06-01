@@ -433,14 +433,14 @@ input[type=range]::-webkit-slider-runnable-track {
 input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
     border-radius: 4px;
     background: #d3d3d3;
     cursor: pointer;
     position: relative;
     filter: brightness(0.8);
-    transition: filter 0.2s, background 0.2s;
+    transition: filter 0.2s;
 }
 
 /* Hover effect */
@@ -465,8 +465,8 @@ input[type="checkbox"]:checked::after {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 6px;
-    height: 9px;
+    width: 5px;
+    height: 8px;
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: translate(-50%, -60%) rotate(45deg);

@@ -646,28 +646,28 @@ function setupEventListeners() {
         }
     });
 
-    document.addEventListener('touchstart', (event) => {
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.touches[0].clientX - rect.left;
-        mouse.y = event.touches[0].clientY - rect.top;
-        mouseInfluence = true;
-        isScattering = true;
-        scatter(CLICK_SCATTER_DURATION);
-    }, { passive: false });
+    // document.addEventListener('touchstart', (event) => {
+    //     event.preventDefault();
+    //     const rect = canvas.getBoundingClientRect();
+    //     mouse.x = event.touches[0].clientX - rect.left;
+    //     mouse.y = event.touches[0].clientY - rect.top;
+    //     mouseInfluence = true;
+    //     isScattering = true;
+    //     scatter(CLICK_SCATTER_DURATION);
+    // }, { passive: false });
 
-    document.addEventListener('touchmove', (event) => {
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.touches[0].clientX - rect.left;
-        mouse.y = event.touches[0].clientY - rect.top;
-        mouseInfluence = true;
-    }, { passive: false });
+    // document.addEventListener('touchmove', (event) => {
+    //     event.preventDefault();
+    //     const rect = canvas.getBoundingClientRect();
+    //     mouse.x = event.touches[0].clientX - rect.left;
+    //     mouse.y = event.touches[0].clientY - rect.top;
+    //     mouseInfluence = true;
+    // }, { passive: false });
 
-    document.addEventListener('touchend', () => {
-        mouseInfluence = false;
-        isScattering = false;
-    });
+    // document.addEventListener('touchend', () => {
+    //     mouseInfluence = false;
+    //     isScattering = false;
+    // });
 
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
