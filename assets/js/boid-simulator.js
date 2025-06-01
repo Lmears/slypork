@@ -99,6 +99,7 @@ let godMode = false;
 let debugCellsMode = false;
 let debugSelectedBoid = null;
 let isMouseOverControls = false;
+let isTouchOverControls = false;
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
@@ -584,6 +585,7 @@ function resetBoidSimulator() {
         experimentalMenu.remove();
     }
     isMouseOverControls = false;
+    isTouchOverControls = false;
 }
 
 function stopAnimation() {
@@ -647,7 +649,17 @@ function setupEventListeners() {
     });
 
     document.addEventListener('touchstart', (event) => {
-        if (!isMouseOverControls) event.preventDefault();
+        const experimentalMenu = document.getElementById('experimentalMenu');
+        const touchIsOnControl = speedControls.contains(event.target) ||
+            (experimentalMenu && experimentalMenu.contains(event.target));
+
+        isTouchOverControls = touchIsOnControl;
+
+        if (isTouchOverControls) {
+            mouseInfluence = false;
+            return;
+        }
+        event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
@@ -657,7 +669,10 @@ function setupEventListeners() {
     }, { passive: false });
 
     document.addEventListener('touchmove', (event) => {
-        if (!isMouseOverControls) event.preventDefault();
+        if (isTouchOverControls) {
+            return;
+        }
+        event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
@@ -667,6 +682,7 @@ function setupEventListeners() {
     document.addEventListener('touchend', () => {
         mouseInfluence = false;
         isScattering = false;
+        isTouchOverControls = false;
     });
 
     window.addEventListener('resize', () => {
