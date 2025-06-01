@@ -647,7 +647,7 @@ function setupEventListeners() {
     });
 
     document.addEventListener('touchstart', (event) => {
-        event.preventDefault();
+        if (isMouseOverControls) event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
@@ -657,7 +657,7 @@ function setupEventListeners() {
     }, { passive: false });
 
     document.addEventListener('touchmove', (event) => {
-        event.preventDefault();
+        if (isMouseOverControls) event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
