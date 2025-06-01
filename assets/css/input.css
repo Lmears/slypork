@@ -386,7 +386,7 @@ nav ul li a:hover,
     z-index: 1000;
 }
 
-input[type=range] {
+/* input[type=range] {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -395,6 +395,27 @@ input[type=range] {
     transition: filter 0.2s;
     padding: 8px 0;
     cursor: pointer;
+} */
+
+input[type=range] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: transparent;
+    filter: brightness(0.9);
+    transition: filter 0.2s;
+    position: relative;
+}
+
+input[type=range]::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    background: transparent;
+    pointer-events: none;
 }
 
 input[type=range]:hover {
