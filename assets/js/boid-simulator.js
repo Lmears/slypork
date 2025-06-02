@@ -100,6 +100,7 @@ let debugCellsMode = false;
 let debugSelectedBoid = null;
 let isMouseOverControls = false;
 let isTouchOverControls = false;
+let touchEndTimeoutId = null;
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
@@ -669,6 +670,11 @@ function setupEventListeners() {
         mouseInfluence = true;
         isScattering = true;
         scatter(CLICK_SCATTER_DURATION);
+
+        if (touchEndTimeoutId) {
+            clearTimeout(touchEndTimeoutId);
+            touchEndTimeoutId = null;
+        }
     }, { passive: false });
 
     document.addEventListener('touchmove', (event) => {
@@ -681,12 +687,26 @@ function setupEventListeners() {
         mouse.x = event.touches[0].clientX - rect.left;
         mouse.y = event.touches[0].clientY - rect.top;
         mouseInfluence = true;
+
+        if (touchEndTimeoutId) {
+            clearTimeout(touchEndTimeoutId);
+            touchEndTimeoutId = null;
+        }
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
-        // mouseInfluence = false;
         isScattering = false;
         isTouchOverControls = false;
+
+
+        if (touchEndTimeoutId) {
+            clearTimeout(touchEndTimeoutId);
+        }
+
+        touchEndTimeoutId = setTimeout(() => {
+            mouseInfluence = false;
+            touchEndTimeoutId = null;
+        }, 100);
     });
 
     window.addEventListener('resize', () => {
