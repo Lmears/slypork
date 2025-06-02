@@ -652,14 +652,18 @@ function setupEventListeners() {
     document.addEventListener('touchstart', (event) => {
         const experimentalMenu = document.getElementById('experimentalMenu');
         const easterEgg = document.getElementById('easterEgg');
+        const navLinks = document.getElementById('navLinks');
+        const hamburgerMenu = document.getElementById('hamburger-menu');
 
         const touchIsOnControl = (easterEgg && easterEgg.contains(event.target)) ||
             (speedControls && speedControls.contains(event.target)) ||
-            (experimentalMenu && experimentalMenu.contains(event.target));
+            (experimentalMenu && experimentalMenu.contains(event.target)) ||
+            (navLinks && navLinks.contains(event.target)) ||
+            (hamburgerMenu && hamburgerMenu.contains(event.target));
 
         isTouchOverControls = touchIsOnControl;
 
-        if (isTouchOverControls) {
+        if (isEnding || isTouchOverControls) {
             mouseInfluence = false;
             return;
         }
@@ -678,7 +682,7 @@ function setupEventListeners() {
     }, { passive: false });
 
     document.addEventListener('touchmove', (event) => {
-        if (isTouchOverControls) {
+        if (isEnding || isTouchOverControls) {
             mouseInfluence = false;
             return;
         }
