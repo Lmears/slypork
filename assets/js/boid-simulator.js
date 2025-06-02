@@ -20,7 +20,7 @@ let simParams = {
 const defaultSimParams = { ...simParams }; // Store initial values for reset
 
 // --- Other Simulation parameters (mostly non-tweakable via new menu) ---
-const FLOCK_SIZE = 200;
+const FLOCK_SIZE = 150;
 const NORMAL_MAX_SPEED = 5;
 const SCATTER_MAX_SPEED = 15;
 const INITIAL_BOOST = 10;
