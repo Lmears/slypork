@@ -580,7 +580,6 @@ function resetBoidSimulator() {
     mouseInfluence = false;
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
-    isEnding = false;
     const experimentalMenu = document.getElementById('experimentalMenu');
     if (experimentalMenu) {
         experimentalMenu.remove();
@@ -604,6 +603,7 @@ function initBoidSimulator() {
     CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
 
+    isEnding = false;
     resetBoidSimulator();
     animate();
     setupEventListeners();
