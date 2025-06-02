@@ -673,6 +673,7 @@ function setupEventListeners() {
 
     document.addEventListener('touchmove', (event) => {
         if (isTouchOverControls) {
+            mouseInfluence = false;
             return;
         }
         event.preventDefault();
@@ -683,7 +684,7 @@ function setupEventListeners() {
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
-        mouseInfluence = false;
+        // mouseInfluence = false;
         isScattering = false;
         isTouchOverControls = false;
     });
