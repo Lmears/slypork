@@ -665,6 +665,7 @@ function setupEventListeners() {
             mouseInfluence = false;
             return;
         }
+        isMouseOverControls = false;
         event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - rect.left;
