@@ -9,11 +9,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: '#f3f4f1',
+        backgroundHovered: '#dcddd9',
         primary: '#073b4c',
         heading: '#193a4a',
         body: '#333333',
         light: '#f3f5f6',
         section: '#e7ebed',
+      },
+      brightness: {
+        80: '.8',
+        110: '1.1',
       },
       screens: {
         'nav-hide': '642px', // Even though this is close to sm: there may be more nav items in the future

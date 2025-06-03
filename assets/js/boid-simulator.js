@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const speedSlider = document.getElementById('speedSlider');
 const speedControls = document.getElementById('controls');
 const speedValue = document.getElementById('speedValue');
+const godModeButton = document.getElementById('godModeButton');
 
 // --- Tweakable Simulation Parameters (via experimental menu) ---
 let simParams = {
@@ -84,7 +85,6 @@ function updateSpatialGridParameters() {
         spatialGrid.resize(canvas.width, canvas.height);
     }
 }
-
 
 // Global variables
 let speedMultiplier = 1;
@@ -580,10 +580,10 @@ function resetBoidSimulator() {
     mouseInfluence = false;
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
-    const experimentalMenu = document.getElementById('experimentalMenu');
-    if (experimentalMenu) {
-        experimentalMenu.remove();
-    }
+    // const experimentalMenu = document.getElementById('experimentalMenu');
+    // if (experimentalMenu) {
+    //     experimentalMenu.remove();
+    // }
     isMouseOverControls = false;
     isTouchOverControls = false;
 }
@@ -605,11 +605,9 @@ function initBoidSimulator() {
 
     isEnding = false;
     resetBoidSimulator();
+    setupExperimentalMenu();
     animate();
     setupEventListeners();
-    if (godMode) {
-        setupExperimentalMenu();
-    }
 }
 
 function endSimulation() {
@@ -743,7 +741,8 @@ function setupEventListeners() {
             return;
         }
 
-        if (isMouseOverControls || (document.getElementById('experimentalMenu') && document.getElementById('experimentalMenu').contains(event.target))) {
+        const experimentalMenu = document.getElementById('experimentalMenu');
+        if (isMouseOverControls || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) { // Consider menu only if visible
             return;
         }
 
@@ -763,18 +762,59 @@ function setupEventListeners() {
         }
         debugSelectedBoid = closestBoid;
     });
+
+    if (godModeButton) {
+        godModeButton.addEventListener('click', () => {
+            godMode = !godMode;
+            const menu = document.getElementById('experimentalMenu');
+            if (menu) {
+                updateExperimentalMenuVisibility(menu, godMode);
+            }
+            console.log("God Mode:", godMode);
+        });
+    }
+}
+
+function updateExperimentalMenuVisibility(menu, isVisible) {
+    if (!menu) return;
+
+    if (isVisible) {
+        menu.classList.remove('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
+        menu.classList.add('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
+        menu.removeAttribute('inert');
+    } else {
+        menu.classList.add('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
+        menu.classList.remove('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
+        menu.setAttribute('inert', 'true');
+    }
 }
 
 function setupExperimentalMenu() {
+    const existingMenu = document.getElementById('experimentalMenu');
+    if (existingMenu) {
+        updateExperimentalMenuVisibility(existingMenu, godMode);
+        return;
+    }
+
     const menuContainer = document.createElement('div');
     menuContainer.id = 'experimentalMenu';
-    Object.assign(menuContainer.style, {
-        position: 'fixed', bottom: '16px', left: '16px', backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#FFFFFF',
-        padding: '16px 12px', zIndex: '1000', borderRadius: '8px',
-        fontFamily: 'Arial, sans-serif', fontSize: '12px', maxHeight: '90vh', overflowY: 'auto', backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)', minWidth: '256px',
-        scrollbarGutter: 'stable both-edges'
-    });
+    menuContainer.classList.add(
+        'fixed', 'bottom-4', 'left-4', 'bg-black/60', 'text-white',
+        'p-4', 'md:py-4', 'md:px-3', // Adjusted padding for md to match original px:12, py:16
+        'rounded-lg', 'z-[1000]',
+        'font-sans', 'text-xs', 'max-h-[90vh]', 'overflow-y-auto',
+        'backdrop-blur-sm', 'min-w-[256px]',
+        // scrollbarGutter - use Tailwind plugin or custom CSS if needed, e.g., 'scrollbar-gutter-stable'
+        // Transitions - apply to all relevant properties or be specific
+        'transition-opacity', 'duration-300', 'ease-out',
+        'transition-transform', 'duration-200', // transform duration was 0.2s
+        // Core visibility: hidden by default, flex on md+ screens. flex-col for internal layout.
+        'hidden', 'md:block'
+    );
+
+    menuContainer.classList.add('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
+    menuContainer.setAttribute('inert', 'true');
+
 
     menuContainer.addEventListener('mouseenter', () => {
         isMouseOverControls = true;
@@ -784,7 +824,6 @@ function setupExperimentalMenu() {
     });
 
     const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
     styleSheet.innerText = `
         #experimentalMenu input[type="number"] {
             background-color: #444; color: white; border: 1px solid #666;
@@ -978,12 +1017,7 @@ function setupExperimentalMenu() {
 
     const resetButton = document.createElement('button');
     resetButton.textContent = 'Reset';
-    Object.assign(resetButton.style, {
-        marginTop: '8px', padding: '8px 12px', width: '100%', background: 'rgb(243, 244, 241)',
-        color: '#4A4A4A', borderRadius: '4px', cursor: 'pointer'
-    });
-    resetButton.addEventListener('mouseover', () => { resetButton.style.background = 'rgb(230, 231, 228)'; });
-    resetButton.addEventListener('mouseout', () => { resetButton.style.background = 'rgb(243, 244, 241)'; });
+    resetButton.className = 'mt-2 px-3 py-2 w-full bg-background text-gray-600 rounded cursor-pointer hover:bg-backgroundHovered';
 
     resetButton.addEventListener('click', () => {
         simParams = { ...defaultSimParams };
@@ -998,6 +1032,13 @@ function setupExperimentalMenu() {
 
     menuContainer.appendChild(resetButton);
     document.body.appendChild(menuContainer);
+
+    if (menuContainer) { // menuContainer should be valid here
+        if (!menuContainer.style.transition) { // Defensive: ensure transition style is present
+            menuContainer.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+        }
+        updateExperimentalMenuVisibility(menuContainer, godMode);
+    }
 }
 
 
