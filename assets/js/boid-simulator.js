@@ -555,6 +555,7 @@ function animate() {
 }
 
 function resetBoidSimulator() {
+
     stopAnimation();
 
     CELL_SIZE = calculateCurrentCellSize();
@@ -580,10 +581,7 @@ function resetBoidSimulator() {
     mouseInfluence = false;
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
-    // const experimentalMenu = document.getElementById('experimentalMenu');
-    // if (experimentalMenu) {
-    //     experimentalMenu.remove();
-    // }
+
     isMouseOverControls = false;
     isTouchOverControls = false;
 }
@@ -611,6 +609,12 @@ function initBoidSimulator() {
 }
 
 function endSimulation() {
+    const experimentalMenu = document.getElementById('experimentalMenu');
+    godMode = false;
+    updateExperimentalMenuVisibility(experimentalMenu, false);
+    if (experimentalMenu) {
+        experimentalMenu.remove();
+    }
     if (!isEnding) {
         isEnding = true;
         endStartTime = performance.now();
