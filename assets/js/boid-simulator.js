@@ -801,20 +801,36 @@ function setupExperimentalMenu() {
     menuContainer.id = 'experimentalMenu';
     menuContainer.classList.add(
         'fixed', 'bottom-4', 'left-4', 'bg-black/60', 'text-white',
-        'p-4', 'md:py-4', 'md:px-3', // Adjusted padding for md to match original px:12, py:16
-        'rounded-lg', 'z-[1000]',
-        'font-sans', 'text-xs', 'max-h-[90vh]', 'overflow-y-auto',
+        'rounded-[32px]', 'z-[1000]',
+        'font-sans', 'text-xs',
+        'overflow-hidden',
         'backdrop-blur-sm', 'min-w-[256px]',
-        // scrollbarGutter - use Tailwind plugin or custom CSS if needed, e.g., 'scrollbar-gutter-stable'
-        // Transitions - apply to all relevant properties or be specific
         'transition-opacity', 'duration-300', 'ease-out',
-        'transition-transform', 'duration-200', // transform duration was 0.2s
-        // Core visibility: hidden by default, flex on md+ screens. flex-col for internal layout.
-        'hidden', 'md:block'
+        'transition-transform', 'duration-200',
+        'hidden', 'md:block',
     );
+
+    menuContainer.style.display = 'flex';
+    menuContainer.style.flexDirection = 'column';
+
+    const verticalPaddingFromEdges = '32px';
+    menuContainer.style.maxHeight = `calc(100vh - ${verticalPaddingFromEdges})`;
 
     menuContainer.classList.add('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
     menuContainer.setAttribute('inert', 'true');
+
+    const scrollableContent = document.createElement('div');
+    scrollableContent.classList.add(
+        'flex-grow',
+        'overflow-y-auto',
+        'scrollable-content',
+        'py-4', 'px-3',
+        'min-h-0'
+    );
+
+    Object.assign(scrollableContent.style, {
+        scrollbarGutter: 'stable both-edges'
+    });
 
 
     menuContainer.addEventListener('mouseenter', () => {
@@ -826,42 +842,88 @@ function setupExperimentalMenu() {
 
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
-        #experimentalMenu input[type="number"] {
-            background-color: #444; color: white; border: 1px solid #666;
-            border-radius: 3px; padding: 2px 4px; text-align: right; width: 50px;
-        }
         #experimentalMenu .control-row {
              display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
         }
         #experimentalMenu .control-row label {
-            color: #FFFFFF; flex-basis: 60px; flex-shrink: 0;
+            color: #f3f4f1; flex-basis: 60px; flex-shrink: 0;
         }
         #experimentalMenu .control-row input[type="range"] {
              flex-grow: 1; max-width: 100px;
         }
         #experimentalMenu .value-input {
-            width: 32px; text-align: center; color: #FFFFFF;
+            width: 32px; text-align: center; color: #f3f4f1;
             background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px; font-size: 11px;
+            border-radius: 32px; font-size: 11px;
             font-family: Arial, sans-serif;
         }
         #experimentalMenu .value-input:focus {
             outline: none; border-color: #2196F3;
         }
-        #experimentalMenu::-webkit-scrollbar-thumb {
-            background-color: #f3f4f1;
-        }
-        #experimentalMenu {
-            scrollbar-color: #f3f4f1 transparent;
+
+        #experimentalMenu .scrollable-content {
+            scrollbar-color: #f3f4f1 rgba(255, 255, 255, 0.2);
             scrollbar-width: thin;
         }
+
+        // #experimentalMenu .experimental-menu-close-button {
+        //     color: #f3f4f1; /* Initial color */
+        //     transition: color 0.2s ease-out; /* Smooth transition for color change */
+        // }
+        // #experimentalMenu .experimental-menu-close-button:hover {
+        //     color: #2196F3; /* Hover color (e.g., a blue, consistent with input focus) */
+        // }
     `;
     document.head.appendChild(styleSheet);
 
-    const title = document.createElement('h2');
-    title.textContent = 'God Mode';
-    Object.assign(title.style, { marginTop: '0', textAlign: 'center', color: '#FFFFFF', fontSize: '18px' });
-    menuContainer.appendChild(title);
+    const titleOuterContainer = document.createElement('div');
+    titleOuterContainer.className = 'god-mode-title-container'; // For potential querySelector later
+    Object.assign(titleOuterContainer.style, {
+        position: 'relative',
+        width: '100%',
+        paddingTop: '4px',
+        paddingBottom: '4px',
+        marginBottom: '10px'
+    });
+
+    const titleTextElement = document.createElement('h2');
+    titleTextElement.textContent = 'God Mode';
+    Object.assign(titleTextElement.style, {
+        margin: '0',
+        textAlign: 'center',
+        color: '#f3f4f1',
+        fontSize: '16px'
+    });
+
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '×';
+    closeButton.classList.add(
+        'absolute',            // position: absolute
+        'right-[-8px]',        // right: -8px (using arbitrary value)
+        'top-1/2',             // top: 50%
+        '-translate-y-1/2',    // transform: translateY(-50%)
+        'bg-transparent',      // background: transparent
+        'border-none',         // border: none
+        'text-xl',             // font-size: 20px (text-xl is usually 1.25rem which is 20px if base is 16px)
+        'cursor-pointer',      // cursor: pointer
+        'p-2',                 // padding: 8px (p-2 is 0.5rem)
+        'leading-none',        // line-height: 1 (or leading-tight)
+        'text-background',      // Initial text color (arbitrary value for specific hex)
+        'hover:text-backgroundHovered',// Hover text color (arbitrary value for specific hex)
+        'transition-colors',   // Add transition for color property
+        // 'transform',
+        // 'hover:scale-110'
+    );
+
+    closeButton.addEventListener('click', () => {
+        godMode = false;
+        updateExperimentalMenuVisibility(menuContainer, false);
+        // console.log("God Mode turned off by cross button");
+    });
+
+    titleOuterContainer.appendChild(titleTextElement);
+    titleOuterContainer.appendChild(closeButton);
+    scrollableContent.appendChild(titleOuterContainer);
 
     const categorizedParamConfigs = {
         Force: {
@@ -892,7 +954,7 @@ function setupExperimentalMenu() {
             borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
             paddingBottom: '5px'
         });
-        menuContainer.appendChild(categoryTitle);
+        scrollableContent.appendChild(categoryTitle);
 
         const paramsInCategory = categorizedParamConfigs[categoryName];
 
@@ -969,7 +1031,7 @@ function setupExperimentalMenu() {
             controlDiv.appendChild(labelEl);
             controlDiv.appendChild(inputEl);
             controlDiv.appendChild(valueInput);
-            menuContainer.appendChild(controlDiv);
+            scrollableContent.appendChild(controlDiv);
         }
     }
 
@@ -1012,13 +1074,13 @@ function setupExperimentalMenu() {
     debugToggleControlRow.appendChild(debugLabel);
     debugToggleControlRow.appendChild(debugCheckbox);
     debugSectionDiv.appendChild(debugToggleControlRow);
-    menuContainer.appendChild(debugSectionDiv);
+    scrollableContent.appendChild(debugSectionDiv);
     // --- End Debug Cells Toggle Section ---
 
 
     const resetButton = document.createElement('button');
     resetButton.textContent = 'Reset';
-    resetButton.className = 'mt-2 px-3 py-2 w-full bg-background text-gray-600 rounded cursor-pointer hover:bg-backgroundHovered';
+    resetButton.className = 'mt-2 px-3 py-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
 
     resetButton.addEventListener('click', () => {
         simParams = { ...defaultSimParams };
@@ -1031,7 +1093,10 @@ function setupExperimentalMenu() {
         updateSpatialGridParameters();
     });
 
-    menuContainer.appendChild(resetButton);
+    scrollableContent.appendChild(resetButton);
+
+    // Append scrollable content to menu container
+    menuContainer.appendChild(scrollableContent);
     document.body.appendChild(menuContainer);
 
     if (menuContainer) { // menuContainer should be valid here
@@ -1041,6 +1106,7 @@ function setupExperimentalMenu() {
         updateExperimentalMenuVisibility(menuContainer, godMode);
     }
 }
+
 
 
 // Expose functions to global scope if they are called from HTML

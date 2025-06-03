@@ -26,6 +26,8 @@ body {
     scrollbar-gutter: stable both-edges;
     position: relative;
     overflow-x: hidden;
+    scrollbar-color: #b1b1b1 #e1e1e1;
+    scrollbar-width: thin;
 }
 
 .boid-active {
@@ -214,10 +216,17 @@ nav ul li a:hover,
 }
 
 /* Scrollbar */
-* {
+/* * {
     scrollbar-width: thin;
-    scrollbar-color: #46474b transparent;
-}
+    scrollbar-color: #afb3b8 #e9ebed;
+} */
+
+/* *::-webkit-scrollbar-track {
+    background: #e9ebed;
+    border: 1px solid #fff;
+    border-radius: 4px;
+    scrollbar-width: thin;
+} */
 
 /* ::-webkit-scrollbar {
     width: 12px;
@@ -379,7 +388,7 @@ nav ul li a:hover,
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     padding: 10px 16px;
-    border-radius: 20px;
+    border-radius: 32px;
     display: flex;
     align-items: center;
     transition: opacity 0.3s;
