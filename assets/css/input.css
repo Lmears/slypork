@@ -378,7 +378,7 @@ nav ul li a:hover,
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    padding: 10px 20px;
+    padding: 10px 16px;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -444,11 +444,12 @@ input[type=range]::-moz-range-track {
 }
 
 #speedValue {
-    color: white;
-    margin-left: 10px;
-    width: 30px;
-    text-align: right;
+    /* text-align: right; */
 }
+
+/* #godModeButton {
+    width: 30px;
+} */
 
 /* Hide the default checkbox */
 input[type="checkbox"] {
