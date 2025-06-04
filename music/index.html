@@ -25,7 +25,7 @@
         <button id="godModeButton" class="mr-2 hidden md:block">
             <svg
                 class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
-                <use href="./assets/images/icons.svg#sliders"></use>
+                <use href="../assets/images/icons.svg#sliders"></use>
             </svg>
         </button>
         <input type="range" id="speedSlider" min="0" max="200" value="100">
@@ -72,9 +72,11 @@
             </nav>
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
-            <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">Music</h1>
+            <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
+                <div id="pageTitle" class="inline-block">Music</div>
+            </h1>
             <section id="links">
-                <div class="visual-container">
+                <div class="visual-container backdrop-blur-sm">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <div class="pb-4 text-2xl">My projects:</div>
                         <div class="text-lg font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
@@ -113,7 +115,7 @@
                     </div>
                 </div>
             </section>
-            <section id="playerGrid" class="visual-container-bottom">
+            <section id="playerGrid" class="visual-container-bottom backdrop-blur-sm">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
                     <h2 class="pb-4 text-2xl">Latest sets:
                     </h2>
