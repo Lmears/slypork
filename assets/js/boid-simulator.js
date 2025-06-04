@@ -5,6 +5,7 @@ const speedSlider = document.getElementById('speedSlider');
 const speedControls = document.getElementById('controls');
 const speedValue = document.getElementById('speedValue');
 const godModeButton = document.getElementById('godModeButton');
+const navLinks = document.getElementById('navLinks');
 
 // --- Tweakable Simulation Parameters (via experimental menu) ---
 let simParams = {
@@ -19,6 +20,28 @@ let simParams = {
 };
 
 const defaultSimParams = { ...simParams }; // Store initial values for reset
+
+const OBSTACLE_PADDING = 0;
+const OBSTACLE_VISION_RADIUS = 90;
+const OBSTACLE_STEER_FORCE_MULTIPLIER = 1.25;
+const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3.5;
+const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
+const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
+
+const OBSTACLE_ELEMENT_IDS = [
+    'navLinks',
+    'footer',
+    'easterEgg',
+    'hamburger-menu',
+    'controls',
+    'aboutImage',
+    'pageTitle',
+    'homeLink',
+    'downloadPdfBtn'
+    // 'pageContent'
+];
+
+let allObstacles = [];
 
 // --- Other Simulation parameters (mostly non-tweakable via new menu) ---
 const FLOCK_SIZE = 150;
@@ -105,6 +128,78 @@ let touchEndTimeoutId = null;
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
 
+class Obstacle {
+    constructor(elementIdOrElement) {
+        this.element = typeof elementIdOrElement === 'string'
+            ? document.getElementById(elementIdOrElement)
+            : elementIdOrElement;
+
+        this.bounds = null;
+        this.paddedBounds = null;
+        this.isEnabled = false;
+        this.centerX = 0;
+        this.centerY = 0;
+        this.update(); // Initial update
+    }
+
+    update() {
+        if (this.element instanceof HTMLElement && typeof this.element.getBoundingClientRect === 'function') {
+            const rect = this.element.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(this.element);
+
+            if (rect.width > 0 && rect.height > 0 &&
+                computedStyle.display !== 'none' &&
+                computedStyle.visibility !== 'hidden' &&
+                this.element.offsetParent !== null) {
+
+                this.bounds = rect;
+                const canvasRect = canvas.getBoundingClientRect();
+
+                this.paddedBounds = {
+                    left: rect.left - canvasRect.left - OBSTACLE_PADDING, // Use global
+                    top: rect.top - canvasRect.top - OBSTACLE_PADDING,    // Use global
+                    right: rect.right - canvasRect.left + OBSTACLE_PADDING, // Use global
+                    bottom: rect.bottom - canvasRect.top + OBSTACLE_PADDING, // Use global
+                };
+                this.paddedBounds.width = this.paddedBounds.right - this.paddedBounds.left;
+                this.paddedBounds.height = this.paddedBounds.bottom - this.paddedBounds.top;
+
+                this.centerX = this.paddedBounds.left + this.paddedBounds.width / 2;
+                this.centerY = this.paddedBounds.top + this.paddedBounds.height / 2;
+                this.isEnabled = true;
+            } else {
+                this.isEnabled = false;
+                this.bounds = null;
+                this.paddedBounds = null;
+            }
+        } else {
+            this.isEnabled = false;
+            this.bounds = null;
+            this.paddedBounds = null;
+        }
+    }
+
+    drawDebug() {
+        if (!this.isEnabled || !this.paddedBounds) return;
+
+        ctx.save();
+        ctx.strokeStyle = OBSTACLE_DEBUG_COLOR; // Use global
+        ctx.fillStyle = OBSTACLE_DEBUG_FILL_COLOR; // Use global
+        ctx.lineWidth = 2;
+
+        const pb = this.paddedBounds;
+        ctx.fillRect(pb.left, pb.top, pb.width, pb.height);
+        ctx.strokeRect(pb.left, pb.top, pb.width, pb.height);
+
+        ctx.beginPath();
+        ctx.arc(this.centerX, this.centerY, 5, 0, Math.PI * 2);
+        // Fill with the same color as the stroke for simplicity, or use a dedicated fill for center point
+        ctx.fillStyle = OBSTACLE_DEBUG_COLOR;
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
 class Vector {
     constructor(x, y) {
         this.x = x;
@@ -116,6 +211,7 @@ class Vector {
     mult(n) { this.x *= n; this.y *= n; }
     div(n) { this.x /= n; this.y /= n; }
     mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+    magSq() { return this.x * this.x + this.y * this.y; }
     setMag(n) { this.normalize(); this.mult(n); }
     normalize() { const m = this.mag(); if (m !== 0) this.div(m); }
     limit(max) { if (this.mag() > max) { this.normalize(); this.mult(max); } }
@@ -300,11 +396,71 @@ class Boid {
         return new Vector(0, 0);
     }
 
-    flock(localNeighbors) {
+    avoidObstacles() {
+        let totalAvoidanceForce = new Vector(0, 0);
+
+        for (const obstacle of allObstacles) {
+            if (!obstacle.isEnabled || !obstacle.paddedBounds) {
+                continue;
+            }
+
+            const obsPadded = obstacle.paddedBounds;
+            const boidRadius = this.renderSize / 2;
+
+            // --- Bounce Logic ---
+            const isOverlapping =
+                (this.position.x + boidRadius > obsPadded.left) &&
+                (this.position.x - boidRadius < obsPadded.right) &&
+                (this.position.y + boidRadius > obsPadded.top) &&
+                (this.position.y - boidRadius < obsPadded.bottom);
+
+            if (isOverlapping) {
+                let repulsionDir = Vector.sub(this.position, new Vector(obstacle.centerX, obstacle.centerY));
+                if (repulsionDir.magSq() === 0) {
+                    repulsionDir = Vector.random2D();
+                }
+                repulsionDir.setMag(this.maxSpeed);
+                let steer = Vector.sub(repulsionDir, this.velocity);
+                steer.limit(this.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER); // Use global
+                totalAvoidanceForce.add(steer);
+                continue; // Prioritize bounce, skip steering for this obstacle
+            }
+
+            // --- Steering Logic ---
+            const closestX = Math.max(obsPadded.left, Math.min(this.position.x, obsPadded.right));
+            const closestY = Math.max(obsPadded.top, Math.min(this.position.y, obsPadded.bottom));
+            const closestPointOnPaddedObstacle = new Vector(closestX, closestY);
+            const distToClosestPoint = Vector.dist(this.position, closestPointOnPaddedObstacle);
+
+            if (distToClosestPoint < OBSTACLE_VISION_RADIUS + boidRadius) { // Use global
+                let vectorToObstacle = Vector.sub(closestPointOnPaddedObstacle, this.position);
+                if (vectorToObstacle.magSq() === 0) {
+                    vectorToObstacle = Vector.sub(new Vector(obstacle.centerX, obstacle.centerY), this.position);
+                }
+
+                const dotProduct = this.velocity.x * vectorToObstacle.x + this.velocity.y * vectorToObstacle.y;
+
+                if (dotProduct > 0 && vectorToObstacle.magSq() > 0) {
+                    let desiredSteerAway = Vector.sub(this.position, closestPointOnPaddedObstacle);
+                    if (desiredSteerAway.magSq() === 0) {
+                        desiredSteerAway = Vector.sub(this.position, new Vector(obstacle.centerX, obstacle.centerY));
+                    }
+                    desiredSteerAway.setMag(this.maxSpeed);
+                    let steer = Vector.sub(desiredSteerAway, this.velocity);
+                    steer.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER); // Use global
+                    totalAvoidanceForce.add(steer);
+                }
+            }
+        }
+        return totalAvoidanceForce;
+    }
+
+    flock(localNeighbors) { // No change needed here from the previous multi-obstacle version
         const alignment = this.alignment(localNeighbors);
         const cohesion = this.cohesion(localNeighbors);
         const separation = this.separation(localNeighbors);
         const mouseForce = this.mouseAttraction();
+        const obstacleAvoidanceForce = this.avoidObstacles();
 
         alignment.mult(simParams.ALIGNMENT_FORCE);
         cohesion.mult(simParams.COHESION_FORCE);
@@ -316,6 +472,32 @@ class Boid {
         this.desiredVelocity.add(cohesion);
         this.desiredVelocity.add(separation);
         this.desiredVelocity.add(mouseForce);
+        this.desiredVelocity.add(obstacleAvoidanceForce);
+        this.desiredVelocity.limit(this.maxSpeed);
+    }
+
+    flock(localNeighbors) {
+        const alignment = this.alignment(localNeighbors);
+        const cohesion = this.cohesion(localNeighbors);
+        const separation = this.separation(localNeighbors);
+        const mouseForce = this.mouseAttraction();
+        const obstacleAvoidanceForce = this.avoidObstacles();
+
+        if (this.id === 0 && navLinkAvoidance.magSq() > 0.001) {
+            console.log(`Boid ${this.id} applying navLinkAvoidance. Mag: ${navLinkAvoidance.mag().toFixed(3)}`);
+        }
+
+        alignment.mult(simParams.ALIGNMENT_FORCE);
+        cohesion.mult(simParams.COHESION_FORCE);
+        separation.mult(simParams.SEPARATION_FORCE);
+        mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
+
+        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
+        this.desiredVelocity.add(alignment);
+        this.desiredVelocity.add(cohesion);
+        this.desiredVelocity.add(separation);
+        this.desiredVelocity.add(mouseForce);
+        this.desiredVelocity.add(obstacleAvoidanceForce);
         this.desiredVelocity.limit(this.maxSpeed);
     }
 
@@ -486,6 +668,62 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
     ctx.stroke();
 }
 
+function initializeObstacles() {
+    allObstacles = OBSTACLE_ELEMENT_IDS.map(id => new Obstacle(id));
+}
+
+function updateAllObstacles() {
+    for (const obstacle of allObstacles) {
+        obstacle.update();
+    }
+}
+
+// Helper function to get/update navLinks obstacle bounds
+function updateNavLinkObstacle() {
+    // Ensure navLinks is a valid HTML element and getBoundingClientRect is available
+    if (navLinks instanceof HTMLElement && typeof navLinks.getBoundingClientRect === 'function') {
+        const rect = navLinks.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(navLinks);
+
+        if (rect.width > 0 && rect.height > 0 &&
+            computedStyle.display !== 'none' &&
+            computedStyle.visibility !== 'hidden' &&
+            navLinks.offsetParent !== null) {
+
+            navLinksObstacle.bounds = rect;
+            const canvasRect = canvas.getBoundingClientRect();
+
+            navLinksObstacle.paddedBounds = {
+                left: rect.left - canvasRect.left - OBSTACLE_NAVLINKS_PADDING,
+                top: rect.top - canvasRect.top - OBSTACLE_NAVLINKS_PADDING,
+                right: rect.right - canvasRect.left + OBSTACLE_NAVLINKS_PADDING,
+                bottom: rect.bottom - canvasRect.top + OBSTACLE_NAVLINKS_PADDING,
+            };
+            navLinksObstacle.paddedBounds.width = navLinksObstacle.paddedBounds.right - navLinksObstacle.paddedBounds.left;
+            navLinksObstacle.paddedBounds.height = navLinksObstacle.paddedBounds.bottom - navLinksObstacle.paddedBounds.top;
+
+            navLinksObstacle.centerX = navLinksObstacle.paddedBounds.left + navLinksObstacle.paddedBounds.width / 2;
+            navLinksObstacle.centerY = navLinksObstacle.paddedBounds.top + navLinksObstacle.paddedBounds.height / 2;
+
+            navLinksObstacle.isEnabled = true;
+        } else {
+            if (navLinksObstacle.isEnabled) { // Log only if state changes to false
+                console.log("navLinksObstacle becoming disabled: No dimensions, not visible, or no offsetParent.", "Rect:", rect, "Style:", computedStyle.display, computedStyle.visibility, "OffsetParent:", navLinks.offsetParent);
+            }
+            navLinksObstacle.isEnabled = false;
+            navLinksObstacle.bounds = null;
+            navLinksObstacle.paddedBounds = null;
+        }
+    } else {
+        if (navLinksObstacle.isEnabled) { // Log only if state changes to false
+            console.log("navLinksObstacle becoming disabled: navLinks element not found or not an HTMLElement.");
+        }
+        navLinksObstacle.isEnabled = false;
+        navLinksObstacle.bounds = null;
+        navLinksObstacle.paddedBounds = null;
+    }
+}
+
 function scatter(duration) {
     flock.forEach(boid => {
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
@@ -499,9 +737,13 @@ function animate() {
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
         ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
     } else {
-        ctx.fillStyle = 'rgba(243, 244, 241, 0.1)';
+        ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
     }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // for (const obstacle of allObstacles) {
+    //     obstacle.drawDebug();
+    // }
 
     if (debugCellsMode) {
         drawGridVisualization(spatialGrid, ctx);
@@ -600,6 +842,9 @@ function initBoidSimulator() {
 
     CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
+
+    initializeObstacles();
+    updateAllObstacles();
 
     isEnding = false;
     resetBoidSimulator();
@@ -719,6 +964,7 @@ const resizeHandler = () => {
     if (spatialGrid) {
         spatialGrid.resize(canvas.width, canvas.height);
     }
+    updateAllObstacles();
 };
 
 const speedSliderInputHandler = function () {
@@ -919,7 +1165,7 @@ function setupExperimentalMenu() {
 
     const titleTextElement = document.createElement('h2');
     titleTextElement.textContent = 'God Mode';
-    titleTextElement.className = 'm-0 text-center text-background';
+    titleTextElement.className = 'm-0 text-center text-background text-lg';
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '×';

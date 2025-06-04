@@ -28,7 +28,7 @@
         <button id="godModeButton" class="mr-2 hidden md:block">
             <svg
                 class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
-                <use href="./assets/images/icons.svg#sliders"></use>
+                <use href="../assets/images/icons.svg#sliders"></use>
             </svg>
         </button>
         <input type="range" id="speedSlider" min="0" max="200" value="100">
@@ -75,9 +75,11 @@
             </nav>
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
-            <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">Software</h1>
+            <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
+                <div id="pageTitle" class="inline-block">Software</div>
+            </h1>
             <article id="blurb">
-                <div class="visual-container">
+                <div class="visual-container backdrop-blur-sm">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <p class="text-lg font-light">
                             I've been crafting software solutions for about a year. My portfolio showcases my experience
@@ -96,7 +98,7 @@
                     </div>
                 </div>
             </article>
-            <section class="visual-container-bottom">
+            <section class="visual-container-bottom backdrop-blur-sm">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
                     <div>
                         <div class="my-4 text-xl">
