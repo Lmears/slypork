@@ -161,7 +161,7 @@ function updateSliderFill(slider) {
 }
 
 /**
- * Adds mouse wheel control to a slider element.
+ * Adds mouse wheel control to a slider element, ensuring only one listener is active.
  * Changes the slider's value based on wheel scroll and dispatches an 'input' event.
  * @param {HTMLInputElement} slider - The slider element to add wheel control to.
  */
@@ -171,46 +171,37 @@ function enableSliderWheelControl(slider) {
         return;
     }
 
-    slider.addEventListener('wheel', function (event) {
-        // Prevent the page from scrolling
+    const wheelHandlerKey = '_sliderWheelEventHandler';
+
+    // Remove existing handler if present (idempotency)
+    if (slider[wheelHandlerKey]) {
+        slider.removeEventListener('wheel', slider[wheelHandlerKey]);
+    }
+
+    const wheelHandler = function (event) {
         event.preventDefault();
 
-        // Determine the step amount
-        const step = parseFloat(this.step) || 1; // Default to 1 if step is not defined or 0
+        const step = parseFloat(this.step) || 1;
         let currentValue = parseFloat(this.value);
         const min = parseFloat(this.min);
         const max = parseFloat(this.max);
 
-        // deltaY is positive for scrolling down/forward, negative for up/backward
-        if (event.deltaY < 0) { // Scrolling up (increase value) - original logic was decreasing, assuming wheel up = increase value
-            currentValue += step; // Corrected: wheel up usually increases
-        } else if (event.deltaY > 0) { // Scrolling down (decrease value)
-            currentValue -= step; // Corrected: wheel down usually decreases
-        }
+        // Update value based on scroll direction
+        currentValue += event.deltaY < 0 ? step : -step;
 
-        // Clamp the value to min/max
+        // Apply constraints
         currentValue = Math.max(min, Math.min(max, currentValue));
 
-        // Round to the same precision as the step to avoid floating point issues
+        // Handle decimal precision
         if (this.step && this.step.includes('.')) {
             const precision = this.step.split('.')[1].length;
             currentValue = parseFloat(currentValue.toFixed(precision));
-        } else {
-            // For integer steps, no specific rounding needed beyond clamp if currentValue is already number
-            // If step is 1, currentValue could be e.g. 50.1 after adding 0.1 from a previous non-integer step.
-            // However, typical range sliders with integer steps won't have this issue if step is enforced.
-            // Let's ensure it aligns with step:
-            currentValue = Math.round(currentValue / step) * step;
-            currentValue = parseFloat(currentValue.toFixed(10)); // Avoid long floating points from division
-            currentValue = Math.max(min, Math.min(max, currentValue)); // Re-clamp after rounding
         }
 
-
         this.value = currentValue;
-
-        // Manually trigger an 'input' event so updateSlider (and other listeners)
-        // react to the change.
         this.dispatchEvent(new Event('input', { bubbles: true }));
+    };
 
-    }, { passive: false }); // passive: false is important for preventDefault()
+    slider[wheelHandlerKey] = wheelHandler;
+    slider.addEventListener('wheel', wheelHandler, { passive: false });
 }

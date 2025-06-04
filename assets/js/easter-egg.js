@@ -116,14 +116,18 @@ function initializeSlider(sliderId, displayId = null, suffix = '%') {
         return;
     }
 
-    function updateSlider() {
+    const sliderInputHandlerKey = `_sliderInputHandler_${sliderId}`;
+
+    if (slider[sliderInputHandlerKey]) {
+        slider.removeEventListener('input', slider[sliderInputHandlerKey]);
+    }
+
+    const updateSliderHandler = function () {
         const value = parseFloat(slider.value);
 
         updateSliderFill(slider);
 
-        // Update the display value if display element exists
         if (display) {
-            // For steps like 0.1, ensure fixed decimal places if step is a decimal
             const step = slider.step;
             if (step && step.includes('.')) {
                 const precision = step.split('.')[1].length;
@@ -132,9 +136,14 @@ function initializeSlider(sliderId, displayId = null, suffix = '%') {
                 display.textContent = value + suffix;
             }
         }
-    }
+    };
 
-    updateSlider();
-    slider.addEventListener('input', updateSlider);
-    enableSliderWheelControl(slider);
+    slider[sliderInputHandlerKey] = updateSliderHandler;
+    slider.addEventListener('input', slider[sliderInputHandlerKey]);
+
+    updateSliderHandler();
+
+    if (typeof enableSliderWheelControl === 'function') {
+        enableSliderWheelControl(slider);
+    }
 }
