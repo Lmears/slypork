@@ -621,162 +621,199 @@ function endSimulation() {
     }
 }
 
+const mouseMoveHandler = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = event.clientX - rect.left;
+    mouse.y = event.clientY - rect.top;
+    mouseInfluence = true;
+};
 
-function setupEventListeners() {
-    document.addEventListener('mousemove', (event) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.clientX - rect.left;
-        mouse.y = event.clientY - rect.top;
-        mouseInfluence = true;
-    });
+const mouseLeaveHandler = () => {
+    mouseInfluence = false;
+    isScattering = false;
+};
 
-    document.addEventListener('mouseleave', () => {
-        mouseInfluence = false;
-        isScattering = false;
-    });
-
-    document.addEventListener('mousedown', (event) => {
-        if (isMouseOverControls) {
-            return;
-        }
-        if (event.button === 0 && !event.shiftKey) {
-            isScattering = true;
-            scatter(CLICK_SCATTER_DURATION);
-        }
-    });
-
-    document.addEventListener('mouseup', (event) => {
-        if (event.button === 0) {
-            isScattering = false;
-        }
-    });
-
-    document.addEventListener('touchstart', (event) => {
-        const experimentalMenu = document.getElementById('experimentalMenu');
-        const easterEgg = document.getElementById('easterEgg');
-        const navLinks = document.getElementById('navLinks');
-        const hamburgerMenu = document.getElementById('hamburger-menu');
-
-        const touchIsOnControl = (easterEgg && easterEgg.contains(event.target)) ||
-            (speedControls && speedControls.contains(event.target)) ||
-            (experimentalMenu && experimentalMenu.contains(event.target)) ||
-            (navLinks && navLinks.contains(event.target)) ||
-            (hamburgerMenu && hamburgerMenu.contains(event.target));
-
-        isTouchOverControls = touchIsOnControl;
-
-        if (isEnding || isTouchOverControls) {
-            mouseInfluence = false;
-            return;
-        }
-        isMouseOverControls = false;
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.touches[0].clientX - rect.left;
-        mouse.y = event.touches[0].clientY - rect.top;
-        mouseInfluence = true;
+const mouseDownHandler = (event) => {
+    if (isMouseOverControls) {
+        return;
+    }
+    if (event.button === 0 && !event.shiftKey) {
         isScattering = true;
         scatter(CLICK_SCATTER_DURATION);
+    }
+};
 
-        if (touchEndTimeoutId) {
-            clearTimeout(touchEndTimeoutId);
-            touchEndTimeoutId = null;
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchmove', (event) => {
-        if (isEnding || isTouchOverControls) {
-            mouseInfluence = false;
-            return;
-        }
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.touches[0].clientX - rect.left;
-        mouse.y = event.touches[0].clientY - rect.top;
-        mouseInfluence = true;
-
-        if (touchEndTimeoutId) {
-            clearTimeout(touchEndTimeoutId);
-            touchEndTimeoutId = null;
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', () => {
+const mouseUpHandler = (event) => {
+    if (event.button === 0) {
         isScattering = false;
-        isTouchOverControls = false;
+    }
+};
 
+const touchStartHandler = (event) => {
+    const experimentalMenu = document.getElementById('experimentalMenu');
+    const easterEgg = document.getElementById('easterEgg');
+    const navLinks = document.getElementById('navLinks');
+    const hamburgerMenu = document.getElementById('hamburger-menu');
 
-        if (touchEndTimeoutId) {
-            clearTimeout(touchEndTimeoutId);
+    const touchIsOnControl = (easterEgg && easterEgg.contains(event.target)) ||
+        (speedControls && speedControls.contains(event.target)) ||
+        (experimentalMenu && experimentalMenu.contains(event.target)) ||
+        (navLinks && navLinks.contains(event.target)) ||
+        (hamburgerMenu && hamburgerMenu.contains(event.target));
+
+    isTouchOverControls = touchIsOnControl;
+
+    if (isEnding || isTouchOverControls) {
+        mouseInfluence = false;
+        return;
+    }
+    isMouseOverControls = false;
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = event.touches[0].clientX - rect.left;
+    mouse.y = event.touches[0].clientY - rect.top;
+    mouseInfluence = true;
+    isScattering = true;
+    scatter(CLICK_SCATTER_DURATION);
+
+    if (touchEndTimeoutId) {
+        clearTimeout(touchEndTimeoutId);
+        touchEndTimeoutId = null;
+    }
+};
+
+const touchMoveHandler = (event) => {
+    if (isEnding || isTouchOverControls) {
+        mouseInfluence = false;
+        return;
+    }
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = event.touches[0].clientX - rect.left;
+    mouse.y = event.touches[0].clientY - rect.top;
+    mouseInfluence = true;
+
+    if (touchEndTimeoutId) {
+        clearTimeout(touchEndTimeoutId);
+        touchEndTimeoutId = null;
+    }
+};
+
+const touchEndHandler = () => {
+    isScattering = false;
+    isTouchOverControls = false;
+
+    if (touchEndTimeoutId) {
+        clearTimeout(touchEndTimeoutId);
+    }
+
+    touchEndTimeoutId = setTimeout(() => {
+        mouseInfluence = false;
+        touchEndTimeoutId = null;
+    }, 100);
+};
+
+const resizeHandler = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    if (spatialGrid) {
+        spatialGrid.resize(canvas.width, canvas.height);
+    }
+};
+
+const speedSliderInputHandler = function () {
+    speedMultiplier = (this.value / 100);
+    speedValue.textContent = `${this.value}%`;
+};
+
+const speedControlsMouseEnterHandler = () => {
+    isMouseOverControls = true;
+};
+
+const speedControlsMouseLeaveHandler = () => {
+    isMouseOverControls = false;
+};
+
+const documentClickHandler = (event) => {
+    if (!event.shiftKey || !debugCellsMode) {
+        if (!debugCellsMode) {
+            debugSelectedBoid = null;
         }
+        return;
+    }
 
-        touchEndTimeoutId = setTimeout(() => {
-            mouseInfluence = false;
-            touchEndTimeoutId = null;
-        }, 100);
-    });
+    const experimentalMenu = document.getElementById('experimentalMenu');
+    if (isMouseOverControls || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) {
+        return;
+    }
 
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        if (spatialGrid) {
-            spatialGrid.resize(canvas.width, canvas.height);
+    const rect = canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    let closestBoid = null;
+    let minDistSq = Infinity;
+
+    for (const boid of flock) {
+        const distSq = (boid.position.x - clickX) ** 2 + (boid.position.y - clickY) ** 2;
+        if (distSq < minDistSq && distSq < (boid.renderSize * 2) ** 2) {
+            minDistSq = distSq;
+            closestBoid = boid;
         }
-    });
+    }
+    debugSelectedBoid = closestBoid;
+};
 
-    speedSlider.addEventListener('input', function () {
-        speedMultiplier = (this.value / 100);
-        speedValue.textContent = `${this.value}%`;
-    });
+const godModeButtonClickHandler = () => {
+    godMode = !godMode;
+    const menu = document.getElementById('experimentalMenu');
+    if (menu) {
+        updateExperimentalMenuVisibility(menu, godMode);
+    }
+    console.log("God Mode:", godMode);
+};
 
-    speedControls.addEventListener('mouseenter', () => {
-        isMouseOverControls = true;
-    });
+function setupEventListeners() {
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseleave', mouseLeaveHandler);
+    document.removeEventListener('mousedown', mouseDownHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+    document.removeEventListener('touchstart', touchStartHandler);
+    document.removeEventListener('touchmove', touchMoveHandler);
+    document.removeEventListener('touchend', touchEndHandler);
+    window.removeEventListener('resize', resizeHandler);
+    document.removeEventListener('click', documentClickHandler);
 
-    speedControls.addEventListener('mouseleave', () => {
-        isMouseOverControls = false;
-    });
-
-
-    document.addEventListener('click', (event) => {
-        if (!event.shiftKey || !debugCellsMode) {
-            if (!debugCellsMode) {
-                debugSelectedBoid = null;
-            }
-            return;
-        }
-
-        const experimentalMenu = document.getElementById('experimentalMenu');
-        if (isMouseOverControls || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) { // Consider menu only if visible
-            return;
-        }
-
-        const rect = canvas.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
-        const clickY = event.clientY - rect.top;
-
-        let closestBoid = null;
-        let minDistSq = Infinity;
-
-        for (const boid of flock) {
-            const distSq = (boid.position.x - clickX) ** 2 + (boid.position.y - clickY) ** 2;
-            if (distSq < minDistSq && distSq < (boid.renderSize * 2) ** 2) {
-                minDistSq = distSq;
-                closestBoid = boid;
-            }
-        }
-        debugSelectedBoid = closestBoid;
-    });
-
+    if (speedSlider) {
+        speedSlider.removeEventListener('input', speedSliderInputHandler);
+    }
+    if (speedControls) {
+        speedControls.removeEventListener('mouseenter', speedControlsMouseEnterHandler);
+        speedControls.removeEventListener('mouseleave', speedControlsMouseLeaveHandler);
+    }
     if (godModeButton) {
-        godModeButton.addEventListener('click', () => {
-            godMode = !godMode;
-            const menu = document.getElementById('experimentalMenu');
-            if (menu) {
-                updateExperimentalMenuVisibility(menu, godMode);
-            }
-            console.log("God Mode:", godMode);
-        });
+        godModeButton.removeEventListener('click', godModeButtonClickHandler);
+    }
+
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseleave', mouseLeaveHandler);
+    document.addEventListener('mousedown', mouseDownHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+    document.addEventListener('touchstart', touchStartHandler, { passive: false });
+    document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+    document.addEventListener('touchend', touchEndHandler);
+    window.addEventListener('resize', resizeHandler);
+    document.addEventListener('click', documentClickHandler);
+
+    if (speedSlider) {
+        speedSlider.addEventListener('input', speedSliderInputHandler);
+    }
+    if (speedControls) {
+        speedControls.addEventListener('mouseenter', speedControlsMouseEnterHandler);
+        speedControls.addEventListener('mouseleave', speedControlsMouseLeaveHandler);
+    }
+    if (godModeButton) {
+        godModeButton.addEventListener('click', godModeButtonClickHandler);
     }
 }
 
@@ -811,11 +848,11 @@ function setupExperimentalMenu() {
         'backdrop-blur-sm', 'min-w-[256px]',
         'transition-opacity', 'duration-300', 'ease-out',
         'transition-transform', 'duration-200',
-        'hidden', 'md:block',
+        'hidden', 'md:flex', 'md:flex-col',
     );
 
-    menuContainer.style.display = 'flex';
-    menuContainer.style.flexDirection = 'column';
+    // menuContainer.style.display = 'flex';
+    // menuContainer.style.flexDirection = 'column';
 
     const verticalPaddingFromEdges = '32px';
     menuContainer.style.maxHeight = `calc(100vh - ${verticalPaddingFromEdges})`;
@@ -922,7 +959,7 @@ function setupExperimentalMenu() {
     closeButton.addEventListener('click', () => {
         godMode = false;
         updateExperimentalMenuVisibility(menuContainer, false);
-        // console.log("God Mode turned off by cross button");
+        console.log("God Mode:", godMode);
     });
 
     titleOuterContainer.appendChild(titleTextElement);
