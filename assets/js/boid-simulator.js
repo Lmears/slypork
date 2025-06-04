@@ -845,14 +845,11 @@ function setupExperimentalMenu() {
         'rounded-[32px]', 'z-[1000]',
         'font-sans', 'text-xs',
         'overflow-hidden',
-        'backdrop-blur-sm', 'min-w-[256px]',
+        'backdrop-blur-sm', 'min-w-[276px]',
         'transition-opacity', 'duration-300', 'ease-out',
         'transition-transform', 'duration-200',
         'hidden', 'md:flex', 'md:flex-col',
     );
-
-    // menuContainer.style.display = 'flex';
-    // menuContainer.style.flexDirection = 'column';
 
     const verticalPaddingFromEdges = '32px';
     menuContainer.style.maxHeight = `calc(100vh - ${verticalPaddingFromEdges})`;
@@ -887,7 +884,7 @@ function setupExperimentalMenu() {
              display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
         }
         #experimentalMenu .control-row label {
-            color: #f3f4f1; flex-basis: 60px; flex-shrink: 0;
+            color: #f3f4f1; flex-basis: 65px; flex-shrink: 0;
         }
         #experimentalMenu .control-row input[type="range"] {
              flex-grow: 1; max-width: 100px;
@@ -918,40 +915,28 @@ function setupExperimentalMenu() {
     document.head.appendChild(styleSheet);
 
     const titleOuterContainer = document.createElement('div');
-    titleOuterContainer.className = 'god-mode-title-container'; // For potential querySelector later
-    Object.assign(titleOuterContainer.style, {
-        position: 'relative',
-        width: '100%',
-        paddingTop: '4px',
-        paddingBottom: '4px',
-        marginBottom: '10px'
-    });
+    titleOuterContainer.className = 'god-mode-title-container relative w-full pt-1 pb-1 mb-2.5';
 
     const titleTextElement = document.createElement('h2');
     titleTextElement.textContent = 'God Mode';
-    Object.assign(titleTextElement.style, {
-        margin: '0',
-        textAlign: 'center',
-        color: '#f3f4f1',
-        fontSize: '16px'
-    });
+    titleTextElement.className = 'm-0 text-center text-background';
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '×';
     closeButton.classList.add(
-        'absolute',            // position: absolute
-        'right-[-8px]',        // right: -8px (using arbitrary value)
-        'top-1/2',             // top: 50%
-        '-translate-y-1/2',    // transform: translateY(-50%)
-        'bg-transparent',      // background: transparent
-        'border-none',         // border: none
-        'text-xl',             // font-size: 20px (text-xl is usually 1.25rem which is 20px if base is 16px)
-        'cursor-pointer',      // cursor: pointer
-        'p-2',                 // padding: 8px (p-2 is 0.5rem)
-        'leading-none',        // line-height: 1 (or leading-tight)
-        'text-background',      // Initial text color (arbitrary value for specific hex)
-        'hover:text-backgroundHovered',// Hover text color (arbitrary value for specific hex)
-        'transition-colors',   // Add transition for color property
+        'absolute',
+        'right-[-8px]',
+        'top-1/2',
+        '-translate-y-1/2',
+        'bg-transparent',
+        'border-none',
+        'text-xl',
+        'cursor-pointer',
+        'p-2',
+        'leading-none',
+        'text-background',
+        'hover:text-backgroundHovered',
+        'transition-colors',
         // 'transform',
         // 'hover:scale-110'
     );

@@ -452,14 +452,6 @@ input[type=range]::-moz-range-track {
     border: none;
 }
 
-#speedValue {
-    /* text-align: right; */
-}
-
-/* #godModeButton {
-    width: 30px;
-} */
-
 /* Hide the default checkbox */
 input[type="checkbox"] {
     appearance: none;

@@ -98,8 +98,14 @@
 <body class="text-neutral-900 cv-font">
     <canvas id="boidCanvas" class="no-print"></canvas>
     <div id="controls" class="no-print">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="./assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
         <input type="range" id="speedSlider" min="0" max="200" value="100">
-        <span id="speedValue">100%</span>
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
     </div>
 
     <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
