@@ -122,7 +122,7 @@ let godMode = false;
 let debugCellsMode = false;
 let debugSelectedBoid = null;
 let isMouseOverControls = false;
-let isTouchOverControls = false;
+let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
 
 const logoImg = new Image();
@@ -825,7 +825,7 @@ function resetBoidSimulator() {
     speedValue.textContent = `${speedSlider.value}%`;
 
     isMouseOverControls = false;
-    isTouchOverControls = false;
+    boidsIgnoreTouch = false;
 }
 
 function stopAnimation() {
@@ -899,16 +899,26 @@ const touchStartHandler = (event) => {
     const easterEgg = document.getElementById('easterEgg');
     const navLinks = document.getElementById('navLinks');
     const hamburgerMenu = document.getElementById('hamburger-menu');
+    const visualContainer = document.getElementById('visualContainer');
+    const playerGrid = document.getElementById('playerGrid');
+    const designGrid = document.getElementById('designGrid');
+    const cvContent = document.getElementById('cvContent');
+    const softwareContainer = document.getElementById('softwareContainer');
 
-    const touchIsOnControl = (easterEgg && easterEgg.contains(event.target)) ||
+    const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
         (experimentalMenu && experimentalMenu.contains(event.target)) ||
         (navLinks && navLinks.contains(event.target)) ||
-        (hamburgerMenu && hamburgerMenu.contains(event.target));
+        (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
+        (visualContainer && visualContainer.contains(event.target)) ||
+        (playerGrid && playerGrid.contains(event.target)) ||
+        (designGrid && designGrid.contains(event.target)) ||
+        (cvContent && cvContent.contains(event.target)) ||
+        (softwareContainer && softwareContainer.contains(event.target));
 
-    isTouchOverControls = touchIsOnControl;
+    boidsIgnoreTouch = shouldBoidsIgnoreTouch;
 
-    if (isEnding || isTouchOverControls) {
+    if (isEnding || boidsIgnoreTouch) {
         mouseInfluence = false;
         return;
     }
@@ -928,7 +938,7 @@ const touchStartHandler = (event) => {
 };
 
 const touchMoveHandler = (event) => {
-    if (isEnding || isTouchOverControls) {
+    if (isEnding || boidsIgnoreTouch) {
         mouseInfluence = false;
         return;
     }
@@ -946,7 +956,7 @@ const touchMoveHandler = (event) => {
 
 const touchEndHandler = () => {
     isScattering = false;
-    isTouchOverControls = false;
+    boidsIgnoreTouch = false;
 
     if (touchEndTimeoutId) {
         clearTimeout(touchEndTimeoutId);
