@@ -602,10 +602,6 @@ video {
   pointer-events: auto;
 }
 
-.visible {
-  visibility: visible;
-}
-
 .static {
   position: static;
 }
@@ -646,6 +642,10 @@ video {
   z-index: 1000;
 }
 
+.m-0 {
+  margin: 0px;
+}
+
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -672,6 +672,10 @@ video {
 
 .mb-2 {
   margin-bottom: 0.5rem;
+}
+
+.mb-2\.5 {
+  margin-bottom: 0.625rem;
 }
 
 .mb-3 {
@@ -766,6 +770,10 @@ video {
   height: 2.5rem;
 }
 
+.h-4 {
+  height: 1rem;
+}
+
 .h-5 {
   height: 1.25rem;
 }
@@ -794,6 +802,10 @@ video {
   width: 2.5rem;
 }
 
+.w-4 {
+  width: 1rem;
+}
+
 .w-5 {
   width: 1.25rem;
 }
@@ -814,8 +826,8 @@ video {
   width: 100%;
 }
 
-.min-w-\[256px\] {
-  min-width: 256px;
+.min-w-\[276px\] {
+  min-width: 276px;
 }
 
 .max-w-full {
@@ -1072,6 +1084,10 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
+.fill-current {
+  fill: currentColor;
+}
+
 .p-0 {
   padding: 0px;
 }
@@ -1166,6 +1182,10 @@ video {
 
 .pr-6 {
   padding-right: 1.5rem;
+}
+
+.pt-1 {
+  padding-top: 0.25rem;
 }
 
 .pt-10 {
@@ -1849,14 +1869,6 @@ input[type=range]::-moz-range-track {
   border-radius: 6px;
   border: none;
 }
-
-#speedValue {
-  /* text-align: right; */
-}
-
-/* #godModeButton {
-    width: 30px;
-} */
 
 /* Hide the default checkbox */
 

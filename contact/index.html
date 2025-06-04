@@ -25,8 +25,12 @@
 <body class="text-neutral-900">
     <canvas id="boidCanvas"></canvas>
     <div id="controls">
-        <button id="godModeButton" class="mr-2 hidden md:block"><i
-                class="fa-solid fa-sliders text-background hover:text-backgroundHovered transition transform hover:scale-110"></i></button>
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="./assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
         <input type="range" id="speedSlider" min="0" max="200" value="100">
         <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
     </div>
