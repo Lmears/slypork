@@ -19,7 +19,7 @@ function createImageElement(src) {
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
     img.src = src;
     img.alt = "Design Poster";
-    img.classList.add('modal-trigger', 'cursor-pointer');
+    img.classList.add('modal-trigger', 'cursor-pointer', 'rounded-xl');
     img.loading = 'lazy';
     return img;
 }
