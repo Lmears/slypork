@@ -129,6 +129,7 @@ let animationFrameId = null;
 let isEnding = false;
 let endStartTime = 0;
 let spatialGrid;
+let obstacleGrid;
 let godMode = false;
 let debugObstaclesMode = false;
 let debugGridMode = false;
@@ -348,6 +349,8 @@ class SpatialGrid {
 
     _initializeGrid() {
         this.grid = [];
+        this.numRows = Math.max(1, Math.ceil(this.canvasHeight / this.cellSize));
+        this.numCols = Math.max(1, Math.ceil(this.canvasWidth / this.cellSize));
         for (let i = 0; i < this.numRows; i++) {
             this.grid[i] = [];
             for (let j = 0; j < this.numCols; j++) {
@@ -359,8 +362,6 @@ class SpatialGrid {
     resize(newWidth, newHeight) {
         this.canvasWidth = newWidth;
         this.canvasHeight = newHeight;
-        this.numCols = Math.max(1, Math.ceil(newWidth / this.cellSize));
-        this.numRows = Math.max(1, Math.ceil(newHeight / this.cellSize));
         this._initializeGrid();
     }
 
@@ -378,33 +379,64 @@ class SpatialGrid {
         return { col, row };
     }
 
-    addBoid(boid) {
-        const { col, row } = this._getCellCoords(boid.position);
+    // --- GENERIC ADD METHODS ---
+
+    /**
+     * Adds an object with a .position property (like a Boid) to a single cell.
+     * @param {object} item - The item to add, must have a .position {x, y} property.
+     */
+    addItemAtPoint(item) {
+        const { col, row } = this._getCellCoords(item.position);
         if (row >= 0 && row < this.numRows && col >= 0 && col < this.numCols) {
-            this.grid[row][col].push(boid);
+            this.grid[row][col].push(item);
         }
     }
 
-    getNeighbors(boid) {
-        const neighbors = [];
-        const { col: boidCol, row: boidRow } = this._getCellCoords(boid.position);
+    /**
+     * Adds an object to all grid cells it overlaps.
+     * @param {object} item - The item to add.
+     * @param {object} bounds - An object with { left, top, right, bottom } properties.
+     */
+    addItemInArea(item, bounds) {
+        const startCol = Math.floor(bounds.left / this.cellSize);
+        const endCol = Math.floor(bounds.right / this.cellSize);
+        const startRow = Math.floor(bounds.top / this.cellSize);
+        const endRow = Math.floor(bounds.bottom / this.cellSize);
 
-        for (let rOffset = -1; rOffset <= 1; rOffset++) {
-            for (let cOffset = -1; cOffset <= 1; cOffset++) {
-                let neighborRow = boidRow + rOffset;
-                let neighborCol = boidCol + cOffset;
-
-                neighborRow = (neighborRow + this.numRows) % this.numRows;
-                neighborCol = (neighborCol + this.numCols) % this.numCols;
-
-                if (this.grid[neighborRow] && this.grid[neighborRow][neighborCol]) {
-                    for (const otherBoid of this.grid[neighborRow][neighborCol]) {
-                        neighbors.push(otherBoid);
-                    }
+        for (let row = startRow; row <= endRow; row++) {
+            for (let col = startCol; col <= endCol; col++) {
+                if (row >= 0 && row < this.numRows && col >= 0 && col < this.numCols) {
+                    this.grid[row][col].push(item);
                 }
             }
         }
-        return neighbors;
+    }
+
+    // --- GENERIC QUERY METHOD ---
+
+    /**
+     * Retrieves all items from the 3x3 neighborhood of cells around a position.
+     * Returns an array of items (with duplicates if an item is in multiple cells).
+     * @param {object} position - The center point of the query, { x, y }.
+     */
+    getItemsInNeighborhood(position) {
+        const items = [];
+        const { col: centerCol, row: centerRow } = this._getCellCoords(position);
+
+        for (let rOffset = -1; rOffset <= 1; rOffset++) {
+            for (let cOffset = -1; cOffset <= 1; cOffset++) {
+                // Toroidal wrapping for seamless edges
+                const neighborRow = (centerRow + rOffset + this.numRows) % this.numRows;
+                const neighborCol = (centerCol + cOffset + this.numCols) % this.numCols;
+
+                if (this.grid[neighborRow] && this.grid[neighborRow][neighborCol]) {
+                    // This creates a shallow copy, which is fine.
+                    // For performance, could also loop and push items one by one.
+                    items.push(...this.grid[neighborRow][neighborCol]);
+                }
+            }
+        }
+        return items;
     }
 }
 
@@ -694,7 +726,11 @@ class Boid {
         let bestDistSqForObstacle = Infinity;
         let bestTypeForObstacle = null;
 
-        for (const obstacle of allObstacles) {
+        const nearbyItems = obstacleGrid.getItemsInNeighborhood(this.position);
+
+        const uniqueNearbyObstacles = new Set(nearbyItems);
+
+        for (const obstacle of uniqueNearbyObstacles) {
             if (!obstacle.isEnabled || !obstacle.paddedBounds) continue;
 
             bestForceForObstacle = null;
@@ -1000,7 +1036,7 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
         }
     }
 
-    const localNeighbors = gridInstance.getNeighbors(boid);
+    const localNeighbors = gridInstance.getItemsInNeighborhood(boid.position);
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
     ctx.lineWidth = 1;
     for (const other of localNeighbors) {
@@ -1025,8 +1061,14 @@ function initializeObstacles() {
 }
 
 function updateAllObstacles() {
+    if (!obstacleGrid) return;
+    obstacleGrid.clear();
+
     for (const obstacle of allObstacles) {
         obstacle.update();
+        if (obstacle.isEnabled) {
+            obstacleGrid.addItemInArea(obstacle, obstacle.paddedBounds);
+        }
     }
 }
 
@@ -1092,10 +1134,8 @@ function animate() {
     if (spatialGrid) {
         spatialGrid.clear();
         for (let boid of flock) {
-            spatialGrid.addBoid(boid);
+            spatialGrid.addItemAtPoint(boid);
         }
-    } else {
-        console.warn("[Animate] spatialGrid is not initialized!");
     }
 
     // flock.sort((a, b) => a.depth - b.depth);
@@ -1122,7 +1162,7 @@ function animate() {
             }
         } else if (!isEnding) {
             boid.edges();
-            const localNeighbors = spatialGrid.getNeighbors(boid);
+            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
             boid.flock(localNeighbors);
             boid.update(localNeighbors, currentTime);
         }
@@ -1135,7 +1175,6 @@ function animate() {
 
     if (isEnding && endProgress >= 1) {
         console.log("End animation complete.");
-        // Optional: Log vector pool stats at the end
         // console.log("Final VectorPool Stats:", vectorPool.getStats());
         return;
     }
@@ -1149,12 +1188,14 @@ function resetBoidSimulator() {
 
     CELL_SIZE = calculateCurrentCellSize();
 
-    if (spatialGrid) {
-        spatialGrid.cellSize = CELL_SIZE;
-        spatialGrid.resize(canvas.width, canvas.height);
-    } else {
-        spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
-    }
+    // --- No if/else needed. We assume grids exist. Just update them. ---
+    spatialGrid.cellSize = CELL_SIZE;
+    spatialGrid.resize(canvas.width, canvas.height);
+
+    // Also update the obstacle grid
+    obstacleGrid.cellSize = CELL_SIZE;
+    obstacleGrid.resize(canvas.width, canvas.height);
+    updateAllObstacles(); // IMPORTANT: Repopulate obstacle grid after resize
 
     flock.length = 0;
     debugSelectedBoid = null;
@@ -1188,6 +1229,7 @@ function initBoidSimulator() {
 
     CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
+    obstacleGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
 
     initializeObstacles();
     updateAllObstacles();
@@ -1337,6 +1379,9 @@ const resizeHandler = () => {
     canvas.height = window.innerHeight;
     if (spatialGrid) {
         spatialGrid.resize(canvas.width, canvas.height);
+    }
+    if (obstacleGrid) {
+        obstacleGrid.resize(canvas.width, canvas.height);
     }
     updateAllObstacles();
 };
