@@ -904,6 +904,9 @@ const touchStartHandler = (event) => {
     const designGrid = document.getElementById('designGrid');
     const cvContent = document.getElementById('cvContent');
     const softwareContainer = document.getElementById('softwareContainer');
+    const homeLink = document.getElementById('homeLink');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const myModal = document.getElementById('myModal');
 
     const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
@@ -914,7 +917,10 @@ const touchStartHandler = (event) => {
         (playerGrid && playerGrid.contains(event.target)) ||
         (designGrid && designGrid.contains(event.target)) ||
         (cvContent && cvContent.contains(event.target)) ||
-        (softwareContainer && softwareContainer.contains(event.target));
+        (softwareContainer && softwareContainer.contains(event.target)) ||
+        (homeLink && homeLink.contains(event.target)) ||
+        (downloadPdfBtn && downloadPdfBtn.contains(event.target)) ||
+        (myModal && myModal.contains(event.target));
 
     boidsIgnoreTouch = shouldBoidsIgnoreTouch;
 
