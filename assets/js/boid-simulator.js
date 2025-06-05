@@ -230,6 +230,7 @@ class Vector {
     setMag(n) { this.normalize(); this.mult(n); }
     normalize() { const m = this.mag(); if (m !== 0) this.div(m); }
     limit(max) { if (this.mag() > max) { this.normalize(); this.mult(max); } }
+    copy() { return new Vector(this.x, this.y); }
     static dist(v1, v2) { return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2); }
     static sub(v1, v2) { return new Vector(v1.x - v2.x, v1.y - v2.y); }
     static random2D() { return new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1); }
@@ -344,46 +345,89 @@ class Boid {
     }
 
     alignment(localNeighbors) {
-        return this.calculateSteering(localNeighbors, simParams.ALIGNMENT_RADIUS, (other, d) => {
-            return other.velocity;
-        });
-    }
-
-    separation(localNeighbors) {
-        return this.calculateSteering(localNeighbors, simParams.SEPARATION_RADIUS, (other, d) => {
-            const diff = Vector.sub(this.position, other.position);
-            diff.div(d * d);
-            return diff;
-        });
-    }
-
-    cohesion(localNeighbors) {
-        return this.calculateSteering(localNeighbors, simParams.COHESION_RADIUS, (other, d) => {
-            const diff = Vector.sub(other.position, this.position);
-            diff.mult(1 - d / simParams.COHESION_RADIUS);
-            return diff;
-        });
-    }
-
-    calculateSteering(boidsToConsider, radius, vectorFunc) {
-        let steering = new Vector(0, 0);
+        let avgVelocity = new Vector(0, 0);
         let total = 0;
-        for (let other of boidsToConsider) {
+        for (let other of localNeighbors) {
             if (other === this) continue;
-            let d = Vector.dist(this.position, other.position);
-            if (d > 0 && d < radius) {
-                let vec = vectorFunc(other, d);
-                steering.add(vec);
+
+            const diffVecFromOtherToThis = getToroidalDifference(this.position, other.position, canvas.width, canvas.height);
+            let d = diffVecFromOtherToThis.mag();
+
+            if (d > 0 && d < simParams.ALIGNMENT_RADIUS) {
+                avgVelocity.add(other.velocity);
                 total++;
             }
         }
         if (total > 0) {
-            steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
+            avgVelocity.div(total);
+            avgVelocity.setMag(this.maxSpeed); // Desired velocity is average, at maxSpeed
+            let steer = Vector.sub(avgVelocity, this.velocity); // Steering force
+            steer.limit(this.maxForce);
+            return steer;
         }
-        return steering;
+        return new Vector(0, 0);
+    }
+
+    separation(localNeighbors) {
+        let desiredSeparationVelocity = new Vector(0, 0);
+        let total = 0;
+        for (let other of localNeighbors) {
+            if (other === this) continue;
+
+            const diffVecFromOtherToThis = getToroidalDifference(this.position, other.position, canvas.width, canvas.height);
+            let d = diffVecFromOtherToThis.mag();
+
+            if (d > 0 && d < simParams.SEPARATION_RADIUS) {
+                let repulsionForce = diffVecFromOtherToThis.copy(); // Points from other (effective) to this
+                // Original code's effective magnitude for repulsion was 1/d.
+                // diffVecFromOtherToThis has magnitude d. So diff / (d*d) gives magnitude 1/d.
+                repulsionForce.div(d * d);
+                desiredSeparationVelocity.add(repulsionForce);
+                total++;
+            }
+        }
+        if (total > 0) {
+            desiredSeparationVelocity.div(total); // Average repulsion vector
+            desiredSeparationVelocity.setMag(this.maxSpeed); // This is the desired velocity
+            let steer = Vector.sub(desiredSeparationVelocity, this.velocity); // Steering force
+            steer.limit(this.maxForce);
+            return steer;
+        }
+        return new Vector(0, 0);
+    }
+
+    cohesion(localNeighbors) {
+        let sumOfPullVectors = new Vector(0, 0);
+        let total = 0;
+        for (let other of localNeighbors) {
+            if (other === this) continue;
+
+            const diffVecFromOtherToThis = getToroidalDifference(this.position, other.position, canvas.width, canvas.height);
+            let d = diffVecFromOtherToThis.mag();
+
+            if (d > 0 && d < simParams.COHESION_RADIUS) {
+                // diffVecFromOtherToThis points from other_effective to this.
+                // We want a vector from this to other_effective for cohesion pull.
+                let vectorToEffectiveOther = diffVecFromOtherToThis.copy();
+                vectorToEffectiveOther.mult(-1); // Now points from this to other_effective
+
+                // Apply the weighting from the original user code's calculateSteering lambda for cohesion
+                // (1 - d / R) is a scalar factor. Closer boids (small d) get a weight near 1.
+                let weight = (1 - d / simParams.COHESION_RADIUS);
+                vectorToEffectiveOther.mult(weight); // Magnitude becomes d * (1 - d/R)
+
+                sumOfPullVectors.add(vectorToEffectiveOther);
+                total++;
+            }
+        }
+        if (total > 0) {
+            sumOfPullVectors.div(total); // Average "pull vector"
+            sumOfPullVectors.setMag(this.maxSpeed); // This becomes the desired velocity.
+            let steer = Vector.sub(sumOfPullVectors, this.velocity); // Steering force
+            steer.limit(this.maxForce);
+            return steer;
+        }
+        return new Vector(0, 0);
     }
 
     mouseAttraction() {
@@ -470,37 +514,12 @@ class Boid {
         return totalAvoidanceForce;
     }
 
-    flock(localNeighbors) { // No change needed here from the previous multi-obstacle version
-        const alignment = this.alignment(localNeighbors);
-        const cohesion = this.cohesion(localNeighbors);
-        const separation = this.separation(localNeighbors);
-        const mouseForce = this.mouseAttraction();
-        const obstacleAvoidanceForce = this.avoidObstacles();
-
-        alignment.mult(simParams.ALIGNMENT_FORCE);
-        cohesion.mult(simParams.COHESION_FORCE);
-        separation.mult(simParams.SEPARATION_FORCE);
-        mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
-
-        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
-        this.desiredVelocity.add(alignment);
-        this.desiredVelocity.add(cohesion);
-        this.desiredVelocity.add(separation);
-        this.desiredVelocity.add(mouseForce);
-        this.desiredVelocity.add(obstacleAvoidanceForce);
-        this.desiredVelocity.limit(this.maxSpeed);
-    }
-
     flock(localNeighbors) {
         const alignment = this.alignment(localNeighbors);
         const cohesion = this.cohesion(localNeighbors);
         const separation = this.separation(localNeighbors);
         const mouseForce = this.mouseAttraction();
         const obstacleAvoidanceForce = this.avoidObstacles();
-
-        if (this.id === 0 && navLinkAvoidance.magSq() > 0.001) {
-            console.log(`Boid ${this.id} applying navLinkAvoidance. Mag: ${navLinkAvoidance.mag().toFixed(3)}`);
-        }
 
         alignment.mult(simParams.ALIGNMENT_FORCE);
         cohesion.mult(simParams.COHESION_FORCE);
@@ -558,7 +577,10 @@ class Boid {
         const nearbyBoidsForDepth = [];
         for (const b of localNeighbors) {
             if (b === this) continue;
-            if (Vector.dist(this.position, b.position) < DEPTH_INFLUENCE_RADIUS) {
+
+            // Use toroidal distance for depth influence
+            const diffVec = getToroidalDifference(this.position, b.position, canvas.width, canvas.height);
+            if (diffVec.mag() < DEPTH_INFLUENCE_RADIUS) {
                 nearbyBoidsForDepth.push(b);
             }
         }
@@ -627,6 +649,22 @@ class Boid {
 }
 
 const flock = [];
+
+function getToroidalDifference(pos1, pos2, worldWidth, worldHeight) {
+    let dx = pos1.x - pos2.x;
+    let dy = pos1.y - pos2.y;
+
+    // Check for wrap-around in x-dimension
+    if (Math.abs(dx) > worldWidth / 2) {
+        dx = dx - Math.sign(dx) * worldWidth;
+    }
+    // Check for wrap-around in y-dimension
+    if (Math.abs(dy) > worldHeight / 2) {
+        dy = dy - Math.sign(dy) * worldHeight;
+    }
+    // The returned vector points from pos2 (potentially wrapped) towards pos1, along the shortest path.
+    return new Vector(dx, dy);
+}
 
 function drawGridVisualization(gridInstance, ctx) {
     if (!gridInstance) return;
