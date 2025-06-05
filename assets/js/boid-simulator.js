@@ -1098,7 +1098,7 @@ function animate() {
         console.warn("[Animate] spatialGrid is not initialized!");
     }
 
-    flock.sort((a, b) => a.depth - b.depth);
+    // flock.sort((a, b) => a.depth - b.depth);
 
     const currentTime = performance.now();
     const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
