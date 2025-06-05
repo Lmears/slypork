@@ -15,7 +15,6 @@ html {
     transition: background-color 0.5s ease;
     height: 100%;
     overflow: hidden;
-    /* scrollbar-gutter: stable both-edges; */
 }
 
 body {
@@ -296,7 +295,7 @@ nav ul li a:hover,
 .easter-egg {
     position: fixed;
     bottom: -21px;
-    right: 18px;
+    right: 32px;
     width: 45px;
     height: 40px;
     background-image: url('../images/home.png');

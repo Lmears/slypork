@@ -29,15 +29,29 @@ const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
 
 const OBSTACLE_ELEMENT_IDS = [
-    'navLinks',
+    'aboutLink',
+    'masteringLink',
+    'musicLink',
+    'designLink',
+    'softwareLink',
+    'contactLink',
     'footer',
     'easterEgg',
     'hamburger-menu',
     'controls',
     'aboutImage',
+    'masteringImage',
     'pageTitle',
     'homeLink',
-    'downloadPdfBtn'
+    'downloadPdfBtn',
+    'songsGrid',
+    'keith-logo',
+    'dj-pretence-logo',
+    'root-basis-logo',
+    'keith-player',
+    'dj-pretence-player',
+    'root-basis-player',
+    'imageGrid',
     // 'pageContent'
 ];
 
@@ -119,7 +133,8 @@ let isEnding = false;
 let endStartTime = 0;
 let spatialGrid;
 let godMode = false;
-let debugCellsMode = false;
+let debugObstaclesMode = false;
+let debugGridMode = false;
 let debugSelectedBoid = null;
 let isMouseOverControls = false;
 let boidsIgnoreTouch = false;
@@ -678,52 +693,6 @@ function updateAllObstacles() {
     }
 }
 
-// Helper function to get/update navLinks obstacle bounds
-function updateNavLinkObstacle() {
-    // Ensure navLinks is a valid HTML element and getBoundingClientRect is available
-    if (navLinks instanceof HTMLElement && typeof navLinks.getBoundingClientRect === 'function') {
-        const rect = navLinks.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(navLinks);
-
-        if (rect.width > 0 && rect.height > 0 &&
-            computedStyle.display !== 'none' &&
-            computedStyle.visibility !== 'hidden' &&
-            navLinks.offsetParent !== null) {
-
-            navLinksObstacle.bounds = rect;
-            const canvasRect = canvas.getBoundingClientRect();
-
-            navLinksObstacle.paddedBounds = {
-                left: rect.left - canvasRect.left - OBSTACLE_NAVLINKS_PADDING,
-                top: rect.top - canvasRect.top - OBSTACLE_NAVLINKS_PADDING,
-                right: rect.right - canvasRect.left + OBSTACLE_NAVLINKS_PADDING,
-                bottom: rect.bottom - canvasRect.top + OBSTACLE_NAVLINKS_PADDING,
-            };
-            navLinksObstacle.paddedBounds.width = navLinksObstacle.paddedBounds.right - navLinksObstacle.paddedBounds.left;
-            navLinksObstacle.paddedBounds.height = navLinksObstacle.paddedBounds.bottom - navLinksObstacle.paddedBounds.top;
-
-            navLinksObstacle.centerX = navLinksObstacle.paddedBounds.left + navLinksObstacle.paddedBounds.width / 2;
-            navLinksObstacle.centerY = navLinksObstacle.paddedBounds.top + navLinksObstacle.paddedBounds.height / 2;
-
-            navLinksObstacle.isEnabled = true;
-        } else {
-            if (navLinksObstacle.isEnabled) { // Log only if state changes to false
-                console.log("navLinksObstacle becoming disabled: No dimensions, not visible, or no offsetParent.", "Rect:", rect, "Style:", computedStyle.display, computedStyle.visibility, "OffsetParent:", navLinks.offsetParent);
-            }
-            navLinksObstacle.isEnabled = false;
-            navLinksObstacle.bounds = null;
-            navLinksObstacle.paddedBounds = null;
-        }
-    } else {
-        if (navLinksObstacle.isEnabled) { // Log only if state changes to false
-            console.log("navLinksObstacle becoming disabled: navLinks element not found or not an HTMLElement.");
-        }
-        navLinksObstacle.isEnabled = false;
-        navLinksObstacle.bounds = null;
-        navLinksObstacle.paddedBounds = null;
-    }
-}
-
 function scatter(duration) {
     flock.forEach(boid => {
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
@@ -741,11 +710,13 @@ function animate() {
     }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // for (const obstacle of allObstacles) {
-    //     obstacle.drawDebug();
-    // }
+    if (debugObstaclesMode) {
+        for (const obstacle of allObstacles) {
+            obstacle.drawDebug();
+        }
+    }
 
-    if (debugCellsMode) {
+    if (debugGridMode) {
         drawGridVisualization(spatialGrid, ctx);
     }
     if (debugSelectedBoid) {
@@ -897,7 +868,12 @@ const mouseUpHandler = (event) => {
 const touchStartHandler = (event) => {
     const experimentalMenu = document.getElementById('experimentalMenu');
     const easterEgg = document.getElementById('easterEgg');
-    const navLinks = document.getElementById('navLinks');
+    const aboutLink = document.getElementById('aboutLink');
+    const masteringLink = document.getElementById('masteringLink');
+    const musicLink = document.getElementById('musicLink');
+    const designLink = document.getElementById('designLink');
+    const softwareLink = document.getElementById('softwareLink');
+    const contactLink = document.getElementById('contactLink');
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const visualContainer = document.getElementById('visualContainer');
     const playerGrid = document.getElementById('playerGrid');
@@ -907,11 +883,18 @@ const touchStartHandler = (event) => {
     const homeLink = document.getElementById('homeLink');
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     const myModal = document.getElementById('myModal');
+    const modalImage = document.getElementById('modalImage');
+    const songsGrid = document.getElementById('songsGrid');
 
     const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
         (experimentalMenu && experimentalMenu.contains(event.target)) ||
-        (navLinks && navLinks.contains(event.target)) ||
+        (aboutLink && aboutLink.contains(event.target)) ||
+        (masteringLink && masteringLink.contains(event.target)) ||
+        (musicLink && musicLink.contains(event.target)) ||
+        (designLink && designLink.contains(event.target)) ||
+        (softwareLink && softwareLink.contains(event.target)) ||
+        (contactLink && contactLink.contains(event.target)) ||
         (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
         (visualContainer && visualContainer.contains(event.target)) ||
         (playerGrid && playerGrid.contains(event.target)) ||
@@ -920,7 +903,9 @@ const touchStartHandler = (event) => {
         (softwareContainer && softwareContainer.contains(event.target)) ||
         (homeLink && homeLink.contains(event.target)) ||
         (downloadPdfBtn && downloadPdfBtn.contains(event.target)) ||
-        (myModal && myModal.contains(event.target));
+        (myModal && myModal.contains(event.target)) ||
+        (modalImage && modalImage.contains(event.target)) ||
+        (songsGrid && songsGrid.contains(event.target));
 
     boidsIgnoreTouch = shouldBoidsIgnoreTouch;
 
@@ -983,6 +968,11 @@ const resizeHandler = () => {
     updateAllObstacles();
 };
 
+const scrollHandler = () => {
+    console.log("Scroll event detected!");
+    updateAllObstacles();
+};
+
 const speedSliderInputHandler = function () {
     speedMultiplier = (this.value / 100);
     speedValue.textContent = `${this.value}%`;
@@ -997,8 +987,8 @@ const speedControlsMouseLeaveHandler = () => {
 };
 
 const documentClickHandler = (event) => {
-    if (!event.shiftKey || !debugCellsMode) {
-        if (!debugCellsMode) {
+    if (!event.shiftKey || !debugGridMode) {
+        if (!debugGridMode) {
             debugSelectedBoid = null;
         }
         return;
@@ -1045,6 +1035,7 @@ function setupEventListeners() {
     document.removeEventListener('touchend', touchEndHandler);
     window.removeEventListener('resize', resizeHandler);
     document.removeEventListener('click', documentClickHandler);
+    window.removeEventListener('scroll', scrollHandler);
 
     if (speedSlider) {
         speedSlider.removeEventListener('input', speedSliderInputHandler);
@@ -1066,6 +1057,7 @@ function setupEventListeners() {
     document.addEventListener('touchend', touchEndHandler);
     window.addEventListener('resize', resizeHandler);
     document.addEventListener('click', documentClickHandler);
+    document.body.addEventListener('scroll', scrollHandler, { passive: true });
 
     if (speedSlider) {
         speedSlider.addEventListener('input', speedSliderInputHandler);
@@ -1142,38 +1134,38 @@ function setupExperimentalMenu() {
 
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
-        #experimentalMenu .control-row {
-             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-        }
-        #experimentalMenu .control-row label {
-            color: #f3f4f1; flex-basis: 65px; flex-shrink: 0;
-        }
-        #experimentalMenu .control-row input[type="range"] {
-             flex-grow: 1; max-width: 100px;
-        }
-        #experimentalMenu .value-input {
-            width: 32px; text-align: center; color: #f3f4f1;
-            background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 32px; font-size: 11px;
-            font-family: Arial, sans-serif;
-        }
-        #experimentalMenu .value-input:focus {
-            outline: none; border-color: #2196F3;
-        }
+            #experimentalMenu .control-row {
+                display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+            }
+            #experimentalMenu .control-row label {
+                color: #f3f4f1; flex-basis: 65px; flex-shrink: 0;
+            }
+            #experimentalMenu .control-row input[type="range"] {
+                flex-grow: 1; max-width: 100px;
+            }
+            #experimentalMenu .value-input {
+                width: 32px; text-align: center; color: #f3f4f1;
+                background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 32px; font-size: 11px;
+                font-family: Arial, sans-serif;
+            }
+            #experimentalMenu .value-input:focus {
+                outline: none; border-color: #2196F3;
+            }
 
-        #experimentalMenu .scrollable-content {
-            scrollbar-color: #f3f4f1 rgba(255, 255, 255, 0.2);
-            scrollbar-width: thin;
-        }
+            #experimentalMenu .scrollable-content {
+                scrollbar-color: #f3f4f1 rgba(255, 255, 255, 0.2);
+                scrollbar-width: thin;
+            }
 
-        // #experimentalMenu .experimental-menu-close-button {
-        //     color: #f3f4f1; /* Initial color */
-        //     transition: color 0.2s ease-out; /* Smooth transition for color change */
-        // }
-        // #experimentalMenu .experimental-menu-close-button:hover {
-        //     color: #2196F3; /* Hover color (e.g., a blue, consistent with input focus) */
-        // }
-    `;
+            // #experimentalMenu .experimental-menu-close-button {
+            //     color: #f3f4f1; /* Initial color */
+            //     transition: color 0.2s ease-out; /* Smooth transition for color change */
+            // }
+            // #experimentalMenu .experimental-menu-close-button:hover {
+            //     color: #2196F3; /* Hover color (e.g., a blue, consistent with input focus) */
+            // }
+        `;
     document.head.appendChild(styleSheet);
 
     const titleOuterContainer = document.createElement('div');
@@ -1238,7 +1230,7 @@ function setupExperimentalMenu() {
         Object.assign(categoryTitle.style, {
             marginTop: '15px',
             marginBottom: '10px',
-            color: '#E0E0E0',
+            color: '#f3f4f1',
             borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
             paddingBottom: '5px'
         });
@@ -1330,45 +1322,71 @@ function setupExperimentalMenu() {
         borderTop: '1px solid rgba(255, 255, 255, 0.2)'
     });
 
-    const debugToggleControlRow = document.createElement('div');
-    // Mimic .control-row styling for consistency (label left, control right)
-    Object.assign(debugToggleControlRow.style, {
+    const debugGridToggleControlRow = document.createElement('div');
+    Object.assign(debugGridToggleControlRow.style, {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '5px' // Less margin for a single toggle compared to parameter groups
+        marginBottom: '10px'
     });
 
-    const debugLabel = document.createElement('label');
-    debugLabel.htmlFor = 'debug-cells-toggle';
-    debugLabel.textContent = 'Debug Grid Cells';
-    Object.assign(debugLabel.style, {
-        color: '#FFFFFF' // Ensure text color
-        // No fixed flex-basis, let it size naturally
+    const debugGridLabel = document.createElement('label');
+    debugGridLabel.htmlFor = 'debug-grid-toggle';
+    debugGridLabel.textContent = 'Debug Grid';
+    Object.assign(debugGridLabel.style, {
+        color: '#f3f4f1'
     });
 
-    const debugCheckbox = document.createElement('input');
-    debugCheckbox.type = 'checkbox';
-    debugCheckbox.id = 'debug-cells-toggle';
-    debugCheckbox.checked = debugCellsMode; // Initialize with current state
+    const debugGridCheckbox = document.createElement('input');
+    debugGridCheckbox.type = 'checkbox';
+    debugGridCheckbox.id = 'debug-grid-toggle';
+    debugGridCheckbox.checked = debugGridMode;
 
-    debugCheckbox.addEventListener('change', () => {
-        debugCellsMode = debugCheckbox.checked;
-        if (!debugCellsMode) {
-            debugSelectedBoid = null; // Clear selected boid visualization if grid debug is turned off
+    debugGridCheckbox.addEventListener('change', () => {
+        debugGridMode = debugGridCheckbox.checked;
+        if (!debugGridMode) {
+            debugSelectedBoid = null;
         }
     });
 
-    debugToggleControlRow.appendChild(debugLabel);
-    debugToggleControlRow.appendChild(debugCheckbox);
-    debugSectionDiv.appendChild(debugToggleControlRow);
-    scrollableContent.appendChild(debugSectionDiv);
+    debugGridToggleControlRow.appendChild(debugGridLabel);
+    debugGridToggleControlRow.appendChild(debugGridCheckbox);
+    debugSectionDiv.appendChild(debugGridToggleControlRow);
     // --- End Debug Cells Toggle Section ---
+
+    const debugObstaclesToggleControlRow = document.createElement('div');
+    Object.assign(debugObstaclesToggleControlRow.style, {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '10px'
+    });
+
+    const debugObstaclesLabel = document.createElement('label');
+    debugObstaclesLabel.htmlFor = 'debug-obstacles-toggle';
+    debugObstaclesLabel.textContent = 'Debug Obstacles';
+    Object.assign(debugObstaclesLabel.style, {
+        color: '#f3f4f1'
+    });
+
+    const debugObstaclesCheckbox = document.createElement('input');
+    debugObstaclesCheckbox.type = 'checkbox';
+    debugObstaclesCheckbox.id = 'debug-obstacles-toggle';
+    debugObstaclesCheckbox.checked = debugObstaclesMode;
+
+    debugObstaclesCheckbox.addEventListener('change', () => {
+        debugObstaclesMode = debugObstaclesCheckbox.checked;
+    });
+
+    debugObstaclesToggleControlRow.appendChild(debugObstaclesLabel);
+    debugObstaclesToggleControlRow.appendChild(debugObstaclesCheckbox);
+    debugSectionDiv.appendChild(debugObstaclesToggleControlRow);
+    scrollableContent.appendChild(debugSectionDiv);
 
 
     const resetButton = document.createElement('button');
     resetButton.textContent = 'Reset';
-    resetButton.className = 'mt-2 px-3 py-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
+    resetButton.className = 'px-3 py-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
 
     resetButton.addEventListener('click', () => {
         simParams = { ...defaultSimParams };
