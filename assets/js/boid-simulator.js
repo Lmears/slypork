@@ -29,12 +29,12 @@ const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
 
 const OBSTACLE_ELEMENT_IDS = [
-    'aboutLink',
-    'masteringLink',
-    'musicLink',
-    'designLink',
-    'softwareLink',
-    'contactLink',
+    // 'aboutLink',
+    // 'masteringLink',
+    // 'musicLink',
+    // 'designLink',
+    // 'softwareLink',
+    // 'contactLink',
     // 'navLinks',
     'footer',
     // 'easterEgg',
