@@ -1175,7 +1175,6 @@ function animate() {
 
     if (isEnding && endProgress >= 1) {
         console.log("End animation complete.");
-        // Optional: Log vector pool stats at the end
         // console.log("Final VectorPool Stats:", vectorPool.getStats());
         return;
     }
