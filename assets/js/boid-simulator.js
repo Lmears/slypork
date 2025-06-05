@@ -890,6 +890,31 @@ function updateAllObstacles() {
     }
 }
 
+function rafThrottle(callback) {
+    let requestId = null;
+    let lastArgs = []; // To store the latest arguments if needed, though scroll usually doesn't have important args
+
+    const later = (context) => () => {
+        requestId = null;
+        callback.apply(context, lastArgs);
+    };
+
+    const throttled = function (...args) {
+        lastArgs = args; // Store the latest arguments
+        if (requestId === null) {
+            requestId = requestAnimationFrame(later(this));
+        }
+    };
+
+    throttled.cancel = () => {
+        if (requestId !== null) {
+            cancelAnimationFrame(requestId);
+            requestId = null;
+        }
+    };
+    return throttled;
+}
+
 function scatter(duration) {
     flock.forEach(boid => {
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
@@ -1166,10 +1191,13 @@ const resizeHandler = () => {
     updateAllObstacles();
 };
 
-const scrollHandler = () => {
-    console.log("Scroll event detected!");
+function performScrollUpdates() {
+    // console.log("Throttled scroll update: Updating obstacles"); // Optional: for debugging
     updateAllObstacles();
-};
+}
+
+// Create a throttled version of the function that updates obstacles on scroll.
+const throttledScrollUpdater = rafThrottle(performScrollUpdates);
 
 const speedSliderInputHandler = function () {
     speedMultiplier = (this.value / 100);
@@ -1233,7 +1261,7 @@ function setupEventListeners() {
     document.removeEventListener('touchend', touchEndHandler);
     window.removeEventListener('resize', resizeHandler);
     document.removeEventListener('click', documentClickHandler);
-    window.removeEventListener('scroll', scrollHandler);
+    document.body.removeEventListener('scroll', throttledScrollUpdater);
 
     if (speedSlider) {
         speedSlider.removeEventListener('input', speedSliderInputHandler);
@@ -1255,7 +1283,7 @@ function setupEventListeners() {
     document.addEventListener('touchend', touchEndHandler);
     window.addEventListener('resize', resizeHandler);
     document.addEventListener('click', documentClickHandler);
-    document.body.addEventListener('scroll', scrollHandler, { passive: true });
+    document.body.addEventListener('scroll', throttledScrollUpdater, { passive: true });
 
     if (speedSlider) {
         speedSlider.addEventListener('input', speedSliderInputHandler);
