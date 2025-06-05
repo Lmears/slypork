@@ -116,6 +116,14 @@ function toggleNavMenu() {
     }
 }
 
+function closeNavMenu() {
+    var nav = document.querySelector('nav');
+    if (nav && nav.classList.contains('nav-active')) {
+        nav.classList.remove('nav-active');
+        updateAllObstacles();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var hamburger = document.getElementById('hamburger-menu');
     if (hamburger) {
