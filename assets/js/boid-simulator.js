@@ -23,7 +23,7 @@ const defaultSimParams = { ...simParams }; // Store initial values for reset
 
 const OBSTACLE_PADDING = 0;
 const OBSTACLE_VISION_RADIUS = 256;
-const OBSTACLE_STEER_FORCE_MULTIPLIER = 0.5;
+const OBSTACLE_STEER_FORCE_MULTIPLIER = 0.3;
 const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3.5;
 const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
@@ -543,60 +543,117 @@ class Boid {
 
     avoidObstacles() {
         let totalAvoidanceForce = new Vector(0, 0);
+        const boidRadius = this.renderSize / 2;
 
         for (const obstacle of allObstacles) {
             if (!obstacle.isEnabled || !obstacle.paddedBounds) {
                 continue;
             }
 
-            const obsPadded = obstacle.paddedBounds;
-            const boidRadius = this.renderSize / 2;
+            let closestInteractionData = null; // Stores {type: 'bounce'/'steer', force: Vector, distSq: Number}
 
-            // --- Bounce Logic ---
-            const isOverlapping =
-                (this.position.x + boidRadius > obsPadded.left) &&
-                (this.position.x - boidRadius < obsPadded.right) &&
-                (this.position.y + boidRadius > obsPadded.top) &&
-                (this.position.y - boidRadius < obsPadded.bottom);
+            // Iterate through 9 toroidal shifts for the current obstacle
+            // EDGE_BUFFER_POSITIONS = [{dx:0,dy:0}, {dx:-1,dy:0}, ...]
+            for (const offset of EDGE_BUFFER_POSITIONS) {
+                const offsetX = offset.dx * canvas.width;
+                const offsetY = offset.dy * canvas.height;
 
-            if (isOverlapping) {
-                let repulsionDir = Vector.sub(this.position, new Vector(obstacle.centerX, obstacle.centerY));
-                if (repulsionDir.magSq() === 0) {
-                    repulsionDir = Vector.random2D();
-                }
-                repulsionDir.setMag(this.maxSpeed);
-                let steer = Vector.sub(repulsionDir, this.velocity);
-                steer.limit(this.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER); // Use global
-                totalAvoidanceForce.add(steer);
-                continue; // Prioritize bounce, skip steering for this obstacle
-            }
+                // Calculate the 'effective' (shifted) properties of this obstacle instance
+                const effectiveObsPadded = {
+                    left: obstacle.paddedBounds.left + offsetX,
+                    top: obstacle.paddedBounds.top + offsetY,
+                    right: obstacle.paddedBounds.right + offsetX,
+                    bottom: obstacle.paddedBounds.bottom + offsetY,
+                    width: obstacle.paddedBounds.width,
+                    height: obstacle.paddedBounds.height
+                };
+                const effectiveObsCenterX = obstacle.centerX + offsetX;
+                const effectiveObsCenterY = obstacle.centerY + offsetY;
 
-            // --- Steering Logic ---
-            const closestX = Math.max(obsPadded.left, Math.min(this.position.x, obsPadded.right));
-            const closestY = Math.max(obsPadded.top, Math.min(this.position.y, obsPadded.bottom));
-            const closestPointOnPaddedObstacle = new Vector(closestX, closestY);
-            const distToClosestPoint = Vector.dist(this.position, closestPointOnPaddedObstacle);
+                let currentForce = new Vector(0, 0);
+                let interactionType = null;
+                let currentDistSq = Infinity; // Distance from boid to relevant point on this effective obstacle image
 
-            if (distToClosestPoint < OBSTACLE_VISION_RADIUS + boidRadius) { // Use global
-                let vectorToObstacle = Vector.sub(closestPointOnPaddedObstacle, this.position);
-                if (vectorToObstacle.magSq() === 0) {
-                    vectorToObstacle = Vector.sub(new Vector(obstacle.centerX, obstacle.centerY), this.position);
-                }
+                // --- Bounce Logic (using effective obstacle position) ---
+                const isOverlapping =
+                    (this.position.x + boidRadius > effectiveObsPadded.left) &&
+                    (this.position.x - boidRadius < effectiveObsPadded.right) &&
+                    (this.position.y + boidRadius > effectiveObsPadded.top) &&
+                    (this.position.y - boidRadius < effectiveObsPadded.bottom);
 
-                const dotProduct = this.velocity.x * vectorToObstacle.x + this.velocity.y * vectorToObstacle.y;
-
-                if (dotProduct > 0 && vectorToObstacle.magSq() > 0) {
-                    let desiredSteerAway = Vector.sub(this.position, closestPointOnPaddedObstacle);
-                    if (desiredSteerAway.magSq() === 0) {
-                        desiredSteerAway = Vector.sub(this.position, new Vector(obstacle.centerX, obstacle.centerY));
+                if (isOverlapping) {
+                    interactionType = 'bounce';
+                    let repulsionDir = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY));
+                    if (repulsionDir.magSq() === 0) {
+                        repulsionDir = Vector.random2D();
                     }
-                    desiredSteerAway.setMag(this.maxSpeed);
-                    let steer = Vector.sub(desiredSteerAway, this.velocity);
-                    steer.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER); // Use global
-                    totalAvoidanceForce.add(steer);
+                    repulsionDir.setMag(this.maxSpeed);
+                    currentForce = Vector.sub(repulsionDir, this.velocity);
+                    currentForce.limit(this.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
+                    // For bounces, distSq can be considered 0 or distance to center.
+                    // We need a consistent value for comparison. Let's use distance to center.
+                    currentDistSq = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY)).magSq();
+                } else {
+                    // --- Steering Logic (if not overlapping, check vision radius) ---
+                    const closestX = Math.max(effectiveObsPadded.left, Math.min(this.position.x, effectiveObsPadded.right));
+                    const closestY = Math.max(effectiveObsPadded.top, Math.min(this.position.y, effectiveObsPadded.bottom));
+                    const closestPointOnEffectiveObstacle = new Vector(closestX, closestY);
+
+                    currentDistSq = Vector.sub(this.position, closestPointOnEffectiveObstacle).magSq(); // Squared distance
+
+                    if (currentDistSq < (OBSTACLE_VISION_RADIUS + boidRadius) * (OBSTACLE_VISION_RADIUS + boidRadius)) {
+                        // The original dotProduct check might be too restrictive for toroidal vision.
+                        // If a boid is close (toroidally) to an obstacle part, it should probably try to steer.
+                        // The direction of steering is critical.
+                        // desiredSteerAway should make the boid move AWAY from closestPointOnEffectiveObstacle.
+                        let desiredSteerAway = Vector.sub(this.position, closestPointOnEffectiveObstacle);
+
+                        // If inside the padded bounds (but not overlapping boid body), closestPoint might be boid's position.
+                        // In such case, steer away from the center of the effective obstacle.
+                        if (desiredSteerAway.magSq() === 0) {
+                            desiredSteerAway = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY));
+                        }
+
+                        if (desiredSteerAway.magSq() > 0) { // Ensure there's a direction
+                            interactionType = 'steer';
+                            desiredSteerAway.setMag(this.maxSpeed);
+                            currentForce = Vector.sub(desiredSteerAway, this.velocity);
+                            currentForce.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER);
+                        }
+                        // The original dotProduct check was:
+                        // let vectorToEffectiveObstacle = Vector.sub(closestPointOnEffectiveObstacle, this.position);
+                        // const dotProduct = this.velocity.x * vectorToEffectiveObstacle.x + this.velocity.y * vectorToEffectiveObstacle.y;
+                        // if (dotProduct > 0 && vectorToEffectiveObstacle.magSq() > 0) { ... apply steer ... }
+                        // For now, let's try without the dotProduct check for steering, relying on proximity.
+                    }
                 }
+
+                // Update closestInteractionData if this interaction is more critical
+                if (interactionType) {
+                    if (!closestInteractionData) {
+                        closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
+                    } else {
+                        // Priority: Bounce > Steer
+                        if (interactionType === 'bounce' && closestInteractionData.type === 'steer') {
+                            closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
+                        } else if (interactionType === closestInteractionData.type) {
+                            // Same type, choose closer one (smaller distSq)
+                            if (currentDistSq < closestInteractionData.distSq) {
+                                closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
+                            }
+                        }
+                        // If current is 'steer' and closest is 'bounce', do nothing.
+                    }
+                }
+            } // End loop over EDGE_BUFFER_POSITIONS (9 toroidal shifts)
+
+            // If an interaction (bounce or steer) was determined from the "most relevant" effective obstacle image
+            if (closestInteractionData) {
+                totalAvoidanceForce.add(closestInteractionData.force);
             }
-        }
+
+        } // End loop over allObstacles
+
         return totalAvoidanceForce;
     }
 
@@ -659,12 +716,12 @@ class Boid {
         this.maxSpeed *= (0.5 + this.depth * 0.5);
     }
 
+    // // Old euclidean based check:
     // updateDepth(localNeighbors) {
     //     const nearbyBoidsForDepth = [];
     //     for (const b of localNeighbors) {
     //         if (b === this) continue;
-
-    //         // Old euclidean distance check:
+    //         
     //         if (Vector.dist(this.position, b.position) < DEPTH_INFLUENCE_RADIUS) {
     //             nearbyBoidsForDepth.push(b);
     //         }
@@ -767,22 +824,6 @@ class Boid {
 }
 
 const flock = [];
-
-// function getToroidalDifference(pos1, pos2, worldWidth, worldHeight) {
-//     let dx = pos1.x - pos2.x;
-//     let dy = pos1.y - pos2.y;
-
-//     // Check for wrap-around in x-dimension
-//     if (Math.abs(dx) > worldWidth / 2) {
-//         dx = dx - Math.sign(dx) * worldWidth;
-//     }
-//     // Check for wrap-around in y-dimension
-//     if (Math.abs(dy) > worldHeight / 2) {
-//         dy = dy - Math.sign(dy) * worldHeight;
-//     }
-//     // The returned vector points from pos2 (potentially wrapped) towards pos1, along the shortest path.
-//     return new Vector(dx, dy);
-// }
 
 function drawGridVisualization(gridInstance, ctx) {
     if (!gridInstance) return;
@@ -1032,16 +1073,16 @@ const touchStartHandler = (event) => {
     const softwareLink = document.getElementById('softwareLink');
     const contactLink = document.getElementById('contactLink');
     const hamburgerMenu = document.getElementById('hamburger-menu');
-    const visualContainer = document.getElementById('visualContainer');
+    // const visualContainer = document.getElementById('visualContainer');
     const playerGrid = document.getElementById('playerGrid');
     const designGrid = document.getElementById('designGrid');
+    const songsGrid = document.getElementById('songsGrid');
     const cvContent = document.getElementById('cvContent');
     const softwareContainer = document.getElementById('softwareContainer');
     const homeLink = document.getElementById('homeLink');
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     const myModal = document.getElementById('myModal');
     const modalImage = document.getElementById('modalImage');
-    const songsGrid = document.getElementById('songsGrid');
 
     const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
@@ -1053,16 +1094,16 @@ const touchStartHandler = (event) => {
         (softwareLink && softwareLink.contains(event.target)) ||
         (contactLink && contactLink.contains(event.target)) ||
         (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
-        (visualContainer && visualContainer.contains(event.target)) ||
+        // (visualContainer && visualContainer.contains(event.target)) ||
         (playerGrid && playerGrid.contains(event.target)) ||
         (designGrid && designGrid.contains(event.target)) ||
+        (songsGrid && songsGrid.contains(event.target)) ||
         (cvContent && cvContent.contains(event.target)) ||
         (softwareContainer && softwareContainer.contains(event.target)) ||
         (homeLink && homeLink.contains(event.target)) ||
         (downloadPdfBtn && downloadPdfBtn.contains(event.target)) ||
         (myModal && myModal.contains(event.target)) ||
-        (modalImage && modalImage.contains(event.target)) ||
-        (songsGrid && songsGrid.contains(event.target));
+        (modalImage && modalImage.contains(event.target));
 
     boidsIgnoreTouch = shouldBoidsIgnoreTouch;
 
