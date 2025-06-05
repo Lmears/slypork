@@ -72,18 +72,20 @@ function setupEasterEgg() {
                         activeTransformState.scale = currentScale;
                         activeTransformState.y = endPosition;
                         applyCurrentTransform();
-                        setTimeout(() => animate('up'), 200);
+                        setTimeout(() => animate('up'), 20);
                     } else if (direction === 'up') {
-                        activeTransformState.y = 0;
-                        applyCurrentTransform();
-
                         if (tapCount === 3) {
+                            animateWiggle();
                             animateScaleToNormal(() => {
                                 canIncrement = true;
                             });
                         } else {
                             canIncrement = true;
                         }
+                        activeTransformState.y = 0;
+
+
+                        applyCurrentTransform();
                     }
                 }
             }
@@ -97,7 +99,7 @@ function setupEasterEgg() {
             activeTransformState.rotate = 0;
 
             const startTime = performance.now();
-            const duration = 2000;
+            const duration = 1000;
             const startScale = currentScale;
             const endScale = 1;
 

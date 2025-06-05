@@ -11,10 +11,10 @@ const navLinks = document.getElementById('navLinks');
 let simParams = {
     ALIGNMENT_FORCE: 1.2,
     COHESION_FORCE: 0.7,
-    SEPARATION_FORCE: 1.5,
+    SEPARATION_FORCE: 1.3,
     ALIGNMENT_RADIUS: 50,
     SEPARATION_RADIUS: 50,
-    COHESION_RADIUS: 300,
+    COHESION_RADIUS: 250,
     VELOCITY_INERTIA: 0.45,
     ROTATION_INERTIA: 0.3,
 };
@@ -29,13 +29,13 @@ const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
 
 const OBSTACLE_ELEMENT_IDS = [
-    'aboutLink',
-    'masteringLink',
-    'musicLink',
-    'designLink',
-    'softwareLink',
-    'contactLink',
-    // 'navLinks',
+    // 'aboutLink',
+    // 'masteringLink',
+    // 'musicLink',
+    // 'designLink',
+    // 'softwareLink',
+    // 'contactLink',
+    'navLinks',
     'footer',
     // 'easterEgg',
     'hamburger-menu',
@@ -124,7 +124,6 @@ function updateSpatialGridParameters() {
 // Global variables
 let speedMultiplier = 1;
 let isScattering = false;
-let mouse = { x: 0, y: 0 };
 let mouseInfluence = false;
 let animationFrameId = null;
 let isEnding = false;
@@ -140,6 +139,132 @@ let touchEndTimeoutId = null;
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
+
+
+
+// --- Vector Pool (NEW CODE) ---
+const VECTOR_POOL_INITIAL_SIZE = FLOCK_SIZE * 20; // Initial pool size, e.g., 150 boids * 20 vectors/boid estimate
+const VECTOR_POOL_MAX_SIZE = FLOCK_SIZE * 30;   // Max size to prevent unbounded pool growth if there's a leak
+
+class VectorPool {
+    constructor(initialSize, maxSize) {
+        this.pool = [];
+        this.maxSize = maxSize;
+        // For debugging/tuning:
+        this._totalCreated = 0;
+        this._totalReleased = 0;
+        this._totalRetrieved = 0;
+        this._maxInUseSimultaneously = 0;
+        this._currentlyInUse = 0;
+
+        for (let i = 0; i < initialSize; i++) {
+            this.pool.push(new Vector(0, 0)); // Pre-populate with actual Vector instances
+            this._totalCreated++;
+        }
+    }
+
+    get(x = 0, y = 0) {
+        this._totalRetrieved++;
+        this._currentlyInUse++;
+        if (this._currentlyInUse > this._maxInUseSimultaneously) {
+            this._maxInUseSimultaneously = this._currentlyInUse;
+        }
+
+        let v;
+        if (this.pool.length > 0) {
+            v = this.pool.pop();
+            v.x = x;
+            v.y = y;
+        } else {
+            v = new Vector(x, y); // Create new if pool is empty
+            this._totalCreated++;
+            // Optional: console.warn("VectorPool had to create a new Vector. Pool empty.");
+        }
+        return v;
+    }
+
+    release(v) {
+        if (v instanceof Vector) {
+            this._totalReleased++;
+            this._currentlyInUse--;
+            if (this.pool.length < this.maxSize) {
+                this.pool.push(v);
+            } else {
+                // Optional: console.warn("VectorPool is full. Discarding released vector.");
+                // Vector is not added back, will be GC'd.
+            }
+        } else {
+            // console.warn("VectorPool: Attempted to release non-Vector object or null/undefined:", v);
+        }
+    }
+
+    // Utility to get stats (for debugging/tuning)
+    getStats() {
+        return {
+            poolSize: this.pool.length,
+            maxSize: this.maxSize,
+            totalCreated: this._totalCreated,
+            totalRetrieved: this._totalRetrieved,
+            totalReleased: this._totalReleased,
+            currentlyInUse: this._currentlyInUse,
+            maxInUseSimultaneously: this._maxInUseSimultaneously,
+        };
+    }
+}
+
+class Vector {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    add(v) { this.x += v.x; this.y += v.y; return this; }
+    sub(v) { this.x -= v.x; this.y -= v.y; return this; }
+    mult(n) { this.x *= n; this.y *= n; return this; }
+    div(n) { if (n === 0) { this.x = 0; this.y = 0; } else { this.x /= n; this.y /= n; } return this; }
+    mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+    magSq() { return this.x * this.x + this.y * this.y; }
+    setMag(n) { this.normalize(); this.mult(n); return this; }
+    normalize() { const m = this.mag(); if (m !== 0) this.div(m); return this; }
+    limit(max) { const mSq = this.magSq(); if (mSq > max * max && mSq > 0) { this.div(Math.sqrt(mSq)); this.mult(max); } return this; }
+
+    copy() {
+        // return new Vector(this.x, this.y); // OLD
+        return vectorPool.get(this.x, this.y); // NEW
+    }
+
+    set(x, y) { // Helper to set values
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    static dist(v1, v2) { return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2); }
+
+    static sub(v1, v2, out_vector) {
+        // if (!out_vector) return new Vector(v1.x - v2.x, v1.y - v2.y); // OLD if out_vector was optional
+        // NEW: always use out_vector or get from pool
+        const target = out_vector || vectorPool.get();
+        target.x = v1.x - v2.x;
+        target.y = v1.y - v2.y;
+        return target;
+    }
+
+    static random2D(out_vector) {
+        // NEW: always use out_vector or get from pool
+        const target = out_vector || vectorPool.get();
+        target.x = Math.random() * 2 - 1;
+        target.y = Math.random() * 2 - 1;
+        // It's common for random2D to return a unit vector or allow chaining setMag
+        // For now, just random components. If normalization is implied, add target.normalize();
+        return target;
+    }
+}
+
+// Now define the global vectorPool instance AFTER Vector and VectorPool classes are defined.
+const vectorPool = new VectorPool(VECTOR_POOL_INITIAL_SIZE, VECTOR_POOL_MAX_SIZE);
+
+let mouse = vectorPool.get(0, 0);
 
 class Obstacle {
     constructor(elementIdOrElement) {
@@ -211,27 +336,6 @@ class Obstacle {
         ctx.fill();
         ctx.restore();
     }
-}
-
-class Vector {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    add(v) { this.x += v.x; this.y += v.y; }
-    sub(v) { this.x -= v.x; this.y -= v.y; }
-    mult(n) { this.x *= n; this.y *= n; }
-    div(n) { this.x /= n; this.y /= n; }
-    mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
-    magSq() { return this.x * this.x + this.y * this.y; }
-    setMag(n) { this.normalize(); this.mult(n); }
-    normalize() { const m = this.mag(); if (m !== 0) this.div(m); }
-    limit(max) { if (this.mag() > max) { this.normalize(); this.mult(max); } }
-    copy() { return new Vector(this.x, this.y); }
-    static dist(v1, v2) { return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2); }
-    static sub(v1, v2) { return new Vector(v1.x - v2.x, v1.y - v2.y); }
-    static random2D() { return new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1); }
 }
 
 class SpatialGrid {
@@ -309,25 +413,25 @@ class Boid {
     constructor() {
         const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-        this.position = new Vector(
+
+        this.position = vectorPool.get(
             easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * SPREAD_FACTOR,
             easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * SPREAD_FACTOR
         );
 
-        this.velocity = Vector.random2D();
+        this.velocity = Vector.random2D(vectorPool.get());
         this.velocity.setMag(Math.random() * 2 + 2);
-        this.desiredVelocity = new Vector(0, 0);
+        this.desiredVelocity = vectorPool.get(0, 0);
+        this.boost = vectorPool.get(-INITIAL_BOOST, -INITIAL_BOOST);
         this.maxForce = BOID_MAX_FORCE;
         this.maxSpeed = NORMAL_MAX_SPEED;
-        this.boost = new Vector(-INITIAL_BOOST, -INITIAL_BOOST);
 
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
         this.rotationSpeed = BOID_ROTATION_SPEED;
 
         this.depth = Math.random();
         this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
-        this.renderSize = this.calculateRenderSize();
-
+        this.renderSize = this.calculateRenderSize(performance.now());
         this.oscillationOffset = Math.random() * Math.PI * 2;
         this.oscillationSpeed = BOID_OSCILLATION_SPEED_BASE + Math.random() * BOID_OSCILLATION_SPEED_VARIATION;
 
@@ -344,7 +448,8 @@ class Boid {
 
     // Toroidal based methods
     alignment(localNeighbors) {
-        let avgVelocity = new Vector(0, 0);
+        const steeringForce = vectorPool.get(); // Final returned force, released by flock()
+        const avgVelocity = vectorPool.get();   // Temporary accumulator
         let total = 0;
         const halfWidth = canvas.width / 2;
         const halfHeight = canvas.height / 2;
@@ -352,124 +457,142 @@ class Boid {
 
         for (let other of localNeighbors) {
             if (other === this) continue;
-
-            // For alignment, we only need toroidal distance to check radius
             let tdx = this.position.x - other.position.x;
             let tdy = this.position.y - other.position.y;
-
-            if (Math.abs(tdx) > halfWidth) {
-                tdx = tdx - Math.sign(tdx) * canvas.width;
-            }
-            if (Math.abs(tdy) > halfHeight) {
-                tdy = tdy - Math.sign(tdy) * canvas.height;
-            }
-
+            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
+            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
             const dSq = tdx * tdx + tdy * tdy;
 
             if (dSq > 0 && dSq < alignmentRadiusSq) {
-                avgVelocity.add(other.velocity); // other.velocity is already a Vector
+                avgVelocity.add(other.velocity);
                 total++;
             }
         }
 
         if (total > 0) {
             avgVelocity.div(total);
-            avgVelocity.setMag(this.maxSpeed);
-            let steer = Vector.sub(avgVelocity, this.velocity);
-            steer.limit(this.maxForce);
-            return steer;
+            avgVelocity.setMag(this.maxSpeed); // This is the desired velocity
+            Vector.sub(avgVelocity, this.velocity, steeringForce); // steeringForce = desired - current
+            steeringForce.limit(this.maxForce);
+        } else {
+            steeringForce.set(0, 0); // Ensure it's zero if no neighbors
         }
-        return new Vector(0, 0);
+        vectorPool.release(avgVelocity); // Release temporary accumulator
+        return steeringForce;
     }
 
     separation(localNeighbors) {
-        let steering = new Vector(0, 0); // Accumulator for the final steering vector
+        const steeringForce = vectorPool.get();
+        const desiredSeparation = vectorPool.get();
         let total = 0;
-        const halfWidth = canvas.width / 2;   // Pre-calculate
-        const halfHeight = canvas.height / 2; // Pre-calculate
+        const halfWidth = canvas.width / 2;
+        const halfHeight = canvas.height / 2;
+        const separationRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
+        const tempDiff = vectorPool.get();
 
         for (let other of localNeighbors) {
             if (other === this) continue;
 
-            // --- Inlined getToroidalDifference ---
             let tdx = this.position.x - other.position.x;
             let tdy = this.position.y - other.position.y;
 
-            if (Math.abs(tdx) > halfWidth) {
-                tdx = tdx - Math.sign(tdx) * canvas.width;
-            }
-            if (Math.abs(tdy) > halfHeight) {
-                tdy = tdy - Math.sign(tdy) * canvas.height;
-            }
-            // --- End Inlined ---
+            // Toroidal wrapping
+            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
+            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
 
-            const dSq = tdx * tdx + tdy * tdy; // Squared toroidal distance
+            let dSq = tdx * tdx + tdy * tdy;
 
-            // Using squared distance for radius check
-            if (dSq > 0 && dSq < simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS) {
-                const d = Math.sqrt(dSq); // Calculate actual distance only if needed and in range
-
-                // Create a temporary vector for the difference, scaled appropriately
-                let diff = new Vector(tdx, tdy);
-                // Original logic was: diff.div(d*d). If diff is (tdx, tdy) with mag d, then diff.div(d*d) = (tdx/(d*d), tdy/(d*d))
-                // This gives a vector with magnitude 1/d.
-                diff.setMag(1 / d); // Set magnitude to 1/d (stronger repulsion for closer boids)
-
-                steering.add(diff);
+            if (dSq === 0) { // If exactly on top, give a slight random push
+                Vector.random2D(tempDiff).normalize(); // Get a random direction
+                desiredSeparation.add(tempDiff);
+                total++;
+                // Optionally skip to next neighbor if dSq is 0 to avoid division by zero for 'd'
+                // continue; // If you add this, ensure it doesn't break other logic
+            } else if (dSq < separationRadiusSq) { // Original condition (dSq > 0 is implicit if dSq !== 0)
+                const d = Math.sqrt(dSq);
+                tempDiff.set(tdx, tdy);
+                tempDiff.setMag(1 / d); // Inverse square like force (1/d is also common)
+                desiredSeparation.add(tempDiff);
                 total++;
             }
         }
+        vectorPool.release(tempDiff);
 
         if (total > 0) {
-            steering.div(total); // Average the repulsion vectors
-            steering.setMag(this.maxSpeed); // Desired velocity is average, at maxSpeed
-            steering.sub(this.velocity);    // Steering force = desired - current
-            steering.limit(this.maxForce);
+            desiredSeparation.div(total);
+            if (desiredSeparation.magSq() === 0 && total > 0) {
+                // If average is zero (e.g. symmetrical forces canceling out)
+                // but there were neighbors, give a tiny random preference if desired.
+                // Or just let it be zero. For now, let setMag handle it.
+            }
+            desiredSeparation.setMag(this.maxSpeed);
+            Vector.sub(desiredSeparation, this.velocity, steeringForce);
+            steeringForce.limit(this.maxForce);
+        } else {
+            steeringForce.set(0, 0);
         }
-        return steering;
+        vectorPool.release(desiredSeparation);
+        return steeringForce;
     }
 
     cohesion(localNeighbors) {
-        let steering = new Vector(0, 0);
+        const steeringForce = vectorPool.get();     // Final, released by flock()
+        const averagePosition = vectorPool.get();   // Sum of neighbor positions
         let total = 0;
         const halfWidth = canvas.width / 2;
         const halfHeight = canvas.height / 2;
         const cohesionRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
 
+        // Step 1: Calculate average position of neighbors
         for (let other of localNeighbors) {
             if (other === this) continue;
-
-            let tdx = other.position.x - this.position.x; // Vector from this to other
+            let tdx = other.position.x - this.position.x;
             let tdy = other.position.y - this.position.y;
 
-            if (Math.abs(tdx) > halfWidth) {
-                tdx = tdx - Math.sign(tdx) * canvas.width;
-            }
-            if (Math.abs(tdy) > halfHeight) {
-                tdy = tdy - Math.sign(tdy) * canvas.height;
-            }
-
+            // Handle toroidal wrapping
+            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
+            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
             const dSq = tdx * tdx + tdy * tdy;
 
             if (dSq > 0 && dSq < cohesionRadiusSq) {
-                const d = Math.sqrt(dSq);
-                // Original logic for cohesion: diff.mult(1 - d / simParams.COHESION_RADIUS);
-                // Where diff was Vector.sub(other.position, this.position);
-                // So, (tdx, tdy) is already the vector from this to other (toroidally).
-                let tempVec = new Vector(tdx, tdy);
-                tempVec.mult(1 - d / simParams.COHESION_RADIUS); // Scale by closeness factor
-                steering.add(tempVec);
+                // Add the neighbor's actual position (accounting for wrapping)
+                let neighborX = other.position.x;
+                let neighborY = other.position.y;
+
+                // Adjust neighbor position for wrapping to get correct average
+                if (Math.abs(other.position.x - this.position.x) > halfWidth) {
+                    neighborX = this.position.x + tdx;
+                }
+                if (Math.abs(other.position.y - this.position.y) > halfHeight) {
+                    neighborY = this.position.y + tdy;
+                }
+
+                averagePosition.x += neighborX;
+                averagePosition.y += neighborY;
                 total++;
             }
         }
 
         if (total > 0) {
-            steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
+            // Step 2: Get the average position
+            averagePosition.div(total);
+
+            // Step 3: Calculate desired velocity (towards average position)
+            const desiredVelocity = vectorPool.get();
+            Vector.sub(averagePosition, this.position, desiredVelocity);
+            desiredVelocity.setMag(this.maxSpeed);
+
+            // Step 4: Calculate steering force
+            Vector.sub(desiredVelocity, this.velocity, steeringForce);
+            steeringForce.limit(this.maxForce);
+
+            vectorPool.release(desiredVelocity);
+        } else {
+            steeringForce.set(0, 0);
         }
-        return steering;
+
+        vectorPool.release(averagePosition);
+        return steeringForce;
     }
 
     // // Old euclidean distance-based methods
@@ -517,48 +640,70 @@ class Boid {
     // }
 
     mouseAttraction() {
-        if (!mouseInfluence || boidsIgnoreMouse) return new Vector(0, 0);
-        let directionToMouse = Vector.sub(mouse, this.position);
+        // if (!mouseInfluence || boidsIgnoreMouse) return new Vector(0, 0); // OLD
+        if (!mouseInfluence || boidsIgnoreMouse) return vectorPool.get(0, 0); // NEW - temporary, released by flock()
+
+        // let directionToMouse = Vector.sub(mouse, this.position); // OLD
+        const directionToMouse = Vector.sub(mouse, this.position, vectorPool.get()); // NEW - temporary
         let distance = directionToMouse.mag();
+        let steer = null; // Will hold the final steering vector for this function
+
         if (distance > 0 && distance < MOUSE_INFLUENCE_RADIUS) {
-            let steer;
             if (this.scatterState === 1) {
-                let desiredRepulsionVelocity = new Vector(directionToMouse.x, directionToMouse.y);
-                desiredRepulsionVelocity.setMag(this.maxSpeed);
-                desiredRepulsionVelocity.mult(-1);
-                steer = Vector.sub(desiredRepulsionVelocity, this.velocity);
+                // let desiredRepulsionVelocity = new Vector(directionToMouse.x, directionToMouse.y); // OLD
+                const desiredRepulsionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y); // NEW - temporary
+                desiredRepulsionVelocity.setMag(this.maxSpeed).mult(-1);
+                // steer = Vector.sub(desiredRepulsionVelocity, this.velocity); // OLD
+                steer = Vector.sub(desiredRepulsionVelocity, this.velocity, vectorPool.get()); // NEW - temporary
                 steer.limit(this.maxForce * 3);
+                vectorPool.release(desiredRepulsionVelocity);
             } else {
                 let strength = 1.0 - (distance / MOUSE_INFLUENCE_RADIUS);
-                let desiredAttractionVelocity = new Vector(directionToMouse.x, directionToMouse.y);
+                // let desiredAttractionVelocity = new Vector(directionToMouse.x, directionToMouse.y); // OLD
+                const desiredAttractionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y); // NEW - temporary
                 desiredAttractionVelocity.setMag(this.maxSpeed);
-                steer = Vector.sub(desiredAttractionVelocity, this.velocity);
-                steer.mult(strength);
-                steer.limit(this.maxForce);
+                // steer = Vector.sub(desiredAttractionVelocity, this.velocity); // OLD
+                steer = Vector.sub(desiredAttractionVelocity, this.velocity, vectorPool.get()); // NEW - temporary
+                steer.mult(strength).limit(this.maxForce);
+                vectorPool.release(desiredAttractionVelocity);
             }
-            return steer;
         }
-        return new Vector(0, 0);
+        vectorPool.release(directionToMouse);
+
+        if (steer) {
+            return steer; // Return the calculated steer (pooled, to be released by flock)
+        } else {
+            return vectorPool.get(0, 0); // Return a zero vector if no interaction (pooled, to be released by flock)
+        }
     }
 
     avoidObstacles() {
-        let totalAvoidanceForce = new Vector(0, 0);
+        const totalAvoidanceForce = vectorPool.get(); // Returned, released by flock()
         const boidRadius = this.renderSize / 2;
 
+        // Temporary vectors reused in the loops
+        const effectiveObsCenter = vectorPool.get();
+        const currentToroidalForce = vectorPool.get(); // Force from current toroidal image consideration
+        const repulsionDirTemp = vectorPool.get();
+        const boidToEffectiveCenterTemp = vectorPool.get();
+        const closestPointOnEffectiveObstacleTemp = vectorPool.get();
+        const boidToClosestPointTemp = vectorPool.get();
+        const desiredSteerAwayTemp = vectorPool.get();
+
+        let bestForceForObstacle = null; // To store the selected force for the current obstacle (a copy)
+        let bestDistSqForObstacle = Infinity;
+        let bestTypeForObstacle = null;
+
         for (const obstacle of allObstacles) {
-            if (!obstacle.isEnabled || !obstacle.paddedBounds) {
-                continue;
-            }
+            if (!obstacle.isEnabled || !obstacle.paddedBounds) continue;
 
-            let closestInteractionData = null; // Stores {type: 'bounce'/'steer', force: Vector, distSq: Number}
+            bestForceForObstacle = null;
+            bestDistSqForObstacle = Infinity;
+            bestTypeForObstacle = null;
 
-            // Iterate through 9 toroidal shifts for the current obstacle
-            // EDGE_BUFFER_POSITIONS = [{dx:0,dy:0}, {dx:-1,dy:0}, ...]
             for (const offset of EDGE_BUFFER_POSITIONS) {
                 const offsetX = offset.dx * canvas.width;
                 const offsetY = offset.dy * canvas.height;
-
-                // Calculate the 'effective' (shifted) properties of this obstacle instance
                 const effectiveObsPadded = {
                     left: obstacle.paddedBounds.left + offsetX,
                     top: obstacle.paddedBounds.top + offsetY,
@@ -567,10 +712,8 @@ class Boid {
                     width: obstacle.paddedBounds.width,
                     height: obstacle.paddedBounds.height
                 };
-                const effectiveObsCenterX = obstacle.centerX + offsetX;
-                const effectiveObsCenterY = obstacle.centerY + offsetY;
-
-                let currentForce = new Vector(0, 0);
+                effectiveObsCenter.set(obstacle.centerX + offsetX, obstacle.centerY + offsetY);
+                currentToroidalForce.set(0, 0);
                 let interactionType = null;
                 let currentDistSq = Infinity; // Distance from boid to relevant point on this effective obstacle image
 
@@ -583,76 +726,68 @@ class Boid {
 
                 if (isOverlapping) {
                     interactionType = 'bounce';
-                    let repulsionDir = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY));
-                    if (repulsionDir.magSq() === 0) {
-                        repulsionDir = Vector.random2D();
-                    }
-                    repulsionDir.setMag(this.maxSpeed);
-                    currentForce = Vector.sub(repulsionDir, this.velocity);
-                    currentForce.limit(this.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
-                    // For bounces, distSq can be considered 0 or distance to center.
-                    // We need a consistent value for comparison. Let's use distance to center.
-                    currentDistSq = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY)).magSq();
+                    Vector.sub(this.position, effectiveObsCenter, repulsionDirTemp);
+                    if (repulsionDirTemp.magSq() === 0) Vector.random2D(repulsionDirTemp);
+                    repulsionDirTemp.setMag(this.maxSpeed);
+                    Vector.sub(repulsionDirTemp, this.velocity, currentToroidalForce);
+                    currentToroidalForce.limit(this.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
+                    Vector.sub(this.position, effectiveObsCenter, boidToEffectiveCenterTemp);
+                    currentDistSq = boidToEffectiveCenterTemp.magSq();
                 } else {
-                    // --- Steering Logic (if not overlapping, check vision radius) ---
                     const closestX = Math.max(effectiveObsPadded.left, Math.min(this.position.x, effectiveObsPadded.right));
                     const closestY = Math.max(effectiveObsPadded.top, Math.min(this.position.y, effectiveObsPadded.bottom));
-                    const closestPointOnEffectiveObstacle = new Vector(closestX, closestY);
+                    closestPointOnEffectiveObstacleTemp.set(closestX, closestY);
+                    Vector.sub(this.position, closestPointOnEffectiveObstacleTemp, boidToClosestPointTemp);
+                    currentDistSq = boidToClosestPointTemp.magSq();
 
-                    currentDistSq = Vector.sub(this.position, closestPointOnEffectiveObstacle).magSq(); // Squared distance
-
-                    if (currentDistSq < (OBSTACLE_VISION_RADIUS + boidRadius) * (OBSTACLE_VISION_RADIUS + boidRadius)) {
-                        // The original dotProduct check might be too restrictive for toroidal vision.
-                        // If a boid is close (toroidally) to an obstacle part, it should probably try to steer.
-                        // The direction of steering is critical.
-                        // desiredSteerAway should make the boid move AWAY from closestPointOnEffectiveObstacle.
-                        let desiredSteerAway = Vector.sub(this.position, closestPointOnEffectiveObstacle);
-
-                        // If inside the padded bounds (but not overlapping boid body), closestPoint might be boid's position.
-                        // In such case, steer away from the center of the effective obstacle.
-                        if (desiredSteerAway.magSq() === 0) {
-                            desiredSteerAway = Vector.sub(this.position, new Vector(effectiveObsCenterX, effectiveObsCenterY));
+                    if (currentDistSq < (OBSTACLE_VISION_RADIUS + boidRadius) ** 2) {
+                        Vector.sub(this.position, closestPointOnEffectiveObstacleTemp, desiredSteerAwayTemp);
+                        if (desiredSteerAwayTemp.magSq() === 0) {
+                            Vector.sub(this.position, effectiveObsCenter, desiredSteerAwayTemp);
                         }
-
-                        if (desiredSteerAway.magSq() > 0) { // Ensure there's a direction
+                        if (desiredSteerAwayTemp.magSq() > 0) {
                             interactionType = 'steer';
-                            desiredSteerAway.setMag(this.maxSpeed);
-                            currentForce = Vector.sub(desiredSteerAway, this.velocity);
-                            currentForce.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER);
+                            desiredSteerAwayTemp.setMag(this.maxSpeed);
+                            Vector.sub(desiredSteerAwayTemp, this.velocity, currentToroidalForce);
+                            currentToroidalForce.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER);
                         }
-                        // The original dotProduct check was:
-                        // let vectorToEffectiveObstacle = Vector.sub(closestPointOnEffectiveObstacle, this.position);
-                        // const dotProduct = this.velocity.x * vectorToEffectiveObstacle.x + this.velocity.y * vectorToEffectiveObstacle.y;
-                        // if (dotProduct > 0 && vectorToEffectiveObstacle.magSq() > 0) { ... apply steer ... }
-                        // For now, let's try without the dotProduct check for steering, relying on proximity.
                     }
                 }
 
                 // Update closestInteractionData if this interaction is more critical
                 if (interactionType) {
-                    if (!closestInteractionData) {
-                        closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
-                    } else {
-                        // Priority: Bounce > Steer
-                        if (interactionType === 'bounce' && closestInteractionData.type === 'steer') {
-                            closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
-                        } else if (interactionType === closestInteractionData.type) {
-                            // Same type, choose closer one (smaller distSq)
-                            if (currentDistSq < closestInteractionData.distSq) {
-                                closestInteractionData = { type: interactionType, force: currentForce, distSq: currentDistSq };
-                            }
-                        }
-                        // If current is 'steer' and closest is 'bounce', do nothing.
+                    // Priority: Bounce > Steer. If same type, closer one.
+                    let updateBest = false;
+                    if (!bestTypeForObstacle) {
+                        updateBest = true;
+                    } else if (interactionType === 'bounce' && bestTypeForObstacle === 'steer') {
+                        updateBest = true;
+                    } else if (interactionType === bestTypeForObstacle && currentDistSq < bestDistSqForObstacle) {
+                        updateBest = true;
+                    }
+
+                    if (updateBest) {
+                        if (bestForceForObstacle) vectorPool.release(bestForceForObstacle); // Release previous best copy
+                        bestForceForObstacle = currentToroidalForce.copy(); // Copy current toroidal force
+                        bestDistSqForObstacle = currentDistSq;
+                        bestTypeForObstacle = interactionType;
                     }
                 }
-            } // End loop over EDGE_BUFFER_POSITIONS (9 toroidal shifts)
+            } // End EDGE_BUFFER_POSITIONS loop
 
-            // If an interaction (bounce or steer) was determined from the "most relevant" effective obstacle image
-            if (closestInteractionData) {
-                totalAvoidanceForce.add(closestInteractionData.force);
+            if (bestForceForObstacle) {
+                totalAvoidanceForce.add(bestForceForObstacle);
+                vectorPool.release(bestForceForObstacle); // Release the copy after adding
             }
+        } // End allObstacles loop
 
-        } // End loop over allObstacles
+        vectorPool.release(effectiveObsCenter);
+        vectorPool.release(currentToroidalForce);
+        vectorPool.release(repulsionDirTemp);
+        vectorPool.release(boidToEffectiveCenterTemp);
+        vectorPool.release(closestPointOnEffectiveObstacleTemp);
+        vectorPool.release(boidToClosestPointTemp);
+        vectorPool.release(desiredSteerAwayTemp);
 
         return totalAvoidanceForce;
     }
@@ -669,16 +804,22 @@ class Boid {
         separation.mult(simParams.SEPARATION_FORCE);
         mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
 
-        this.desiredVelocity = new Vector(this.velocity.x, this.velocity.y);
+        this.desiredVelocity.set(this.velocity.x, this.velocity.y);
         this.desiredVelocity.add(alignment);
         this.desiredVelocity.add(cohesion);
         this.desiredVelocity.add(separation);
         this.desiredVelocity.add(mouseForce);
         this.desiredVelocity.add(obstacleAvoidanceForce);
         this.desiredVelocity.limit(this.maxSpeed);
+
+        vectorPool.release(alignment);
+        vectorPool.release(cohesion);
+        vectorPool.release(separation);
+        vectorPool.release(mouseForce);
+        vectorPool.release(obstacleAvoidanceForce);
     }
 
-    update(localNeighbors) {
+    update(localNeighbors, currentTime) {
         this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
         this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
@@ -692,7 +833,7 @@ class Boid {
         this.updateRotation();
 
         this.velocity.limit(this.maxSpeed);
-        this.renderSize = this.calculateRenderSize();
+        this.renderSize = this.calculateRenderSize(currentTime);
     }
 
     updateScatterState() {
@@ -809,9 +950,8 @@ class Boid {
             pos.y - this.renderSize / 2 < canvas.height;
     }
 
-    calculateRenderSize() {
-        const time = performance.now();
-        const oscillation = Math.sin(time * this.oscillationSpeed + this.oscillationOffset);
+    calculateRenderSize(currentTime) {
+        const oscillation = Math.sin(currentTime * this.oscillationSpeed + this.oscillationOffset);
         let size = this.size * (1 + oscillation * 0.1);
 
         if (this.scatterState === 1) {
@@ -949,9 +1089,13 @@ function animate() {
         scatter(HOLD_SCATTER_DURATION);
     }
 
-    spatialGrid.clear();
-    for (let boid of flock) {
-        spatialGrid.addBoid(boid);
+    if (spatialGrid) {
+        spatialGrid.clear();
+        for (let boid of flock) {
+            spatialGrid.addBoid(boid);
+        }
+    } else {
+        console.warn("[Animate] spatialGrid is not initialized!");
     }
 
     flock.sort((a, b) => a.depth - b.depth);
@@ -959,30 +1103,40 @@ function animate() {
     const currentTime = performance.now();
     const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
 
+    let targetPosForEnding = null;
+    if (isEnding) {
+        const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+        const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+        targetPosForEnding = vectorPool.get(targetX, targetY);
+    }
+
     for (let boid of flock) {
-        if (isEnding) {
-            const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-            const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-            boid.position.x = boid.position.x + (targetX - boid.position.x) * 0.1;
-            boid.position.y = boid.position.y + (targetY - boid.position.y) * 0.1;
-            // const initialSizeFactor = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) / boid.size;
+        if (isEnding && targetPosForEnding) {
+            boid.position.x = boid.position.x + (targetPosForEnding.x - boid.position.x) * 0.1;
+            boid.position.y = boid.position.y + (targetPosForEnding.y - boid.position.y) * 0.1;
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
-            boid.renderSize = boid.calculateRenderSize();
-            if (endProgress > 0.95 && Vector.dist(boid.position, new Vector(targetX, targetY)) < 5) {
-                boid.position.x = targetX;
-                boid.position.y = targetY;
+            boid.renderSize = boid.calculateRenderSize(currentTime);
+            if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
+                boid.position.x = targetPosForEnding.x;
+                boid.position.y = targetPosForEnding.y;
             }
-        } else {
+        } else if (!isEnding) {
             boid.edges();
             const localNeighbors = spatialGrid.getNeighbors(boid);
             boid.flock(localNeighbors);
-            boid.update(localNeighbors);
+            boid.update(localNeighbors, currentTime);
         }
         boid.drawWithEdgeBuffering();
     }
 
+    if (targetPosForEnding) {
+        vectorPool.release(targetPosForEnding);
+    }
+
     if (isEnding && endProgress >= 1) {
         console.log("End animation complete.");
+        // Optional: Log vector pool stats at the end
+        // console.log("Final VectorPool Stats:", vectorPool.getStats());
         return;
     }
 
@@ -1007,7 +1161,6 @@ function resetBoidSimulator() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Use the global FLOCK_SIZE constant
     for (let i = 0; i < FLOCK_SIZE; i++) {
         flock.push(new Boid());
     }
@@ -1062,8 +1215,7 @@ function endSimulation() {
 
 const mouseMoveHandler = (event) => {
     const rect = canvas.getBoundingClientRect();
-    mouse.x = event.clientX - rect.left;
-    mouse.y = event.clientY - rect.top;
+    mouse.set(event.clientX - rect.left, event.clientY - rect.top);
     mouseInfluence = true;
 };
 
@@ -1139,8 +1291,7 @@ const touchStartHandler = (event) => {
     boidsIgnoreMouse = false;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    mouse.x = event.touches[0].clientX - rect.left;
-    mouse.y = event.touches[0].clientY - rect.top;
+    mouse.set(event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top);
     mouseInfluence = true;
     isScattering = true;
     scatter(CLICK_SCATTER_DURATION);
@@ -1158,8 +1309,7 @@ const touchMoveHandler = (event) => {
     }
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    mouse.x = event.touches[0].clientX - rect.left;
-    mouse.y = event.touches[0].clientY - rect.top;
+    mouse.set(event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top);
     mouseInfluence = true;
 
     if (touchEndTimeoutId) {
@@ -1192,11 +1342,9 @@ const resizeHandler = () => {
 };
 
 function performScrollUpdates() {
-    // console.log("Throttled scroll update: Updating obstacles"); // Optional: for debugging
     updateAllObstacles();
 }
 
-// Create a throttled version of the function that updates obstacles on scroll.
 const throttledScrollUpdater = rafThrottle(performScrollUpdates);
 
 const speedSliderInputHandler = function () {
