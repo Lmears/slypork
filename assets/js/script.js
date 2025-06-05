@@ -112,6 +112,7 @@ function toggleNavMenu() {
     var nav = document.querySelector('nav');
     if (nav) {
         nav.classList.toggle('nav-active');
+        updateAllObstacles();
     }
 }
 

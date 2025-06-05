@@ -22,7 +22,7 @@ let simParams = {
 const defaultSimParams = { ...simParams }; // Store initial values for reset
 
 const OBSTACLE_PADDING = 0;
-const OBSTACLE_VISION_RADIUS = 90;
+const OBSTACLE_VISION_RADIUS = 80;
 const OBSTACLE_STEER_FORCE_MULTIPLIER = 1.25;
 const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3.5;
 const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
@@ -41,17 +41,15 @@ const OBSTACLE_ELEMENT_IDS = [
     'controls',
     'aboutImage',
     'masteringImage',
-    'pageTitle',
+    // 'pageTitle',
     'homeLink',
     'downloadPdfBtn',
-    'songsGrid',
     'keith-logo',
     'dj-pretence-logo',
     'root-basis-logo',
     'keith-player',
     'dj-pretence-player',
     'root-basis-player',
-    'imageGrid',
     // 'pageContent'
 ];
 
@@ -136,7 +134,7 @@ let godMode = false;
 let debugObstaclesMode = false;
 let debugGridMode = false;
 let debugSelectedBoid = null;
-let isMouseOverControls = false;
+let boidsIgnoreMouse = false;
 let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
 
@@ -431,7 +429,7 @@ class Boid {
     }
 
     mouseAttraction() {
-        if (!mouseInfluence || isMouseOverControls) return new Vector(0, 0);
+        if (!mouseInfluence || boidsIgnoreMouse) return new Vector(0, 0);
         let directionToMouse = Vector.sub(mouse, this.position);
         let distance = directionToMouse.mag();
         if (distance > 0 && distance < MOUSE_INFLUENCE_RADIUS) {
@@ -833,7 +831,7 @@ function resetBoidSimulator() {
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
 
-    isMouseOverControls = false;
+    boidsIgnoreMouse = false;
     boidsIgnoreTouch = false;
 }
 
@@ -888,7 +886,7 @@ const mouseLeaveHandler = () => {
 };
 
 const mouseDownHandler = (event) => {
-    if (isMouseOverControls) {
+    if (boidsIgnoreMouse) {
         return;
     }
     if (event.button === 0 && !event.shiftKey) {
@@ -951,7 +949,7 @@ const touchStartHandler = (event) => {
         mouseInfluence = false;
         return;
     }
-    isMouseOverControls = false;
+    boidsIgnoreMouse = false;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
     mouse.x = event.touches[0].clientX - rect.left;
@@ -1017,11 +1015,11 @@ const speedSliderInputHandler = function () {
 };
 
 const speedControlsMouseEnterHandler = () => {
-    isMouseOverControls = true;
+    boidsIgnoreMouse = true;
 };
 
 const speedControlsMouseLeaveHandler = () => {
-    isMouseOverControls = false;
+    boidsIgnoreMouse = false;
 };
 
 const documentClickHandler = (event) => {
@@ -1033,7 +1031,7 @@ const documentClickHandler = (event) => {
     }
 
     const experimentalMenu = document.getElementById('experimentalMenu');
-    if (isMouseOverControls || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) {
+    if (boidsIgnoreMouse || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) {
         return;
     }
 
@@ -1164,10 +1162,10 @@ function setupExperimentalMenu() {
 
 
     menuContainer.addEventListener('mouseenter', () => {
-        isMouseOverControls = true;
+        boidsIgnoreMouse = true;
     });
     menuContainer.addEventListener('mouseleave', () => {
-        isMouseOverControls = false;
+        boidsIgnoreMouse = false;
     });
 
     const styleSheet = document.createElement("style");
