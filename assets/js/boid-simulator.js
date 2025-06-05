@@ -1073,7 +1073,7 @@ const touchStartHandler = (event) => {
     const softwareLink = document.getElementById('softwareLink');
     const contactLink = document.getElementById('contactLink');
     const hamburgerMenu = document.getElementById('hamburger-menu');
-    // const visualContainer = document.getElementById('visualContainer');
+    const visualContainer = document.getElementById('visualContainer');
     const playerGrid = document.getElementById('playerGrid');
     const designGrid = document.getElementById('designGrid');
     const songsGrid = document.getElementById('songsGrid');
@@ -1094,7 +1094,7 @@ const touchStartHandler = (event) => {
         (softwareLink && softwareLink.contains(event.target)) ||
         (contactLink && contactLink.contains(event.target)) ||
         (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
-        // (visualContainer && visualContainer.contains(event.target)) ||
+        (visualContainer && visualContainer.contains(event.target)) ||
         (playerGrid && playerGrid.contains(event.target)) ||
         (designGrid && designGrid.contains(event.target)) ||
         (songsGrid && songsGrid.contains(event.target)) ||
