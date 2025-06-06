@@ -897,12 +897,43 @@ class Boid {
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
-    draw(targetCtx) {
-        targetCtx.save();
-        targetCtx.translate(this.position.x, this.position.y);
-        targetCtx.rotate(this.rotation + Math.PI / 2);
-        targetCtx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
-        targetCtx.restore();
+    // draw(targetCtx) {
+    //     targetCtx.save();
+    //     targetCtx.translate(this.position.x, this.position.y);
+    //     targetCtx.rotate(this.rotation + Math.PI / 2);
+    //     targetCtx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
+    //     targetCtx.restore();
+    // }
+
+    drawWithEdgeBuffering() {
+        EDGE_BUFFER_POSITIONS.forEach(offset => {
+            const position = this.calculateBufferPosition(offset);
+            if (this.isPositionVisible(position)) {
+                this.drawAt(position);
+            }
+        });
+    }
+
+    calculateBufferPosition(offset) {
+        return {
+            x: this.position.x + offset.dx * canvas.width,
+            y: this.position.y + offset.dy * canvas.height
+        };
+    }
+
+    drawAt(position) {
+        ctx.save();
+        ctx.translate(position.x, position.y);
+        ctx.rotate(this.rotation + Math.PI / 2);
+        ctx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
+        ctx.restore();
+    }
+
+    isPositionVisible(pos) {
+        return pos.x + this.renderSize / 2 > 0 &&
+            pos.x - this.renderSize / 2 < canvas.width &&
+            pos.y + this.renderSize / 2 > 0 &&
+            pos.y - this.renderSize / 2 < canvas.height;
     }
 
     calculateRenderSize(currentTime) {
@@ -1057,7 +1088,7 @@ function animate() {
         }
     }
 
-    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+    // offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
 
     // flock.sort((a, b) => a.depth - b.depth);
@@ -1088,18 +1119,18 @@ function animate() {
             boid.flock(localNeighbors);
             boid.update(localNeighbors, currentTime);
         }
-        boid.draw(offscreenCtx);
+        boid.drawWithEdgeBuffering();
     }
 
     if (targetPosForEnding) {
         vectorPool.release(targetPosForEnding);
     }
 
-    for (const offset of EDGE_BUFFER_POSITIONS) {
-        const x = offset.dx * canvas.width;
-        const y = offset.dy * canvas.height;
-        ctx.drawImage(offscreenCanvas, x, y);
-    }
+    // for (const offset of EDGE_BUFFER_POSITIONS) {
+    //     const x = offset.dx * canvas.width;
+    //     const y = offset.dy * canvas.height;
+    //     ctx.drawImage(offscreenCanvas, x, y);
+    // }
 
 
     if (isEnding && endProgress >= 1) {
@@ -1156,10 +1187,10 @@ function initBoidSimulator() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    offscreenCanvas = document.createElement('canvas');
-    offscreenCanvas.width = canvas.width;
-    offscreenCanvas.height = canvas.height;
-    offscreenCtx = offscreenCanvas.getContext('2d');
+    // offscreenCanvas = document.createElement('canvas');
+    // offscreenCanvas.width = canvas.width;
+    // offscreenCanvas.height = canvas.height;
+    // offscreenCtx = offscreenCanvas.getContext('2d');
 
     CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
@@ -1354,10 +1385,10 @@ const touchEndHandler = () => {
 const resizeHandler = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    if (offscreenCanvas) {
-        offscreenCanvas.width = canvas.width;
-        offscreenCanvas.height = canvas.height;
-    }
+    // if (offscreenCanvas) {
+    //     offscreenCanvas.width = canvas.width;
+    //     offscreenCanvas.height = canvas.height;
+    // }
     if (spatialGrid) {
         spatialGrid.resize(canvas.width, canvas.height);
     }
