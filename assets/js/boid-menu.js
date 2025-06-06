@@ -58,9 +58,9 @@ export function initializeMenu(initialParams, initialDebugFlags) {
 
     const categorizedParamConfigs = {
         Force: {
-            ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
+            ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
             COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
-            SEPARATION_FORCE: { label: 'Separation', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
+            SEPARATION_FORCE: { label: 'Separation', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
         },
         Radius: {
             ALIGNMENT_RADIUS: { label: 'Alignment', type: 'range', min: 10, max: 500, step: 5 },
