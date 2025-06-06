@@ -1,3 +1,5 @@
+import { initializeMenu, setMenuVisibility, updateMenuValues } from './boid-menu.js';
+
 // Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
 const ctx = canvas.getContext('2d');
@@ -5,7 +7,6 @@ const speedSlider = document.getElementById('speedSlider');
 const speedControls = document.getElementById('controls');
 const speedValue = document.getElementById('speedValue');
 const godModeButton = document.getElementById('godModeButton');
-const navLinks = document.getElementById('navLinks');
 
 // --- Tweakable Simulation Parameters (via experimental menu) ---
 let simParams = {
@@ -14,7 +15,7 @@ let simParams = {
     SEPARATION_FORCE: 1.3,
     ALIGNMENT_RADIUS: 50,
     SEPARATION_RADIUS: 50,
-    COHESION_RADIUS: 250,
+    COHESION_RADIUS: 150,
     VELOCITY_INERTIA: 0.45,
     ROTATION_INERTIA: 0.3,
 };
@@ -627,50 +628,6 @@ class Boid {
         return steeringForce;
     }
 
-    // // Old euclidean distance-based methods
-    // alignment(localNeighbors) {
-    //     return this.calculateSteering(localNeighbors, simParams.ALIGNMENT_RADIUS, (other, d) => {
-    //         return other.velocity;
-    //     });
-    // }
-
-    // separation(localNeighbors) {
-    //     return this.calculateSteering(localNeighbors, simParams.SEPARATION_RADIUS, (other, d) => {
-    //         const diff = Vector.sub(this.position, other.position);
-    //         diff.div(d * d);
-    //         return diff;
-    //     });
-    // }
-
-    // cohesion(localNeighbors) {
-    //     return this.calculateSteering(localNeighbors, simParams.COHESION_RADIUS, (other, d) => {
-    //         const diff = Vector.sub(other.position, this.position);
-    //         diff.mult(1 - d / simParams.COHESION_RADIUS);
-    //         return diff;
-    //     });
-    // }
-
-    // calculateSteering(boidsToConsider, radius, vectorFunc) {
-    //     let steering = new Vector(0, 0);
-    //     let total = 0;
-    //     for (let other of boidsToConsider) {
-    //         if (other === this) continue;
-    //         let d = Vector.dist(this.position, other.position);
-    //         if (d > 0 && d < radius) {
-    //             let vec = vectorFunc(other, d);
-    //             steering.add(vec);
-    //             total++;
-    //         }
-    //     }
-    //     if (total > 0) {
-    //         steering.div(total);
-    //         steering.setMag(this.maxSpeed);
-    //         steering.sub(this.velocity);
-    //         steering.limit(this.maxForce);
-    //     }
-    //     return steering;
-    // }
-
     mouseAttraction() {
         // if (!mouseInfluence || boidsIgnoreMouse) return new Vector(0, 0); // OLD
         if (!mouseInfluence || boidsIgnoreMouse) return vectorPool.get(0, 0); // NEW - temporary, released by flock()
@@ -892,24 +849,6 @@ class Boid {
         }
         this.maxSpeed *= (0.5 + this.depth * 0.5);
     }
-
-    // // Old euclidean based check:
-    // updateDepth(localNeighbors) {
-    //     const nearbyBoidsForDepth = [];
-    //     for (const b of localNeighbors) {
-    //         if (b === this) continue;
-    //         
-    //         if (Vector.dist(this.position, b.position) < DEPTH_INFLUENCE_RADIUS) {
-    //             nearbyBoidsForDepth.push(b);
-    //         }
-    //     }
-
-    //     if (nearbyBoidsForDepth.length > 0) {
-    //         const avgDepth = nearbyBoidsForDepth.reduce((sum, b) => sum + b.depth, 0) / nearbyBoidsForDepth.length;
-    //         this.depth = this.depth * 0.99 + avgDepth * 0.01;
-    //         this.depth = Math.max(0, Math.min(1, this.depth));
-    //     }
-    // }
 
     updateDepth(localNeighbors) {
         const nearbyBoidsForDepth = [];
@@ -1233,22 +1172,63 @@ function initBoidSimulator() {
 
     initializeObstacles();
     updateAllObstacles();
-
     isEnding = false;
+
+    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode };
+    initializeMenu(simParams, initialDebugFlags);
+    setupMenuEventListeners();
     resetBoidSimulator();
-    setupExperimentalMenu();
     animate();
     closeNavMenu();
     setupEventListeners();
 }
 
+function setupMenuEventListeners() {
+    document.body.addEventListener('godModeToggled', (e) => {
+        godMode = e.detail.enabled;
+        setMenuVisibility(godMode);
+        console.log("God Mode:", godMode);
+    });
+
+    document.body.addEventListener('paramChanged', (e) => {
+        const { key, value } = e.detail;
+        if (simParams.hasOwnProperty(key)) {
+            simParams[key] = value;
+            if (key.includes('RADIUS')) {
+                updateSpatialGridParameters();
+            }
+        }
+    });
+
+    document.body.addEventListener('debugFlagChanged', (e) => {
+        const { flag, enabled } = e.detail;
+        if (flag === 'grid') {
+            debugGridMode = enabled;
+            if (!enabled) debugSelectedBoid = null;
+        } else if (flag === 'obstacles') {
+            debugObstaclesMode = enabled;
+        }
+    });
+
+    document.body.addEventListener('paramsReset', () => {
+        simParams = { ...defaultSimParams };
+        updateSpatialGridParameters();
+        updateMenuValues(simParams); // Tell the menu to update its display
+        console.log('Simulation parameters reset to default.');
+    });
+
+    // Handles mouse entering/leaving the menu itself
+    document.body.addEventListener('menuInteraction', (e) => {
+        boidsIgnoreMouse = e.detail.hovering;
+        console.log("Boids ignore mouse:", boidsIgnoreMouse);
+    });
+
+    document.body.addEventListener('layoutChanged', throttledScrollUpdater);
+}
+
 function endSimulation() {
-    const experimentalMenu = document.getElementById('experimentalMenu');
     godMode = false;
-    updateExperimentalMenuVisibility(experimentalMenu, false);
-    if (experimentalMenu) {
-        experimentalMenu.remove();
-    }
+    setMenuVisibility(false);
     if (!isEnding) {
         isEnding = true;
         endStartTime = performance.now();
@@ -1285,12 +1265,13 @@ const mouseUpHandler = (event) => {
 const touchStartHandler = (event) => {
     const experimentalMenu = document.getElementById('experimentalMenu');
     const easterEgg = document.getElementById('easterEgg');
-    const aboutLink = document.getElementById('aboutLink');
-    const masteringLink = document.getElementById('masteringLink');
-    const musicLink = document.getElementById('musicLink');
-    const designLink = document.getElementById('designLink');
-    const softwareLink = document.getElementById('softwareLink');
-    const contactLink = document.getElementById('contactLink');
+    // const aboutLink = document.getElementById('aboutLink');
+    // const masteringLink = document.getElementById('masteringLink');
+    // const musicLink = document.getElementById('musicLink');
+    // const designLink = document.getElementById('designLink');
+    // const softwareLink = document.getElementById('softwareLink');
+    // const contactLink = document.getElementById('contactLink');
+    const navLinks = document.getElementById('navLinks');
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const visualContainer = document.getElementById('visualContainer');
     const playerGrid = document.getElementById('playerGrid');
@@ -1306,12 +1287,13 @@ const touchStartHandler = (event) => {
     const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
         (experimentalMenu && experimentalMenu.contains(event.target)) ||
-        (aboutLink && aboutLink.contains(event.target)) ||
-        (masteringLink && masteringLink.contains(event.target)) ||
-        (musicLink && musicLink.contains(event.target)) ||
-        (designLink && designLink.contains(event.target)) ||
-        (softwareLink && softwareLink.contains(event.target)) ||
-        (contactLink && contactLink.contains(event.target)) ||
+        // (aboutLink && aboutLink.contains(event.target)) ||
+        // (masteringLink && masteringLink.contains(event.target)) ||
+        // (musicLink && musicLink.contains(event.target)) ||
+        // (designLink && designLink.contains(event.target)) ||
+        // (softwareLink && softwareLink.contains(event.target)) ||
+        // (contactLink && contactLink.contains(event.target)) ||
+        (navLinks && navLinks.contains(event.target)) ||
         (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
         (visualContainer && visualContainer.contains(event.target)) ||
         (playerGrid && playerGrid.contains(event.target)) ||
@@ -1436,11 +1418,13 @@ const documentClickHandler = (event) => {
 };
 
 const godModeButtonClickHandler = () => {
-    godMode = !godMode;
-    const menu = document.getElementById('experimentalMenu');
-    if (menu) {
-        updateExperimentalMenuVisibility(menu, godMode);
-    }
+    const newGodModeState = !godMode;
+    const event = new CustomEvent('godModeToggled', {
+        detail: { enabled: newGodModeState },
+        bubbles: true,
+        composed: true
+    });
+    document.body.dispatchEvent(event);
     console.log("God Mode:", godMode);
 };
 
@@ -1490,351 +1474,8 @@ function setupEventListeners() {
     }
 }
 
-function updateExperimentalMenuVisibility(menu, isVisible) {
-    if (!menu) return;
-
-    if (isVisible) {
-        menu.classList.remove('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
-        menu.classList.add('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
-        menu.removeAttribute('inert');
-    } else {
-        menu.classList.add('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
-        menu.classList.remove('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
-        menu.setAttribute('inert', 'true');
-    }
-}
-
-function setupExperimentalMenu() {
-    const existingMenu = document.getElementById('experimentalMenu');
-    if (existingMenu) {
-        updateExperimentalMenuVisibility(existingMenu, godMode);
-        return;
-    }
-
-    const menuContainer = document.createElement('div');
-    menuContainer.id = 'experimentalMenu';
-    menuContainer.classList.add(
-        'fixed', 'bottom-4', 'left-4', 'bg-black/60', 'text-white',
-        'rounded-[32px]', 'z-[1000]',
-        'font-sans', 'text-xs',
-        'overflow-hidden',
-        'backdrop-blur-sm', 'min-w-[276px]',
-        'transition-opacity', 'duration-300', 'ease-out',
-        'transition-transform', 'duration-200',
-        'hidden', 'md:flex', 'md:flex-col',
-    );
-
-    const verticalPaddingFromEdges = '32px';
-    menuContainer.style.maxHeight = `calc(100vh - ${verticalPaddingFromEdges})`;
-
-    menuContainer.classList.add('opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none');
-    menuContainer.setAttribute('inert', 'true');
-
-    const scrollableContent = document.createElement('div');
-    scrollableContent.classList.add(
-        'flex-grow',
-        'overflow-y-auto',
-        'scrollable-content',
-        'py-4', 'px-3',
-        'min-h-0'
-    );
-
-    Object.assign(scrollableContent.style, {
-        scrollbarGutter: 'stable both-edges'
-    });
-
-
-    menuContainer.addEventListener('mouseenter', () => {
-        boidsIgnoreMouse = true;
-    });
-    menuContainer.addEventListener('mouseleave', () => {
-        boidsIgnoreMouse = false;
-    });
-
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = `
-            #experimentalMenu .control-row {
-                display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-            }
-            #experimentalMenu .control-row label {
-                color: #f3f4f1; flex-basis: 65px; flex-shrink: 0;
-            }
-            #experimentalMenu .control-row input[type="range"] {
-                flex-grow: 1; max-width: 100px;
-            }
-            #experimentalMenu .value-input {
-                width: 32px; text-align: center; color: #f3f4f1;
-                background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 32px; font-size: 11px;
-                font-family: Arial, sans-serif;
-            }
-            #experimentalMenu .value-input:focus {
-                outline: none; border-color: #2196F3;
-            }
-
-            #experimentalMenu .scrollable-content {
-                scrollbar-color: #f3f4f1 rgba(255, 255, 255, 0.2);
-                scrollbar-width: thin;
-            }
-
-            // #experimentalMenu .experimental-menu-close-button {
-            //     color: #f3f4f1; /* Initial color */
-            //     transition: color 0.2s ease-out; /* Smooth transition for color change */
-            // }
-            // #experimentalMenu .experimental-menu-close-button:hover {
-            //     color: #2196F3; /* Hover color (e.g., a blue, consistent with input focus) */
-            // }
-        `;
-    document.head.appendChild(styleSheet);
-
-    const titleOuterContainer = document.createElement('div');
-    titleOuterContainer.className = 'god-mode-title-container relative w-full pt-1 pb-1 mb-2.5';
-
-    const titleTextElement = document.createElement('h2');
-    titleTextElement.textContent = 'God Mode';
-    titleTextElement.className = 'm-0 text-center text-background text-lg';
-
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '×';
-    closeButton.classList.add(
-        'absolute',
-        'right-[-8px]',
-        'top-1/2',
-        '-translate-y-1/2',
-        'bg-transparent',
-        'border-none',
-        'text-xl',
-        'cursor-pointer',
-        'p-2',
-        'leading-none',
-        'text-background',
-        'hover:text-backgroundHovered',
-        'transition-colors',
-        // 'transform',
-        // 'hover:scale-110'
-    );
-
-    closeButton.addEventListener('click', () => {
-        godMode = false;
-        updateExperimentalMenuVisibility(menuContainer, false);
-        console.log("God Mode:", godMode);
-    });
-
-    titleOuterContainer.appendChild(titleTextElement);
-    titleOuterContainer.appendChild(closeButton);
-    scrollableContent.appendChild(titleOuterContainer);
-
-    const categorizedParamConfigs = {
-        Force: {
-            ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
-            COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
-            SEPARATION_FORCE: { label: 'Separation', type: 'range', min: 0, max: 5, step: 0.1, precision: 1 },
-        },
-        Radius: {
-            ALIGNMENT_RADIUS: { label: 'Alignment', type: 'range', min: 10, max: 500, step: 5 },
-            COHESION_RADIUS: { label: 'Cohesion', type: 'range', min: 10, max: 750, step: 10 },
-            SEPARATION_RADIUS: { label: 'Separation', type: 'range', min: 10, max: 500, step: 5 },
-        },
-        Inertia: {
-            VELOCITY_INERTIA: { label: 'Velocity', type: 'range', min: 0, max: 2, step: 0.01, precision: 2 },
-            ROTATION_INERTIA: { label: 'Rotation', type: 'range', min: 0, max: 1.5, step: 0.01, precision: 2 },
-        }
-    };
-
-    const inputElements = {};
-
-    for (const categoryName in categorizedParamConfigs) {
-        const categoryTitle = document.createElement('h4');
-        categoryTitle.textContent = categoryName;
-        Object.assign(categoryTitle.style, {
-            marginTop: '15px',
-            marginBottom: '10px',
-            color: '#f3f4f1',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-            paddingBottom: '5px'
-        });
-        scrollableContent.appendChild(categoryTitle);
-
-        const paramsInCategory = categorizedParamConfigs[categoryName];
-
-        for (const key in paramsInCategory) {
-            const config = paramsInCategory[key];
-            const controlDiv = document.createElement('div');
-            controlDiv.className = 'control-row';
-
-            const labelEl = document.createElement('label');
-            labelEl.htmlFor = `param-${key}-input`;
-            labelEl.textContent = `${config.label}: `;
-
-            const inputEl = document.createElement('input');
-            inputEl.type = config.type;
-            inputEl.id = `param-${key}-input`;
-            inputEl.min = config.min;
-            inputEl.max = config.max;
-            inputEl.step = config.step;
-            inputEl.value = simParams[key];
-
-            // Create editable value input instead of span
-            const valueInput = document.createElement('input');
-            valueInput.type = 'text';
-            valueInput.id = `param-${key}-value`;
-            valueInput.className = 'value-input';
-            valueInput.value = config.precision ? simParams[key].toFixed(config.precision) : simParams[key].toString();
-
-            // Slider input event handler
-            inputEl.addEventListener('input', () => {
-                let newVal = config.type === 'number' ? parseInt(inputEl.value) : parseFloat(inputEl.value);
-                if (config.type === 'number') {
-                    if (isNaN(newVal)) newVal = config.min;
-                    newVal = Math.max(config.min, Math.min(config.max, newVal));
-                    inputEl.value = newVal;
-                }
-                simParams[key] = newVal;
-                valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
-                if (config.type === 'range') updateSliderFill(inputEl);
-                if (key.includes('RADIUS')) updateSpatialGridParameters();
-            });
-
-            // Value input event handlers
-            valueInput.addEventListener('input', () => {
-                let newVal = parseFloat(valueInput.value);
-                if (!isNaN(newVal)) {
-                    // Clamp the value to the slider's range
-                    newVal = Math.max(config.min, Math.min(config.max, newVal));
-                    simParams[key] = newVal;
-                    inputEl.value = newVal;
-                    if (config.type === 'range') updateSliderFill(inputEl);
-                    if (key.includes('RADIUS')) updateSpatialGridParameters();
-                }
-            });
-
-            valueInput.addEventListener('blur', () => {
-                // Ensure the display value is properly formatted on blur
-                const currentVal = simParams[key];
-                valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
-            });
-
-            valueInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    valueInput.blur();
-                }
-            });
-
-            // Initialize slider fill on creation
-            if (config.type === 'range') {
-                updateSliderFill(inputEl);
-                enableSliderWheelControl(inputEl);
-            }
-
-            inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
-            controlDiv.appendChild(labelEl);
-            controlDiv.appendChild(inputEl);
-            controlDiv.appendChild(valueInput);
-            scrollableContent.appendChild(controlDiv);
-        }
-    }
-
-    const debugSectionDiv = document.createElement('div');
-    Object.assign(debugSectionDiv.style, {
-        marginTop: '15px',
-        paddingTop: '10px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.2)'
-    });
-
-    const debugGridToggleControlRow = document.createElement('div');
-    Object.assign(debugGridToggleControlRow.style, {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px'
-    });
-
-    const debugGridLabel = document.createElement('label');
-    debugGridLabel.htmlFor = 'debug-grid-toggle';
-    debugGridLabel.textContent = 'Debug Grid';
-    Object.assign(debugGridLabel.style, {
-        color: '#f3f4f1'
-    });
-
-    const debugGridCheckbox = document.createElement('input');
-    debugGridCheckbox.type = 'checkbox';
-    debugGridCheckbox.id = 'debug-grid-toggle';
-    debugGridCheckbox.checked = debugGridMode;
-
-    debugGridCheckbox.addEventListener('change', () => {
-        debugGridMode = debugGridCheckbox.checked;
-        if (!debugGridMode) {
-            debugSelectedBoid = null;
-        }
-    });
-
-    debugGridToggleControlRow.appendChild(debugGridLabel);
-    debugGridToggleControlRow.appendChild(debugGridCheckbox);
-    debugSectionDiv.appendChild(debugGridToggleControlRow);
-    // --- End Debug Cells Toggle Section ---
-
-    const debugObstaclesToggleControlRow = document.createElement('div');
-    Object.assign(debugObstaclesToggleControlRow.style, {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px'
-    });
-
-    const debugObstaclesLabel = document.createElement('label');
-    debugObstaclesLabel.htmlFor = 'debug-obstacles-toggle';
-    debugObstaclesLabel.textContent = 'Debug Obstacles';
-    Object.assign(debugObstaclesLabel.style, {
-        color: '#f3f4f1'
-    });
-
-    const debugObstaclesCheckbox = document.createElement('input');
-    debugObstaclesCheckbox.type = 'checkbox';
-    debugObstaclesCheckbox.id = 'debug-obstacles-toggle';
-    debugObstaclesCheckbox.checked = debugObstaclesMode;
-
-    debugObstaclesCheckbox.addEventListener('change', () => {
-        debugObstaclesMode = debugObstaclesCheckbox.checked;
-    });
-
-    debugObstaclesToggleControlRow.appendChild(debugObstaclesLabel);
-    debugObstaclesToggleControlRow.appendChild(debugObstaclesCheckbox);
-    debugSectionDiv.appendChild(debugObstaclesToggleControlRow);
-    scrollableContent.appendChild(debugSectionDiv);
-
-
-    const resetButton = document.createElement('button');
-    resetButton.textContent = 'Reset';
-    resetButton.className = 'px-3 py-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
-
-    resetButton.addEventListener('click', () => {
-        simParams = { ...defaultSimParams };
-        for (const key in inputElements) {
-            const elGroup = inputElements[key];
-            elGroup.input.value = simParams[key];
-            elGroup.valueInput.value = elGroup.config.precision ? simParams[key].toFixed(elGroup.config.precision) : simParams[key].toString();
-            if (elGroup.input.type === 'range') updateSliderFill(elGroup.input);
-        }
-        updateSpatialGridParameters();
-    });
-
-    scrollableContent.appendChild(resetButton);
-
-    // Append scrollable content to menu container
-    menuContainer.appendChild(scrollableContent);
-    document.body.appendChild(menuContainer);
-
-    if (menuContainer) { // menuContainer should be valid here
-        if (!menuContainer.style.transition) { // Defensive: ensure transition style is present
-            menuContainer.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
-        }
-        updateExperimentalMenuVisibility(menuContainer, godMode);
-    }
-}
-
-
-
 // Expose functions to global scope if they are called from HTML
+window.initBoidSimulator = initBoidSimulator;
 window.resetBoidSimulator = resetBoidSimulator;
 window.stopAnimation = stopAnimation;
 window.endSimulation = endSimulation;

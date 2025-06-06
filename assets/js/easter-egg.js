@@ -321,7 +321,6 @@ function setupEasterEgg() {
 document.addEventListener('DOMContentLoaded', setupEasterEgg);
 
 /**
- * Initialize a single slider with blue fill effect and scroll wheel control
  * @param {string} sliderId - The ID of the slider element
  * @param {string} [displayId] - Optional ID of element to show the value
  * @param {string} [suffix='%'] - Suffix to add to displayed value

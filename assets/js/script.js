@@ -112,7 +112,7 @@ function toggleNavMenu() {
     var nav = document.querySelector('nav');
     if (nav) {
         nav.classList.toggle('nav-active');
-        updateAllObstacles();
+        document.body.dispatchEvent(new CustomEvent('layoutChanged'));
     }
 }
 
@@ -120,7 +120,7 @@ function closeNavMenu() {
     var nav = document.querySelector('nav');
     if (nav && nav.classList.contains('nav-active')) {
         nav.classList.remove('nav-active');
-        updateAllObstacles();
+        document.body.dispatchEvent(new CustomEvent('layoutChanged'));
     }
 }
 
