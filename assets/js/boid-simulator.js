@@ -138,6 +138,9 @@ let debugSelectedBoid = null;
 let boidsIgnoreMouse = false;
 let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
+let offscreenCanvas;
+let offscreenCtx;
+
 
 const logoImg = new Image();
 logoImg.src = '../assets/images/favicon-96x96.png';
@@ -894,35 +897,12 @@ class Boid {
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
 
-    drawWithEdgeBuffering() {
-        EDGE_BUFFER_POSITIONS.forEach(offset => {
-            const position = this.calculateBufferPosition(offset);
-            if (this.isPositionVisible(position)) {
-                this.drawAt(position);
-            }
-        });
-    }
-
-    calculateBufferPosition(offset) {
-        return {
-            x: this.position.x + offset.dx * canvas.width,
-            y: this.position.y + offset.dy * canvas.height
-        };
-    }
-
-    drawAt(position) {
-        ctx.save();
-        ctx.translate(position.x, position.y);
-        ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
-        ctx.restore();
-    }
-
-    isPositionVisible(pos) {
-        return pos.x + this.renderSize / 2 > 0 &&
-            pos.x - this.renderSize / 2 < canvas.width &&
-            pos.y + this.renderSize / 2 > 0 &&
-            pos.y - this.renderSize / 2 < canvas.height;
+    draw(targetCtx) {
+        targetCtx.save();
+        targetCtx.translate(this.position.x, this.position.y);
+        targetCtx.rotate(this.rotation + Math.PI / 2);
+        targetCtx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
+        targetCtx.restore();
     }
 
     calculateRenderSize(currentTime) {
@@ -1077,6 +1057,9 @@ function animate() {
         }
     }
 
+    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+
     // flock.sort((a, b) => a.depth - b.depth);
 
     const currentTime = performance.now();
@@ -1105,12 +1088,19 @@ function animate() {
             boid.flock(localNeighbors);
             boid.update(localNeighbors, currentTime);
         }
-        boid.drawWithEdgeBuffering();
+        boid.draw(offscreenCtx);
     }
 
     if (targetPosForEnding) {
         vectorPool.release(targetPosForEnding);
     }
+
+    for (const offset of EDGE_BUFFER_POSITIONS) {
+        const x = offset.dx * canvas.width;
+        const y = offset.dy * canvas.height;
+        ctx.drawImage(offscreenCanvas, x, y);
+    }
+
 
     if (isEnding && endProgress >= 1) {
         console.log("End animation complete.");
@@ -1165,6 +1155,11 @@ function stopAnimation() {
 function initBoidSimulator() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = canvas.width;
+    offscreenCanvas.height = canvas.height;
+    offscreenCtx = offscreenCanvas.getContext('2d');
 
     CELL_SIZE = calculateCurrentCellSize();
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
@@ -1359,6 +1354,10 @@ const touchEndHandler = () => {
 const resizeHandler = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    if (offscreenCanvas) {
+        offscreenCanvas.width = canvas.width;
+        offscreenCanvas.height = canvas.height;
+    }
     if (spatialGrid) {
         spatialGrid.resize(canvas.width, canvas.height);
     }
