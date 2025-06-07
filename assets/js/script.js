@@ -16,7 +16,7 @@ function easeInOutElastic(x) {
 
 // Home image animation
 var homeLink = document.getElementById('homeLink');
-var homeLogo = document.querySelector('.home-logo') || document.querySelector('.rsvp-logo');
+var homeLogo = document.querySelector('.home-logo');
 if (homeLink && homeLogo) {
     var isHovering = false;
 

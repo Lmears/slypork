@@ -61,11 +61,13 @@ export function initializeMenu(initialParams, initialDebugFlags) {
             ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
             COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
             SEPARATION_FORCE: { label: 'Separation', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
+            OBSTACLE_FORCE: { label: 'Obstacle', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
         },
         Radius: {
             ALIGNMENT_RADIUS: { label: 'Alignment', type: 'range', min: 10, max: 500, step: 5 },
             COHESION_RADIUS: { label: 'Cohesion', type: 'range', min: 10, max: 750, step: 10 },
             SEPARATION_RADIUS: { label: 'Separation', type: 'range', min: 10, max: 500, step: 5 },
+            OBSTACLE_RADIUS: { label: 'Obstacle', type: 'range', min: 10, max: 500, step: 5 },
         },
         Inertia: {
             VELOCITY_INERTIA: { label: 'Velocity', type: 'range', min: 0, max: 2, step: 0.01, precision: 2 },
@@ -154,7 +156,7 @@ export function initializeMenu(initialParams, initialDebugFlags) {
             controlDiv.className = 'control-row';
             const labelEl = document.createElement('label');
             labelEl.htmlFor = `param-${key}-input`;
-            labelEl.textContent = `${config.label}: `;
+            labelEl.textContent = `${config.label} `;
             const inputEl = document.createElement('input');
             inputEl.type = config.type;
             inputEl.id = `param-${key}-input`;

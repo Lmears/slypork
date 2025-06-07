@@ -13,18 +13,19 @@ let simParams = {
     ALIGNMENT_FORCE: 1.2,
     COHESION_FORCE: 0.7,
     SEPARATION_FORCE: 1.3,
+    OBSTACLE_FORCE: 1.2,
     ALIGNMENT_RADIUS: 50,
-    SEPARATION_RADIUS: 45,
     COHESION_RADIUS: 120,
+    SEPARATION_RADIUS: 45,
+    OBSTACLE_RADIUS: 120,
     VELOCITY_INERTIA: 0.45,
     ROTATION_INERTIA: 0.3,
+
 };
 
 const defaultSimParams = { ...simParams }; // Store initial values for reset
 
 const OBSTACLE_PADDING = 0;
-const OBSTACLE_VISION_RADIUS = 256;
-const OBSTACLE_STEER_FORCE_MULTIPLIER = 0.3;
 const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3.5;
 const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
@@ -33,7 +34,7 @@ const OBSTACLE_ELEMENT_IDS = [
     'navLinks',
     'footer',
     'hamburger-menu',
-    'homeLink',
+    'simpleHomeLink',
     'downloadPdfBtn',
     'keith-logo',
     'dj-pretence-logo',
@@ -94,7 +95,7 @@ let CELL_SIZE; // Dynamically calculated based on simParams radii
 
 // Helper function to calculate CELL_SIZE
 function calculateCurrentCellSize() {
-    return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS);
+    return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS, simParams.OBSTACLE_RADIUS);
 }
 
 // Function to update spatial grid parameters if radii change
@@ -730,16 +731,35 @@ class Boid {
                     Vector.sub(this.position, closestPointOnEffectiveObstacleTemp, boidToClosestPointTemp);
                     currentDistSq = boidToClosestPointTemp.magSq();
 
-                    if (currentDistSq < (OBSTACLE_VISION_RADIUS + boidRadius) ** 2) {
+                    const visionRadius = simParams.OBSTACLE_RADIUS + boidRadius;
+
+                    if (currentDistSq < visionRadius ** 2) {
                         Vector.sub(this.position, closestPointOnEffectiveObstacleTemp, desiredSteerAwayTemp);
                         if (desiredSteerAwayTemp.magSq() === 0) {
                             Vector.sub(this.position, effectiveObsCenter, desiredSteerAwayTemp);
                         }
                         if (desiredSteerAwayTemp.magSq() > 0) {
                             interactionType = 'steer';
+
+                            // --- MODIFICATION START ---
+                            // The desired velocity is ALWAYS maxSpeed. We are not telling the boid to slow down.
                             desiredSteerAwayTemp.setMag(this.maxSpeed);
+
+                            // Calculate the steering force (the difference between desired and current velocity).
                             Vector.sub(desiredSteerAwayTemp, this.velocity, currentToroidalForce);
-                            currentToroidalForce.limit(this.maxForce * OBSTACLE_STEER_FORCE_MULTIPLIER);
+
+                            // Now, scale this resulting FORCE based on distance.
+                            // Closer distances result in a stronger force (closer to 1.0).
+                            // Farther distances result in a weaker force (closer to 0.0).
+                            const distance = Math.sqrt(currentDistSq);
+                            const strength = 1 - (distance / visionRadius);
+
+                            // Apply the strength multiplier to the force.
+                            currentToroidalForce.mult(strength);
+
+                            // The final force is still limited by the boid's maximum capabilities.
+                            currentToroidalForce.limit(this.maxForce * simParams.OBSTACLE_FORCE);
+                            // --- MODIFICATION END ---
                         }
                     }
                 }
