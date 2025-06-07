@@ -12,7 +12,7 @@ const godModeButton = document.getElementById('godModeButton');
 let simParams = {
     ALIGNMENT_FORCE: 1.2,
     COHESION_FORCE: 0.7,
-    SEPARATION_FORCE: 1.2,
+    SEPARATION_FORCE: 1.3,
     ALIGNMENT_RADIUS: 50,
     SEPARATION_RADIUS: 45,
     COHESION_RADIUS: 120,
@@ -503,6 +503,7 @@ class Boid {
 
     separation(localNeighbors) {
         const steeringForce = vectorPool.get();
+        const desiredVelocity = vectorPool.get(); // This will be our "desired" velocity
         let total = 0;
         const halfWidth = canvas.width / 2;
         const halfHeight = canvas.height / 2;
@@ -521,43 +522,46 @@ class Boid {
 
             let dSq = tdx * tdx + tdy * tdy;
 
-            // The check is dSq > 0 and dSq < radius^2
             if (dSq > 0 && dSq < separationRadiusSq) {
-                // Calculate vector pointing away from neighbor, weighted by distance
+                // Create a vector pointing away from the neighbor
                 tempDiff.set(tdx, tdy);
+
+                // --- THE SMOOTHING FACTOR ---
+                // The strength of the repulsion is stronger when the boid is closer.
+                // Map distance to a 0-1 range.
+                const distance = Math.sqrt(dSq);
+                const strength = 1.0 - (distance / simParams.SEPARATION_RADIUS);
+
+                // Weight the repulsion vector by this strength.
                 tempDiff.normalize();
-                tempDiff.div(Math.sqrt(dSq)); // Weight by 1/distance
-                steeringForce.add(tempDiff);
-                total++;
-            } else if (dSq === 0) { // Exact overlap, give a random nudge
-                Vector.random2D(tempDiff).normalize();
-                steeringForce.add(tempDiff);
+                tempDiff.mult(strength);
+
+                desiredVelocity.add(tempDiff);
                 total++;
             }
         }
         vectorPool.release(tempDiff);
 
         if (total > 0) {
-            // Average the force
-            steeringForce.div(total);
+            // Average the desired velocity change
+            desiredVelocity.div(total);
 
-            // --- THIS IS THE KEY LOGIC CHANGE ---
-            // The steeringForce vector now represents the raw separation force.
-            // Its magnitude is proportional to the proximity of neighbors.
-            // We do NOT want to discard this magnitude information.
-            // We treat this force as our "desired" velocity change.
-            if (steeringForce.magSq() > 0) {
-                // Set its desired magnitude to maxSpeed.
-                steeringForce.setMag(this.maxSpeed);
-                // THEN, calculate the steer. steering = desired - current.
-                steeringForce.sub(this.velocity);
+            // --- THE UNIFIED THREE-STEP PATTERN ---
+            if (desiredVelocity.magSq() > 0) {
+                // 1. Calculate Desired Velocity:
+                // The magnitude of our desired velocity is now proportional to the "threat level".
+                // It smoothly scales up to maxSpeed as the average repulsion gets stronger.
+                desiredVelocity.setMag(this.maxSpeed);
+
+                // 2. Subtract Current Velocity
+                Vector.sub(desiredVelocity, this.velocity, steeringForce);
+
+                // 3. Limit the result
                 steeringForce.limit(this.maxForce);
             }
         }
-        // If total is 0, steeringForce is already (0,0) and will be returned.
 
-        // Note: The `desiredSeparation` vector was removed as it was redundant.
-        // We now do all calculations directly into `steeringForce`.
+        vectorPool.release(desiredVelocity);
         return steeringForce;
     }
 
