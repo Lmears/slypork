@@ -12,10 +12,10 @@ const godModeButton = document.getElementById('godModeButton');
 let simParams = {
     ALIGNMENT_FORCE: 1.2,
     COHESION_FORCE: 0.7,
-    SEPARATION_FORCE: 1.3,
+    SEPARATION_FORCE: 1.2,
     ALIGNMENT_RADIUS: 50,
-    SEPARATION_RADIUS: 50,
-    COHESION_RADIUS: 150,
+    SEPARATION_RADIUS: 45,
+    COHESION_RADIUS: 120,
     VELOCITY_INERTIA: 0.45,
     ROTATION_INERTIA: 0.3,
 };
@@ -501,139 +501,8 @@ class Boid {
         return steeringForce;
     }
 
-    // separation(localNeighbors) {
-    //     const steeringForce = vectorPool.get();
-    //     const desiredSeparation = vectorPool.get();
-    //     let total = 0;
-    //     const halfWidth = canvas.width / 2;
-    //     const halfHeight = canvas.height / 2;
-    //     const separationRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
-    //     const tempDiff = vectorPool.get();
-
-    //     for (let other of localNeighbors) {
-    //         if (other === this) continue;
-
-    //         let tdx = this.position.x - other.position.x;
-    //         let tdy = this.position.y - other.position.y;
-
-    //         // Toroidal wrapping
-    //         if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
-    //         if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
-
-    //         let dSq = tdx * tdx + tdy * tdy;
-
-    //         // Only react to neighbors inside the separation radius
-    //         if (dSq > 0 && dSq < separationRadiusSq) {
-    //             // Create a vector pointing away from the neighbor
-    //             tempDiff.set(tdx, tdy);
-
-    //             // --- THIS IS THE KEY ---
-    //             // Scale the vector's magnitude by 1 / dSq (inverse square law).
-    //             // Closer boids will have a massively stronger influence.
-    //             // This is more powerful and often more stable than 1/d.
-    //             // We are directly calculating a force, not just a direction.
-    //             tempDiff.setMag(1 / dSq);
-
-    //             desiredSeparation.add(tempDiff);
-    //             total++;
-    //         }
-    //     }
-    //     vectorPool.release(tempDiff);
-
-    //     if (total > 0) {
-    //         // We don't need to divide by total if we think of this as a
-    //         // summation of forces rather than an average direction.
-    //         // However, averaging can make it more stable with many boids. Let's average.
-    //         desiredSeparation.div(total);
-
-    //         // This `desiredSeparation` vector is now our desired velocity.
-    //         // Its magnitude is already meaningful (higher when boids are closer).
-    //         // So, we set its magnitude to our max speed.
-    //         desiredSeparation.setMag(this.maxSpeed);
-
-    //         // Standard steering formula: steering = desired - velocity
-    //         Vector.sub(desiredSeparation, this.velocity, steeringForce);
-
-    //         // **Crucially, limit with a CONSTANT maxForce to prevent shakiness**
-    //         steeringForce.limit(this.maxForce);
-
-    //     } else {
-    //         steeringForce.set(0, 0);
-    //     }
-
-    //     vectorPool.release(desiredSeparation);
-    //     return steeringForce;
-    // }
-
-    // cohesion(localNeighbors) {
-    //     const steeringForce = vectorPool.get();     // Final, released by flock()
-    //     const averagePosition = vectorPool.get();   // Sum of neighbor positions
-    //     let total = 0;
-    //     const halfWidth = canvas.width / 2;
-    //     const halfHeight = canvas.height / 2;
-    //     const cohesionRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
-
-    //     // Step 1: Calculate average position of neighbors
-    //     for (let other of localNeighbors) {
-    //         if (other === this) continue;
-    //         let tdx = other.position.x - this.position.x;
-    //         let tdy = other.position.y - this.position.y;
-
-    //         // Handle toroidal wrapping
-    //         if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
-    //         if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
-    //         const dSq = tdx * tdx + tdy * tdy;
-
-    //         if (dSq > 0 && dSq < cohesionRadiusSq) {
-    //             // Add the neighbor's actual position (accounting for wrapping)
-    //             let neighborX = other.position.x;
-    //             let neighborY = other.position.y;
-
-    //             // Adjust neighbor position for wrapping to get correct average
-    //             if (Math.abs(other.position.x - this.position.x) > halfWidth) {
-    //                 neighborX = this.position.x + tdx;
-    //             }
-    //             if (Math.abs(other.position.y - this.position.y) > halfHeight) {
-    //                 neighborY = this.position.y + tdy;
-    //             }
-
-    //             averagePosition.x += neighborX;
-    //             averagePosition.y += neighborY;
-    //             total++;
-    //         }
-    //     }
-
-    //     if (total > 0) {
-    //         // Step 2: Get the average position
-    //         averagePosition.div(total);
-
-    //         // Step 3: Calculate desired velocity (towards average position)
-    //         const desiredVelocity = vectorPool.get();
-    //         Vector.sub(averagePosition, this.position, desiredVelocity);
-    //         const distanceToCenter = desiredVelocity.mag();
-
-    //         // Create a strength multiplier (from 0 to 1) based on how far we are
-    //         // inside the cohesion radius.
-    //         const strength = distanceToCenter / simParams.COHESION_RADIUS;
-
-    //         // Apply this strength to the maxSpeed.
-    //         desiredVelocity.setMag(this.maxSpeed * strength);
-
-    //         Vector.sub(desiredVelocity, this.velocity, steeringForce);
-    //         steeringForce.limit(this.maxForce);
-
-    //         vectorPool.release(desiredVelocity);
-    //     } else {
-    //         steeringForce.set(0, 0);
-    //     }
-
-    //     vectorPool.release(averagePosition);
-    //     return steeringForce;
-    // }
-
     separation(localNeighbors) {
         const steeringForce = vectorPool.get();
-        const desiredSeparation = vectorPool.get();
         let total = 0;
         const halfWidth = canvas.width / 2;
         const halfHeight = canvas.height / 2;
@@ -652,36 +521,43 @@ class Boid {
 
             let dSq = tdx * tdx + tdy * tdy;
 
-            if (dSq === 0) { // If exactly on top, give a slight random push
-                Vector.random2D(tempDiff).normalize(); // Get a random direction
-                desiredSeparation.add(tempDiff);
-                total++;
-                // Optionally skip to next neighbor if dSq is 0 to avoid division by zero for 'd'
-                // continue; // If you add this, ensure it doesn't break other logic
-            } else if (dSq < separationRadiusSq) { // Original condition (dSq > 0 is implicit if dSq !== 0)
-                const d = Math.sqrt(dSq);
+            // The check is dSq > 0 and dSq < radius^2
+            if (dSq > 0 && dSq < separationRadiusSq) {
+                // Calculate vector pointing away from neighbor, weighted by distance
                 tempDiff.set(tdx, tdy);
-                tempDiff.setMag(1 / d); // Inverse square like force (1/d is also common)
-                desiredSeparation.add(tempDiff);
+                tempDiff.normalize();
+                tempDiff.div(Math.sqrt(dSq)); // Weight by 1/distance
+                steeringForce.add(tempDiff);
+                total++;
+            } else if (dSq === 0) { // Exact overlap, give a random nudge
+                Vector.random2D(tempDiff).normalize();
+                steeringForce.add(tempDiff);
                 total++;
             }
         }
         vectorPool.release(tempDiff);
 
         if (total > 0) {
-            desiredSeparation.div(total);
-            if (desiredSeparation.magSq() === 0 && total > 0) {
-                // If average is zero (e.g. symmetrical forces canceling out)
-                // but there were neighbors, give a tiny random preference if desired.
-                // Or just let it be zero. For now, let setMag handle it.
+            // Average the force
+            steeringForce.div(total);
+
+            // --- THIS IS THE KEY LOGIC CHANGE ---
+            // The steeringForce vector now represents the raw separation force.
+            // Its magnitude is proportional to the proximity of neighbors.
+            // We do NOT want to discard this magnitude information.
+            // We treat this force as our "desired" velocity change.
+            if (steeringForce.magSq() > 0) {
+                // Set its desired magnitude to maxSpeed.
+                steeringForce.setMag(this.maxSpeed);
+                // THEN, calculate the steer. steering = desired - current.
+                steeringForce.sub(this.velocity);
+                steeringForce.limit(this.maxForce);
             }
-            desiredSeparation.setMag(this.maxSpeed);
-            Vector.sub(desiredSeparation, this.velocity, steeringForce);
-            steeringForce.limit(this.maxForce);
-        } else {
-            steeringForce.set(0, 0);
         }
-        vectorPool.release(desiredSeparation);
+        // If total is 0, steeringForce is already (0,0) and will be returned.
+
+        // Note: The `desiredSeparation` vector was removed as it was redundant.
+        // We now do all calculations directly into `steeringForce`.
         return steeringForce;
     }
 
