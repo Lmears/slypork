@@ -8,6 +8,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          'Roboto', 'sans-serif'
+        ],
+      },
       colors: {
         background: '#f3f4f1',
         backgroundHovered: '#dcddd9',
