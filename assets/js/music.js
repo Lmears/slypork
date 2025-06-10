@@ -1,9 +1,9 @@
 function updateKeithImage() {
     const keithLogo = document.getElementById('keith-logo');
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
-        keithLogo.src = "../assets/images/project-logos/keith_white.png";
+        keithLogo.src = "../assets/images/project-logos/keith_white.webp";
     } else {
-        keithLogo.src = "../assets/images/project-logos/keith.png";
+        keithLogo.src = "../assets/images/project-logos/keith.webp";
     }
 }
 

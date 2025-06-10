@@ -373,8 +373,8 @@ if (easterEggElement) {
         const normalImg = new Image();
         const hoverImg = new Image();
 
-        normalImg.src = getLogoPath('home.png');
-        hoverImg.src = getLogoPath('home-hover.png');
+        normalImg.src = getLogoPath('home.webp');
+        hoverImg.src = getLogoPath('home-hover.webp');
     }
     preloadImages();
 
