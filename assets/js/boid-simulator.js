@@ -20,7 +20,6 @@ let simParams = {
     OBSTACLE_RADIUS: 120,
     VELOCITY_INERTIA: 0.45,
     ROTATION_INERTIA: 0.3,
-
 };
 
 const defaultSimParams = { ...simParams }; // Store initial values for reset
@@ -40,7 +39,7 @@ const OBSTACLE_ELEMENT_IDS = [
     'dj-pretence-logo',
     'root-basis-logo',
 ];
-
+// Initialize obstacles from the DOM elements                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 let allObstacles = [];
 
 // --- Other Simulation parameters (mostly non-tweakable via new menu) ---
