@@ -19,8 +19,8 @@ var homeLink = document.getElementById('homeLink');
 var homeLogo = document.querySelector('.home-logo');
 if (homeLink && homeLogo) {
     var isHovering = false;
-    var normalSrc = getLogoPath('home.png');
-    var hoverSrc = getLogoPath('home-hover.png');
+    var normalSrc = getLogoPath('home.webp');
+    var hoverSrc = getLogoPath('home-hover.webp');
 
     function handleHomeLinkMouseEnter() {
         if (homeLogo.src !== hoverSrc) { // Only change if different

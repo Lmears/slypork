@@ -127,7 +127,7 @@ let touchEndTimeoutId = null;
 
 
 const logoImg = new Image();
-logoImg.src = '../assets/images/favicon-96x96.png';
+logoImg.src = '../assets/images/favicon-96x96.webp';
 
 
 
