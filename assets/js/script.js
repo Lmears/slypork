@@ -19,29 +19,35 @@ var homeLink = document.getElementById('homeLink');
 var homeLogo = document.querySelector('.home-logo');
 if (homeLink && homeLogo) {
     var isHovering = false;
+    var normalSrc = getLogoPath('home.png');
+    var hoverSrc = getLogoPath('home-hover.png');
 
-    function handleHomeLinkMouseOver() {
-        homeLogo.src = getLogoPath('home-hover.png');
+    function handleHomeLinkMouseEnter() {
+        if (homeLogo.src !== hoverSrc) { // Only change if different
+            homeLogo.src = hoverSrc;
+        }
         isHovering = true;
     }
 
-    function handleHomeLinkMouseOut() {
-        homeLogo.src = getLogoPath('home.png');
+    function handleHomeLinkMouseLeave() {
+        if (homeLogo.src !== normalSrc) { // Only change if different
+            homeLogo.src = normalSrc;
+        }
         isHovering = false;
     }
 
     function handleHomeLinkMouseDown() {
-        homeLogo.src = getLogoPath('home.png');
+        homeLogo.src = normalSrc;
     }
 
     function handleHomeLinkMouseUp() {
-        if (isHovering) {
-            homeLogo.src = getLogoPath('home-hover.png');
+        if (isHovering && homeLogo.src !== hoverSrc) {
+            homeLogo.src = hoverSrc;
         }
     }
 
-    homeLink.addEventListener('mouseover', handleHomeLinkMouseOver);
-    homeLink.addEventListener('mouseout', handleHomeLinkMouseOut);
+    homeLink.addEventListener('mouseenter', handleHomeLinkMouseEnter);
+    homeLink.addEventListener('mouseleave', handleHomeLinkMouseLeave);
     homeLink.addEventListener('mousedown', handleHomeLinkMouseDown);
     homeLink.addEventListener('mouseup', handleHomeLinkMouseUp);
 }
