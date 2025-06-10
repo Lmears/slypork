@@ -309,9 +309,6 @@ nav ul li a:hover,
 
     /* Start with it being invisible */
     opacity: 0;
-
-    /* Add a smooth transition for the fade effect */
-    transition: opacity 0.2s ease-in-out;
 }
 
 /* On hover, make the pseudo-element visible */

@@ -385,6 +385,6 @@ if (easterEggElement) {
     easterEggElement.addEventListener('mouseup', function () {
         setTimeout(function () {
             easterEggElement.classList.remove('easter-egg--clicked');
-        }, 50);
+        }, 25);
     });
 }
