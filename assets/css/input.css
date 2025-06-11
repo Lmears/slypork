@@ -106,7 +106,7 @@ nav ul li a {
 }
 
 .nav-link-text {
-    display: block;
+    /* display: block; */
     text-align: center;
     letter-spacing: 0.025em;
 }
@@ -236,17 +236,6 @@ nav ul li a:hover,
     height: 800px;
 }
 
-/* Media queries */
-@media (max-width: 641px) {
-    nav ul li:not(:first-child) {
-        display: none;
-    }
-
-    nav.nav-active ul li:not(:first-child) {
-        display: block;
-    }
-}
-
 @media (max-width: 767px) {
     #container {
         flex-direction: column;
@@ -263,21 +252,6 @@ nav ul li a:hover,
 }
 
 /* Easter Egg */
-/* .easter-egg {
-    position: fixed;
-    bottom: -21px;
-    right: 18px;
-    width: 45px;
-    height: 40px;
-    background-image: url('../images/home.webp');
-    background-size: 45px 40px;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 2000;
-    cursor: pointer;
-
-    position: relative;
-} */
 
 .easter-egg {
     position: fixed;

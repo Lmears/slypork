@@ -1,4 +1,5 @@
 // tailwind.config.js
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -27,7 +28,11 @@ export default {
         110: '1.1',
       },
       screens: {
-        'nav-hide': '642px', // Even though this is close to sm: there may be more nav items in the future
+        'sm': '642px', // Even though this is close to default sm: there may be more nav items in the future
+        'md': '768px',
+        'lg': '1024px',
+        'show-hamburger': { 'raw': '(max-width: 767.98px) and (min-height: 620px)' },
+        'show-nav': { 'raw': '(min-height: 620px)' },
       },
     }
   },
