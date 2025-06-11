@@ -732,10 +732,6 @@ video {
   margin-top: 10vh;
 }
 
-.mb-0 {
-  margin-bottom: 0px;
-}
-
 .block {
   display: block;
 }
@@ -2460,10 +2456,6 @@ input[type="checkbox"]:disabled {
 }
 
 @media (min-height: 620px) {
-  .show-nav\:block {
-    display: block;
-  }
-
   .group.nav-active .show-nav\:group-\[\.nav-active\]\:block {
     display: block;
   }
