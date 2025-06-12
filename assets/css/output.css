@@ -1106,10 +1106,6 @@ video {
   padding: 0.5rem;
 }
 
-.p-3 {
-  padding: 0.75rem;
-}
-
 .p-5 {
   padding: 1.25rem;
 }
@@ -2347,6 +2343,10 @@ input[type="checkbox"]:disabled {
   .md\:bg-section {
     --tw-bg-opacity: 1;
     background-color: rgb(231 235 237 / var(--tw-bg-opacity, 1));
+  }
+
+  .md\:p-0 {
+    padding: 0px;
   }
 
   .md\:p-3 {

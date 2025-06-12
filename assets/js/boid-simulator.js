@@ -124,10 +124,11 @@ let debugSelectedBoid = null;
 let boidsIgnoreMouse = false;
 let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
+let boidImageBitmap = null;
 
 
-const logoImg = new Image();
-logoImg.src = '../assets/images/boid-logo.webp';
+// const logoImg = new Image();
+// logoImg.src = '../assets/images/boid-logo.webp';
 
 
 
@@ -927,10 +928,11 @@ class Boid {
     }
 
     drawAt(position) {
+        if (!boidImageBitmap) return;
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(logoImg, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
+        ctx.drawImage(boidImageBitmap, -this.renderSize / 2, -this.renderSize / 2, this.renderSize, this.renderSize);
         ctx.restore();
     }
 
@@ -1177,8 +1179,36 @@ function stopAnimation() {
     }
 }
 
+async function loadAndPrepareImage() {
+    // 1. Fetch the image data as a blob
+    const response = await fetch('../assets/images/boid-logo.webp');
+    if (!response.ok) {
+        throw new Error('Failed to fetch boid image');
+    }
+    const imageBlob = await response.blob();
+
+    // 2. Decode the blob into an ImageBitmap
+    // You can even specify a resize here to match your needs!
+    // This offloads the expensive resizing to happen only ONCE.
+    boidImageBitmap = await createImageBitmap(imageBlob, {
+        resizeWidth: 64,  // Set this to a reasonable max size for your boids
+        resizeHeight: 64, // e.g., 64x64
+        resizeQuality: 'high'
+    });
+
+    console.log("Boid image is decoded and ready to render.");
+}
+
 // Function to be called from another file
-function initBoidSimulator() {
+async function initBoidSimulator() {
+    try {
+        await loadAndPrepareImage(); // Wait for the image to be ready
+    } catch (error) {
+        console.error("Could not prepare boid image:", error);
+        // Fallback or error handling
+        return;
+    }
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
