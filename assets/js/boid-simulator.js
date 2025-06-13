@@ -127,11 +127,6 @@ let touchEndTimeoutId = null;
 let boidImageBitmap = null;
 
 
-// const logoImg = new Image();
-// logoImg.src = '../assets/images/boid-logo.webp';
-
-
-
 // --- Vector Pool (NEW CODE) ---
 const PEAK_VECTORS_PER_BOID = 7;
 const VECTOR_POOL_INITIAL_SIZE = FLOCK_SIZE * PEAK_VECTORS_PER_BOID; // Initial pool size, e.g., 150 boids * 20 vectors/boid estimate
