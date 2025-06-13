@@ -55,19 +55,46 @@ export function setMenuVisibility(isVisible) {
     }
 }
 
-export function initializeMenu(initialParams, initialDebugFlags) {
+/**
+ * Fetches an SVG sprite sheet and injects its symbols into the document.
+ * This is the most performant method for using multiple icons from a
+ * single file, as it requires only ONE HTTP request.
+ * It runs only once.
+ * @param {string} url - The path to the SVG sprite sheet file.
+ */
+async function loadSvgIcons(url) {
+    const ICON_SPRITE_ID = 'boid-ui-icons';
+    if (document.getElementById(ICON_SPRITE_ID)) return;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const svgText = await response.text();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = svgText;
+        const svgElement = tempDiv.querySelector('svg');
+
+        if (svgElement) {
+            svgElement.setAttribute('id', ICON_SPRITE_ID);
+            svgElement.style.display = 'none';
+            svgElement.setAttribute('aria-hidden', 'true');
+            document.body.prepend(svgElement);
+        }
+    } catch (error) {
+        console.error(`Could not load SVG icons from ${url}:`, error);
+    }
+}
+
+export async function initializeMenu(initialParams, initialDebugFlags) {
     if (document.getElementById('experimentalMenu')) return;
 
+    await loadSvgIcons('assets/images/icons.svg');
+
+    // --- Refactored configuration to include Debug toggles ---
     const categorizedParamConfigs = {
-        General: { // New category
-            FLOCK_SIZE: {
-                label: 'Flock Size',
-                type: 'range',
-                min: 1,
-                max: MAX_FLOCK_SIZE_HARD_CAP,
-                step: 1,
-                precision: 0
-            }
+        General: {
+            FLOCK_SIZE: { label: 'Flock Size', type: 'range', min: 1, max: MAX_FLOCK_SIZE_HARD_CAP, step: 1, precision: 0 }
         },
         Force: {
             ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
@@ -84,6 +111,10 @@ export function initializeMenu(initialParams, initialDebugFlags) {
         Inertia: {
             VELOCITY_INERTIA: { label: 'Velocity', type: 'range', min: 0, max: 2, step: 0.01, precision: 2 },
             ROTATION_INERTIA: { label: 'Rotation', type: 'range', min: 0, max: 1.5, step: 0.01, precision: 2 },
+        },
+        Debug: {
+            grid: { label: 'Grid', type: 'checkbox', checked: initialDebugFlags.grid },
+            obstacles: { label: 'Obstacles', type: 'checkbox', checked: initialDebugFlags.obstacles }
         }
     };
 
@@ -95,36 +126,79 @@ export function initializeMenu(initialParams, initialDebugFlags) {
         max-h-[calc(100vh-32px)]
         transition ease-out duration-300
         opacity-0 translate-y-5 scale-95 pointer-events-none
-        hidden md:flex 
+        hidden md:flex
     `, {
         id: 'experimentalMenu',
         inert: 'true',
     });
 
-    const scrollableContent = document.createElement('div');
-    scrollableContent.classList.add(
-        'flex-grow', 'overflow-y-auto', 'scrollable-content', 'py-4', 'px-3', 'min-h-0'
-    );
+    const scrollableContent = createElement('div', 'flex-grow overflow-y-auto scrollable-content py-4 px-3 min-h-0', {});
     Object.assign(scrollableContent.style, { scrollbarGutter: 'stable both-edges' });
 
     const titleContainer = createElement('div', 'relative w-full pb-1 mb-2.5');
     const title = createElement('h2', 'm-0 text-center text-white text-lg font-medium', { textContent: 'God Mode' });
+
+    // --- Create and add the dice button for randomization ---
+    const randomizeButton = createElement('button', `
+        absolute left-[-4px] top-1/2 -translate-y-1/2
+        bg-transparent border-none text-white
+        cursor-pointer p-2 leading-none
+        hover:text-neutral-300 transition-colors
+    `, {
+        innerHTML: '<svg class="w-5 h-5"><use href="#dice-d20"></use></svg>'
+    });
+
+    randomizeButton.addEventListener('click', () => {
+        const newParams = {};
+        for (const categoryName in categorizedParamConfigs) {
+            const paramsInCategory = categorizedParamConfigs[categoryName];
+            for (const key in paramsInCategory) {
+                const config = paramsInCategory[key];
+                if (config.type === 'range') {
+                    const min = parseFloat(config.min);
+                    const max = parseFloat(config.max);
+                    const step = parseFloat(config.step) || 1;
+                    const precision = config.precision !== undefined ? config.precision : 2;
+
+                    // Calculate the number of possible steps
+                    const numSteps = Math.floor((max - min) / step);
+                    // Choose a random step index
+                    const randomStepIndex = Math.floor(Math.random() * (numSteps + 1));
+                    // Calculate the new value
+                    let newValue = min + randomStepIndex * step;
+                    // Clamp to max in case of floating point inaccuracies
+                    newValue = Math.min(max, newValue);
+                    // Format to the correct precision
+                    const finalValue = parseFloat(newValue.toFixed(precision));
+
+                    // Dispatch event to notify the main application
+                    dispatch('paramChanged', { key: key, value: finalValue });
+                    // Store for local update
+                    newParams[key] = finalValue;
+                }
+            }
+        }
+        // Update the menu UI to reflect the new random values
+        updateMenuValues(newParams);
+    });
+
     const closeButton = createElement('button', `
-        absolute right-[-8px] top-1/2 -translate-y-1/2
+        absolute right-[-4px] top-1/2 -translate-y-1/2
         bg-transparent border-none text-2xl text-white
         cursor-pointer p-2 leading-none
         hover:text-neutral-300 transition-colors
     `, { innerHTML: '×' });
-    titleContainer.append(title, closeButton);
+    titleContainer.append(randomizeButton, title, closeButton);
 
-    // --- Stylesheet for menu controls ---
+    // --- Stylesheet for menu controls and collapsible categories ---
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
+            /* Basic Controls */
             #experimentalMenu .control-row {
-                display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+                padding: 0 4px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
             }
             #experimentalMenu .control-row label {
-                color: #f3f4f1; min-width: 65px; flex-shrink: 0;
+                color: #f3f4f1; min-width: 65px; flex-shrink: 0; font-size: 12px;
             }
             #experimentalMenu .control-row input[type="range"] {
                 flex-grow: 1; max-width: 100px;
@@ -135,10 +209,52 @@ export function initializeMenu(initialParams, initialDebugFlags) {
                 border-radius: 32px; font-size: 11px;
                 font-family: Arial, sans-serif;
             }
+            #experimentalMenu .value-input:hover {
+                border-color: rgba(255, 255, 255, 0.5);
+            }
             #experimentalMenu .value-input:focus {
                 outline: none; border-color: #2196F3;
             }
 
+            /* Collapsible Category Styles */
+            #experimentalMenu .category-header {
+                display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+                padding: 8px 0; user-select: none; transition: background-color 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            #experimentalMenu .category-header:hover { background-color: rgba(255,255,255,0.1); }
+            #experimentalMenu .category-header h4 {
+                margin-left: 4px; font-size: 14px; color: #f3f4f1;
+            }
+            #experimentalMenu .category-arrow {
+                width: 8px; 
+                height: 8px; 
+                border-left: 2px solid #f3f4f1; 
+                border-bottom: 2px solid #f3f4f1;
+                transform: translateY(-2px) rotate(-45deg); 
+                transition: transform 0.3s ease-out; 
+                margin-right: 6px;
+                transform-origin: center;
+                position: relative;
+            }
+            #experimentalMenu .category-header.is-open .category-arrow {
+                transform: translateY(2px) rotate(135deg);
+            }
+            #experimentalMenu .category-content-wrapper {
+                display: grid; 
+                grid-template-rows: 0fr; /* Collapsed by default */
+                padding-top: 0; /* Initial state - no padding */
+                transition: grid-template-rows 0.35s ease-in-out, padding-top 0.35s ease-in-out;
+            }
+
+            #experimentalMenu .category-content-wrapper.is-open {
+                grid-template-rows: 1fr; 
+                padding-top: 8px; /* Expanded state */
+            }
+            #experimentalMenu .category-content {
+                overflow: hidden; 
+            }
+
+            /* Scrollbar */
             #experimentalMenu .scrollable-content {
                 scrollbar-color: #f3f4f1 rgba(255, 255, 255, 0.2);
                 scrollbar-width: thin;
@@ -150,144 +266,109 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     closeButton.addEventListener('click', () => dispatch('godModeToggled', { enabled: false }));
     scrollableContent.appendChild(titleContainer);
 
-
     document.head.appendChild(styleSheet);
 
-    // --- Create and append all parameter controls ---
+    // --- Create and append all parameter controls in collapsible categories ---
     for (const categoryName in categorizedParamConfigs) {
-        const categoryTitle = document.createElement('h4');
-        categoryTitle.textContent = categoryName;
-        Object.assign(categoryTitle.style, { marginTop: '15px', marginBottom: '10px', color: '#f3f4f1', borderBottom: '1px solid rgba(255, 255, 255, 0.2)', paddingBottom: '5px' });
-        scrollableContent.appendChild(categoryTitle);
+        const isOpen = true;
+        const categoryContainer = createElement('div', 'category-container');
+        const categoryHeader = createElement('div', `category-header ${isOpen ? 'is-open' : ''}`);
+        const categoryTitle = createElement('h4', '', { textContent: categoryName });
+        const categoryArrow = createElement('div', 'category-arrow');
+        categoryHeader.append(categoryTitle, categoryArrow);
+
+        const contentWrapper = createElement('div', `category-content-wrapper ${isOpen ? 'is-open' : ''}`);
+        const contentDiv = createElement('div', 'category-content');
 
         const paramsInCategory = categorizedParamConfigs[categoryName];
         for (const key in paramsInCategory) {
-            // This is the full loop you provided, now placed correctly inside the function.
             const config = paramsInCategory[key];
-            const controlDiv = document.createElement('div');
-            controlDiv.className = 'control-row';
-            const labelEl = document.createElement('label');
-            labelEl.htmlFor = `param-${key}-input`;
-            labelEl.textContent = `${config.label} `;
-            const inputEl = document.createElement('input');
-            inputEl.type = config.type;
-            inputEl.id = `param-${key}-input`;
-            inputEl.min = config.min;
-            inputEl.max = config.max;
-            inputEl.step = config.step;
-            inputEl.value = initialParams[key];
-            const valueInput = document.createElement('input');
-            valueInput.type = 'text';
-            valueInput.id = `param-${key}-value`;
-            valueInput.className = 'value-input';
-            valueInput.value = config.precision ? initialParams[key].toFixed(config.precision) : initialParams[key].toString();
+            const controlRow = createElement('div', 'control-row');
 
-            inputEl.addEventListener('input', () => {
-                const newVal = parseFloat(inputEl.value);
-                valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
-                if (config.type === 'range') updateSliderFill(inputEl);
-                dispatch('paramChanged', { key: key, value: newVal });
-            });
-            valueInput.addEventListener('input', () => {
-                let newVal = parseFloat(valueInput.value);
-                if (!isNaN(newVal)) {
-                    newVal = Math.max(config.min, Math.min(config.max, newVal));
-                    inputEl.value = newVal;
+            if (config.type === 'range') {
+                const labelEl = createElement('label', '', { htmlFor: `param-${key}-input`, textContent: config.label });
+                const inputEl = createElement('input', '', { type: 'range', id: `param-${key}-input`, min: config.min, max: config.max, step: config.step, value: initialParams[key] });
+                const valueInput = createElement('input', 'value-input', { type: 'text', id: `param-${key}-value`, value: config.precision ? initialParams[key].toFixed(config.precision) : initialParams[key].toString() });
+
+                inputEl.addEventListener('input', () => {
+                    const newVal = parseFloat(inputEl.value);
+                    valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
                     if (config.type === 'range') updateSliderFill(inputEl);
                     dispatch('paramChanged', { key: key, value: newVal });
-                }
-            });
-            const finalizeInputValue = () => {
-                let currentVal = parseFloat(valueInput.value);
-                if (isNaN(currentVal)) {
-                    currentVal = parseFloat(inputEl.value);
-                }
-                const min = parseFloat(config.min);
-                const max = parseFloat(config.max);
-                currentVal = Math.max(min, Math.min(max, currentVal));
-                valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
-                inputEl.value = currentVal;
+                });
+                valueInput.addEventListener('input', () => {
+                    let newVal = parseFloat(valueInput.value);
+                    if (!isNaN(newVal)) {
+                        newVal = Math.max(config.min, Math.min(config.max, newVal));
+                        inputEl.value = newVal;
+                        if (config.type === 'range') updateSliderFill(inputEl);
+                        dispatch('paramChanged', { key: key, value: newVal });
+                    }
+                });
+                const finalizeInputValue = () => {
+                    let currentVal = parseFloat(valueInput.value);
+                    if (isNaN(currentVal)) {
+                        currentVal = parseFloat(inputEl.value);
+                    }
+                    const min = parseFloat(config.min);
+                    const max = parseFloat(config.max);
+                    currentVal = Math.max(min, Math.min(max, currentVal));
+                    valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
+                    inputEl.value = currentVal;
+                    updateSliderFill(inputEl);
+                    dispatch('paramChanged', { key: key, value: currentVal });
+                };
+
+                valueInput.addEventListener('blur', finalizeInputValue);
+                valueInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        finalizeInputValue();
+                        valueInput.blur();
+                    }
+                });
+
                 updateSliderFill(inputEl);
-                dispatch('paramChanged', { key: key, value: currentVal });
-            };
+                enableSliderWheelControl(inputEl);
+                inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
+                controlRow.append(labelEl, inputEl, valueInput);
 
-            valueInput.addEventListener('blur', finalizeInputValue);
-
-            valueInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    finalizeInputValue();
-                    valueInput.blur();
-                }
-            })
-
-            if (config.type === 'range') { updateSliderFill(inputEl); enableSliderWheelControl(inputEl); }
-            inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
-            controlDiv.appendChild(labelEl);
-            controlDiv.appendChild(inputEl);
-            controlDiv.appendChild(valueInput);
-            scrollableContent.appendChild(controlDiv);
+            } else if (config.type === 'checkbox') {
+                const label = createElement('label', '', { htmlFor: `debug-${key}-toggle`, textContent: config.label });
+                const checkbox = createElement('input', '', { type: 'checkbox', id: `debug-${key}-toggle`, checked: config.checked });
+                checkbox.addEventListener('change', () => dispatch('debugFlagChanged', { flag: key, enabled: checkbox.checked }));
+                controlRow.append(label, checkbox);
+            }
+            contentDiv.appendChild(controlRow);
         }
+
+        contentWrapper.appendChild(contentDiv);
+        categoryContainer.append(categoryHeader, contentWrapper);
+        scrollableContent.appendChild(categoryContainer);
+
+        categoryHeader.addEventListener('click', () => {
+            categoryHeader.classList.toggle('is-open');
+            contentWrapper.classList.toggle('is-open');
+        });
     }
 
-    // --- Create and append Debug Section ---
-    const debugTitle = document.createElement('h4');
-    debugTitle.textContent = 'Debug';
-    Object.assign(debugTitle.style, { marginTop: '15px', marginBottom: '10px', color: '#f3f4f1', borderBottom: '1px solid rgba(255, 255, 255, 0.2)', paddingBottom: '5px' });
-    scrollableContent.appendChild(debugTitle);
-    const debugSectionDiv = document.createElement('div');
-    const debugGridToggleControlRow = document.createElement('div');
-    debugGridToggleControlRow.className = 'control-row';
-    const debugGridLabel = document.createElement('label');
-    debugGridLabel.htmlFor = 'debug-grid-toggle';
-    debugGridLabel.textContent = 'Grid';
-    debugGridLabel.style.color = '#f3f4f1';
-    const debugGridCheckbox = document.createElement('input');
-    debugGridCheckbox.type = 'checkbox';
-    debugGridCheckbox.id = 'debug-grid-toggle';
-    debugGridCheckbox.checked = initialDebugFlags.grid;
-    debugGridCheckbox.addEventListener('change', () => dispatch('debugFlagChanged', { flag: 'grid', enabled: debugGridCheckbox.checked }));
-    debugGridToggleControlRow.appendChild(debugGridLabel);
-    debugGridToggleControlRow.appendChild(debugGridCheckbox);
-    debugSectionDiv.appendChild(debugGridToggleControlRow);
-
-    const debugObstaclesToggleControlRow = document.createElement('div');
-    debugObstaclesToggleControlRow.className = 'control-row';
-    const debugObstaclesLabel = document.createElement('label');
-    debugObstaclesLabel.htmlFor = 'debug-obstacles-toggle';
-    debugObstaclesLabel.textContent = 'Obstacles';
-    debugObstaclesLabel.style.color = '#f3f4f1';
-    const debugObstaclesCheckbox = document.createElement('input');
-    debugObstaclesCheckbox.type = 'checkbox';
-    debugObstaclesCheckbox.id = 'debug-obstacles-toggle';
-    debugObstaclesCheckbox.checked = initialDebugFlags.obstacles;
-    debugObstaclesCheckbox.addEventListener('change', () => dispatch('debugFlagChanged', { flag: 'obstacles', enabled: debugObstaclesCheckbox.checked }));
-    debugObstaclesToggleControlRow.appendChild(debugObstaclesLabel);
-    debugObstaclesToggleControlRow.appendChild(debugObstaclesCheckbox);
-    debugSectionDiv.appendChild(debugObstaclesToggleControlRow);
-    scrollableContent.appendChild(debugSectionDiv);
 
     // --- Create and append Reset button ---
-    const resetButton = document.createElement('button');
-    resetButton.textContent = 'Reset';
-    resetButton.className = 'px-3 py-2 mt-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
-    // Replace the existing reset button event listener with this updated version:
-
+    const resetButton = createElement('button', 'px-3 py-2 mt-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered', { textContent: 'Reset' });
     resetButton.addEventListener('click', () => {
-        // Reset parameters
         dispatch('paramsReset');
-
-        // Reset debug checkboxes to unchecked
-        const debugGridCheckbox = document.getElementById('debug-grid-toggle');
-        const debugObstaclesCheckbox = document.getElementById('debug-obstacles-toggle');
-
-        if (debugGridCheckbox && debugGridCheckbox.checked) {
-            debugGridCheckbox.checked = false;
-            dispatch('debugFlagChanged', { flag: 'grid', enabled: false });
-        }
-
-        if (debugObstaclesCheckbox && debugObstaclesCheckbox.checked) {
-            debugObstaclesCheckbox.checked = false;
-            dispatch('debugFlagChanged', { flag: 'obstacles', enabled: false });
+        for (const categoryName in categorizedParamConfigs) {
+            const controls = categorizedParamConfigs[categoryName];
+            for (const key in controls) {
+                const config = controls[key];
+                if (config.type === 'checkbox') {
+                    const checkbox = document.getElementById(`debug-${key}-toggle`);
+                    if (checkbox && checkbox.checked) {
+                        checkbox.checked = false;
+                        dispatch('debugFlagChanged', { flag: key, enabled: false });
+                    }
+                }
+                // Add else-if for other future control types if needed
+            }
         }
     });
     scrollableContent.appendChild(resetButton);
