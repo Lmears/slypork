@@ -135,7 +135,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
     const scrollableContent = createElement('div', 'flex-grow overflow-y-auto scrollable-content py-4 px-3 min-h-0', {});
     Object.assign(scrollableContent.style, { scrollbarGutter: 'stable both-edges' });
 
-    const titleContainer = createElement('div', 'relative w-full pb-1 mb-2.5');
+    const titleContainer = createElement('div', 'relative w-full mb-3');
     const title = createElement('h2', 'm-0 text-center text-white text-lg font-medium', { textContent: 'God Mode' });
 
     // --- Create and add the dice button for randomization ---
@@ -266,6 +266,10 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
             #experimentalMenu .category-content {
                 overflow: hidden; 
             }
+            /* Only remove bottom margin from the last control in the Debug category */
+            #experimentalMenu .category-debug .control-row:last-child {
+                margin-bottom: 0;
+            }
 
             /* Scrollbar */
             #experimentalMenu .scrollable-content {
@@ -292,6 +296,11 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
 
         const contentWrapper = createElement('div', `category-content-wrapper ${isOpen ? 'is-open' : ''}`);
         const contentDiv = createElement('div', 'category-content');
+
+        // Add a specific class to the Debug category's content for styling
+        if (categoryName === 'Debug') {
+            contentDiv.classList.add('category-debug');
+        }
 
         const paramsInCategory = categorizedParamConfigs[categoryName];
         for (const key in paramsInCategory) {
@@ -366,7 +375,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
 
 
     // --- Create and append Reset button ---
-    const resetButton = createElement('button', 'px-3 py-2 mt-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered', { textContent: 'Reset' });
+    const resetButton = createElement('button', 'px-3 py-2 mt-4 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered', { textContent: 'Reset' });
     resetButton.addEventListener('click', () => {
         dispatch('paramsReset');
         for (const categoryName in categorizedParamConfigs) {
