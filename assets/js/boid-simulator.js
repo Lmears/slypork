@@ -219,11 +219,10 @@ class Vector {
     limit(max) { const mSq = this.magSq(); if (mSq > max * max && mSq > 0) { this.div(Math.sqrt(mSq)); this.mult(max); } return this; }
 
     copy() {
-        // return new Vector(this.x, this.y); // OLD
-        return vectorPool.get(this.x, this.y); // NEW
+        return vectorPool.get(this.x, this.y);
     }
 
-    set(x, y) { // Helper to set values
+    set(x, y) {
         this.x = x;
         this.y = y;
         return this;
@@ -232,8 +231,6 @@ class Vector {
     static dist(v1, v2) { return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2); }
 
     static sub(v1, v2, out_vector) {
-        // if (!out_vector) return new Vector(v1.x - v2.x, v1.y - v2.y); // OLD if out_vector was optional
-        // NEW: always use out_vector or get from pool
         const target = out_vector || vectorPool.get();
         target.x = v1.x - v2.x;
         target.y = v1.y - v2.y;
@@ -241,12 +238,9 @@ class Vector {
     }
 
     static random2D(out_vector) {
-        // NEW: always use out_vector or get from pool
         const target = out_vector || vectorPool.get();
         target.x = Math.random() * 2 - 1;
         target.y = Math.random() * 2 - 1;
-        // It's common for random2D to return a unit vector or allow chaining setMag
-        // For now, just random components. If normalization is implied, add target.normalize();
         return target;
     }
 }
@@ -467,163 +461,115 @@ class Boid {
         else if (this.position.y < 0) this.position.y = canvas.height;
     }
 
-    // Toroidal based methods
-    alignment(localNeighbors) {
-        const steeringForce = vectorPool.get(); // Final returned force, released by flock()
-        const avgVelocity = vectorPool.get();   // Temporary accumulator
-        let total = 0;
+    calculateFlockingForces(localNeighbors) {
+        // --- Accumulators for all behaviors ---
+        const alignmentForce = vectorPool.get(0, 0);
+        const cohesionForce = vectorPool.get(0, 0);
+        const separationForce = vectorPool.get(0, 0);
+
+        const avgVelocity = vectorPool.get(0, 0);
+        const avgPosition = vectorPool.get(0, 0);
+        const avgRepulsion = vectorPool.get(0, 0); // For separation
+        let avgDepth = 0;
+
+        let alignmentTotal = 0;
+        let cohesionTotal = 0;
+        let separationTotal = 0;
+        let depthTotal = 0;
+
+        // --- Pre-calculate constants for this boid ---
         const halfWidth = canvas.width / 2;
         const halfHeight = canvas.height / 2;
-        const alignmentRadiusSq = simParams.ALIGNMENT_RADIUS * simParams.ALIGNMENT_RADIUS;
+        const alignRadiusSq = simParams.ALIGNMENT_RADIUS * simParams.ALIGNMENT_RADIUS;
+        const cohRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
+        const sepRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
+        const depthRadiusSq = DEPTH_INFLUENCE_RADIUS * DEPTH_INFLUENCE_RADIUS;
 
-        for (let other of localNeighbors) {
+        const tempDiff = vectorPool.get(); // Reusable vector for calculations
+
+        // --- SINGLE LOOP ---
+        for (const other of localNeighbors) {
             if (other === this) continue;
+
+            // --- 1. Calculate Toroidal Distance (ONCE!) ---
             let tdx = this.position.x - other.position.x;
             let tdy = this.position.y - other.position.y;
             if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
             if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
             const dSq = tdx * tdx + tdy * tdy;
 
-            if (dSq > 0 && dSq < alignmentRadiusSq) {
+            // --- 2. Apply Behaviors based on distance ---
+            // Alignment
+            if (dSq < alignRadiusSq) {
                 avgVelocity.add(other.velocity);
-                total++;
+                alignmentTotal++;
             }
-        }
-
-        if (total > 0) {
-            avgVelocity.div(total);
-            avgVelocity.setMag(this.maxSpeed); // This is the desired velocity
-            Vector.sub(avgVelocity, this.velocity, steeringForce); // steeringForce = desired - current
-            steeringForce.limit(this.maxForce);
-        } else {
-            steeringForce.set(0, 0); // Ensure it's zero if no neighbors
-        }
-        vectorPool.release(avgVelocity); // Release temporary accumulator
-        return steeringForce;
-    }
-
-    separation(localNeighbors) {
-        const steeringForce = vectorPool.get();
-        const desiredVelocity = vectorPool.get(); // This will be our "desired" velocity
-        let total = 0;
-        const halfWidth = canvas.width / 2;
-        const halfHeight = canvas.height / 2;
-        const separationRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
-        const tempDiff = vectorPool.get();
-
-        for (let other of localNeighbors) {
-            if (other === this) continue;
-
-            let tdx = this.position.x - other.position.x;
-            let tdy = this.position.y - other.position.y;
-
-            // Toroidal wrapping
-            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
-            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
-
-            let dSq = tdx * tdx + tdy * tdy;
-
-            if (dSq > 0 && dSq < separationRadiusSq) {
-                // Create a vector pointing away from the neighbor
-                tempDiff.set(tdx, tdy);
-
-                // --- THE SMOOTHING FACTOR ---
-                // The strength of the repulsion is stronger when the boid is closer.
-                // Map distance to a 0-1 range.
+            // Cohesion
+            if (dSq < cohRadiusSq) {
+                // Adjust neighbor position for wrapping to get correct average
+                const neighborX = this.position.x - tdx;
+                const neighborY = this.position.y - tdy;
+                avgPosition.x += neighborX;
+                avgPosition.y += neighborY;
+                cohesionTotal++;
+            }
+            // Separation
+            if (dSq < sepRadiusSq && dSq > 0) {
                 const distance = Math.sqrt(dSq);
                 const strength = 1.0 - (distance / simParams.SEPARATION_RADIUS);
-
-                // Weight the repulsion vector by this strength.
-                tempDiff.normalize();
-                tempDiff.mult(strength);
-
-                desiredVelocity.add(tempDiff);
-                total++;
+                tempDiff.set(tdx, tdy); // Vector pointing away from neighbor
+                tempDiff.normalize().mult(strength);
+                avgRepulsion.add(tempDiff);
+                separationTotal++;
             }
-        }
-        vectorPool.release(tempDiff);
-
-        if (total > 0) {
-            // Average the desired velocity change
-            desiredVelocity.div(total);
-
-            // --- THE UNIFIED THREE-STEP PATTERN ---
-            if (desiredVelocity.magSq() > 0) {
-                // 1. Calculate Desired Velocity:
-                // The magnitude of our desired velocity is now proportional to the "threat level".
-                // It smoothly scales up to maxSpeed as the average repulsion gets stronger.
-                desiredVelocity.setMag(this.maxSpeed);
-
-                // 2. Subtract Current Velocity
-                Vector.sub(desiredVelocity, this.velocity, steeringForce);
-
-                // 3. Limit the result
-                steeringForce.limit(this.maxForce);
+            // Depth
+            if (dSq < depthRadiusSq) {
+                avgDepth += other.depth;
+                depthTotal++;
             }
         }
 
-        vectorPool.release(desiredVelocity);
-        return steeringForce;
-    }
+        vectorPool.release(tempDiff); // Done with this temporary vector
 
-    cohesion(localNeighbors) {
-        const steeringForce = vectorPool.get();     // Final, released by flock()
-        const averagePosition = vectorPool.get();   // Sum of neighbor positions
-        let total = 0;
-        const halfWidth = canvas.width / 2;
-        const halfHeight = canvas.height / 2;
-        const cohesionRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
+        // --- Finalize ALIGNMENT force ---
+        if (alignmentTotal > 0) {
+            avgVelocity.div(alignmentTotal);
+            avgVelocity.setMag(this.maxSpeed);
+            Vector.sub(avgVelocity, this.velocity, alignmentForce);
+            alignmentForce.limit(this.maxForce);
+        }
+        vectorPool.release(avgVelocity);
 
-        // Step 1: Calculate average position of neighbors
-        for (let other of localNeighbors) {
-            if (other === this) continue;
-            let tdx = other.position.x - this.position.x;
-            let tdy = other.position.y - this.position.y;
+        // --- Finalize COHESION force ---
+        if (cohesionTotal > 0) {
+            avgPosition.div(cohesionTotal);
+            Vector.sub(avgPosition, this.position, cohesionForce);
+            cohesionForce.setMag(this.maxSpeed);
+            cohesionForce.sub(this.velocity);
+            cohesionForce.limit(this.maxForce);
+        }
+        vectorPool.release(avgPosition);
 
-            // Handle toroidal wrapping
-            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
-            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
-            const dSq = tdx * tdx + tdy * tdy;
-
-            if (dSq > 0 && dSq < cohesionRadiusSq) {
-                // Add the neighbor's actual position (accounting for wrapping)
-                let neighborX = other.position.x;
-                let neighborY = other.position.y;
-
-                // Adjust neighbor position for wrapping to get correct average
-                if (Math.abs(other.position.x - this.position.x) > halfWidth) {
-                    neighborX = this.position.x + tdx;
-                }
-                if (Math.abs(other.position.y - this.position.y) > halfHeight) {
-                    neighborY = this.position.y + tdy;
-                }
-
-                averagePosition.x += neighborX;
-                averagePosition.y += neighborY;
-                total++;
+        // --- Finalize SEPARATION force ---
+        if (separationTotal > 0) {
+            avgRepulsion.div(separationTotal);
+            if (avgRepulsion.magSq() > 0) {
+                avgRepulsion.setMag(this.maxSpeed);
+                Vector.sub(avgRepulsion, this.velocity, separationForce);
+                separationForce.limit(this.maxForce);
             }
         }
+        vectorPool.release(avgRepulsion);
 
-        if (total > 0) {
-            // Step 2: Get the average position
-            averagePosition.div(total);
-
-            // Step 3: Calculate desired velocity (towards average position)
-            const desiredVelocity = vectorPool.get();
-            Vector.sub(averagePosition, this.position, desiredVelocity);
-            desiredVelocity.setMag(this.maxSpeed);
-
-            // Step 4: Calculate steering force
-            Vector.sub(desiredVelocity, this.velocity, steeringForce);
-            steeringForce.limit(this.maxForce);
-
-            vectorPool.release(desiredVelocity);
-        } else {
-            steeringForce.set(0, 0);
+        // --- Finalize and apply DEPTH update ---
+        if (depthTotal > 0) {
+            const targetDepth = avgDepth / depthTotal;
+            this.depth = this.depth * 0.99 + targetDepth * 0.01;
+            this.depth = Math.max(0, Math.min(1, this.depth));
         }
 
-        vectorPool.release(averagePosition);
-        return steeringForce;
+        // --- Return the combined forces ---
+        return { alignmentForce, cohesionForce, separationForce };
     }
 
     mouseAttraction() {
@@ -802,48 +748,51 @@ class Boid {
         return totalAvoidanceForce;
     }
 
-    flock(localNeighbors) {
-        const alignment = this.alignment(localNeighbors);
-        const cohesion = this.cohesion(localNeighbors);
-        const separation = this.separation(localNeighbors);
+    update(localNeighbors, currentTime) {
+        // --- 1. Calculate all forces ---
+        const { alignmentForce, cohesionForce, separationForce } = this.calculateFlockingForces(localNeighbors);
         const mouseForce = this.mouseAttraction();
         const obstacleAvoidanceForce = this.avoidObstacles();
 
-        alignment.mult(simParams.ALIGNMENT_FORCE);
-        cohesion.mult(simParams.COHESION_FORCE);
-        separation.mult(simParams.SEPARATION_FORCE);
+        // --- 2. Apply weights and combine forces ---
+        alignmentForce.mult(simParams.ALIGNMENT_FORCE);
+        cohesionForce.mult(simParams.COHESION_FORCE);
+        separationForce.mult(simParams.SEPARATION_FORCE);
         mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
 
+        // Accumulate forces into desiredVelocity
         this.desiredVelocity.set(this.velocity.x, this.velocity.y);
-        this.desiredVelocity.add(alignment);
-        this.desiredVelocity.add(cohesion);
-        this.desiredVelocity.add(separation);
+        this.desiredVelocity.add(alignmentForce);
+        this.desiredVelocity.add(cohesionForce);
+        this.desiredVelocity.add(separationForce);
         this.desiredVelocity.add(mouseForce);
         this.desiredVelocity.add(obstacleAvoidanceForce);
-        this.desiredVelocity.limit(this.maxSpeed);
 
-        vectorPool.release(alignment);
-        vectorPool.release(cohesion);
-        vectorPool.release(separation);
+        // Release the force vectors now that they've been used
+        vectorPool.release(alignmentForce);
+        vectorPool.release(cohesionForce);
+        vectorPool.release(separationForce);
         vectorPool.release(mouseForce);
         vectorPool.release(obstacleAvoidanceForce);
-    }
 
-    update(localNeighbors, currentTime) {
+        // --- 3. Update velocity and position ---
         this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
         this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
         this.velocity.add(this.boost);
         this.boost.mult(BOOST_DECAY);
-        this.position.add(this.velocity);
 
+        // Update state *before* limiting speed and updating position
         this.updateScatterState();
-        this.updateMaxSpeed();
-        this.updateDepth(localNeighbors);
-        this.updateRotation();
+        this.updateMaxSpeed(); // This now depends on the new depth value from calculateFlockingForces
 
         this.velocity.limit(this.maxSpeed);
+        this.position.add(this.velocity);
+
+        // --- 4. Update visuals and wrap edges ---
+        this.updateRotation();
         this.renderSize = this.calculateRenderSize(currentTime);
+        this.edges(); // Wrap around canvas
     }
 
     updateScatterState() {
@@ -867,38 +816,7 @@ class Boid {
         this.maxSpeed *= (0.5 + this.depth * 0.5);
     }
 
-    updateDepth(localNeighbors) {
-        const nearbyBoidsForDepth = [];
-        const halfWidth = canvas.width / 2;
-        const halfHeight = canvas.height / 2;
-        const depthInfluenceRadiusSq = DEPTH_INFLUENCE_RADIUS * DEPTH_INFLUENCE_RADIUS;
 
-
-        for (const b of localNeighbors) {
-            if (b === this) continue;
-
-            let tdx = this.position.x - b.position.x;
-            let tdy = this.position.y - b.position.y;
-
-            if (Math.abs(tdx) > halfWidth) {
-                tdx = tdx - Math.sign(tdx) * canvas.width;
-            }
-            if (Math.abs(tdy) > halfHeight) {
-                tdy = tdy - Math.sign(tdy) * canvas.height;
-            }
-            const dSq = tdx * tdx + tdy * tdy;
-
-            if (dSq < depthInfluenceRadiusSq) { // Note: No dSq > 0 check needed if radius > 0
-                nearbyBoidsForDepth.push(b);
-            }
-        }
-
-        if (nearbyBoidsForDepth.length > 0) {
-            const avgDepth = nearbyBoidsForDepth.reduce((sum, b) => sum + b.depth, 0) / nearbyBoidsForDepth.length;
-            this.depth = this.depth * 0.99 + avgDepth * 0.01;
-            this.depth = Math.max(0, Math.min(1, this.depth));
-        }
-    }
 
     updateRotation() {
         const targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
@@ -1087,55 +1005,58 @@ function animate() {
     if (isScattering) {
         scatter(HOLD_SCATTER_DURATION);
     }
+    const currentTime = performance.now();
 
-    if (spatialGrid) {
-        spatialGrid.clear();
-        for (let boid of flock) {
-            spatialGrid.addItemAtPoint(boid);
-        }
+    spatialGrid.clear();
+    for (let boid of flock) {
+        spatialGrid.addItemAtPoint(boid);
     }
 
     // flock.sort((a, b) => a.depth - b.depth);
 
-    const currentTime = performance.now();
     const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
-
-    let targetPosForEnding = null;
     if (isEnding) {
         const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-        targetPosForEnding = vectorPool.get(targetX, targetY);
-    }
+        const targetPosForEnding = vectorPool.get(targetX, targetY);
 
-    for (let boid of flock) {
-        if (isEnding && targetPosForEnding) {
-            boid.position.x = boid.position.x + (targetPosForEnding.x - boid.position.x) * 0.1;
-            boid.position.y = boid.position.y + (targetPosForEnding.y - boid.position.y) * 0.1;
+        for (let boid of flock) {
+            // Lerp position towards the target
+            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
+            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
+
+            // Shrink boids as they approach the end
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
             boid.renderSize = boid.calculateRenderSize(currentTime);
+
+            // Snap to position when very close and animation is nearly done
             if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
                 boid.position.x = targetPosForEnding.x;
                 boid.position.y = targetPosForEnding.y;
             }
-        } else if (!isEnding) {
-            boid.edges();
-            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
-            boid.flock(localNeighbors);
-            boid.update(localNeighbors, currentTime);
+            boid.drawWithEdgeBuffering();
         }
-        boid.drawWithEdgeBuffering();
-    }
-
-    if (targetPosForEnding) {
         vectorPool.release(targetPosForEnding);
+    } else {
+        // --- 6. Main Simulation Loop (if not ending) ---
+        // This loop updates and draws each boid.
+        for (let boid of flock) {
+            // Get neighbors from the now-fully-populated grid
+            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
+
+            // THE ONLY CALL NEEDED: This runs the entire simulation logic for the boid
+            boid.update(localNeighbors, currentTime);
+
+            // Draw the boid at its updated position
+            boid.drawWithEdgeBuffering();
+        }
     }
 
+    // --- 7. Continue or Stop the Animation Loop ---
     if (isEnding && endProgress >= 1) {
         console.log("End animation complete.");
-        // console.log("Final VectorPool Stats:", vectorPool.getStats());
-        return;
+        return; // Stop the loop
     }
-
     animationFrameId = requestAnimationFrame(animate);
 }
 
