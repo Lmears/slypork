@@ -125,11 +125,7 @@ let boidsIgnoreMouse = false;
 let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
 let boidImageBitmap = null;
-
-
-// const logoImg = new Image();
-// logoImg.src = '../assets/images/boid-logo.webp';
-
+let isSystemInitialized = false;
 
 
 // --- Vector Pool (NEW CODE) ---
@@ -655,20 +651,22 @@ class Boid {
      * the boid's physics, position, and visual properties.
      */
     applyForcesAndMove(currentTime) {
-        // --- 1. Update velocity and position from desiredVelocity ---
+        // --- 1. Update velocity from desiredVelocity based on inertia ---
         this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
         this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
+        // --- 2. Update state, determine max speed, and limit the base velocity ---
+        this.updateScatterState();
+        this.updateMaxSpeed();
+        this.velocity.limit(this.maxSpeed); // Limit the boid's normal, sustainable speed
+
+        // --- 3. Apply the decaying boost AFTER limiting and then update position ---
+        // This allows the boost to temporarily exceed the max speed.
         this.velocity.add(this.boost);
         this.boost.mult(BOOST_DECAY);
-
-        // --- 2. Update state and apply speed limits ---
-        this.updateScatterState();
-        this.updateMaxSpeed(); // Depends on depth, which was updated in calculateFlockingForces
-        this.velocity.limit(this.maxSpeed);
         this.position.add(this.velocity);
 
-        // --- 3. Update visuals and wrap edges ---
+        // --- 4. Update visuals and wrap edges ---
         this.updateRotation();
         this.renderSize = this.calculateRenderSize(currentTime);
         this.edges(); // Wrap around canvas
@@ -766,6 +764,176 @@ class Boid {
 
 const flock = [];
 
+// Public API / Entry Points
+/**
+ * Starts the boid simulation.
+ * It will LAZILY INITIALIZE the system on its first run.
+ * On subsequent runs, it just creates a new flock and starts the animation.
+ */
+async function startSimulation() {
+    // --- LAZY INITIALIZATION ---
+    // If the system hasn't been set up yet, do it now and wait for it to finish.
+    if (!isSystemInitialized) {
+        await _prepareEnvironment();
+    }
+    // If initialization failed for some reason, stop here.
+    if (!isSystemInitialized) {
+        console.error("Cannot run simulation; system initialization failed.");
+        return;
+    }
+
+    // --- REGULAR RUN LOGIC ---
+    // Prevent starting if it's already running.
+    if (animationFrameId) {
+        console.warn("Simulation is already running. Call stopSimulation() first.");
+        return;
+    }
+
+    // (The rest of the function is the same as before)
+    CELL_SIZE = calculateCurrentCellSize();
+    if (spatialGrid) spatialGrid.resize(canvas.width, canvas.height);
+    if (obstacleGrid) {
+        obstacleGrid.resize(canvas.width, canvas.height);
+        updateAllObstacles();
+    }
+    for (let i = 0; i < FLOCK_SIZE; i++) {
+        flock.push(new Boid());
+    }
+    speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
+    speedValue.textContent = `${speedSlider.value}%`;
+    isEnding = false;
+    animate();
+}
+
+/**
+ * Completely stops the simulation, cleans up all boids and state variables.
+ */
+function stopSimulation() {
+    // 1. Stop the animation loop immediately.
+    stopAnimation();
+
+    // 2. Clean up all existing boid objects to prevent memory leaks.
+    for (const boid of flock) {
+        boid.destroy();
+    }
+    flock.length = 0;
+    debugSelectedBoid = null;
+
+    // 3. Clear the canvas.
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 4. Reset all simulation state variables to their defaults.
+    isScattering = false;
+    mouseInfluence = false;
+    isEnding = false; // Ensure we aren't stuck in the shutdown animation state.
+    godMode = false;
+    setMenuVisibility(false);
+    boidsIgnoreMouse = false;
+    boidsIgnoreTouch = false;
+    if (touchEndTimeoutId) {
+        clearTimeout(touchEndTimeoutId);
+        touchEndTimeoutId = null;
+    }
+
+    // 5. Reset simulation parameters to their initial values.
+    resetSimulationParameters();
+}
+
+function startExitAnimation() {
+    godMode = false;
+    setMenuVisibility(false);
+    if (!isEnding) {
+        isEnding = true;
+        endStartTime = performance.now();
+    }
+}
+
+//  Core Simulation Loop
+function animate() {
+    if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
+        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
+    } else {
+        ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
+    }
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (debugObstaclesMode) {
+        for (const obstacle of allObstacles) {
+            obstacle.drawDebug();
+        }
+    }
+
+    if (debugGridMode) {
+        drawGridVisualization(spatialGrid, ctx);
+    }
+    if (debugSelectedBoid) {
+        drawNeighborhoodVisualization(debugSelectedBoid, spatialGrid, ctx);
+    }
+
+    if (isScattering) {
+        scatter(HOLD_SCATTER_DURATION);
+    }
+    const currentTime = performance.now();
+
+    spatialGrid.clear();
+    for (let boid of flock) {
+        spatialGrid.addItemAtPoint(boid);
+    }
+
+    // flock.sort((a, b) => a.depth - b.depth);
+
+    const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
+    if (isEnding) {
+        const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+        const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+        const targetPosForEnding = vectorPool.get(targetX, targetY);
+
+        for (let boid of flock) {
+            // Lerp position towards the target
+            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
+            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
+
+            // Shrink boids as they approach the end
+            boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
+            boid.renderSize = boid.calculateRenderSize(currentTime);
+
+            // Snap to position when very close and animation is nearly done
+            if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
+                boid.position.x = targetPosForEnding.x;
+                boid.position.y = targetPosForEnding.y;
+            }
+            boid.draw();
+        }
+        vectorPool.release(targetPosForEnding);
+    } else {
+        // --- 6. Main Simulation Loop (if not ending) ---
+        // Update and draw each boid.
+        for (let boid of flock) {
+            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
+            boid.calculateBoidAndMouseForces(localNeighbors);
+        }
+
+        // Add avoidance forces directly to each boid's desiredVelocity.
+        applyObstacleAvoidanceForces();
+
+        // Apply the final combined forces to move the boids and then draw them.
+        for (let boid of flock) {
+            boid.applyForcesAndMove(currentTime);
+            boid.draw();
+        }
+    }
+
+    // --- 7. Continue or Stop the Animation Loop ---
+    if (isEnding && endProgress >= 1) {
+        // console.log("End animation complete.");
+        return; // Stop the loop
+    }
+    animationFrameId = requestAnimationFrame(animate);
+}
+
+// Simulation Sub-systems & Major Logic
 /**
  * Applies obstacle avoidance forces using an obstacle-centric approach.
  * For each obstacle, it finds all boids within its influence radius and calculates
@@ -918,102 +1086,6 @@ function applyObstacleAvoidanceForces() {
     vectorPool.release(currentToroidalForce);
 }
 
-function drawGridVisualization(gridInstance, ctx) {
-    if (!gridInstance) return;
-    ctx.strokeStyle = 'rgba(128, 128, 128, 0.3)';
-    ctx.lineWidth = 0.5;
-
-    for (let i = 0; i <= gridInstance.numCols; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * gridInstance.cellSize, 0);
-        ctx.lineTo(i * gridInstance.cellSize, canvas.height);
-        ctx.stroke();
-    }
-    for (let i = 0; i <= gridInstance.numRows; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, i * gridInstance.cellSize);
-        ctx.lineTo(canvas.width, i * gridInstance.cellSize);
-        ctx.stroke();
-    }
-}
-
-function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
-    if (!boid || !gridInstance) return;
-
-    const { col: boidCol, row: boidRow } = gridInstance._getCellCoords(boid.position);
-
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
-    for (let rOffset = -1; rOffset <= 1; rOffset++) {
-        for (let cOffset = -1; cOffset <= 1; cOffset++) {
-            let neighborRow = boidRow + rOffset;
-            let neighborCol = boidCol + cOffset;
-            const actualRow = (neighborRow + gridInstance.numRows) % gridInstance.numRows;
-            const actualCol = (neighborCol + gridInstance.numCols) % gridInstance.numCols;
-            ctx.fillRect(actualCol * gridInstance.cellSize, actualRow * gridInstance.cellSize, gridInstance.cellSize, gridInstance.cellSize);
-        }
-    }
-
-    const localNeighbors = gridInstance.getItemsInNeighborhood(boid.position);
-    ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
-    ctx.lineWidth = 1;
-    for (const other of localNeighbors) {
-        if (other === boid) continue;
-        const distanceToOther = Vector.dist(boid.position, other.position);
-        if (distanceToOther <= CELL_SIZE) {
-            ctx.beginPath();
-            ctx.moveTo(boid.position.x, boid.position.y);
-            ctx.lineTo(other.position.x, other.position.y);
-            ctx.stroke();
-        }
-    }
-    ctx.beginPath();
-    ctx.arc(boid.position.x, boid.position.y, boid.renderSize / 2 + 5, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-}
-
-function initializeObstacles() {
-    allObstacles = OBSTACLE_ELEMENT_IDS.map(id => new Obstacle(id));
-}
-
-function updateAllObstacles() {
-    if (!obstacleGrid) return;
-    obstacleGrid.clear();
-
-    for (const obstacle of allObstacles) {
-        obstacle.update();
-        if (obstacle.isEnabled) {
-            obstacleGrid.addItemInArea(obstacle, obstacle.paddedBounds);
-        }
-    }
-}
-
-function rafThrottle(callback) {
-    let requestId = null;
-    let lastArgs = []; // To store the latest arguments if needed, though scroll usually doesn't have important args
-
-    const later = (context) => () => {
-        requestId = null;
-        callback.apply(context, lastArgs);
-    };
-
-    const throttled = function (...args) {
-        lastArgs = args; // Store the latest arguments
-        if (requestId === null) {
-            requestId = requestAnimationFrame(later(this));
-        }
-    };
-
-    throttled.cancel = () => {
-        if (requestId !== null) {
-            cancelAnimationFrame(requestId);
-            requestId = null;
-        }
-    };
-    return throttled;
-}
-
 function scatter(duration) {
     flock.forEach(boid => {
         if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
@@ -1023,136 +1095,40 @@ function scatter(duration) {
     });
 }
 
-function animate() {
-    if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
-        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
-    } else {
-        ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
-    }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// One-Time Setup & Lifecycle Management
+/**
+ * Performs the one-time setup for the entire boid system.
+ * This should only ever be called once.
+ */
+async function _prepareEnvironment() {
+    // Prevent this from ever running more than once.
+    if (isSystemInitialized) return;
 
-    if (debugObstaclesMode) {
-        for (const obstacle of allObstacles) {
-            obstacle.drawDebug();
-        }
-    }
-
-    if (debugGridMode) {
-        drawGridVisualization(spatialGrid, ctx);
-    }
-    if (debugSelectedBoid) {
-        drawNeighborhoodVisualization(debugSelectedBoid, spatialGrid, ctx);
+    try {
+        await loadAndPrepareImage();
+    } catch (error) {
+        console.error("Could not prepare boid image:", error);
+        return; // Stop if the image fails to load
     }
 
-    if (isScattering) {
-        scatter(HOLD_SCATTER_DURATION);
-    }
-    const currentTime = performance.now();
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    spatialGrid.clear();
-    for (let boid of flock) {
-        spatialGrid.addItemAtPoint(boid);
-    }
+    spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
+    obstacleGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
+    initializeObstacles();
+    updateAllObstacles();
 
-    // flock.sort((a, b) => a.depth - b.depth);
+    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode };
+    initializeMenu(simParams, initialDebugFlags);
+    setupMenuEventListeners();
+    setupEventListeners();
 
-    const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
-    if (isEnding) {
-        const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-        const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-        const targetPosForEnding = vectorPool.get(targetX, targetY);
+    closeNavMenu();
 
-        for (let boid of flock) {
-            // Lerp position towards the target
-            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
-            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
-
-            // Shrink boids as they approach the end
-            boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
-            boid.renderSize = boid.calculateRenderSize(currentTime);
-
-            // Snap to position when very close and animation is nearly done
-            if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
-                boid.position.x = targetPosForEnding.x;
-                boid.position.y = targetPosForEnding.y;
-            }
-            boid.draw();
-        }
-        vectorPool.release(targetPosForEnding);
-    } else {
-        // --- 6. Main Simulation Loop (if not ending) ---
-        // Update and draw each boid.
-        for (let boid of flock) {
-            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
-            boid.calculateBoidAndMouseForces(localNeighbors);
-        }
-
-        // Add avoidance forces directly to each boid's desiredVelocity.
-        applyObstacleAvoidanceForces();
-
-        // Apply the final combined forces to move the boids and then draw them.
-        for (let boid of flock) {
-            boid.applyForcesAndMove(currentTime);
-            boid.draw();
-        }
-    }
-
-    // --- 7. Continue or Stop the Animation Loop ---
-    if (isEnding && endProgress >= 1) {
-        // console.log("End animation complete.");
-        return; // Stop the loop
-    }
-    animationFrameId = requestAnimationFrame(animate);
-}
-
-function resetSimulationParameters() {
-    simParams = { ...defaultSimParams }; // Reset to defaults
-    updateSpatialGridParameters();      // Update dependent systems (grid)
-    updateMenuValues(simParams);        // Update UI to reflect the reset
-}
-
-function resetBoidSimulator() {
-    resetSimulationParameters();
-
-    stopAnimation();
-
-    CELL_SIZE = calculateCurrentCellSize();
-
-    // --- No if/else needed. We assume grids exist. Just update them. ---
-    spatialGrid.cellSize = CELL_SIZE;
-    spatialGrid.resize(canvas.width, canvas.height);
-
-    // Also update the obstacle grid
-    obstacleGrid.cellSize = CELL_SIZE;
-    obstacleGrid.resize(canvas.width, canvas.height);
-    updateAllObstacles(); // IMPORTANT: Repopulate obstacle grid after resize
-
-    for (const boid of flock) {
-        boid.destroy();
-    }
-    flock.length = 0;
-    debugSelectedBoid = null;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = 0; i < FLOCK_SIZE; i++) {
-        flock.push(new Boid());
-    }
-
-    isScattering = false;
-    mouseInfluence = false;
-    speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
-    speedValue.textContent = `${speedSlider.value}%`;
-
-    boidsIgnoreMouse = false;
-    boidsIgnoreTouch = false;
-}
-
-function stopAnimation() {
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
+    // Set the flag to true at the very end of a successful setup.
+    isSystemInitialized = true;
+    console.log("Boid system initialized for the first time.");
 }
 
 async function loadAndPrepareImage() {
@@ -1173,84 +1149,11 @@ async function loadAndPrepareImage() {
     // console.log("Boid image is decoded and ready to render.");
 }
 
-// Function to be called from another file
-async function initBoidSimulator() {
-    try {
-        await loadAndPrepareImage(); // Wait for the image to be ready
-    } catch (error) {
-        console.error("Could not prepare boid image:", error);
-        // Fallback or error handling
-        return;
-    }
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    CELL_SIZE = calculateCurrentCellSize();
-    spatialGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
-    obstacleGrid = new SpatialGrid(canvas.width, canvas.height, CELL_SIZE);
-
-    initializeObstacles();
-    updateAllObstacles();
-    isEnding = false;
-
-    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode };
-    initializeMenu(simParams, initialDebugFlags);
-    setupMenuEventListeners();
-    resetBoidSimulator();
-    animate();
-    closeNavMenu();
-    setupEventListeners();
+function initializeObstacles() {
+    allObstacles = OBSTACLE_ELEMENT_IDS.map(id => new Obstacle(id));
 }
 
-function setupMenuEventListeners() {
-    document.body.addEventListener('godModeToggled', (e) => {
-        godMode = e.detail.enabled;
-        setMenuVisibility(godMode);
-        console.log("God Mode:", godMode);
-    });
-
-    document.body.addEventListener('paramChanged', (e) => {
-        const { key, value } = e.detail;
-        if (simParams.hasOwnProperty(key)) {
-            simParams[key] = value;
-            if (key.includes('RADIUS')) {
-                updateSpatialGridParameters();
-            }
-        }
-    });
-
-    document.body.addEventListener('debugFlagChanged', (e) => {
-        const { flag, enabled } = e.detail;
-        if (flag === 'grid') {
-            debugGridMode = enabled;
-            if (!enabled) debugSelectedBoid = null;
-        } else if (flag === 'obstacles') {
-            debugObstaclesMode = enabled;
-        }
-    });
-
-    document.body.addEventListener('paramsReset', resetSimulationParameters);
-
-
-    // Handles mouse entering/leaving the menu itself
-    document.body.addEventListener('menuInteraction', (e) => {
-        boidsIgnoreMouse = e.detail.hovering;
-        console.log("Boids ignore mouse:", boidsIgnoreMouse);
-    });
-
-    document.body.addEventListener('layoutChanged', throttledScrollUpdater);
-}
-
-function endSimulation() {
-    godMode = false;
-    setMenuVisibility(false);
-    if (!isEnding) {
-        isEnding = true;
-        endStartTime = performance.now();
-    }
-}
-
+// Event Handlers
 const mouseMoveHandler = (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse.set(event.clientX - rect.left, event.clientY - rect.top);
@@ -1384,9 +1287,7 @@ const resizeHandler = () => {
     updateAllObstacles();
 };
 
-function performScrollUpdates() {
-    updateAllObstacles();
-}
+
 
 const throttledScrollUpdater = rafThrottle(performScrollUpdates);
 
@@ -1444,6 +1345,7 @@ const godModeButtonClickHandler = () => {
     console.log("God Mode:", godMode);
 };
 
+// State & Event Management
 function setupEventListeners() {
     document.removeEventListener('mousemove', mouseMoveHandler);
     document.removeEventListener('mouseleave', mouseLeaveHandler);
@@ -1490,8 +1392,161 @@ function setupEventListeners() {
     }
 }
 
+function setupMenuEventListeners() {
+    document.body.addEventListener('godModeToggled', (e) => {
+        godMode = e.detail.enabled;
+        setMenuVisibility(godMode);
+        console.log("God Mode:", godMode);
+    });
+
+    document.body.addEventListener('paramChanged', (e) => {
+        const { key, value } = e.detail;
+        if (simParams.hasOwnProperty(key)) {
+            simParams[key] = value;
+            if (key.includes('RADIUS')) {
+                updateSpatialGridParameters();
+            }
+        }
+    });
+
+    document.body.addEventListener('debugFlagChanged', (e) => {
+        const { flag, enabled } = e.detail;
+        if (flag === 'grid') {
+            debugGridMode = enabled;
+            if (!enabled) debugSelectedBoid = null;
+        } else if (flag === 'obstacles') {
+            debugObstaclesMode = enabled;
+        }
+    });
+
+    document.body.addEventListener('paramsReset', resetSimulationParameters);
+
+
+    // Handles mouse entering/leaving the menu itself
+    document.body.addEventListener('menuInteraction', (e) => {
+        boidsIgnoreMouse = e.detail.hovering;
+        console.log("Boids ignore mouse:", boidsIgnoreMouse);
+    });
+
+    document.body.addEventListener('layoutChanged', throttledScrollUpdater);
+}
+
+function updateAllObstacles() {
+    if (!obstacleGrid) return;
+    obstacleGrid.clear();
+
+    for (const obstacle of allObstacles) {
+        obstacle.update();
+        if (obstacle.isEnabled) {
+            obstacleGrid.addItemInArea(obstacle, obstacle.paddedBounds);
+        }
+    }
+}
+
+function performScrollUpdates() {
+    updateAllObstacles();
+}
+
+function resetSimulationParameters() {
+    simParams = { ...defaultSimParams }; // Reset to defaults
+    updateSpatialGridParameters();      // Update dependent systems (grid)
+    updateMenuValues(simParams);        // Update UI to reflect the reset
+    debugGridMode = false;
+    debugObstaclesMode = false;
+}
+
+// Utility & Helper Functions
+function stopAnimation() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+}
+
+function rafThrottle(callback) {
+    let requestId = null;
+    let lastArgs = []; // To store the latest arguments if needed, though scroll usually doesn't have important args
+
+    const later = (context) => () => {
+        requestId = null;
+        callback.apply(context, lastArgs);
+    };
+
+    const throttled = function (...args) {
+        lastArgs = args; // Store the latest arguments
+        if (requestId === null) {
+            requestId = requestAnimationFrame(later(this));
+        }
+    };
+
+    throttled.cancel = () => {
+        if (requestId !== null) {
+            cancelAnimationFrame(requestId);
+            requestId = null;
+        }
+    };
+    return throttled;
+}
+
+// Debugging Functions
+function drawGridVisualization(gridInstance, ctx) {
+    if (!gridInstance) return;
+    ctx.strokeStyle = 'rgba(128, 128, 128, 0.3)';
+    ctx.lineWidth = 0.5;
+
+    for (let i = 0; i <= gridInstance.numCols; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gridInstance.cellSize, 0);
+        ctx.lineTo(i * gridInstance.cellSize, canvas.height);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= gridInstance.numRows; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * gridInstance.cellSize);
+        ctx.lineTo(canvas.width, i * gridInstance.cellSize);
+        ctx.stroke();
+    }
+}
+
+function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
+    if (!boid || !gridInstance) return;
+
+    const { col: boidCol, row: boidRow } = gridInstance._getCellCoords(boid.position);
+
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
+    for (let rOffset = -1; rOffset <= 1; rOffset++) {
+        for (let cOffset = -1; cOffset <= 1; cOffset++) {
+            let neighborRow = boidRow + rOffset;
+            let neighborCol = boidCol + cOffset;
+            const actualRow = (neighborRow + gridInstance.numRows) % gridInstance.numRows;
+            const actualCol = (neighborCol + gridInstance.numCols) % gridInstance.numCols;
+            ctx.fillRect(actualCol * gridInstance.cellSize, actualRow * gridInstance.cellSize, gridInstance.cellSize, gridInstance.cellSize);
+        }
+    }
+
+    const localNeighbors = gridInstance.getItemsInNeighborhood(boid.position);
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+    ctx.lineWidth = 1;
+    for (const other of localNeighbors) {
+        if (other === boid) continue;
+        const distanceToOther = Vector.dist(boid.position, other.position);
+        if (distanceToOther <= CELL_SIZE) {
+            ctx.beginPath();
+            ctx.moveTo(boid.position.x, boid.position.y);
+            ctx.lineTo(other.position.x, other.position.y);
+            ctx.stroke();
+        }
+    }
+    ctx.beginPath();
+    ctx.arc(boid.position.x, boid.position.y, boid.renderSize / 2 + 5, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+
+
 // Expose functions to global scope if they are called from HTML
-window.initBoidSimulator = initBoidSimulator;
-window.resetBoidSimulator = resetBoidSimulator;
-window.stopAnimation = stopAnimation;
-window.endSimulation = endSimulation;
+window.startSimulation = startSimulation;
+window.stopSimulation = stopSimulation;
+window.startExitAnimation = startExitAnimation;

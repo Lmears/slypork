@@ -4,6 +4,8 @@
 // It receives initial state and dispatches events when the user interacts.
 // It does NOT modify the main application state directly.
 
+// import { MAX_POTENTIAL_FLOCK_SIZE } from './boid-simulator.js';
+
 // --- Private variables ---
 let menuContainer; // Keep a reference to the main menu element
 const inputElements = {}; // To easily update sliders from text inputs and vice-versa
@@ -57,6 +59,16 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     if (document.getElementById('experimentalMenu')) return;
 
     const categorizedParamConfigs = {
+        // General: { // New category
+        //     FLOCK_SIZE: {
+        //         label: 'Flock Size',
+        //         type: 'range',
+        //         min: 1,
+        //         max: MAX_POTENTIAL_FLOCK_SIZE,
+        //         step: 1,
+        //         precision: 0
+        //     }
+        // },
         Force: {
             ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
             COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
@@ -218,14 +230,16 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     }
 
     // --- Create and append Debug Section ---
+    const debugTitle = document.createElement('h4');
+    debugTitle.textContent = 'Debug';
+    Object.assign(debugTitle.style, { marginTop: '15px', marginBottom: '10px', color: '#f3f4f1', borderBottom: '1px solid rgba(255, 255, 255, 0.2)', paddingBottom: '5px' });
+    scrollableContent.appendChild(debugTitle);
     const debugSectionDiv = document.createElement('div');
-    Object.assign(debugSectionDiv.style, { marginTop: '15px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.2)' });
-
     const debugGridToggleControlRow = document.createElement('div');
     debugGridToggleControlRow.className = 'control-row';
     const debugGridLabel = document.createElement('label');
     debugGridLabel.htmlFor = 'debug-grid-toggle';
-    debugGridLabel.textContent = 'Debug Grid';
+    debugGridLabel.textContent = 'Grid';
     debugGridLabel.style.color = '#f3f4f1';
     const debugGridCheckbox = document.createElement('input');
     debugGridCheckbox.type = 'checkbox';
@@ -240,7 +254,7 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     debugObstaclesToggleControlRow.className = 'control-row';
     const debugObstaclesLabel = document.createElement('label');
     debugObstaclesLabel.htmlFor = 'debug-obstacles-toggle';
-    debugObstaclesLabel.textContent = 'Debug Obstacles';
+    debugObstaclesLabel.textContent = 'Obstacles';
     debugObstaclesLabel.style.color = '#f3f4f1';
     const debugObstaclesCheckbox = document.createElement('input');
     debugObstaclesCheckbox.type = 'checkbox';
@@ -256,7 +270,26 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     const resetButton = document.createElement('button');
     resetButton.textContent = 'Reset';
     resetButton.className = 'px-3 py-2 mt-2 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered';
-    resetButton.addEventListener('click', () => dispatch('paramsReset'));
+    // Replace the existing reset button event listener with this updated version:
+
+    resetButton.addEventListener('click', () => {
+        // Reset parameters
+        dispatch('paramsReset');
+
+        // Reset debug checkboxes to unchecked
+        const debugGridCheckbox = document.getElementById('debug-grid-toggle');
+        const debugObstaclesCheckbox = document.getElementById('debug-obstacles-toggle');
+
+        if (debugGridCheckbox && debugGridCheckbox.checked) {
+            debugGridCheckbox.checked = false;
+            dispatch('debugFlagChanged', { flag: 'grid', enabled: false });
+        }
+
+        if (debugObstaclesCheckbox && debugObstaclesCheckbox.checked) {
+            debugObstaclesCheckbox.checked = false;
+            dispatch('debugFlagChanged', { flag: 'obstacles', enabled: false });
+        }
+    });
     scrollableContent.appendChild(resetButton);
 
     // --- Final DOM attachment ---

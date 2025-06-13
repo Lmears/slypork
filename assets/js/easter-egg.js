@@ -259,8 +259,8 @@ function setupEasterEgg() {
                     canIncrement = true;
                 });
 
-                if (typeof window.endSimulation === 'function') {
-                    window.endSimulation();
+                if (typeof window.startExitAnimation === 'function') {
+                    window.startExitAnimation();
                 }
                 setTimeout(() => {
                     if (boidCanvas) boidCanvas.style.opacity = '0';
@@ -269,8 +269,9 @@ function setupEasterEgg() {
                         if (boidCanvas) boidCanvas.style.display = 'none';
                         if (controls) controls.style.display = 'none';
                         document.body.classList.remove('boid-active');
-                        if (typeof window.stopAnimation === 'function') window.stopAnimation();
-                        if (typeof window.resetBoidSimulator === 'function') window.resetBoidSimulator();
+                        if (typeof window.stopSimulation === 'function') {
+                            window.stopSimulation();
+                        }
                     }, 1000);
                 }, 50);
 
@@ -297,7 +298,7 @@ function setupEasterEgg() {
                                 setTimeout(() => {
                                     if (controls) controls.style.opacity = '1';
                                     if (typeof initializeSlider === 'function') initializeSlider('speedSlider', 'speedValue', '%');
-                                    if (typeof initBoidSimulator === 'function') initBoidSimulator();
+                                    if (typeof startSimulation === 'function') startSimulation();
                                 }, 50);
                             }, 500);
                         }, 50);
