@@ -50,7 +50,6 @@ const OBSTACLE_ELEMENT_IDS = [
 // Initialize obstacles from the DOM elements
 let allObstacles = [];
 
-
 // --- Other Simulation parameters (mostly non-tweakable via new menu) ---
 const MITOSIS_BOOST_STRENGTH = 0.1;
 const NORMAL_MAX_SPEED = 5;
@@ -78,7 +77,7 @@ const BOID_SIZE_VARIATION = 10;
 const BOID_OSCILLATION_SPEED_BASE = 0.002;
 const BOID_OSCILLATION_SPEED_VARIATION = 0.002;
 const BOID_ROTATION_SPEED = 0.1;
-const BOID_DYING_DURATION = 500; // Time in ms for a boid to fade out
+const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
 
 // Easter egg parameters
 const EASTER_EGG_WIDTH = 45;
@@ -690,26 +689,32 @@ class Boid {
      * the boid's physics, position, and visual properties.
      */
     applyForcesAndMove(currentTime) {
-        // --- 1. Update velocity from desiredVelocity based on inertia ---
-        this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
-        this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
+        // For living boids, update velocity based on all calculated forces.
+        // Dying boids skip this block and just continue with their last velocity.
+        if (!this.isDying) {
+            // --- 1. Update velocity from desiredVelocity based on inertia ---
+            this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
+            this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
-        // --- 2. Update state, determine max speed, and limit the base velocity ---
-        this.updateScatterState();
-        this.updateMaxSpeed();
-        this.velocity.limit(this.maxSpeed); // Limit the boid's normal, sustainable speed
+            // --- 2. Update state, determine max speed, and limit the base velocity ---
+            this.updateScatterState();
+            this.updateMaxSpeed();
+            this.velocity.limit(this.maxSpeed); // Limit the boid's normal, sustainable speed
 
-        // --- 3. Apply the decaying boost AFTER limiting and then update position ---
-        // This allows the boost to temporarily exceed the max speed.
-        this.velocity.add(this.boost);
-        this.boost.mult(BOOST_DECAY);
+            // --- 3. Apply the decaying boost AFTER limiting ---
+            // This allows the boost to temporarily exceed the max speed.
+            this.velocity.add(this.boost);
+            this.boost.mult(BOOST_DECAY);
+        }
+
+
+        // --- 4. Update position and visuals (for ALL boids, living or dying) ---
         this.position.add(this.velocity);
-
-        // --- 4. Update visuals and wrap edges ---
         this.updateRotation();
         this.renderSize = this.calculateRenderSize(currentTime);
         this.edges(); // Wrap around canvas
     }
+
 
     updateScatterState() {
         if (this.scatterState !== 0) {
@@ -1135,10 +1140,7 @@ function animate() {
         applyObstacleAvoidanceForces();
 
         for (let boid of flock) {
-            // Dying boids just move based on their last velocity, without new forces
-            if (!boid.isDying) {
-                boid.applyForcesAndMove(currentTime);
-            }
+            boid.applyForcesAndMove(currentTime);
             boid.draw(currentTime);
         }
     }
