@@ -748,48 +748,58 @@ class Boid {
         return totalAvoidanceForce;
     }
 
-    update(localNeighbors, currentTime) {
-        // --- 1. Calculate all forces ---
+    /**
+    * NEW: Step 1 of the update process.
+    * Calculates flocking and mouse forces and accumulates them in desiredVelocity.
+    * Obstacle forces will be added externally after this step.
+    */
+    calculateBoidAndMouseForces(localNeighbors) {
+        // --- 1. Calculate flocking and mouse forces ---
         const { alignmentForce, cohesionForce, separationForce } = this.calculateFlockingForces(localNeighbors);
         const mouseForce = this.mouseAttraction();
-        const obstacleAvoidanceForce = this.avoidObstacles();
 
-        // --- 2. Apply weights and combine forces ---
+        // --- 2. Apply weights ---
         alignmentForce.mult(simParams.ALIGNMENT_FORCE);
         cohesionForce.mult(simParams.COHESION_FORCE);
         separationForce.mult(simParams.SEPARATION_FORCE);
         mouseForce.mult(this.scatterState === 1 ? MOUSE_FORCE_SCATTER : MOUSE_FORCE_NORMAL);
 
-        // Accumulate forces into desiredVelocity
+        // --- 3. Accumulate forces into desiredVelocity ---
+        // Start with current velocity for steering behavior
         this.desiredVelocity.set(this.velocity.x, this.velocity.y);
         this.desiredVelocity.add(alignmentForce);
         this.desiredVelocity.add(cohesionForce);
         this.desiredVelocity.add(separationForce);
         this.desiredVelocity.add(mouseForce);
-        this.desiredVelocity.add(obstacleAvoidanceForce);
+        // Note: obstacleAvoidanceForce is now added externally between this method and the next.
 
-        // Release the force vectors now that they've been used
+        // --- 4. Release temporary force vectors ---
         vectorPool.release(alignmentForce);
         vectorPool.release(cohesionForce);
         vectorPool.release(separationForce);
         vectorPool.release(mouseForce);
-        vectorPool.release(obstacleAvoidanceForce);
+    }
 
-        // --- 3. Update velocity and position ---
+    /**
+     * NEW: Step 3 of the update process.
+     * Applies the final accumulated forces (including obstacle forces) to update
+     * the boid's physics, position, and visual properties.
+     */
+    applyForcesAndMove(currentTime) {
+        // --- 1. Update velocity and position from desiredVelocity ---
         this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
         this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
         this.velocity.add(this.boost);
         this.boost.mult(BOOST_DECAY);
 
-        // Update state *before* limiting speed and updating position
+        // --- 2. Update state and apply speed limits ---
         this.updateScatterState();
-        this.updateMaxSpeed(); // This now depends on the new depth value from calculateFlockingForces
-
+        this.updateMaxSpeed(); // Depends on depth, which was updated in calculateFlockingForces
         this.velocity.limit(this.maxSpeed);
         this.position.add(this.velocity);
 
-        // --- 4. Update visuals and wrap edges ---
+        // --- 3. Update visuals and wrap edges ---
         this.updateRotation();
         this.renderSize = this.calculateRenderSize(currentTime);
         this.edges(); // Wrap around canvas
@@ -875,6 +885,148 @@ class Boid {
 }
 
 const flock = [];
+
+/**
+ * NEW: Applies obstacle avoidance forces using an obstacle-centric approach.
+ * For each obstacle, it finds all boids within its influence radius and calculates
+ * the necessary avoidance force, applying it directly to the boid's desiredVelocity.
+ */
+function applyObstacleAvoidanceForces() {
+    // --- Reusable temporary vectors for all calculations in this function ---
+    const effectiveObsCenter = vectorPool.get();
+    const repulsionDirTemp = vectorPool.get();
+    const boidToEffectiveCenterTemp = vectorPool.get();
+    const closestPointOnEffectiveObstacleTemp = vectorPool.get();
+    const boidToClosestPointTemp = vectorPool.get();
+    const desiredSteerAwayTemp = vectorPool.get();
+    const currentToroidalForce = vectorPool.get(); // Holds the force for one toroidal image
+
+    // --- 1. For each Obstacle -> ... ---
+    for (const obstacle of allObstacles) {
+        if (!obstacle.isEnabled || !obstacle.paddedBounds) continue;
+
+        // --- 2. Find all nearby Boids -> ... ---
+        // Define the search area around the obstacle, including its vision radius.
+        const influenceRadius = simParams.OBSTACLE_RADIUS;
+        const searchBounds = {
+            left: obstacle.paddedBounds.left - influenceRadius,
+            top: obstacle.paddedBounds.top - influenceRadius,
+            right: obstacle.paddedBounds.right + influenceRadius,
+            bottom: obstacle.paddedBounds.bottom + influenceRadius,
+        };
+
+        // Get the grid cells that this search area overlaps.
+        const startCol = Math.max(0, Math.floor(searchBounds.left / spatialGrid.cellSize));
+        const endCol = Math.min(spatialGrid.numCols - 1, Math.floor(searchBounds.right / spatialGrid.cellSize));
+        const startRow = Math.max(0, Math.floor(searchBounds.top / spatialGrid.cellSize));
+        const endRow = Math.min(spatialGrid.numRows - 1, Math.floor(searchBounds.bottom / spatialGrid.cellSize));
+
+        // Collect a unique set of boids from those cells.
+        const uniqueBoidsInArea = new Set();
+        for (let row = startRow; row <= endRow; row++) {
+            for (let col = startCol; col <= endCol; col++) {
+                const cell = spatialGrid.grid[row][col];
+                for (const boid of cell) {
+                    uniqueBoidsInArea.add(boid);
+                }
+            }
+        }
+
+        // --- 3. For each nearby Boid, Calculate and apply force -> ... ---
+        for (const boid of uniqueBoidsInArea) {
+            let bestForceForBoid = null; // Stores the single most critical force vector for this boid/obstacle pair
+            let bestDistSqForBoid = Infinity;
+            let bestTypeForBoid = null; // 'steer' or 'bounce'
+
+            const boidRadius = boid.renderSize / 2;
+
+            // Check against all 9 toroidal images of the obstacle to find the most critical interaction.
+            for (const offset of EDGE_BUFFER_POSITIONS) {
+                const offsetX = offset.dx * canvas.width;
+                const offsetY = offset.dy * canvas.height;
+                const effectiveObsPadded = {
+                    left: obstacle.paddedBounds.left + offsetX,
+                    top: obstacle.paddedBounds.top + offsetY,
+                    right: obstacle.paddedBounds.right + offsetX,
+                    bottom: obstacle.paddedBounds.bottom + offsetY,
+                };
+                effectiveObsCenter.set(obstacle.centerX + offsetX, obstacle.centerY + offsetY);
+                currentToroidalForce.set(0, 0);
+                let interactionType = null;
+                let currentDistSq = Infinity;
+
+                // --- This is the exact same calculation logic from your old `avoidObstacles` method ---
+                const isOverlapping =
+                    (boid.position.x + boidRadius > effectiveObsPadded.left) &&
+                    (boid.position.x - boidRadius < effectiveObsPadded.right) &&
+                    (boid.position.y + boidRadius > effectiveObsPadded.top) &&
+                    (boid.position.y - boidRadius < effectiveObsPadded.bottom);
+
+                if (isOverlapping) {
+                    interactionType = 'bounce';
+                    Vector.sub(boid.position, effectiveObsCenter, repulsionDirTemp);
+                    if (repulsionDirTemp.magSq() === 0) Vector.random2D(repulsionDirTemp);
+                    repulsionDirTemp.setMag(boid.maxSpeed);
+                    Vector.sub(repulsionDirTemp, boid.velocity, currentToroidalForce);
+                    currentToroidalForce.limit(boid.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
+                    Vector.sub(boid.position, effectiveObsCenter, boidToEffectiveCenterTemp);
+                    currentDistSq = boidToEffectiveCenterTemp.magSq();
+                } else {
+                    const closestX = Math.max(effectiveObsPadded.left, Math.min(boid.position.x, effectiveObsPadded.right));
+                    const closestY = Math.max(effectiveObsPadded.top, Math.min(boid.position.y, effectiveObsPadded.bottom));
+                    closestPointOnEffectiveObstacleTemp.set(closestX, closestY);
+                    Vector.sub(boid.position, closestPointOnEffectiveObstacleTemp, boidToClosestPointTemp);
+                    currentDistSq = boidToClosestPointTemp.magSq();
+                    const visionRadius = simParams.OBSTACLE_RADIUS + boidRadius;
+
+                    if (currentDistSq < visionRadius ** 2) {
+                        Vector.sub(boid.position, closestPointOnEffectiveObstacleTemp, desiredSteerAwayTemp);
+                        if (desiredSteerAwayTemp.magSq() === 0) Vector.sub(boid.position, effectiveObsCenter, desiredSteerAwayTemp);
+                        if (desiredSteerAwayTemp.magSq() > 0) {
+                            interactionType = 'steer';
+                            desiredSteerAwayTemp.setMag(boid.maxSpeed);
+                            Vector.sub(desiredSteerAwayTemp, boid.velocity, currentToroidalForce);
+                            const distance = Math.sqrt(currentDistSq);
+                            const strength = 1 - (distance / visionRadius);
+                            currentToroidalForce.mult(strength);
+                            currentToroidalForce.limit(boid.maxForce * simParams.OBSTACLE_FORCE);
+                        }
+                    }
+                }
+                // --- End of ported logic ---
+
+                // Determine if this interaction is more critical than any other found so far for this boid.
+                if (interactionType) {
+                    let updateBest = !bestTypeForBoid ||
+                        (interactionType === 'bounce' && bestTypeForBoid === 'steer') ||
+                        (interactionType === bestTypeForBoid && currentDistSq < bestDistSqForBoid);
+
+                    if (updateBest) {
+                        if (bestForceForBoid) vectorPool.release(bestForceForBoid);
+                        bestForceForBoid = currentToroidalForce.copy();
+                        bestDistSqForBoid = currentDistSq;
+                        bestTypeForBoid = interactionType;
+                    }
+                }
+            } // End of toroidal images loop
+
+            // After checking all 9 images, if a best force was found, apply it to the boid.
+            if (bestForceForBoid) {
+                boid.desiredVelocity.add(bestForceForBoid);
+                vectorPool.release(bestForceForBoid);
+            }
+        } // End of nearby boids loop
+    } // End of obstacles loop
+
+    // --- Release all temporary vectors at the end ---
+    vectorPool.release(effectiveObsCenter);
+    vectorPool.release(repulsionDirTemp);
+    vectorPool.release(boidToEffectiveCenterTemp);
+    vectorPool.release(closestPointOnEffectiveObstacleTemp);
+    vectorPool.release(boidToClosestPointTemp);
+    vectorPool.release(desiredSteerAwayTemp);
+    vectorPool.release(currentToroidalForce);
+}
 
 function drawGridVisualization(gridInstance, ctx) {
     if (!gridInstance) return;
@@ -1041,13 +1193,17 @@ function animate() {
         // --- 6. Main Simulation Loop (if not ending) ---
         // This loop updates and draws each boid.
         for (let boid of flock) {
-            // Get neighbors from the now-fully-populated grid
             const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
+            boid.calculateBoidAndMouseForces(localNeighbors);
+        }
 
-            // THE ONLY CALL NEEDED: This runs the entire simulation logic for the boid
-            boid.update(localNeighbors, currentTime);
+        // Step 2: Calculate obstacle-to-boid forces using the new obstacle-centric approach.
+        // This function will add avoidance forces directly to each boid's desiredVelocity.
+        applyObstacleAvoidanceForces();
 
-            // Draw the boid at its updated position
+        // Step 3: Apply the final combined forces to move the boids and then draw them.
+        for (let boid of flock) {
+            boid.applyForcesAndMove(currentTime);
             boid.drawWithEdgeBuffering();
         }
     }
