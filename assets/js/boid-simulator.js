@@ -133,8 +133,9 @@ let boidImageBitmap = null;
 
 
 // --- Vector Pool (NEW CODE) ---
-const VECTOR_POOL_INITIAL_SIZE = FLOCK_SIZE * 20; // Initial pool size, e.g., 150 boids * 20 vectors/boid estimate
-const VECTOR_POOL_MAX_SIZE = FLOCK_SIZE * 30;   // Max size to prevent unbounded pool growth if there's a leak
+const PEAK_VECTORS_PER_BOID = 7;
+const VECTOR_POOL_INITIAL_SIZE = FLOCK_SIZE * PEAK_VECTORS_PER_BOID; // Initial pool size, e.g., 150 boids * 20 vectors/boid estimate
+const VECTOR_POOL_MAX_SIZE = FLOCK_SIZE * PEAK_VECTORS_PER_BOID * 2;    // Max size to prevent unbounded pool growth if there's a leak
 
 class VectorPool {
     constructor(initialSize, maxSize) {
@@ -168,7 +169,7 @@ class VectorPool {
         } else {
             v = new Vector(x, y); // Create new if pool is empty
             this._totalCreated++;
-            // Optional: console.warn("VectorPool had to create a new Vector. Pool empty.");
+            console.warn("VectorPool had to create a new Vector. Pool empty.");
         }
         return v;
     }
@@ -202,6 +203,8 @@ class VectorPool {
     }
 }
 
+window.logPoolStats = () => console.table(vectorPool.getStats());
+
 class Vector {
     constructor(x, y) {
         this.x = x;
@@ -231,14 +234,14 @@ class Vector {
     static dist(v1, v2) { return Math.sqrt((v1.x - v2.x) ** 2 + (v1.y - v2.y) ** 2); }
 
     static sub(v1, v2, out_vector) {
-        const target = out_vector || vectorPool.get();
+        const target = out_vector || vectorPool.get(0, 0);
         target.x = v1.x - v2.x;
         target.y = v1.y - v2.y;
         return target;
     }
 
     static random2D(out_vector) {
-        const target = out_vector || vectorPool.get();
+        const target = out_vector || vectorPool.get(0, 0);
         target.x = Math.random() * 2 - 1;
         target.y = Math.random() * 2 - 1;
         return target;
@@ -434,7 +437,7 @@ class Boid {
             easterEggCenterY + (Math.random() - 0.5) * EASTER_EGG_HEIGHT * SPREAD_FACTOR
         );
 
-        this.velocity = Vector.random2D(vectorPool.get());
+        this.velocity = Vector.random2D(vectorPool.get(0, 0));
         this.velocity.setMag(Math.random() * 2 + 2);
         this.desiredVelocity = vectorPool.get(0, 0);
         this.boost = vectorPool.get(-INITIAL_BOOST, -INITIAL_BOOST);
@@ -452,6 +455,18 @@ class Boid {
 
         this.scatterState = 0;
         this.cooldownTimer = 0;
+    }
+
+    destroy() {
+        vectorPool.release(this.position);
+        vectorPool.release(this.velocity);
+        vectorPool.release(this.desiredVelocity);
+        vectorPool.release(this.boost);
+        // Set them to null to prevent accidental use after destruction
+        this.position = null;
+        this.velocity = null;
+        this.desiredVelocity = null;
+        this.boost = null;
     }
 
     edges() {
@@ -485,7 +500,7 @@ class Boid {
         const sepRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
         const depthRadiusSq = DEPTH_INFLUENCE_RADIUS * DEPTH_INFLUENCE_RADIUS;
 
-        const tempDiff = vectorPool.get(); // Reusable vector for calculations
+        const tempDiff = vectorPool.get(0, 0); // Reusable vector for calculations
 
         // --- SINGLE LOOP ---
         for (const other of localNeighbors) {
@@ -575,7 +590,7 @@ class Boid {
     mouseAttraction() {
         if (!mouseInfluence || boidsIgnoreMouse) return vectorPool.get(0, 0);
 
-        const directionToMouse = Vector.sub(mouse, this.position, vectorPool.get());
+        const directionToMouse = Vector.sub(mouse, this.position, vectorPool.get(0, 0));
         let distance = directionToMouse.mag();
         let steer = null; // Will hold the final steering vector for this function
 
@@ -583,14 +598,14 @@ class Boid {
             if (this.scatterState === 1) {
                 const desiredRepulsionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y);
                 desiredRepulsionVelocity.setMag(this.maxSpeed).mult(-1);
-                steer = Vector.sub(desiredRepulsionVelocity, this.velocity, vectorPool.get());
+                steer = Vector.sub(desiredRepulsionVelocity, this.velocity, vectorPool.get(0, 0));
                 steer.limit(this.maxForce * 3);
                 vectorPool.release(desiredRepulsionVelocity);
             } else {
                 let strength = 1.0 - (distance / MOUSE_INFLUENCE_RADIUS);
                 const desiredAttractionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y);
                 desiredAttractionVelocity.setMag(this.maxSpeed);
-                steer = Vector.sub(desiredAttractionVelocity, this.velocity, vectorPool.get());
+                steer = Vector.sub(desiredAttractionVelocity, this.velocity, vectorPool.get(0, 0));
                 steer.mult(strength).limit(this.maxForce);
                 vectorPool.release(desiredAttractionVelocity);
             }
@@ -758,13 +773,13 @@ const flock = [];
  */
 function applyObstacleAvoidanceForces() {
     // --- Reusable temporary vectors for all calculations in this function ---
-    const effectiveObsCenter = vectorPool.get();
-    const repulsionDirTemp = vectorPool.get();
-    const boidToEffectiveCenterTemp = vectorPool.get();
-    const closestPointOnEffectiveObstacleTemp = vectorPool.get();
-    const boidToClosestPointTemp = vectorPool.get();
-    const desiredSteerAwayTemp = vectorPool.get();
-    const currentToroidalForce = vectorPool.get(); // Holds the force for one toroidal image
+    const effectiveObsCenter = vectorPool.get(0, 0);
+    const repulsionDirTemp = vectorPool.get(0, 0);
+    const boidToEffectiveCenterTemp = vectorPool.get(0, 0);
+    const closestPointOnEffectiveObstacleTemp = vectorPool.get(0, 0);
+    const boidToClosestPointTemp = vectorPool.get(0, 0);
+    const desiredSteerAwayTemp = vectorPool.get(0, 0);
+    const currentToroidalForce = vectorPool.get(0, 0); // Holds the force for one toroidal image
 
     // --- 1. For each Obstacle -> ... ---
     for (const obstacle of allObstacles) {
@@ -1084,7 +1099,7 @@ function animate() {
 
     // --- 7. Continue or Stop the Animation Loop ---
     if (isEnding && endProgress >= 1) {
-        console.log("End animation complete.");
+        // console.log("End animation complete.");
         return; // Stop the loop
     }
     animationFrameId = requestAnimationFrame(animate);
@@ -1094,7 +1109,6 @@ function resetSimulationParameters() {
     simParams = { ...defaultSimParams }; // Reset to defaults
     updateSpatialGridParameters();      // Update dependent systems (grid)
     updateMenuValues(simParams);        // Update UI to reflect the reset
-    console.log('Simulation parameters reset to default.');
 }
 
 function resetBoidSimulator() {
@@ -1113,6 +1127,9 @@ function resetBoidSimulator() {
     obstacleGrid.resize(canvas.width, canvas.height);
     updateAllObstacles(); // IMPORTANT: Repopulate obstacle grid after resize
 
+    for (const boid of flock) {
+        boid.destroy();
+    }
     flock.length = 0;
     debugSelectedBoid = null;
 
@@ -1147,15 +1164,13 @@ async function loadAndPrepareImage() {
     const imageBlob = await response.blob();
 
     // 2. Decode the blob into an ImageBitmap
-    // You can even specify a resize here to match your needs!
-    // This offloads the expensive resizing to happen only ONCE.
     boidImageBitmap = await createImageBitmap(imageBlob, {
         resizeWidth: 64,  // Set this to a reasonable max size for your boids
         resizeHeight: 64, // e.g., 64x64
         resizeQuality: 'high'
     });
 
-    console.log("Boid image is decoded and ready to render.");
+    // console.log("Boid image is decoded and ready to render.");
 }
 
 // Function to be called from another file
