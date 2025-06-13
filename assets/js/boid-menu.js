@@ -4,7 +4,7 @@
 // It receives initial state and dispatches events when the user interacts.
 // It does NOT modify the main application state directly.
 
-// import { MAX_POTENTIAL_FLOCK_SIZE } from './boid-simulator.js';
+import { MAX_FLOCK_SIZE_HARD_CAP } from './boid-simulator.js';
 
 // --- Private variables ---
 let menuContainer; // Keep a reference to the main menu element
@@ -59,16 +59,16 @@ export function initializeMenu(initialParams, initialDebugFlags) {
     if (document.getElementById('experimentalMenu')) return;
 
     const categorizedParamConfigs = {
-        // General: { // New category
-        //     FLOCK_SIZE: {
-        //         label: 'Flock Size',
-        //         type: 'range',
-        //         min: 1,
-        //         max: MAX_POTENTIAL_FLOCK_SIZE,
-        //         step: 1,
-        //         precision: 0
-        //     }
-        // },
+        General: { // New category
+            FLOCK_SIZE: {
+                label: 'Flock Size',
+                type: 'range',
+                min: 1,
+                max: MAX_FLOCK_SIZE_HARD_CAP,
+                step: 1,
+                precision: 0
+            }
+        },
         Force: {
             ALIGNMENT_FORCE: { label: 'Alignment', type: 'range', min: 0, max: 2, step: 0.1, precision: 1 },
             COHESION_FORCE: { label: 'Cohesion', type: 'range', min: 0, max: 3, step: 0.1, precision: 1 },
