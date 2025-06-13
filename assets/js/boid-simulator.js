@@ -1024,9 +1024,12 @@ function applyObstacleAvoidanceForces() {
                     interactionType = 'bounce';
                     Vector.sub(boid.position, effectiveObsCenter, repulsionDirTemp);
                     if (repulsionDirTemp.magSq() === 0) Vector.random2D(repulsionDirTemp);
-                    repulsionDirTemp.setMag(boid.maxSpeed);
+
+                    repulsionDirTemp.setMag(NORMAL_MAX_SPEED);
+
                     Vector.sub(repulsionDirTemp, boid.velocity, currentToroidalForce);
                     currentToroidalForce.limit(boid.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
+
                     Vector.sub(boid.position, effectiveObsCenter, boidToEffectiveCenterTemp);
                     currentDistSq = boidToEffectiveCenterTemp.magSq();
                 } else {
