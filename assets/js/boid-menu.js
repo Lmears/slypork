@@ -149,36 +149,49 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
     });
 
     randomizeButton.addEventListener('click', () => {
-        const newParams = {};
-        for (const categoryName in categorizedParamConfigs) {
-            const paramsInCategory = categorizedParamConfigs[categoryName];
-            for (const key in paramsInCategory) {
-                const config = paramsInCategory[key];
-                if (config.type === 'range') {
-                    const min = parseFloat(config.min);
-                    const max = parseFloat(config.max);
-                    const step = parseFloat(config.step) || 1;
-                    const precision = config.precision !== undefined ? config.precision : 2;
+        let newParams;
+        let isSizeLarge, isAnyRadiusLarge;
 
-                    // Calculate the number of possible steps
-                    const numSteps = Math.floor((max - min) / step);
-                    // Choose a random step index
-                    const randomStepIndex = Math.floor(Math.random() * (numSteps + 1));
-                    // Calculate the new value
-                    let newValue = min + randomStepIndex * step;
-                    // Clamp to max in case of floating point inaccuracies
-                    newValue = Math.min(max, newValue);
-                    // Format to the correct precision
-                    const finalValue = parseFloat(newValue.toFixed(precision));
+        // Keep generating random parameters until the constraint is met.
+        // The constraint: FLOCK_SIZE and any RADIUS cannot both be large (> 400).
+        do {
+            newParams = {};
+            // First, generate a full set of random parameters
+            for (const categoryName in categorizedParamConfigs) {
+                const paramsInCategory = categorizedParamConfigs[categoryName];
+                for (const key in paramsInCategory) {
+                    const config = paramsInCategory[key];
+                    if (config.type === 'range') {
+                        const min = parseFloat(config.min);
+                        const max = parseFloat(config.max);
+                        const step = parseFloat(config.step) || 1;
+                        const precision = config.precision !== undefined ? config.precision : 2;
 
-                    // Dispatch event to notify the main application
-                    dispatch('paramChanged', { key: key, value: finalValue });
-                    // Store for local update
-                    newParams[key] = finalValue;
+                        const numSteps = Math.floor((max - min) / step);
+                        const randomStepIndex = Math.floor(Math.random() * (numSteps + 1));
+                        let newValue = min + randomStepIndex * step;
+                        newValue = Math.min(max, newValue); // Clamp to max for safety
+                        const finalValue = parseFloat(newValue.toFixed(precision));
+
+                        newParams[key] = finalValue;
+                    }
                 }
             }
+
+            // Now, check if the generated set violates the constraint
+            isSizeLarge = newParams.FLOCK_SIZE > 400;
+            isAnyRadiusLarge =
+                newParams.ALIGNMENT_RADIUS > 400 ||
+                newParams.COHESION_RADIUS > 400 ||
+                newParams.SEPARATION_RADIUS > 400 ||
+                newParams.OBSTACLE_RADIUS > 400;
+
+        } while (isSizeLarge && isAnyRadiusLarge); // Loop if both conditions are true
+
+        // Once a valid set is found, dispatch all changes and update the UI
+        for (const key in newParams) {
+            dispatch('paramChanged', { key: key, value: newParams[key] });
         }
-        // Update the menu UI to reflect the new random values
         updateMenuValues(newParams);
     });
 
