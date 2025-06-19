@@ -125,7 +125,6 @@ let animationFrameId = null;
 let isEnding = false;
 let endStartTime = 0;
 let spatialGrid;
-let obstacleGrid;
 let godMode = false;
 let debugObstaclesMode = false;
 let debugGridMode = false;
@@ -840,6 +839,11 @@ function findBoidInClump() {
     // Sample a small number of boids to find a suitable candidate efficiently.
     const sampleSize = Math.min(flock.length, 15);
     const radius = simParams.COHESION_RADIUS;
+    const radiusSq = radius * radius;
+
+    // For correct toroidal distance calculation
+    const halfWidth = canvas.width / 2;
+    const halfHeight = canvas.height / 2;
 
     for (let i = 0; i < sampleSize; i++) {
         const candidate = flock[Math.floor(Math.random() * flock.length)];
@@ -847,7 +851,24 @@ function findBoidInClump() {
         const potentialNeighbors = spatialGrid.getItemsInNeighborhood(candidate.position);
         let neighborCount = 0;
         for (const other of potentialNeighbors) {
-            if (other !== candidate && Vector.dist(candidate.position, other.position) < radius) {
+            if (other === candidate) {
+                continue;
+            }
+
+            // Perform correct, optimized toroidal distance check
+            let dx = candidate.position.x - other.position.x;
+            let dy = candidate.position.y - other.position.y;
+
+            if (Math.abs(dx) > halfWidth) {
+                dx = canvas.width - Math.abs(dx);
+            }
+            if (Math.abs(dy) > halfHeight) {
+                dy = canvas.height - Math.abs(dy);
+            }
+
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < radiusSq) {
                 neighborCount++;
             }
         }
@@ -980,10 +1001,6 @@ async function startSimulation() {
 
     CELL_SIZE = calculateCurrentCellSize();
     if (spatialGrid) spatialGrid.resize(canvas.width, canvas.height);
-    if (obstacleGrid) {
-        obstacleGrid.resize(canvas.width, canvas.height);
-        updateAllObstacles();
-    }
     // Set initial flock size based on responsive calculation if not manually set
     if (!userHasSetFlockSize) {
         updateResponsiveFlockSize();
@@ -1076,7 +1093,8 @@ function animate() {
         const boid = flock[i];
         if (boid.isDying && (currentTime - boid.dyingStartTime > BOID_DYING_DURATION)) {
             boid.destroy();
-            flock.splice(i, 1);
+            flock[i] = flock[flock.length - 1];
+            flock.pop();
         }
     }
 
@@ -1338,7 +1356,6 @@ async function _prepareEnvironment() {
     canvas.height = window.innerHeight;
 
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
-    obstacleGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
     initializeObstacles();
     updateAllObstacles();
 
@@ -1504,9 +1521,6 @@ const resizeHandler = () => {
     if (spatialGrid) {
         spatialGrid.resize(canvas.width, canvas.height);
     }
-    if (obstacleGrid) {
-        obstacleGrid.resize(canvas.width, canvas.height);
-    }
     updateAllObstacles();
     // If simulation is running and in responsive mode, update the target flock size.
     if (animationFrameId && !userHasSetFlockSize) {
@@ -1663,14 +1677,8 @@ function setupMenuEventListeners() {
 }
 
 function updateAllObstacles() {
-    if (!obstacleGrid) return;
-    obstacleGrid.clear();
-
     for (const obstacle of allObstacles) {
         obstacle.update();
-        if (obstacle.isEnabled) {
-            obstacleGrid.addItemInArea(obstacle, obstacle.paddedBounds);
-        }
     }
 }
 
