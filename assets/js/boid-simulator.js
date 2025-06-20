@@ -33,7 +33,7 @@ let simParams = {
 const defaultSimParams = { ...simParams }; // Store initial values for reset
 
 const OBSTACLE_PADDING = 0;
-const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3.5;
+const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3;
 const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
 const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
 
@@ -1266,8 +1266,8 @@ function applyObstacleAvoidanceForces() {
                     repulsionDirTemp.setMag(NORMAL_MAX_SPEED);
 
                     Vector.sub(repulsionDirTemp, boid.velocity, currentToroidalForce);
-                    currentToroidalForce.limit(boid.maxForce * OBSTACLE_BOUNCE_FORCE_MULTIPLIER);
-
+                    const bounceMultiplier = simParams.OBSTACLE_FORCE * OBSTACLE_BOUNCE_FORCE_MULTIPLIER;
+                    currentToroidalForce.limit(boid.maxForce * bounceMultiplier);
                     Vector.sub(boid.position, effectiveObsCenter, boidToEffectiveCenterTemp);
                     currentDistSq = boidToEffectiveCenterTemp.magSq();
                 } else {
@@ -1424,12 +1424,6 @@ const mouseUpHandler = (event) => {
 const touchStartHandler = (event) => {
     const experimentalMenu = document.getElementById('experimentalMenu');
     const easterEgg = document.getElementById('easterEgg');
-    // const aboutLink = document.getElementById('aboutLink');
-    // const masteringLink = document.getElementById('masteringLink');
-    // const musicLink = document.getElementById('musicLink');
-    // const designLink = document.getElementById('designLink');
-    // const softwareLink = document.getElementById('softwareLink');
-    // const contactLink = document.getElementById('contactLink');
     const navLinks = document.getElementById('navLinks');
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const visualContainer = document.getElementById('visualContainer');
@@ -1446,12 +1440,6 @@ const touchStartHandler = (event) => {
     const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
         (speedControls && speedControls.contains(event.target)) ||
         (experimentalMenu && experimentalMenu.contains(event.target)) ||
-        // (aboutLink && aboutLink.contains(event.target)) ||
-        // (masteringLink && masteringLink.contains(event.target)) ||
-        // (musicLink && musicLink.contains(event.target)) ||
-        // (designLink && designLink.contains(event.target)) ||
-        // (softwareLink && softwareLink.contains(event.target)) ||
-        // (contactLink && contactLink.contains(event.target)) ||
         (navLinks && navLinks.contains(event.target)) ||
         (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
         (visualContainer && visualContainer.contains(event.target)) ||
@@ -1545,6 +1533,14 @@ const speedControlsMouseLeaveHandler = () => {
     boidsIgnoreMouse = false;
 };
 
+const iframeMouseEnterHandler = () => {
+    boidsIgnoreMouse = true;
+};
+
+const iframeMouseLeaveHandler = () => {
+    boidsIgnoreMouse = false;
+};
+
 const documentClickHandler = (event) => {
     if (!event.shiftKey || !debugGridMode) {
         if (!debugGridMode) {
@@ -1610,6 +1606,12 @@ function setupEventListeners() {
         godModeButton.removeEventListener('click', godModeButtonClickHandler);
     }
 
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach(iframe => {
+        iframe.removeEventListener('mouseenter', iframeMouseEnterHandler);
+        iframe.removeEventListener('mouseleave', iframeMouseLeaveHandler);
+    });
+
     document.addEventListener('mousemove', mouseMoveHandler);
     document.addEventListener('mouseleave', mouseLeaveHandler);
     document.addEventListener('mousedown', mouseDownHandler);
@@ -1631,6 +1633,11 @@ function setupEventListeners() {
     if (godModeButton) {
         godModeButton.addEventListener('click', godModeButtonClickHandler);
     }
+
+    iframes.forEach(iframe => {
+        iframe.addEventListener('mouseenter', iframeMouseEnterHandler);
+        iframe.addEventListener('mouseleave', iframeMouseLeaveHandler);
+    });
 }
 
 function setupMenuEventListeners() {
