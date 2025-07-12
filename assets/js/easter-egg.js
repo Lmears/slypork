@@ -1,7 +1,60 @@
+/**
+ * Controls the visibility of the main boid controls (speed slider).
+ * @param {boolean} isVisible - Whether the controls should be visible.
+ * @param {object} [options={}] - An options object.
+ * @param {boolean} [options.animated=true] - If false, the change happens instantly.
+ */
+function setControlsVisibility(isVisible, options = {}) {
+    const { animated = true } = options;
+    const controls = document.getElementById('controls');
+    if (!controls) return;
+
+    // The duration of the fade animation, consistent with your original code.
+    const ANIMATION_DURATION = 1000;
+
+    if (isVisible) {
+        // --- SHOW LOGIC ---
+        controls.style.display = 'flex';
+
+        if (animated) {
+            // Use a tiny delay to ensure the 'display' change is rendered
+            // before the opacity transition begins.
+            setTimeout(() => {
+                controls.style.opacity = '1';
+            }, 50);
+        } else {
+            // Instantly set opacity to 1.
+            controls.style.opacity = '1';
+        }
+
+    } else {
+        // --- HIDE LOGIC ---
+        if (animated) {
+            controls.style.opacity = '0';
+            // Wait for the transition to finish before setting display to none.
+            setTimeout(() => {
+                controls.style.display = 'none';
+            }, ANIMATION_DURATION);
+        } else {
+            // The instant-hide trick:
+            // 1. Temporarily disable CSS transitions on the element.
+            controls.style.transition = 'none';
+
+            // 2. Apply the final hidden state. It will happen immediately.
+            controls.style.opacity = '0';
+            controls.style.display = 'none';
+
+            // 3. Re-enable transitions after a tiny delay, so they work next time.
+            setTimeout(() => {
+                controls.style.transition = ''; // Resets to the CSS-defined value
+            }, 20);
+        }
+    }
+}
+
 function setupEasterEgg() {
     const easterEgg = document.getElementById('easterEgg');
     const boidCanvas = document.getElementById('boidCanvas');
-    const controls = document.getElementById('controls');
     let tapCount = 0;
     let canIncrement = true;
     let currentScale = 1; // Logical current scale
@@ -14,6 +67,27 @@ function setupEasterEgg() {
         scale: currentScale,
         rotate: 0
     };
+
+    function resetEasterEggState() {
+        console.log("Resetting Easter Egg state to default.");
+        tapCount = 0;
+        currentScale = 1;
+        canIncrement = true;
+        isAnimating = false;
+
+        // Reset the logical state for transformations
+        activeTransformState = { x: 0, y: 0, scale: 1, rotate: 0 };
+
+        // Also reset the actual visual style of the element instantly.
+        if (easterEgg) {
+            // By setting the transform to an empty string, we remove any inline
+            // styles and let it revert to its stylesheet definition.
+            easterEgg.style.transform = '';
+        }
+    }
+
+    window.setControlsVisibility = setControlsVisibility;
+    window.resetEasterEggState = resetEasterEggState;
 
     function applyCurrentTransform() {
         easterEgg.style.transform = `translateY(${activeTransformState.y}px) translateX(${activeTransformState.x}px) scale(${activeTransformState.scale}) rotate(${activeTransformState.rotate}deg)`;
@@ -231,57 +305,69 @@ function setupEasterEgg() {
 
 
         easterEgg.addEventListener('click', () => {
+            // No change needed for this initial section.
             if (!canIncrement) return;
-
             canIncrement = false;
             tapCount++;
-
             activeTransformState.scale = currentScale;
             activeTransformState.x = 0;
             activeTransformState.y = 0;
             activeTransformState.rotate = 0;
             applyCurrentTransform();
 
-
+            // --- HIDING LOGIC (Tap 4) ---
+            // Refactored to use the new function and preserve staggered timing.
             if (tapCount === 4) {
+                // These animations for the egg itself start immediately.
                 activeTransformState.scale = currentScale;
                 activeTransformState.y = 0;
                 activeTransformState.x = 0;
                 activeTransformState.rotate = 0;
                 applyCurrentTransform();
-
-                animateWiggle(() => {
-                    // console.log("Wiggle finished.");
-                });
-
+                animateWiggle(() => { /* Wiggle finished */ });
                 animateGrowAndShrink(() => {
                     tapCount = 0;
                     canIncrement = true;
                 });
 
+                // The simulation's own exit animation also starts immediately.
                 if (typeof window.startExitAnimation === 'function') {
                     window.startExitAnimation();
                 }
+
+                // REFACTOR: Start the fade-out of background elements after a 50ms delay.
                 setTimeout(() => {
+                    // Call our new, clean function to hide the controls with animation.
+                    setControlsVisibility(false);
+
+                    // Start the canvas fade-out at the same time.
                     if (boidCanvas) boidCanvas.style.opacity = '0';
-                    if (controls) controls.style.opacity = '0';
-                    setTimeout(() => {
-                        if (boidCanvas) boidCanvas.style.display = 'none';
-                        if (controls) controls.style.display = 'none';
-                        document.body.classList.remove('boid-active');
-                        if (typeof window.stopSimulation === 'function') {
-                            window.stopSimulation();
-                        }
-                    }, 1000);
                 }, 50);
 
-            } else if (tapCount === 5) {
+                // REFACTOR: Schedule the final cleanup to run after the 1000ms animation completes.
+                setTimeout(() => {
+                    if (boidCanvas) boidCanvas.style.display = 'none';
+                    // Note: setControlsVisibility handles its own display change, no need to repeat.
+                    document.body.classList.remove('boid-active');
+                    if (typeof window.stopSimulation === 'function') {
+                        window.stopSimulation();
+                    }
+                }, 1050); // 50ms delay + 1000ms animation = 1050ms total time.
+
+            }
+            // No change needed for this block.
+            else if (tapCount === 5) {
                 tapCount = 1;
                 animate('down');
-            } else if (tapCount >= 1 && tapCount <= 3) {
+            }
+            // --- BUILD-UP & SHOWING LOGIC (Taps 1-3) ---
+            else if (tapCount >= 1 && tapCount <= 3) {
+                // This runs on taps 1, 2, and 3.
                 animate('down');
 
+                // This nested block ONLY runs on the 3rd tap to reveal the simulation.
                 if (tapCount === 3) {
+                    // The original timing chain is preserved for the desired visual effect.
                     setTimeout(() => {
                         if (boidCanvas) {
                             boidCanvas.style.display = 'block';
@@ -290,30 +376,24 @@ function setupEasterEgg() {
                         setTimeout(() => {
                             if (boidCanvas) boidCanvas.style.opacity = '1';
                             document.body.classList.add('boid-active');
+
+                            // REFACTOR: The complex logic for showing the controls is now one function call.
+                            // This is scheduled after a 500ms delay to let the canvas appear first.
                             setTimeout(() => {
-                                if (controls) {
-                                    controls.style.display = 'flex';
-                                    controls.style.opacity = '0';
-                                }
-                                setTimeout(() => {
-                                    if (controls) controls.style.opacity = '1';
-                                    if (typeof initializeSlider === 'function') initializeSlider('speedSlider', 'speedValue', '%');
-                                    if (typeof startSimulation === 'function') startSimulation();
-                                }, 50);
+                                // Show the controls with the default fade-in animation.
+                                setControlsVisibility(true);
+
+                                // Initialize the simulation and slider as the controls are fading in.
+                                if (typeof initializeSlider === 'function') initializeSlider('speedSlider', 'speedValue', '%');
+                                if (typeof startSimulation === 'function') startSimulation();
                             }, 500);
                         }, 50);
                     }, 500);
                 }
-            } else {
-                tapCount = 0;
-                currentScale = 1;
-                activeTransformState.x = 0;
-                activeTransformState.y = 0;
-                activeTransformState.scale = 1;
-                activeTransformState.rotate = 0;
-                applyCurrentTransform();
-                isAnimating = false;
-                canIncrement = true;
+            }
+            // No change needed for this final reset block.
+            else {
+                resetEasterEggState();
             }
         });
     }

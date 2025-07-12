@@ -37,22 +37,52 @@ function createElement(tag, classList, properties = {}) {
 
 // --- Public (Exported) Functions ---
 
-export function setMenuVisibility(isVisible) {
+/**
+ * Sets the visibility of the menu, with an option to skip the animation.
+ * @param {boolean} isVisible - Whether the menu should be visible.
+ * @param {object} [options={}] - An options object.
+ * @param {boolean} [options.animated=true] - If false, the change happens instantly.
+ */
+export function setMenuVisibility(isVisible, options = {}) {
+    const { animated = true } = options; // Default to an animated transition
+
     if (!menuContainer) return;
 
-    // Define the classes for each state
+    // Centralize all relevant class lists for easy management
     const openClasses = ['opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto'];
     const closedClasses = ['opacity-0', 'translate-y-5', 'scale-95', 'pointer-events-none'];
+    const transitionClasses = ['transition', 'ease-out', 'duration-300'];
 
-    if (isVisible) {
-        menuContainer.removeAttribute('inert');
-        menuContainer.classList.remove(...closedClasses);
-        menuContainer.classList.add(...openClasses);
-    } else {
+    // --- HIDING LOGIC ---
+    if (!isVisible) {
         menuContainer.setAttribute('inert', 'true');
         menuContainer.classList.remove(...openClasses);
-        menuContainer.classList.add(...closedClasses);
+
+        if (animated) {
+            // Standard behavior: just add the classes and let the transition run.
+            menuContainer.classList.add(...closedClasses);
+        } else {
+            // INSTANT behavior for page loads/bfcache restores:
+            // 1. Temporarily remove transition classes to make the next change instant.
+            menuContainer.classList.remove(...transitionClasses);
+
+            // 2. Apply the final 'closed' state classes. This happens immediately.
+            menuContainer.classList.add(...closedClasses);
+
+            // 3. IMPORTANT: Use a minimal timeout to re-apply the transition classes
+            //    *after* the browser has rendered the instant change. This ensures
+            //    that the *next* time the menu is opened, it will animate correctly.
+            setTimeout(() => {
+                menuContainer.classList.add(...transitionClasses);
+            }, 10); // A tiny delay is all that's needed.
+        }
+        return; // We're done hiding.
     }
+
+    // --- SHOWING LOGIC (can remain the same) ---
+    menuContainer.removeAttribute('inert');
+    menuContainer.classList.remove(...closedClasses);
+    menuContainer.classList.add(...openClasses);
 }
 
 /**
@@ -89,7 +119,7 @@ async function loadSvgIcons(url) {
 export async function initializeMenu(initialParams, initialDebugFlags) {
     if (document.getElementById('experimentalMenu')) return;
 
-    await loadSvgIcons('assets/images/icons.svg');
+    await loadSvgIcons('/assets/images/icons.svg');
 
     // --- Refactored configuration to include Debug toggles ---
     const categorizedParamConfigs = {
