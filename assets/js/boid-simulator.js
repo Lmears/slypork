@@ -18,9 +18,9 @@ let userHasSetFlockSize = false;
 // --- Tweakable Simulation Parameters (via experimental menu) ---
 let simParams = {
     FLOCK_SIZE: DEFAULT_FLOCK_SIZE,
-    ALIGNMENT_FORCE: 1.2,
+    ALIGNMENT_FORCE: 1.0,
     COHESION_FORCE: 0.7,
-    SEPARATION_FORCE: 1.3,
+    SEPARATION_FORCE: 1.1,
     OBSTACLE_FORCE: 1.2,
     ALIGNMENT_RADIUS: 50,
     COHESION_RADIUS: 120,
@@ -1583,6 +1583,55 @@ const godModeButtonClickHandler = () => {
 };
 
 // State & Event Management
+function setupAppLifecycleListeners() {
+    window.addEventListener('pageshow', (event) => {
+        // This event fires on every page load, including back-button navigation.
+        if (event.persisted) {
+            mouseInfluence = false;
+            // console.log("Page restored from back-forward cache. Resetting UI state.");
+            godMode = false;
+
+            setMenuVisibility(false, { animated: false });
+
+            if (typeof window.resetEasterEggState === 'function') {
+                window.resetEasterEggState();
+            }
+
+            // Dispatch event to sync the God Mode button's state (good practice)
+            const customEvent = new CustomEvent('godModeToggled', {
+                detail: { enabled: false },
+                bubbles: true,
+                composed: true
+            });
+            document.body.dispatchEvent(customEvent);
+
+
+            const pageMode = document.body.dataset.pageMode;
+
+            // Only tear down the main simulation UI if we are NOT on the permanent page.
+            if (pageMode !== 'permanent-sim') {
+                stopSimulation();
+                // console.log("Standard page detected. Hiding main simulation UI.");
+
+                if (window.setControlsVisibility) {
+                    window.setControlsVisibility(false, { animated: false });
+                }
+
+                // Instantly hide the canvas
+                const boidCanvas = document.getElementById('boidCanvas');
+                if (boidCanvas) {
+                    boidCanvas.style.transition = 'none';
+                    boidCanvas.style.opacity = '0';
+                    boidCanvas.style.display = 'none';
+                    setTimeout(() => boidCanvas.style.transition = '', 20);
+                }
+            } else {
+                // console.log("Permanent simulation page detected. Controls and canvas will remain visible.");
+            }
+        }
+    });
+}
+
 function setupEventListeners() {
     document.removeEventListener('mousemove', mouseMoveHandler);
     document.removeEventListener('mouseleave', mouseLeaveHandler);
@@ -1797,3 +1846,4 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
 window.startSimulation = startSimulation;
 window.stopSimulation = stopSimulation;
 window.startExitAnimation = startExitAnimation;
+setupAppLifecycleListeners();
