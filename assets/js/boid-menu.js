@@ -178,7 +178,21 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
         innerHTML: '<svg class="w-5 h-5"><use href="#dice-d20"></use></svg>'
     });
 
+    const icon = randomizeButton.querySelector('svg');
+
+    icon.addEventListener('animationend', () => {
+        icon.classList.remove('dice-is-spinning');
+    });
+
     randomizeButton.addEventListener('click', () => {
+        // By removing the class and then adding it back within a minimal timeout,
+        // we ensure the browser processes the removal before the addition,
+        // which reliably restarts the animation from the beginning.
+        icon.classList.remove('dice-is-spinning');
+        setTimeout(() => {
+            icon.classList.add('dice-is-spinning');
+        }, 0); // A 0ms timeout is sufficient to queue this for the next paint cycle.
+
         let newParams;
         let isSizeLarge, isAnyRadiusLarge;
 
@@ -258,6 +272,39 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
             #experimentalMenu .value-input:focus {
                 outline: none; border-color: #2196F3;
             }
+
+            /* Dice Button Animation */
+            @keyframes dice-bounce-and-roll {
+                0% {
+                    transform: translateY(0) rotate(0deg);
+                    animation-timing-function: cubic-bezier(0.25, 0.75, 0.5, 1);
+                }
+                40% {
+                    /* Peak of the throw, reduced height */
+                    transform: translateY(-15px) rotate(270deg);
+                    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.25);
+                }
+                60% {
+                    /* First bounce impact */
+                    transform: translateY(0px) rotate(330deg);
+                    animation-timing-function: cubic-bezier(0.25, 0.75, 0.5, 1);
+                }
+                80% {
+                    /* Second, smaller bounce, reduced height */
+                    transform: translateY(-5px) rotate(350deg);
+                    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.25);
+                }
+                100% {
+                    /* Settle */
+                    transform: translateY(0) rotate(360deg);
+                }
+            }
+
+            .dice-is-spinning {
+                transform-origin: center;
+                animation: dice-bounce-and-roll 0.5s ease-out;
+            }
+
 
             /* Collapsible Category Styles */
             #experimentalMenu .category-header {
