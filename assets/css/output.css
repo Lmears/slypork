@@ -2534,4 +2534,21 @@ input[type="checkbox"]:disabled {
   .print\:pt-6 {
     padding-top: 1.5rem;
   }
+
+  .print\:font-normal {
+    font-weight: 400;
+  }
+
+  .print\:font-medium {
+    font-weight: 500;
+  }
+
+  .print\:font-light {
+    font-weight: 300;
+  }
+
+  .print\:text-body {
+    --tw-text-opacity: 1;
+    color: rgb(51 51 51 / var(--tw-text-opacity, 1));
+  }
 }
