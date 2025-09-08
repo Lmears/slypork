@@ -3,6 +3,14 @@ var linkColor = '63b2cc';
 
 var links = [
     {
+        name: 'Young Gho$t - Lost Time',
+        credits: 'Credits: Mastering',
+        date: '2025-09-08',
+        id: 'album=2709497462',
+        url: 'https://youngghost.bandcamp.com/album/lost-time',
+        type: 'bandcamp',
+    },
+    {
         name: 'Stems - Grains Remixed',
         credits: 'Credits: Contributor, Mastering',
         date: '2024-12-13',
