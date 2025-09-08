@@ -195,14 +195,14 @@ var links = [
         url: 'https://grainsnz.bandcamp.com/album/dualism',
         type: 'bandcamp',
     },
-    {
-        name: 'Sano - Lost Some Of Me',
-        credits: 'Credits: Mastering',
-        date: '2021-11-23',
-        id: 'tracks/1165075729',
-        url: 'https://soundcloud.com/sano_dng/lost-some-of-me',
-        type: 'soundcloud',
-    },
+    // {
+    //     name: 'Sano - Lost Some Of Me',
+    //     credits: 'Credits: Mastering',
+    //     date: '2021-11-23',
+    //     id: 'tracks/1165075729',
+    //     url: 'https://soundcloud.com/sano_dng/lost-some-of-me',
+    //     type: 'soundcloud',
+    // },
     {
         name: 'PLISSKIN - Turn And Twist',
         credits: 'Credits: Mastering',
