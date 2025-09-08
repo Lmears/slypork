@@ -11,6 +11,14 @@ var links = [
         type: 'bandcamp',
     },
     {
+        name: 'Weka Tek x Te Manu - Tūroa',
+        credits: 'Credits: Mastering',
+        date: '2024-12-20',
+        id: 'album=3139597693',
+        url: 'https://teethandtail.bandcamp.com/album/t-roa',
+        type: 'bandcamp',
+    },
+    {
         name: 'Stems - Grains Remixed',
         credits: 'Credits: Contributor, Mastering',
         date: '2024-12-13',
