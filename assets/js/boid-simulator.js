@@ -50,10 +50,10 @@ const OBSTACLE_ELEMENT_IDS = [
 // Initialize obstacles from the DOM elements
 let allObstacles = [];
 
-// Other Simulation parameters
+// --- Other Simulation parameters (mostly non-tweakable via new menu) ---
 const MITOSIS_BOOST_STRENGTH = 0.1;
-const NORMAL_MAX_SPEED = 8;
-const SCATTER_MAX_SPEED = 25;
+const NORMAL_MAX_SPEED = 5;
+const SCATTER_MAX_SPEED = 15;
 const INITIAL_BOOST = 10;
 const BOOST_DECAY = 0.95;
 
@@ -134,7 +134,6 @@ let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
 let boidImageBitmap = null;
 let isSystemInitialized = false;
-let lastTimestamp = 0;
 
 
 // --- Vector Pool ---
@@ -564,9 +563,10 @@ class Boid {
             }
             // Separation
             if (dSq < sepRadiusSq && dSq > 0) {
-                // This vector points away from the neighbor.
-                tempDiff.set(tdx, tdy);
-                tempDiff.div(dSq);
+                const distance = Math.sqrt(dSq);
+                const strength = 1.0 - (distance / simParams.SEPARATION_RADIUS);
+                tempDiff.set(tdx, tdy); // Vector pointing away from neighbor
+                tempDiff.normalize().mult(strength);
                 avgRepulsion.add(tempDiff);
                 separationTotal++;
             }
@@ -687,7 +687,7 @@ class Boid {
      * Applies the final accumulated forces (including obstacle forces) to update
      * the boid's physics, position, and visual properties.
      */
-    applyForcesAndMove(currentTime, correctionFactor) {
+    applyForcesAndMove(currentTime) {
         // For living boids, update velocity based on all calculated forces.
         // Dying boids skip this block and just continue with their last velocity.
         if (!this.isDying) {
@@ -703,23 +703,17 @@ class Boid {
             // --- 3. Apply the decaying boost AFTER limiting ---
             // This allows the boost to temporarily exceed the max speed.
             this.velocity.add(this.boost);
-
-            // Make the boost decay consistent across different frame rates.
-            const effectiveDecay = Math.pow(BOOST_DECAY, correctionFactor);
-            this.boost.mult(effectiveDecay);
+            this.boost.mult(BOOST_DECAY);
         }
 
 
         // --- 4. Update position and visuals (for ALL boids, living or dying) ---
-        // Scale movement by the correction factor to ensure consistent speed.
-        const positionDelta = this.velocity.copy().mult(correctionFactor);
-        this.position.add(positionDelta);
-        vectorPool.release(positionDelta); // Clean up the temporary vector
-
-        this.updateRotation(correctionFactor); // Pass the factor to the rotation logic
+        this.position.add(this.velocity);
+        this.updateRotation();
         this.renderSize = this.calculateRenderSize(currentTime);
         this.edges(); // Wrap around canvas
     }
+
 
     updateScatterState() {
         if (this.scatterState !== 0) {
@@ -743,12 +737,13 @@ class Boid {
     }
 
 
-    updateRotation(correctionFactor) {
+
+    updateRotation() {
         const targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
         let rotationDiff = targetRotation - this.rotation;
         rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
 
-        const smoothedRotationDiff = rotationDiff * (1 - simParams.ROTATION_INERTIA) * this.rotationSpeed * speedMultiplier * correctionFactor;
+        const smoothedRotationDiff = rotationDiff * (1 - simParams.ROTATION_INERTIA) * this.rotationSpeed * speedMultiplier;
         this.rotation += smoothedRotationDiff;
 
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
@@ -1018,7 +1013,6 @@ async function startSimulation() {
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
     isEnding = false;
-    lastTimestamp = 0;
     animate();
 }
 
@@ -1068,28 +1062,7 @@ function startExitAnimation() {
 }
 
 //  Core Simulation Loop
-function animate(currentTime = 0) {
-    // This function will be passed a high-resolution timestamp by requestAnimationFrame
-    if (lastTimestamp === 0) {
-        lastTimestamp = currentTime;
-    }
-
-    const deltaTime = (currentTime - lastTimestamp) / 1000; // Delta time in seconds
-    lastTimestamp = currentTime;
-
-    // Clamp delta time to prevent physics "explosion" from lag spikes.
-    // A value of 1/30 means the simulation will slow down if FPS drops below 30,
-    // rather than trying to compute a massive time step.
-    const clampedDeltaTime = Math.min(deltaTime, 1 / 30);
-
-    // This factor scales physics calculations to a target of 60 FPS.
-    // If the refresh rate is 120 FPS, correctionFactor will be ~0.5.
-    // If the refresh rate is 30 FPS, correctionFactor will be ~2.
-    // This ensures movement speed is consistent regardless of the monitor's refresh rate.
-    const targetFramerate = 60;
-    const correctionFactor = clampedDeltaTime * targetFramerate;
-
-
+function animate() {
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
         ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
     } else {
@@ -1113,6 +1086,7 @@ function animate(currentTime = 0) {
     if (isScattering) {
         scatter(HOLD_SCATTER_DURATION);
     }
+    const currentTime = performance.now();
 
     // --- Cleanup Phase for faded-out boids ---
     for (let i = flock.length - 1; i >= 0; i--) {
@@ -1184,7 +1158,7 @@ function animate(currentTime = 0) {
         applyObstacleAvoidanceForces();
 
         for (let boid of flock) {
-            boid.applyForcesAndMove(currentTime, correctionFactor);
+            boid.applyForcesAndMove(currentTime);
             boid.draw(currentTime);
         }
     }
