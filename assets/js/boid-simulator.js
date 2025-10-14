@@ -827,7 +827,7 @@ class Boid {
         if (this.scatterState === 1) {
             size *= 1.5;
         } else if (this.scatterState === 2) {
-            size *= 1 + 0.5 * (this.cooldownTimer / COoldownDuration);
+            size *= 1 + 0.5 * (this.cooldownTimer / COOLDOWN_DURATION);
         }
         return size;
     }
