@@ -52,8 +52,8 @@ let allObstacles = [];
 
 // Other Simulation parameters
 const MITOSIS_BOOST_STRENGTH = 0.1;
-const NORMAL_MAX_SPEED = 10;
-const SCATTER_MAX_SPEED = 30;
+const NORMAL_MAX_SPEED = 8;
+const SCATTER_MAX_SPEED = 25;
 const INITIAL_BOOST = 10;
 const BOOST_DECAY = 0.95;
 
