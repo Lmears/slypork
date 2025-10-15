@@ -74,8 +74,8 @@ const DEPTH_INFLUENCE_RADIUS = 50;
 const BOID_MAX_FORCE = 0.175;
 const BOID_SIZE_BASE = 20;
 const BOID_SIZE_VARIATION = 10;
-const BOID_OSCILLATION_SPEED_BASE = 0.002;
-const BOID_OSCILLATION_SPEED_VARIATION = 0.002;
+const BOID_OSCILLATION_SPEED_BASE = 0.01;
+const BOID_OSCILLATION_SPEED_VARIATION = 0.04;
 const BOID_ROTATION_SPEED = 0.1;
 const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
 
@@ -476,8 +476,8 @@ class Boid {
         this.rotationSpeed = BOID_ROTATION_SPEED;
 
         this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
-        this.renderSize = this.calculateRenderSize(performance.now());
-        this.oscillationOffset = Math.random() * Math.PI * 2;
+        this.renderSize = this.calculateRenderSize();
+        this.oscillationPhase = Math.random() * Math.PI * 2;
         this.oscillationSpeed = BOID_OSCILLATION_SPEED_BASE + Math.random() * BOID_OSCILLATION_SPEED_VARIATION;
 
         this.scatterState = 0;
@@ -522,8 +522,12 @@ class Boid {
 
         const avgVelocity = vectorPool.get(0, 0);
         const avgPosition = vectorPool.get(0, 0);
-        const avgRepulsion = vectorPool.get(0, 0); // For separation
+        const avgRepulsion = vectorPool.get(0, 0);
         let avgDepth = 0;
+
+        let avgPhaseX = 0;
+        let avgPhaseY = 0;
+        let syncTotal = 0;
 
         let alignmentTotal = 0;
         let cohesionTotal = 0;
@@ -537,6 +541,7 @@ class Boid {
         const cohRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
         const sepRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
         const depthRadiusSq = DEPTH_INFLUENCE_RADIUS * DEPTH_INFLUENCE_RADIUS;
+        const syncRadiusSq = 50 * 50;
 
         const tempDiff = vectorPool.get(0, 0); // Reusable vector for calculations
 
@@ -580,6 +585,13 @@ class Boid {
                 avgDepth += other.depth;
                 depthTotal++;
             }
+
+            // Oscillation Sync
+            if (dSq < syncRadiusSq) {
+                avgPhaseX += Math.cos(other.oscillationPhase);
+                avgPhaseY += Math.sin(other.oscillationPhase);
+                syncTotal++;
+            }
         }
 
         vectorPool.release(tempDiff); // Done with this temporary vector
@@ -619,6 +631,14 @@ class Boid {
             const targetDepth = avgDepth / depthTotal;
             this.depth = this.depth * 0.99 + targetDepth * 0.01;
             this.depth = Math.max(0, Math.min(1, this.depth));
+        }
+
+        // --- Finalize OSCILLATION SYNC update ---
+        if (syncTotal > 0) {
+            const avgTargetPhase = Math.atan2(avgPhaseY / syncTotal, avgPhaseX / syncTotal);
+            let phaseDifference = avgTargetPhase - this.oscillationPhase;
+            phaseDifference = Math.atan2(Math.sin(phaseDifference), Math.cos(phaseDifference));
+            this.oscillationPhase += phaseDifference * 0.02;
         }
 
         // --- Return the combined forces ---
@@ -721,6 +741,7 @@ class Boid {
         vectorPool.release(scaledVelocity);
 
         this.updateRotation(timeScale);
+        this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed * timeScale) % (Math.PI * 2);
         this.edges(); // Wrap around canvas
     }
 
@@ -753,9 +774,12 @@ class Boid {
         let rotationDiff = targetRotation - this.rotation;
         rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
 
+        // This formula correctly derives the amount to rotate in this frame.
         const rotationInertiaFactor = 1 - Math.pow(1 - (1 - simParams.ROTATION_INERTIA), timeScale);
         const rotationAmount = rotationDiff * rotationInertiaFactor * this.rotationSpeed * speedMultiplier;
-        this.rotation += rotationAmount * timeScale;
+
+        // Apply the correctly calculated amount without scaling it again.
+        this.rotation += rotationAmount;
 
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
@@ -820,8 +844,8 @@ class Boid {
             pos.y - this.renderSize / 2 < canvas.height;
     }
 
-    calculateRenderSize(currentTime) {
-        const oscillation = Math.sin(currentTime * this.oscillationSpeed + this.oscillationOffset);
+    calculateRenderSize() {
+        const oscillation = Math.sin(this.oscillationPhase);
         let size = this.size * (1 + oscillation * 0.1);
 
         if (this.scatterState === 1) {
@@ -1161,7 +1185,7 @@ function animate(currentTime) {
                 boid.position.x = targetPosForEnding.x;
                 boid.position.y = targetPosForEnding.y;
             }
-            boid.renderSize = boid.calculateRenderSize(currentTime);
+            boid.renderSize = boid.calculateRenderSize();
             boid.draw(currentTime);
         }
         vectorPool.release(targetPosForEnding);
@@ -1177,7 +1201,7 @@ function animate(currentTime) {
 
         for (let boid of flock) {
             boid.applyForcesAndMove(timeScale); // Pass the scaling factor
-            boid.renderSize = boid.calculateRenderSize(currentTime);
+            boid.renderSize = boid.calculateRenderSize();
             boid.draw(currentTime);
         }
     }
