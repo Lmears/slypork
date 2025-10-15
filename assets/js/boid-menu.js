@@ -144,7 +144,8 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
         },
         Debug: {
             grid: { label: 'Grid', type: 'checkbox', checked: initialDebugFlags.grid },
-            obstacles: { label: 'Obstacles', type: 'checkbox', checked: initialDebugFlags.obstacles }
+            obstacles: { label: 'Obstacles', type: 'checkbox', checked: initialDebugFlags.obstacles },
+            lines: { label: 'Lines', type: 'checkbox', checked: initialDebugFlags.lines }
         }
     };
 
@@ -455,20 +456,6 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
     const resetButton = createElement('button', 'px-3 py-2 mt-4 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered', { textContent: 'Reset' });
     resetButton.addEventListener('click', () => {
         dispatch('paramsReset');
-        for (const categoryName in categorizedParamConfigs) {
-            const controls = categorizedParamConfigs[categoryName];
-            for (const key in controls) {
-                const config = controls[key];
-                if (config.type === 'checkbox') {
-                    const checkbox = document.getElementById(`debug-${key}-toggle`);
-                    if (checkbox && checkbox.checked) {
-                        checkbox.checked = false;
-                        dispatch('debugFlagChanged', { flag: key, enabled: false });
-                    }
-                }
-                // Add else-if for other future control types if needed
-            }
-        }
     });
     scrollableContent.appendChild(resetButton);
 
@@ -487,6 +474,19 @@ export function updateMenuValues(newParams) {
             if (input.type === 'range') {
                 updateSliderFill(input);
             }
+        }
+    }
+}
+
+/**
+ * NEW: Updates the visual state of the debug checkboxes from external state.
+ * @param {object} newDebugFlags - An object like { grid: false, obstacles: true }.
+ */
+export function updateDebugCheckboxes(newDebugFlags) {
+    for (const flag in newDebugFlags) {
+        const checkbox = document.getElementById(`debug-${flag}-toggle`);
+        if (checkbox) {
+            checkbox.checked = newDebugFlags[flag];
         }
     }
 }

@@ -1,4 +1,4 @@
-import { initializeMenu, setMenuVisibility, updateMenuValues } from './boid-menu.js';
+import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './boid-menu.js';
 
 // Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
@@ -133,6 +133,7 @@ let spatialGrid;
 let godMode = false;
 let debugObstaclesMode = false;
 let debugGridMode = false;
+let debugLinesMode = false;
 let debugSelectedBoid = null;
 let boidsIgnoreMouse = false;
 let boidsIgnoreTouch = false;
@@ -437,9 +438,10 @@ class SpatialGrid {
     }
 }
 
-
+let nextBoidId = 0;
 class Boid {
     constructor(parentBoid = null) {
+        this.id = nextBoidId++;
         if (parentBoid) {
             // "Mitosis" logic: spawn from a parent
             this.position = parentBoid.position.copy();
@@ -859,6 +861,63 @@ class Boid {
 
 const flock = [];
 
+/**
+ * Draws lines between nearby boids based on their distance.
+ * The line opacity fades from full at 20px to zero at 200px.
+ */
+function drawBoidConnections() {
+    const minDist = 10;
+    const maxDist = 150;
+    const range = maxDist - minDist;
+    const halfWidth = canvas.width / 2;
+    const halfHeight = canvas.height / 2;
+
+    // Use a Set to ensure each pair is drawn only once per frame.
+    const drawnPairs = new Set();
+
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(125, 125, 125, 1)';
+
+    for (const boid of flock) {
+        if (boid.isDying) continue;
+
+        const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
+
+        for (const other of localNeighbors) {
+            if (boid === other || other.isDying) continue;
+
+            const pairKey = boid.id < other.id ? `${boid.id}-${other.id}` : `${other.id}-${boid.id}`;
+            if (drawnPairs.has(pairKey)) {
+                continue;
+            }
+
+            let dx = boid.position.x - other.position.x;
+            let dy = boid.position.y - other.position.y;
+
+            if (Math.abs(dx) > halfWidth) dx -= Math.sign(dx) * canvas.width;
+            if (Math.abs(dy) > halfHeight) dy -= Math.sign(dy) * canvas.height;
+
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < maxDist) {
+                const opacity = 1 - Math.max(0, Math.min(1, (dist - minDist) / range));
+                if (opacity > 0.001) {
+                    const drawX = boid.position.x - dx;
+                    const drawY = boid.position.y - dy;
+
+                    ctx.globalAlpha = opacity;
+                    ctx.beginPath();
+                    ctx.moveTo(boid.position.x, boid.position.y);
+                    ctx.lineTo(drawX, drawY);
+                    ctx.stroke();
+                }
+            }
+            drawnPairs.add(pairKey);
+        }
+    }
+    ctx.globalAlpha = 1.0;
+}
+
 // --- NEW FLOCK MANAGEMENT FUNCTIONS ---
 
 /**
@@ -1082,6 +1141,9 @@ function stopSimulation() {
     setMenuVisibility(false);
     boidsIgnoreMouse = false;
     boidsIgnoreTouch = false;
+    debugGridMode = false;
+    debugObstaclesMode = false;
+    debugLinesMode = false;
     if (touchEndTimeoutId) {
         clearTimeout(touchEndTimeoutId);
         touchEndTimeoutId = null;
@@ -1199,8 +1261,12 @@ function animate(currentTime) {
 
         applyObstacleAvoidanceForces();
 
+        if (debugLinesMode) {
+            drawBoidConnections();
+        }
+
         for (let boid of flock) {
-            boid.applyForcesAndMove(timeScale); // Pass the scaling factor
+            boid.applyForcesAndMove(timeScale);
             boid.renderSize = boid.calculateRenderSize();
             boid.draw(currentTime);
         }
@@ -1402,7 +1468,7 @@ async function _prepareEnvironment() {
     initializeObstacles();
     updateAllObstacles();
 
-    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode };
+    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode, lines: debugLinesMode };
     initializeMenu(simParams, initialDebugFlags);
     setupMenuEventListeners();
     setupEventListeners();
@@ -1760,6 +1826,8 @@ function setupMenuEventListeners() {
             if (!enabled) debugSelectedBoid = null;
         } else if (flag === 'obstacles') {
             debugObstaclesMode = enabled;
+        } else if (flag === 'lines') {
+            debugLinesMode = enabled;
         }
     });
 
@@ -1792,6 +1860,12 @@ function resetSimulationParameters() {
     updateMenuValues(simParams);        // Update UI to reflect the reset
     debugGridMode = false;
     debugObstaclesMode = false;
+    debugLinesMode = false;
+    updateDebugCheckboxes({
+        grid: debugGridMode,
+        obstacles: debugObstaclesMode,
+        lines: debugLinesMode
+    });
 }
 
 // Utility & Helper Functions
