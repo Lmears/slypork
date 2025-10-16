@@ -4,7 +4,7 @@
 export default {
   content: [
     './*.html',         // Scans HTML files in the root
-    './*/**/*.html',    // Scans HTML files in immediate subdirectories (like cv/index.html)
+    './!(node_modules)/**/*.html',    // Scans HTML files in immediate subdirectories (like cv/index.html)
     './assets/js/*.js'
   ],
   theme: {
