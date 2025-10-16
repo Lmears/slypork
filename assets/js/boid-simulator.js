@@ -74,7 +74,7 @@ const DEPTH_INFLUENCE_RADIUS = 50;
 const BOID_MAX_FORCE = 0.175;
 const BOID_SIZE_BASE = 20;
 const BOID_SIZE_VARIATION = 10;
-const BOID_OSCILLATION_SPEED_BASE = 0.01;
+const BOID_OSCILLATION_SPEED_BASE = 0.02;
 const BOID_OSCILLATION_SPEED_VARIATION = 0.04;
 const BOID_ROTATION_SPEED = 0.1;
 const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
@@ -100,11 +100,6 @@ const EDGE_BUFFER_POSITIONS = [
 
 // --- Spatial Partitioning Settings ---
 let CELL_SIZE; // Dynamically calculated based on simParams radii
-
-// --- Frame Rate Independence ---
-const TARGET_FPS = 120;
-let lastFrameTime = 0;
-
 
 // Helper function to calculate CELL_SIZE
 function calculateCurrentCellSize() {
@@ -714,43 +709,37 @@ class Boid {
      * Applies the final accumulated forces (including obstacle forces) to update
      * the boid's physics, position, and visual properties.
      */
-    applyForcesAndMove(timeScale) {
+    applyForcesAndMove(currentTime) {
         // For living boids, update velocity based on all calculated forces.
         // Dying boids skip this block and just continue with their last velocity.
         if (!this.isDying) {
-            // --- 1. Update velocity from desiredVelocity using framerate-independent interpolation ---
-            const velocityInertiaFactor = Math.pow(simParams.VELOCITY_INERTIA, timeScale);
-            this.velocity.x = this.velocity.x * velocityInertiaFactor + this.desiredVelocity.x * (1 - velocityInertiaFactor);
-            this.velocity.y = this.velocity.y * velocityInertiaFactor + this.desiredVelocity.y * (1 - velocityInertiaFactor);
-
+            // --- 1. Update velocity from desiredVelocity based on inertia ---
+            this.velocity.x = this.velocity.x * simParams.VELOCITY_INERTIA + this.desiredVelocity.x * (1 - simParams.VELOCITY_INERTIA);
+            this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
             // --- 2. Update state, determine max speed, and limit the base velocity ---
-            this.updateScatterState(timeScale);
+            this.updateScatterState();
             this.updateMaxSpeed();
             this.velocity.limit(this.maxSpeed); // Limit the boid's normal, sustainable speed
 
-            // --- 3. Apply the decaying boost AFTER limiting (framerate-independent decay) ---
-            const boostDecayFactor = Math.pow(BOOST_DECAY, timeScale);
-            this.boost.mult(boostDecayFactor);
+            // --- 3. Apply the decaying boost AFTER limiting ---
+            // This allows the boost to temporarily exceed the max speed.
             this.velocity.add(this.boost);
+            this.boost.mult(BOOST_DECAY);
         }
 
 
         // --- 4. Update position and visuals (for ALL boids, living or dying) ---
-        const scaledVelocity = this.velocity.copy();
-        scaledVelocity.mult(timeScale);
-        this.position.add(scaledVelocity);
-        vectorPool.release(scaledVelocity);
-
-        this.updateRotation(timeScale);
-        this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed * timeScale) % (Math.PI * 2);
+        this.position.add(this.velocity);
+        this.updateRotation();
+        this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed) % (Math.PI * 2);
         this.edges(); // Wrap around canvas
     }
 
 
-    updateScatterState(timeScale) {
+    updateScatterState() {
         if (this.scatterState !== 0) {
-            this.cooldownTimer -= timeScale;
+            this.cooldownTimer--;
             if (this.cooldownTimer <= 0) {
                 this.scatterState = this.scatterState === 1 ? 2 : 0;
                 this.cooldownTimer = this.scatterState === 2 ? COOLDOWN_DURATION : 0;
@@ -771,17 +760,13 @@ class Boid {
 
 
 
-    updateRotation(timeScale) {
+    updateRotation() {
         const targetRotation = Math.atan2(this.velocity.y, this.velocity.x);
         let rotationDiff = targetRotation - this.rotation;
         rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
 
-        // This formula correctly derives the amount to rotate in this frame.
-        const rotationInertiaFactor = 1 - Math.pow(1 - (1 - simParams.ROTATION_INERTIA), timeScale);
-        const rotationAmount = rotationDiff * rotationInertiaFactor * this.rotationSpeed * speedMultiplier;
-
-        // Apply the correctly calculated amount without scaling it again.
-        this.rotation += rotationAmount;
+        const smoothedRotationDiff = rotationDiff * (1 - simParams.ROTATION_INERTIA) * this.rotationSpeed * speedMultiplier;
+        this.rotation += smoothedRotationDiff;
 
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }
@@ -1108,10 +1093,7 @@ async function startSimulation() {
     speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
     isEnding = false;
-    lastFrameTime = 0; // Reset timer
-
-    // Start the main loop
-    animationFrameId = requestAnimationFrame(animate);
+    animate();
 }
 
 /**
@@ -1141,9 +1123,6 @@ function stopSimulation() {
     setMenuVisibility(false);
     boidsIgnoreMouse = false;
     boidsIgnoreTouch = false;
-    debugGridMode = false;
-    debugObstaclesMode = false;
-    debugLinesMode = false;
     if (touchEndTimeoutId) {
         clearTimeout(touchEndTimeoutId);
         touchEndTimeoutId = null;
@@ -1163,22 +1142,7 @@ function startExitAnimation() {
 }
 
 //  Core Simulation Loop
-function animate(currentTime) {
-    if (lastFrameTime === 0) { // First frame initialization
-        lastFrameTime = currentTime;
-        animationFrameId = requestAnimationFrame(animate);
-        return;
-    }
-
-    // Calculate deltaTime and the scaling factor
-    const deltaTime = (currentTime - lastFrameTime) / 1000; // in seconds
-    lastFrameTime = currentTime;
-    // The timeScale is how many "120fps frames" have passed since the last real frame.
-    // At 60fps, this will be ~2. At 144fps, this will be ~0.83.
-    const timeScale = deltaTime * TARGET_FPS;
-
-
-    // --- RENDERING SETUP ---
+function animate() {
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
         ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
     } else {
@@ -1202,8 +1166,7 @@ function animate(currentTime) {
     if (isScattering) {
         scatter(HOLD_SCATTER_DURATION);
     }
-
-    // --- PHYSICS AND STATE UPDATE ---
+    const currentTime = performance.now();
 
     // --- Cleanup Phase for faded-out boids ---
     for (let i = flock.length - 1; i >= 0; i--) {
@@ -1215,20 +1178,30 @@ function animate(currentTime) {
         }
     }
 
+
     // --- Main Simulation Update Order ---
+
+    // 1. Update target flock size if in responsive mode.
     if (!userHasSetFlockSize && !isEnding) {
         updateResponsiveFlockSize();
     }
+
+    // 2. Adjust the flock to the target size. This uses the grid populated in step 2.
     if (!isEnding) {
         adjustFlockToTargetSize();
     }
 
+
+    // 3. Populate the grid with the current state of the flock.
     spatialGrid.clear();
     for (let boid of flock) {
+        // Do not include dying boids in the spatial grid for flocking calculations
         if (!boid.isDying) {
             spatialGrid.addItemAtPoint(boid);
         }
     }
+
+
 
     const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
     if (isEnding) {
@@ -1237,11 +1210,11 @@ function animate(currentTime) {
         const targetPosForEnding = vectorPool.get(targetX, targetY);
 
         for (let boid of flock) {
-            // Use timeScale for framerate-independent lerping
-            const lerpFactor = 1 - Math.pow(1 - 0.1, timeScale);
-            boid.position.x += (targetPosForEnding.x - boid.position.x) * lerpFactor;
-            boid.position.y += (targetPosForEnding.y - boid.position.y) * lerpFactor;
+            // Lerp position towards the target
+            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
+            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
 
+            // Shrink boids as they approach the end
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
             if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
                 boid.position.x = targetPosForEnding.x;
@@ -1254,6 +1227,7 @@ function animate(currentTime) {
     } else {
         // 4. Main Simulation Loop (if not ending)
         for (let boid of flock) {
+            // Dying boids don't need to calculate forces, they just fade out
             if (boid.isDying) continue;
             const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
             boid.calculateBoidAndMouseForces(localNeighbors);
@@ -1266,7 +1240,7 @@ function animate(currentTime) {
         }
 
         for (let boid of flock) {
-            boid.applyForcesAndMove(timeScale);
+            boid.applyForcesAndMove(currentTime);
             boid.renderSize = boid.calculateRenderSize();
             boid.draw(currentTime);
         }
