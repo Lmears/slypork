@@ -101,6 +101,8 @@ const EDGE_BUFFER_POSITIONS = [
 // --- Spatial Partitioning Settings ---
 let CELL_SIZE; // Dynamically calculated based on simParams radii
 
+const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel
+
 // Helper function to calculate CELL_SIZE
 function calculateCurrentCellSize() {
     return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS, simParams.OBSTACLE_RADIUS);
@@ -511,7 +513,9 @@ class Boid {
         else if (this.position.y < 0) this.position.y = canvas.height;
     }
 
-    calculateFlockingForces(localNeighbors) {
+    calculateFlockingForces(localNeighbors, timeScale) {
+        const dynamicMaxForce = this.maxForce * timeScale;
+
         // --- Accumulators for all behaviors ---
         const alignmentForce = vectorPool.get(0, 0);
         const cohesionForce = vectorPool.get(0, 0);
@@ -598,7 +602,7 @@ class Boid {
             avgVelocity.div(alignmentTotal);
             avgVelocity.setMag(this.maxSpeed);
             Vector.sub(avgVelocity, this.velocity, alignmentForce);
-            alignmentForce.limit(this.maxForce);
+            alignmentForce.limit(dynamicMaxForce);
         }
         vectorPool.release(avgVelocity);
 
@@ -608,7 +612,7 @@ class Boid {
             Vector.sub(avgPosition, this.position, cohesionForce);
             cohesionForce.setMag(this.maxSpeed);
             cohesionForce.sub(this.velocity);
-            cohesionForce.limit(this.maxForce);
+            cohesionForce.limit(dynamicMaxForce);
         }
         vectorPool.release(avgPosition);
 
@@ -618,7 +622,7 @@ class Boid {
             if (avgRepulsion.magSq() > 0) {
                 avgRepulsion.setMag(this.maxSpeed);
                 Vector.sub(avgRepulsion, this.velocity, separationForce);
-                separationForce.limit(this.maxForce);
+                separationForce.limit(dynamicMaxForce);
             }
         }
         vectorPool.release(avgRepulsion);
@@ -635,33 +639,35 @@ class Boid {
             const avgTargetPhase = Math.atan2(avgPhaseY / syncTotal, avgPhaseX / syncTotal);
             let phaseDifference = avgTargetPhase - this.oscillationPhase;
             phaseDifference = Math.atan2(Math.sin(phaseDifference), Math.cos(phaseDifference));
-            this.oscillationPhase += phaseDifference * 0.02;
+            this.oscillationPhase += phaseDifference * 0.02 * timeScale;
         }
 
         // --- Return the combined forces ---
         return { alignmentForce, cohesionForce, separationForce };
     }
 
-    mouseAttraction() {
+    mouseAttraction(timeScale) {
         if (!mouseInfluence || boidsIgnoreMouse) return vectorPool.get(0, 0);
 
         const directionToMouse = Vector.sub(mouse, this.position, vectorPool.get(0, 0));
         let distance = directionToMouse.mag();
         let steer = null; // Will hold the final steering vector for this function
 
+        const dynamicMaxForce = this.maxForce * timeScale;
+
         if (distance > 0 && distance < MOUSE_INFLUENCE_RADIUS) {
             if (this.scatterState === 1) {
                 const desiredRepulsionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y);
                 desiredRepulsionVelocity.setMag(this.maxSpeed).mult(-1);
                 steer = Vector.sub(desiredRepulsionVelocity, this.velocity, vectorPool.get(0, 0));
-                steer.limit(this.maxForce * 3);
+                steer.limit(dynamicMaxForce * 3);
                 vectorPool.release(desiredRepulsionVelocity);
             } else {
                 let strength = 1.0 - (distance / MOUSE_INFLUENCE_RADIUS);
                 const desiredAttractionVelocity = vectorPool.get(directionToMouse.x, directionToMouse.y);
                 desiredAttractionVelocity.setMag(this.maxSpeed);
                 steer = Vector.sub(desiredAttractionVelocity, this.velocity, vectorPool.get(0, 0));
-                steer.mult(strength).limit(this.maxForce);
+                steer.mult(strength).limit(dynamicMaxForce);
                 vectorPool.release(desiredAttractionVelocity);
             }
         }
@@ -678,10 +684,10 @@ class Boid {
     * Calculates flocking and mouse forces and accumulates them in desiredVelocity.
     * Obstacle forces will be added externally after this step.
     */
-    calculateBoidAndMouseForces(localNeighbors) {
+    calculateBoidAndMouseForces(localNeighbors, timeScale) {
         // --- 1. Calculate flocking and mouse forces ---
-        const { alignmentForce, cohesionForce, separationForce } = this.calculateFlockingForces(localNeighbors);
-        const mouseForce = this.mouseAttraction();
+        const { alignmentForce, cohesionForce, separationForce } = this.calculateFlockingForces(localNeighbors, timeScale);
+        const mouseForce = this.mouseAttraction(timeScale);
 
         // --- 2. Apply weights ---
         alignmentForce.mult(simParams.ALIGNMENT_FORCE);
@@ -709,7 +715,7 @@ class Boid {
      * Applies the final accumulated forces (including obstacle forces) to update
      * the boid's physics, position, and visual properties.
      */
-    applyForcesAndMove(currentTime) {
+    applyForcesAndMove(timeScale) {
         // For living boids, update velocity based on all calculated forces.
         // Dying boids skip this block and just continue with their last velocity.
         if (!this.isDying) {
@@ -732,7 +738,7 @@ class Boid {
         // --- 4. Update position and visuals (for ALL boids, living or dying) ---
         this.position.add(this.velocity);
         this.updateRotation();
-        this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed) % (Math.PI * 2);
+        this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed * timeScale) % (Math.PI * 2);
         this.edges(); // Wrap around canvas
     }
 
@@ -1141,8 +1147,29 @@ function startExitAnimation() {
     }
 }
 
+let lastFrameTime = 0;
 //  Core Simulation Loop
 function animate() {
+    const currentTime = performance.now();
+    if (!lastFrameTime) {
+        lastFrameTime = currentTime;
+    }
+    // deltaTime is the time in milliseconds since the last frame
+    let deltaTime = currentTime - lastFrameTime;
+    lastFrameTime = currentTime;
+
+    // This makes the simulation slow down if FPS drops below ~60 FPS, instead of stuttering wildly.
+    // if (deltaTime > 17) {
+    //     deltaTime = 17;
+    // }
+
+    // timeScale is our adjustment factor. At 60fps, it will be ~2.0. At 120fps, it will be ~1.0.
+    const timeScale = (deltaTime / 1000) * TARGET_FPS;
+
+    // THE HACK: The slider's value is now adjusted by the per-frame timeScale.
+    const sliderValue = parseFloat(speedSlider.value) / 100;
+    speedMultiplier = sliderValue * timeScale;
+
     if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
         ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
     } else {
@@ -1166,7 +1193,6 @@ function animate() {
     if (isScattering) {
         scatter(HOLD_SCATTER_DURATION);
     }
-    const currentTime = performance.now();
 
     // --- Cleanup Phase for faded-out boids ---
     for (let i = flock.length - 1; i >= 0; i--) {
@@ -1230,17 +1256,17 @@ function animate() {
             // Dying boids don't need to calculate forces, they just fade out
             if (boid.isDying) continue;
             const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
-            boid.calculateBoidAndMouseForces(localNeighbors);
+            boid.calculateBoidAndMouseForces(localNeighbors, timeScale);
         }
 
-        applyObstacleAvoidanceForces();
+        applyObstacleAvoidanceForces(timeScale);
 
         if (debugLinesMode) {
             drawBoidConnections();
         }
 
         for (let boid of flock) {
-            boid.applyForcesAndMove(currentTime);
+            boid.applyForcesAndMove(timeScale);
             boid.renderSize = boid.calculateRenderSize();
             boid.draw(currentTime);
         }
@@ -1259,7 +1285,7 @@ function animate() {
  * For each obstacle, it finds all boids within its influence radius and calculates
  * the necessary avoidance force, applying it directly to the boid's desiredVelocity.
  */
-function applyObstacleAvoidanceForces() {
+function applyObstacleAvoidanceForces(timeScale) {
     // --- Reusable temporary vectors for all calculations in this function ---
     const effectiveObsCenter = vectorPool.get(0, 0);
     const repulsionDirTemp = vectorPool.get(0, 0);
@@ -1303,6 +1329,7 @@ function applyObstacleAvoidanceForces() {
         // --- 3. For each nearby Boid, Calculate and apply force -> ... ---
         for (const boid of uniqueBoidsInArea) {
             if (boid.isDying) continue; // Dying boids don't avoid obstacles
+            const dynamicMaxForce = boid.maxForce * timeScale;
             let bestForceForBoid = null; // Stores the single most critical force vector for this boid/obstacle pair
             let bestDistSqForBoid = Infinity;
             let bestTypeForBoid = null; // 'steer' or 'bounce'
@@ -1350,7 +1377,7 @@ function applyObstacleAvoidanceForces() {
 
                     Vector.sub(repulsionDirTemp, boid.velocity, currentToroidalForce);
                     const bounceMultiplier = simParams.OBSTACLE_FORCE * OBSTACLE_BOUNCE_FORCE_MULTIPLIER;
-                    currentToroidalForce.limit(boid.maxForce * bounceMultiplier);
+                    currentToroidalForce.limit(dynamicMaxForce * bounceMultiplier);
                     Vector.sub(boid.position, effectiveObsCenter, boidToEffectiveCenterTemp);
                     currentDistSq = boidToEffectiveCenterTemp.magSq();
                 } else {
@@ -1371,7 +1398,7 @@ function applyObstacleAvoidanceForces() {
                             const distance = Math.sqrt(currentDistSq);
                             const strength = 1 - (distance / visionRadius);
                             currentToroidalForce.mult(strength);
-                            currentToroidalForce.limit(boid.maxForce * simParams.OBSTACLE_FORCE);
+                            currentToroidalForce.limit(dynamicMaxForce * simParams.OBSTACLE_FORCE);
                         }
                     }
                 }
