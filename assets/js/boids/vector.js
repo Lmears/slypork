@@ -130,14 +130,14 @@ window.logPoolStats = () => console.table(vectorPool.getStats());
 export function toroidalDistance(x1, y1, x2, y2, width, height) {
     const halfWidth = width / 2;
     const halfHeight = height / 2;
-    
+
     let dx = x1 - x2;
     let dy = y1 - y2;
-    
+
     if (Math.abs(dx) > halfWidth) dx -= Math.sign(dx) * width;
     if (Math.abs(dy) > halfHeight) dy -= Math.sign(dy) * height;
-    
+
     const distSq = dx * dx + dy * dy;
-    
+
     return { dx, dy, distSq };
 }
