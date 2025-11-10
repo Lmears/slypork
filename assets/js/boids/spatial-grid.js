@@ -174,3 +174,20 @@ export function drawNeighborhoodVisualization(boid, gridInstance, ctx, cellSize)
     ctx.lineWidth = 2;
     ctx.stroke();
 }
+
+/**
+ * Updates spatial grid cell size and dimensions.
+ * Used when starting simulation or when parameters change.
+ * @param {SpatialGrid} spatialGrid - The spatial grid instance to update
+ * @param {Object} canvas - The canvas element
+ * @param {Function} calculateCellSize - Function that returns the new cell size
+ */
+export function updateSpatialGridParameters(spatialGrid, canvas, calculateCellSize) {
+    const newCellSize = calculateCellSize();
+
+    if (spatialGrid) {
+        spatialGrid.cellSize = newCellSize;
+        spatialGrid.resize(canvas.width, canvas.height);
+    }
+}
+

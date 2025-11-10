@@ -2,6 +2,7 @@ import { Vector } from './vector.js';
 import {
     MOUSE_INFLUENCE_RADIUS,
     CLICK_SCATTER_DURATION,
+    HOLD_SCATTER_DURATION,
 } from './config.js';
 
 export class InputHandler {
@@ -226,11 +227,11 @@ export class InputHandler {
     }
 
     // Scatter behavior
-    scatter(duration) {
+    scatter() {
         this.deps.flock.forEach(boid => {
             if (Vector.dist(this.deps.mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
                 boid.scatterState = 1;
-                boid.cooldownTimer = duration;
+                boid.cooldownTimer = HOLD_SCATTER_DURATION;
             }
         });
     }

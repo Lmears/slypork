@@ -193,4 +193,25 @@ export class Flock {
         }
         this.boids.length = 0;
     }
+
+    /**
+     * Initializes the flock by clearing existing boids and creating new ones.
+     * If responsive sizing is enabled, calculates size based on canvas dimensions first.
+     * @param {boolean} useResponsiveSize - Whether to calculate size based on canvas dimensions
+     */
+    initialize(useResponsiveSize = false) {
+        this.clear();
+
+        if (useResponsiveSize) {
+            const maxBoids = (this.canvas.width / 1000) * MAX_BOIDS_PER_1000PX_WIDTH;
+            let targetSize = this.canvas.width * this.canvas.height * FLOCK_DENSITY;
+            targetSize = Math.max(MIN_BOIDS, targetSize);
+            targetSize = Math.min(maxBoids, targetSize);
+            this.simParams.FLOCK_SIZE = Math.floor(targetSize);
+        }
+
+        for (let i = 0; i < this.simParams.FLOCK_SIZE; i++) {
+            this.push(new Boid());
+        }
+    }
 }

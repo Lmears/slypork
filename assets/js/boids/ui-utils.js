@@ -204,3 +204,43 @@ export function setControlPanelVisibility(isVisible, options = {}) {
         }
     }
 }
+
+/**
+ * Throttles callback execution using requestAnimationFrame.
+ * Useful for throttling UI event handlers (scroll, resize, etc.) to animation frames.
+ * @param {Function} callback - The function to throttle
+ * @returns {Function} The throttled function with a cancel() method
+ */
+export function rafThrottle(callback) {
+    let requestId = null;
+    let lastArgs = [];
+
+    const later = (context) => () => {
+        requestId = null;
+        callback.apply(context, lastArgs);
+    };
+
+    const throttled = function (...args) {
+        lastArgs = args;
+        if (requestId === null) {
+            requestId = requestAnimationFrame(later(this));
+        }
+    };
+
+    throttled.cancel = () => {
+        if (requestId !== null) {
+            cancelAnimationFrame(requestId);
+            requestId = null;
+        }
+    };
+    return throttled;
+}
+
+/**
+ * Dispatches a custom event on document.body.
+ * @param {string} name - The event name
+ * @param {*} detail - Optional detail data to include with the event
+ */
+export function dispatchEvent(name, detail) {
+    document.body.dispatchEvent(new CustomEvent(name, { bubbles: true, detail }));
+}
