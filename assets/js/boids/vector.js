@@ -116,3 +116,28 @@ export const vectorPool = new VectorPool(VECTOR_POOL_INITIAL_SIZE, VECTOR_POOL_M
 
 // Global helper function for debugging vector pool stats
 window.logPoolStats = () => console.table(vectorPool.getStats());
+
+/**
+ * Calculate toroidal distance between two points considering wrapping
+ * @param {number} x1 - First point x coordinate
+ * @param {number} y1 - First point y coordinate
+ * @param {number} x2 - Second point x coordinate
+ * @param {number} y2 - Second point y coordinate
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @returns {{ dx: number, dy: number, distSq: number }} Object containing dx, dy, and squared distance
+ */
+export function toroidalDistance(x1, y1, x2, y2, width, height) {
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+
+    let dx = x1 - x2;
+    let dy = y1 - y2;
+
+    if (Math.abs(dx) > halfWidth) dx -= Math.sign(dx) * width;
+    if (Math.abs(dy) > halfHeight) dy -= Math.sign(dy) * height;
+
+    const distSq = dx * dx + dy * dy;
+
+    return { dx, dy, distSq };
+}

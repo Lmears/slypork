@@ -1,4 +1,4 @@
-import { Vector, vectorPool } from './vector.js';
+import { Vector, vectorPool, toroidalDistance } from './vector.js';
 import { drawGridVisualization, drawNeighborhoodVisualization } from './spatial-grid.js';
 import {
     BOID_SIZE_BASE,
@@ -84,13 +84,13 @@ export class Renderer {
                     continue;
                 }
 
-                let dx = boid.position.x - other.position.x;
-                let dy = boid.position.y - other.position.y;
+                const { dx, dy, distSq } = toroidalDistance(
+                    boid.position.x, boid.position.y,
+                    other.position.x, other.position.y,
+                    this.canvas.width, this.canvas.height
+                );
 
-                if (Math.abs(dx) > halfWidth) dx -= Math.sign(dx) * this.canvas.width;
-                if (Math.abs(dy) > halfHeight) dy -= Math.sign(dy) * this.canvas.height;
-
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                const dist = Math.sqrt(distSq);
 
                 if (dist < maxDist) {
                     const opacity = 1 - Math.max(0, Math.min(1, (dist - minDist) / range));

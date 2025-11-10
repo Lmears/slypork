@@ -1,6 +1,6 @@
 // boid.js - Individual boid behavior and rendering
 
-import { Vector, vectorPool } from './vector.js';
+import { Vector, vectorPool, toroidalDistance } from './vector.js';
 import {
     BOID_MAX_FORCE,
     BOID_SIZE_BASE,
@@ -161,8 +161,6 @@ export class Boid {
         let depthTotal = 0;
 
         // --- Pre-calculate constants for this boid ---
-        const halfWidth = canvas.width / 2;
-        const halfHeight = canvas.height / 2;
         const alignRadiusSq = simParams.ALIGNMENT_RADIUS * simParams.ALIGNMENT_RADIUS;
         const cohRadiusSq = simParams.COHESION_RADIUS * simParams.COHESION_RADIUS;
         const sepRadiusSq = simParams.SEPARATION_RADIUS * simParams.SEPARATION_RADIUS;
@@ -176,11 +174,11 @@ export class Boid {
             if (other === this || other.isDying) continue; // Ignore self and dying boids in flocking
 
             // --- 1. Calculate Toroidal Distance (ONCE!) ---
-            let tdx = this.position.x - other.position.x;
-            let tdy = this.position.y - other.position.y;
-            if (Math.abs(tdx) > halfWidth) tdx -= Math.sign(tdx) * canvas.width;
-            if (Math.abs(tdy) > halfHeight) tdy -= Math.sign(tdy) * canvas.height;
-            const dSq = tdx * tdx + tdy * tdy;
+            const { dx: tdx, dy: tdy, distSq: dSq } = toroidalDistance(
+                this.position.x, this.position.y,
+                other.position.x, other.position.y,
+                canvas.width, canvas.height
+            );
 
             // --- 2. Apply Behaviors based on distance ---
             // Alignment
