@@ -173,9 +173,14 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
         absolute left-[-4px] top-1/2 -translate-y-1/2
         bg-transparent border-none text-white
         cursor-pointer p-2 leading-none
-        hover:text-neutral-300 transition-colors
+        hover:text-backgroundHovered
+        transition transform hover:scale-110
     `, {
-        innerHTML: '<svg class="w-5 h-5"><use href="#dice-d20"></use></svg>'
+        innerHTML: `
+        <svg class="w-5 h-5 fill-current">
+            <use href="#dice-d20"></use>
+        </svg>
+    `
     });
 
     const icon = randomizeButton.querySelector('svg');
@@ -243,8 +248,10 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
         absolute right-[-4px] top-1/2 -translate-y-1/2
         bg-transparent border-none text-2xl text-white
         cursor-pointer p-2 leading-none
-        hover:text-neutral-300 transition-colors
+        hover:text-backgroundHovered
+        transition transform hover:scale-110
     `, { innerHTML: '×' });
+
     titleContainer.append(randomizeButton, title, closeButton);
 
     // --- Stylesheet for menu controls and collapsible categories ---

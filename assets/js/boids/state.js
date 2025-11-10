@@ -130,4 +130,44 @@ export class SimulationState {
             this.inputHandler.mouseInfluence = false;
         }
     }
+
+    // Lifecycle state transitions
+
+    /**
+     * Prepares state for starting a simulation run.
+     * Clears any exit animation state.
+     */
+    startRun() {
+        this.isEnding = false;
+    }
+
+    /**
+     * Begins the exit animation sequence.
+     * Encapsulates the invariant: exit animation implies no god mode.
+     */
+    beginExitAnimation() {
+        if (!this.isEnding) {
+            this.godMode = false;
+            this.isEnding = true;
+            this.endStartTime = performance.now();
+        }
+    }
+
+    /**
+     * Clears simulation objects and resets to baseline state.
+     * Called when stopping the simulation.
+     */
+    clearSimulation() {
+        this.stopAnimation();
+
+        if (this.flock) {
+            this.flock.clear();
+        }
+
+        if (this.renderer) {
+            this.renderer.clear();
+        }
+
+        this.resetToDefaults();
+    }
 }
