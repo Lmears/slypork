@@ -652,14 +652,14 @@ async function _prepareEnvironment() {
 
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
     allObstacles = initializeObstacles();
-    
+
     // Initialize Obstacle dependencies
     setObstacleDependencies({
         canvas,
         simParams,
         obstacles: allObstacles
     });
-    
+
     updateAllObstacles(allObstacles);
 
     // Initialize Boid dependencies

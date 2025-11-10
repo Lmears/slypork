@@ -29,7 +29,7 @@ export class Obstacle {
 
     update() {
         if (!this.canvas) return; // Early return if canvas not set yet
-        
+
         if (this.element instanceof HTMLElement && typeof this.element.getBoundingClientRect === 'function') {
             const rect = this.element.getBoundingClientRect();
             const computedStyle = window.getComputedStyle(this.element);
@@ -96,7 +96,7 @@ let simParams = null;
 export function setObstacleDependencies(deps) {
     canvas = deps.canvas;
     simParams = deps.simParams;
-    
+
     // Set canvas reference for all existing obstacles
     if (deps.obstacles) {
         for (const obstacle of deps.obstacles) {
