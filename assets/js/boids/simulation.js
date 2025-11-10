@@ -236,7 +236,7 @@ function animate() {
 
     if (isEnding) {
         const endProgress = renderer.renderExitAnimation(flock, currentTime, endStartTime);
-        
+
         // --- Continue or Stop the Animation Loop ---
         if (endProgress >= 1) {
             return; // Stop the loop
