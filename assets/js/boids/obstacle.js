@@ -9,6 +9,10 @@ import {
     EDGE_BUFFER_POSITIONS,
 } from './config.js';
 
+// Module-level dependencies (matches the pattern in boid.js)
+let canvas = null;
+let simParams = null;
+
 /**
  * Obstacle class - represents a DOM element that boids should avoid
  */
@@ -23,12 +27,11 @@ export class Obstacle {
         this.isEnabled = false;
         this.centerX = 0;
         this.centerY = 0;
-        this.canvas = null; // Will be set by setObstacleDependencies
         // Don't call update() here - it needs canvas to be set first
     }
 
     update() {
-        if (!this.canvas) return; // Early return if canvas not set yet
+        if (!canvas) return; // Early return if canvas not set yet
 
         if (this.element instanceof HTMLElement && typeof this.element.getBoundingClientRect === 'function') {
             const rect = this.element.getBoundingClientRect();
@@ -40,7 +43,7 @@ export class Obstacle {
                 this.element.offsetParent !== null) {
 
                 this.bounds = rect;
-                const canvasRect = this.canvas.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
 
                 this.paddedBounds = {
                     left: rect.left - canvasRect.left - OBSTACLE_PADDING,
@@ -86,23 +89,12 @@ export class Obstacle {
     }
 }
 
-// Module-level dependencies
-let canvas = null;
-let simParams = null;
-
 /**
  * Sets the dependencies needed by the obstacle system
  */
 export function setObstacleDependencies(deps) {
     canvas = deps.canvas;
     simParams = deps.simParams;
-
-    // Set canvas reference for all existing obstacles
-    if (deps.obstacles) {
-        for (const obstacle of deps.obstacles) {
-            obstacle.canvas = canvas;
-        }
-    }
 }
 
 /**
