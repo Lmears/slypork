@@ -6,10 +6,9 @@ import { setObstacleDependencies, initializeObstacles, updateAllObstacles, apply
 import { SpatialGrid } from './spatial-grid.js';
 import { Flock } from './flock.js';
 import { Renderer } from './renderer.js';
+import { InputHandler } from './input-handler.js';
 import {
     DEFAULT_SIM_PARAMS,
-    MOUSE_INFLUENCE_RADIUS,
-    CLICK_SCATTER_DURATION,
     HOLD_SCATTER_DURATION,
     DEPTH_INFLUENCE_RADIUS,
     TARGET_FPS,
@@ -31,6 +30,7 @@ let userHasSetFlockSize = false;
 let allObstacles = [];
 let flock;
 let renderer;
+let inputHandler;
 
 // --- Spatial Partitioning Settings ---
 let cellSize; // Dynamically calculated based on simParams radii
@@ -53,8 +53,6 @@ function updateSpatialGridParameters() {
 
 // Global variables
 let speedMultiplier = 1;
-let isScattering = false;
-let mouseInfluence = false;
 let animationFrameId = null;
 let isEnding = false;
 let endStartTime = 0;
@@ -64,9 +62,6 @@ let debugObstaclesMode = false;
 let debugGridMode = false;
 let debugLinesMode = false;
 let debugSelectedBoid = null;
-let boidsIgnoreMouse = false;
-let boidsIgnoreTouch = false;
-let touchEndTimeoutId = null;
 let boidImageBitmap = null;
 let isSystemInitialized = false;
 
@@ -132,17 +127,13 @@ function stopSimulation() {
     }
 
     // 4. Reset all simulation state variables to their defaults.
-    isScattering = false;
-    mouseInfluence = false;
+    if (inputHandler) {
+        inputHandler.isScattering = false;
+        inputHandler.mouseInfluence = false;
+    }
     isEnding = false; // Ensure we aren't stuck in the shutdown animation state.
     godMode = false;
     setMenuVisibility(false);
-    boidsIgnoreMouse = false;
-    boidsIgnoreTouch = false;
-    if (touchEndTimeoutId) {
-        clearTimeout(touchEndTimeoutId);
-        touchEndTimeoutId = null;
-    }
 
     // 5. Reset simulation parameters to their initial values.
     resetSimulationParameters();
@@ -183,8 +174,8 @@ function animate() {
     // Update boid runtime values each frame
     updateBoidRuntimeValues({
         speedMultiplier,
-        mouseInfluence,
-        boidsIgnoreMouse
+        mouseInfluence: inputHandler.mouseInfluence,
+        boidsIgnoreMouse: inputHandler.boidsIgnoreMouse
     });
 
     // Draw background with fade effect
@@ -202,8 +193,8 @@ function animate() {
         renderer.drawNeighborhoodDebug(debugSelectedBoid, spatialGrid, cellSize);
     }
 
-    if (isScattering) {
-        scatter(HOLD_SCATTER_DURATION);
+    if (inputHandler.isScattering) {
+        inputHandler.scatter(HOLD_SCATTER_DURATION);
     }
 
     // --- Cleanup Phase for faded-out boids ---
@@ -267,14 +258,6 @@ function animate() {
 }
 
 // Simulation Sub-systems & Major Logic
-function scatter(duration) {
-    flock.forEach(boid => {
-        if (Vector.dist(mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
-            boid.scatterState = 1;
-            boid.cooldownTimer = duration;
-        }
-    });
-}
 
 // One-Time Setup & Lifecycle Management
 /**
@@ -300,6 +283,28 @@ async function _prepareEnvironment() {
     flock = new Flock(simParams, canvas, spatialGrid);
     renderer = new Renderer(canvas, ctx);
 
+    // Initialize InputHandler with dependencies
+    const throttledScrollUpdater = rafThrottle(() => updateAllObstacles(allObstacles));
+    inputHandler = new InputHandler(canvas, {
+        mouse,
+        flock,
+        spatialGrid,
+        speedSlider,
+        speedControls,
+        speedValue,
+        godModeButton,
+        scrollUpdater: throttledScrollUpdater,
+        isEnding: () => isEnding,
+        isRunning: () => animationFrameId !== null,
+        userHasSetFlockSize: () => userHasSetFlockSize,
+        godMode: () => godMode,
+        debugGridMode: () => debugGridMode,
+        updateAllObstacles: () => updateAllObstacles(allObstacles),
+        updateMenuValues: updateMenuValues,
+        setSpeedMultiplier: (value) => { speedMultiplier = value; },
+        setDebugSelectedBoid: (boid) => { debugSelectedBoid = boid; }
+    });
+
     // Initialize Obstacle dependencies
     setObstacleDependencies({
         canvas,
@@ -321,7 +326,7 @@ async function _prepareEnvironment() {
     const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode, lines: debugLinesMode };
     initializeMenu(simParams, initialDebugFlags);
     setupMenuEventListeners();
-    setupEventListeners();
+    inputHandler.setupEventListeners();
 
     closeNavMenu();
 
@@ -348,200 +353,14 @@ async function loadAndPrepareImage() {
     // console.log("Boid image is decoded and ready to render.");
 }
 
-// Event Handlers
-const mouseMoveHandler = (event) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.set(event.clientX - rect.left, event.clientY - rect.top);
-    mouseInfluence = true;
-};
-
-const mouseLeaveHandler = () => {
-    mouseInfluence = false;
-    isScattering = false;
-};
-
-const mouseDownHandler = (event) => {
-    if (boidsIgnoreMouse) {
-        return;
-    }
-    if (event.button === 0 && !event.shiftKey) {
-        isScattering = true;
-        scatter(CLICK_SCATTER_DURATION);
-    }
-};
-
-const mouseUpHandler = (event) => {
-    if (event.button === 0) {
-        isScattering = false;
-    }
-};
-
-const touchStartHandler = (event) => {
-    const experimentalMenu = document.getElementById('experimentalMenu');
-    const easterEgg = document.getElementById('easterEgg');
-    const navLinks = document.getElementById('navLinks');
-    const hamburgerMenu = document.getElementById('hamburger-menu');
-    const visualContainer = document.getElementById('visualContainer');
-    const playerGrid = document.getElementById('playerGrid');
-    const designGrid = document.getElementById('designGrid');
-    const songsGrid = document.getElementById('songsGrid');
-    const cvContent = document.getElementById('cvContent');
-    const softwareContainer = document.getElementById('softwareContainer');
-    const homeLink = document.getElementById('homeLink');
-    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-    const myModal = document.getElementById('myModal');
-    const modalImage = document.getElementById('modalImage');
-
-    const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
-        (speedControls && speedControls.contains(event.target)) ||
-        (experimentalMenu && experimentalMenu.contains(event.target)) ||
-        (navLinks && navLinks.contains(event.target)) ||
-        (hamburgerMenu && hamburgerMenu.contains(event.target)) ||
-        (visualContainer && visualContainer.contains(event.target)) ||
-        (playerGrid && playerGrid.contains(event.target)) ||
-        (designGrid && designGrid.contains(event.target)) ||
-        (songsGrid && songsGrid.contains(event.target)) ||
-        (cvContent && cvContent.contains(event.target)) ||
-        (softwareContainer && softwareContainer.contains(event.target)) ||
-        (homeLink && homeLink.contains(event.target)) ||
-        (downloadPdfBtn && downloadPdfBtn.contains(event.target)) ||
-        (myModal && myModal.contains(event.target)) ||
-        (modalImage && modalImage.contains(event.target));
-
-    boidsIgnoreTouch = shouldBoidsIgnoreTouch;
-
-    if (isEnding || boidsIgnoreTouch) {
-        mouseInfluence = false;
-        return;
-    }
-    boidsIgnoreMouse = false;
-    event.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    mouse.set(event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top);
-    mouseInfluence = true;
-    isScattering = true;
-    scatter(CLICK_SCATTER_DURATION);
-
-    if (touchEndTimeoutId) {
-        clearTimeout(touchEndTimeoutId);
-        touchEndTimeoutId = null;
-    }
-};
-
-const touchMoveHandler = (event) => {
-    if (isEnding || boidsIgnoreTouch) {
-        mouseInfluence = false;
-        return;
-    }
-    event.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    mouse.set(event.touches[0].clientX - rect.left, event.touches[0].clientY - rect.top);
-    mouseInfluence = true;
-
-    if (touchEndTimeoutId) {
-        clearTimeout(touchEndTimeoutId);
-        touchEndTimeoutId = null;
-    }
-};
-
-const touchEndHandler = () => {
-    isScattering = false;
-    boidsIgnoreTouch = false;
-
-    if (touchEndTimeoutId) {
-        clearTimeout(touchEndTimeoutId);
-    }
-
-    touchEndTimeoutId = setTimeout(() => {
-        mouseInfluence = false;
-        touchEndTimeoutId = null;
-    }, 100);
-};
-
-const resizeHandler = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    if (spatialGrid) {
-        spatialGrid.resize(canvas.width, canvas.height);
-    }
-    updateAllObstacles(allObstacles);
-    // If simulation is running and in responsive mode, update the target flock size.
-    if (animationFrameId && !userHasSetFlockSize) {
-        flock.updateResponsiveSize(updateMenuValues);
-    }
-};
-
-
-
-const throttledScrollUpdater = rafThrottle(performScrollUpdates);
-
-const speedSliderInputHandler = function () {
-    speedMultiplier = (this.value / 100);
-    speedValue.textContent = `${this.value}%`;
-};
-
-const speedControlsMouseEnterHandler = () => {
-    boidsIgnoreMouse = true;
-};
-
-const speedControlsMouseLeaveHandler = () => {
-    boidsIgnoreMouse = false;
-};
-
-const iframeMouseEnterHandler = () => {
-    boidsIgnoreMouse = true;
-};
-
-const iframeMouseLeaveHandler = () => {
-    boidsIgnoreMouse = false;
-};
-
-const documentClickHandler = (event) => {
-    if (!event.shiftKey || !debugGridMode) {
-        if (!debugGridMode) {
-            debugSelectedBoid = null;
-        }
-        return;
-    }
-
-    const experimentalMenu = document.getElementById('experimentalMenu');
-    if (boidsIgnoreMouse || (experimentalMenu && experimentalMenu.contains(event.target) && godMode)) {
-        return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-
-    let closestBoid = null;
-    let minDistSq = Infinity;
-
-    for (const boid of flock) {
-        const distSq = (boid.position.x - clickX) ** 2 + (boid.position.y - clickY) ** 2;
-        if (distSq < minDistSq && distSq < (boid.renderSize * 2) ** 2) {
-            minDistSq = distSq;
-            closestBoid = boid;
-        }
-    }
-    debugSelectedBoid = closestBoid;
-};
-
-const godModeButtonClickHandler = () => {
-    const newGodModeState = !godMode;
-    const event = new CustomEvent('godModeToggled', {
-        detail: { enabled: newGodModeState },
-        bubbles: true,
-        composed: true
-    });
-    document.body.dispatchEvent(event);
-};
-
 // State & Event Management
 function setupAppLifecycleListeners() {
     window.addEventListener('pageshow', (event) => {
         // This event fires on every page load, including back-button navigation.
         if (event.persisted) {
-            mouseInfluence = false;
+            if (inputHandler) {
+                inputHandler.mouseInfluence = false;
+            }
             // console.log("Page restored from back-forward cache. Resetting UI state.");
             godMode = false;
 
@@ -578,66 +397,13 @@ function setupAppLifecycleListeners() {
                     setTimeout(() => boidCanvas.style.transition = '', 20);
                 }
             } else {
-                // console.log("Permanent simulation page detected. Controls and canvas will remain visible.");
+                // console.log("Permanent simulation page detected. Restarting simulation.");
+                // Restart the simulation for permanent pages when navigating back/forward
+                if (!animationFrameId) {
+                    startSimulation();
+                }
             }
         }
-    });
-}
-
-function setupEventListeners() {
-    document.removeEventListener('mousemove', mouseMoveHandler);
-    document.removeEventListener('mouseleave', mouseLeaveHandler);
-    document.removeEventListener('mousedown', mouseDownHandler);
-    document.removeEventListener('mouseup', mouseUpHandler);
-    document.removeEventListener('touchstart', touchStartHandler);
-    document.removeEventListener('touchmove', touchMoveHandler);
-    document.removeEventListener('touchend', touchEndHandler);
-    window.removeEventListener('resize', resizeHandler);
-    document.removeEventListener('click', documentClickHandler);
-    document.body.removeEventListener('scroll', throttledScrollUpdater);
-
-    if (speedSlider) {
-        speedSlider.removeEventListener('input', speedSliderInputHandler);
-    }
-    if (speedControls) {
-        speedControls.removeEventListener('mouseenter', speedControlsMouseEnterHandler);
-        speedControls.removeEventListener('mouseleave', speedControlsMouseLeaveHandler);
-    }
-    if (godModeButton) {
-        godModeButton.removeEventListener('click', godModeButtonClickHandler);
-    }
-
-    const iframes = document.querySelectorAll('iframe');
-    iframes.forEach(iframe => {
-        iframe.removeEventListener('mouseenter', iframeMouseEnterHandler);
-        iframe.removeEventListener('mouseleave', iframeMouseLeaveHandler);
-    });
-
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseleave', mouseLeaveHandler);
-    document.addEventListener('mousedown', mouseDownHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-    document.addEventListener('touchstart', touchStartHandler, { passive: false });
-    document.addEventListener('touchmove', touchMoveHandler, { passive: false });
-    document.addEventListener('touchend', touchEndHandler);
-    window.addEventListener('resize', resizeHandler);
-    document.addEventListener('click', documentClickHandler);
-    document.body.addEventListener('scroll', throttledScrollUpdater, { passive: true });
-
-    if (speedSlider) {
-        speedSlider.addEventListener('input', speedSliderInputHandler);
-    }
-    if (speedControls) {
-        speedControls.addEventListener('mouseenter', speedControlsMouseEnterHandler);
-        speedControls.addEventListener('mouseleave', speedControlsMouseLeaveHandler);
-    }
-    if (godModeButton) {
-        godModeButton.addEventListener('click', godModeButtonClickHandler);
-    }
-
-    iframes.forEach(iframe => {
-        iframe.addEventListener('mouseenter', iframeMouseEnterHandler);
-        iframe.addEventListener('mouseleave', iframeMouseLeaveHandler);
     });
 }
 
@@ -679,15 +445,14 @@ function setupMenuEventListeners() {
 
     // Handles mouse entering/leaving the menu itself
     document.body.addEventListener('menuInteraction', (e) => {
-        boidsIgnoreMouse = e.detail.hovering;
-        // console.log("Boids ignore mouse:", boidsIgnoreMouse);
+        if (inputHandler) {
+            inputHandler.boidsIgnoreMouse = e.detail.hovering;
+        }
+        // console.log("Boids ignore mouse:", e.detail.hovering);
     });
 
+    const throttledScrollUpdater = rafThrottle(() => updateAllObstacles(allObstacles));
     document.body.addEventListener('layoutChanged', throttledScrollUpdater);
-}
-
-function performScrollUpdates() {
-    updateAllObstacles(allObstacles);
 }
 
 function resetSimulationParameters() {
