@@ -775,7 +775,10 @@ function performScrollUpdates() {
 }
 
 function resetSimulationParameters() {
-    simParams = { ...DEFAULT_SIM_PARAMS }; // Reset to defaults
+    // Mutate the existing simParams object instead of creating a new one
+    // This ensures boid.js and obstacle.js see the changes immediately
+    Object.assign(simParams, DEFAULT_SIM_PARAMS);
+
     userHasSetFlockSize = false;         // Allow responsive flock size again.
     updateSpatialGridParameters();      // Update dependent systems (grid)
     updateMenuValues(simParams);        // Update UI to reflect the reset
@@ -786,15 +789,6 @@ function resetSimulationParameters() {
         grid: debugGridMode,
         obstacles: debugObstaclesMode,
         lines: debugLinesMode
-    });
-
-    // Re-inject the new simParams object into the boid module
-    setBoidDependencies({
-        canvas,
-        ctx,
-        simParams,
-        mouse,
-        boidImageBitmap
     });
 }
 
