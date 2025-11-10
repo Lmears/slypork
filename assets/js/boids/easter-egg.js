@@ -1,56 +1,4 @@
-/**
- * Controls the visibility of the main boid controls (speed slider).
- * @param {boolean} isVisible - Whether the controls should be visible.
- * @param {object} [options={}] - An options object.
- * @param {boolean} [options.animated=true] - If false, the change happens instantly.
- */
-function setControlsVisibility(isVisible, options = {}) {
-    const { animated = true } = options;
-    const controls = document.getElementById('controls');
-    if (!controls) return;
-
-    // The duration of the fade animation, consistent with your original code.
-    const ANIMATION_DURATION = 1000;
-
-    if (isVisible) {
-        // --- SHOW LOGIC ---
-        controls.style.display = 'flex';
-
-        if (animated) {
-            // Use a tiny delay to ensure the 'display' change is rendered
-            // before the opacity transition begins.
-            setTimeout(() => {
-                controls.style.opacity = '1';
-            }, 50);
-        } else {
-            // Instantly set opacity to 1.
-            controls.style.opacity = '1';
-        }
-
-    } else {
-        // --- HIDE LOGIC ---
-        if (animated) {
-            controls.style.opacity = '0';
-            // Wait for the transition to finish before setting display to none.
-            setTimeout(() => {
-                controls.style.display = 'none';
-            }, ANIMATION_DURATION);
-        } else {
-            // The instant-hide trick:
-            // 1. Temporarily disable CSS transitions on the element.
-            controls.style.transition = 'none';
-
-            // 2. Apply the final hidden state. It will happen immediately.
-            controls.style.opacity = '0';
-            controls.style.display = 'none';
-
-            // 3. Re-enable transitions after a tiny delay, so they work next time.
-            setTimeout(() => {
-                controls.style.transition = ''; // Resets to the CSS-defined value
-            }, 20);
-        }
-    }
-}
+import { initializeSlider, setControlPanelVisibility } from './ui-utils.js';
 
 function setupEasterEgg() {
     const easterEgg = document.getElementById('easterEgg');
@@ -86,7 +34,6 @@ function setupEasterEgg() {
         }
     }
 
-    window.setControlsVisibility = setControlsVisibility;
     window.resetEasterEggState = resetEasterEggState;
 
     function applyCurrentTransform() {
@@ -338,7 +285,7 @@ function setupEasterEgg() {
                 // REFACTOR: Start the fade-out of background elements after a 50ms delay.
                 setTimeout(() => {
                     // Call our new, clean function to hide the controls with animation.
-                    setControlsVisibility(false);
+                    setControlPanelVisibility(false);
 
                     // Start the canvas fade-out at the same time.
                     if (boidCanvas) boidCanvas.style.opacity = '0';
@@ -347,7 +294,7 @@ function setupEasterEgg() {
                 // REFACTOR: Schedule the final cleanup to run after the 1000ms animation completes.
                 setTimeout(() => {
                     if (boidCanvas) boidCanvas.style.display = 'none';
-                    // Note: setControlsVisibility handles its own display change, no need to repeat.
+                    // Note: setControlPanelVisibility handles its own display change, no need to repeat.
                     document.body.classList.remove('boid-active');
                     if (typeof window.stopSimulation === 'function') {
                         window.stopSimulation();
@@ -381,10 +328,10 @@ function setupEasterEgg() {
                             // This is scheduled after a 500ms delay to let the canvas appear first.
                             setTimeout(() => {
                                 // Show the controls with the default fade-in animation.
-                                setControlsVisibility(true);
+                                setControlPanelVisibility(true);
 
                                 // Initialize the simulation and slider as the controls are fading in.
-                                if (typeof initializeSlider === 'function') initializeSlider('speedSlider', 'speedValue', '%');
+                                initializeSlider('speedSlider', 'speedValue', '%');
                                 if (typeof startSimulation === 'function') startSimulation();
                             }, 500);
                         }, 50);
@@ -400,52 +347,6 @@ function setupEasterEgg() {
 }
 
 document.addEventListener('DOMContentLoaded', setupEasterEgg);
-
-/**
- * @param {string} sliderId - The ID of the slider element
- * @param {string} [displayId] - Optional ID of element to show the value
- * @param {string} [suffix='%'] - Suffix to add to displayed value
- */
-function initializeSlider(sliderId, displayId = null, suffix = '%') {
-    const slider = document.getElementById(sliderId);
-    const display = displayId ? document.getElementById(displayId) : null;
-
-    if (!slider) {
-        console.warn(`Slider with ID '${sliderId}' not found`);
-        return;
-    }
-
-    const sliderInputHandlerKey = `_sliderInputHandler_${sliderId}`;
-
-    if (slider[sliderInputHandlerKey]) {
-        slider.removeEventListener('input', slider[sliderInputHandlerKey]);
-    }
-
-    const updateSliderHandler = function () {
-        const value = parseFloat(slider.value);
-
-        updateSliderFill(slider);
-
-        if (display) {
-            const step = slider.step;
-            if (step && step.includes('.')) {
-                const precision = step.split('.')[1].length;
-                display.textContent = value.toFixed(precision) + suffix;
-            } else {
-                display.textContent = value + suffix;
-            }
-        }
-    };
-
-    slider[sliderInputHandlerKey] = updateSliderHandler;
-    slider.addEventListener('input', slider[sliderInputHandlerKey]);
-
-    updateSliderHandler();
-
-    if (typeof enableSliderWheelControl === 'function') {
-        enableSliderWheelControl(slider);
-    }
-}
 
 var easterEggElement = document.getElementById('easterEgg');
 
