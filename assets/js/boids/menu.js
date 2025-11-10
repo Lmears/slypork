@@ -1,10 +1,10 @@
-// boid-menu.js
+// settings.js
 
 // This module is responsible for the Experimental Menu UI.
 // It receives initial state and dispatches events when the user interacts.
 // It does NOT modify the main application state directly.
 
-import { MAX_FLOCK_SIZE_HARD_CAP } from './boid-simulator.js';
+import { MAX_FLOCK_SIZE_HARD_CAP } from './simulation.js';
 
 // --- Private variables ---
 let menuContainer; // Keep a reference to the main menu element

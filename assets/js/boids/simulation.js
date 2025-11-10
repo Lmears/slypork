@@ -1,4 +1,4 @@
-import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './boid-menu.js';
+import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
 
 // Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
