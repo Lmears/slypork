@@ -1,4 +1,5 @@
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
+import { setControlPanelVisibility } from './ui-utils.js';
 
 // Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
@@ -1723,9 +1724,7 @@ function setupAppLifecycleListeners() {
                 stopSimulation();
                 // console.log("Standard page detected. Hiding main simulation UI.");
 
-                if (window.setControlsVisibility) {
-                    window.setControlsVisibility(false, { animated: false });
-                }
+                setControlPanelVisibility(false, { animated: false });
 
                 // Instantly hide the canvas
                 const boidCanvas = document.getElementById('boidCanvas');
@@ -1838,7 +1837,7 @@ function setupMenuEventListeners() {
     // Handles mouse entering/leaving the menu itself
     document.body.addEventListener('menuInteraction', (e) => {
         boidsIgnoreMouse = e.detail.hovering;
-        console.log("Boids ignore mouse:", boidsIgnoreMouse);
+        // console.log("Boids ignore mouse:", boidsIgnoreMouse);
     });
 
     document.body.addEventListener('layoutChanged', throttledScrollUpdater);

@@ -36,41 +36,8 @@
     </main>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/boids/simulation.js" type="module"></script>
-
-    <!-- This new script block replaces the easter-egg.js functionality -->
-    <script>
-        /**
-         * @param {string} sliderId - The ID of the slider element
-         * @param {string} [displayId] - Optional ID of element to show the value
-         * @param {string} [suffix='%'] - Suffix to add to displayed value
-         */
-        function initializeSlider(sliderId, displayId = null, suffix = '%') {
-            const slider = document.getElementById(sliderId);
-            const display = displayId ? document.getElementById(displayId) : null;
-
-            if (!slider) {
-                console.warn(`Slider with ID '${sliderId}' not found`);
-                return;
-            }
-
-            const updateSliderHandler = function () {
-                const value = parseFloat(slider.value);
-                updateSliderFill(slider);
-
-                if (display) {
-                    const step = slider.step;
-                    if (step && step.includes('.')) {
-                        const precision = step.split('.')[1].length;
-                        display.textContent = value.toFixed(precision) + suffix;
-                    } else {
-                        display.textContent = value + suffix;
-                    }
-                }
-            };
-
-            slider.addEventListener('input', updateSliderHandler);
-            updateSliderHandler(); // Initial call
-        }
+    <script type="module">
+        import { initializeSlider } from '../assets/js/boids/ui-utils.js';
 
         document.addEventListener('DOMContentLoaded', () => {
             const boidCanvas = document.getElementById('boidCanvas');
@@ -90,9 +57,8 @@
             document.body.classList.add('boid-active');
 
             // Initialize the slider and start the simulation
-            if (typeof initializeSlider === 'function') {
-                initializeSlider('speedSlider', 'speedValue', '%');
-            }
+            initializeSlider('speedSlider', 'speedValue', '%');
+
             if (typeof startSimulation === 'function') {
                 startSimulation();
             } else {
