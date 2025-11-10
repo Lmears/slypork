@@ -1,5 +1,46 @@
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
 import { setControlPanelVisibility } from './ui-utils.js';
+import {
+    FLOCK_DENSITY,
+    MIN_BOIDS,
+    MAX_BOIDS_PER_1000PX_WIDTH,
+    DEFAULT_SIM_PARAMS,
+    OBSTACLE_PADDING,
+    OBSTACLE_BOUNCE_FORCE_MULTIPLIER,
+    OBSTACLE_DEBUG_COLOR,
+    OBSTACLE_DEBUG_FILL_COLOR,
+    OBSTACLE_ELEMENT_IDS,
+    MITOSIS_BOOST_STRENGTH,
+    NORMAL_MAX_SPEED,
+    SCATTER_MAX_SPEED,
+    INITIAL_BOOST,
+    BOOST_DECAY,
+    MOUSE_INFLUENCE_RADIUS,
+    CLICK_SCATTER_DURATION,
+    HOLD_SCATTER_DURATION,
+    COOLDOWN_DURATION,
+    MOUSE_FORCE_NORMAL,
+    MOUSE_FORCE_SCATTER,
+    DEPTH_INFLUENCE_RADIUS,
+    BOID_MAX_FORCE,
+    BOID_SIZE_BASE,
+    BOID_SIZE_VARIATION,
+    BOID_OSCILLATION_SPEED_BASE,
+    BOID_OSCILLATION_SPEED_VARIATION,
+    BOID_ROTATION_SPEED,
+    BOID_DYING_DURATION,
+    EASTER_EGG_WIDTH,
+    EASTER_EGG_HEIGHT,
+    EASTER_EGG_RIGHT,
+    EASTER_EGG_BOTTOM,
+    SPREAD_FACTOR,
+    END_ANIMATION_DURATION,
+    EDGE_BUFFER_POSITIONS,
+    TARGET_FPS,
+    MAX_FLOCK_SIZE_HARD_CAP,
+    VECTOR_POOL_INITIAL_SIZE,
+    VECTOR_POOL_MAX_SIZE
+} from './config.js';
 
 // Canvas and DOM elements
 const canvas = document.getElementById('boidCanvas');
@@ -9,102 +50,17 @@ const speedControls = document.getElementById('controls');
 const speedValue = document.getElementById('speedValue');
 const godModeButton = document.getElementById('godModeButton');
 
-// --- Flock Management ---
-const FLOCK_DENSITY = 0.0002; // Boids per pixel area for responsive sizing
-const MIN_BOIDS = 30;
-const MAX_BOIDS_PER_1000PX_WIDTH = 750; // Max boids scales with width
-const DEFAULT_FLOCK_SIZE = 150;
-let userHasSetFlockSize = false;
-
 // --- Tweakable Simulation Parameters (via experimental menu) ---
-let simParams = {
-    FLOCK_SIZE: DEFAULT_FLOCK_SIZE,
-    ALIGNMENT_FORCE: 1.0,
-    COHESION_FORCE: 0.7,
-    SEPARATION_FORCE: 1.1,
-    OBSTACLE_FORCE: 1.2,
-    ALIGNMENT_RADIUS: 50,
-    COHESION_RADIUS: 120,
-    SEPARATION_RADIUS: 45,
-    OBSTACLE_RADIUS: 120,
-    VELOCITY_INERTIA: 0.45,
-    ROTATION_INERTIA: 0.3,
-};
+let simParams = { ...DEFAULT_SIM_PARAMS };
 
-const defaultSimParams = { ...simParams }; // Store initial values for reset
-
-const OBSTACLE_PADDING = 0;
-const OBSTACLE_BOUNCE_FORCE_MULTIPLIER = 3;
-const OBSTACLE_DEBUG_COLOR = 'rgba(255, 0, 0, 0.7)';
-const OBSTACLE_DEBUG_FILL_COLOR = 'rgba(255, 0, 0, 0.1)';
-
-const OBSTACLE_ELEMENT_IDS = [
-    'navLinks',
-    'footer',
-    'hamburger-menu',
-    'simpleHomeLink',
-    'downloadPdfBtn',
-    'keith-logo',
-    'dj-pretence-logo',
-    'root-basis-logo',
-];
-// Initialize obstacles from the DOM elements
+// --- Flock Management State ---
+let userHasSetFlockSize = false;
 let allObstacles = [];
 
-// --- Other Simulation parameters (mostly non-tweakable via new menu) ---
-const MITOSIS_BOOST_STRENGTH = 0.1;
-const NORMAL_MAX_SPEED = 5;
-const SCATTER_MAX_SPEED = 15;
-const INITIAL_BOOST = 10;
-const BOOST_DECAY = 0.95;
-
-// Mouse interaction
-const MOUSE_INFLUENCE_RADIUS = 200;
-const CLICK_SCATTER_DURATION = 22;
-const HOLD_SCATTER_DURATION = 45;
-const COOLDOWN_DURATION = 30;
-
-// Boid behavior forces (related to mouse, not part of tweakable menu)
-const MOUSE_FORCE_NORMAL = 3.0;
-const MOUSE_FORCE_SCATTER = 2.5;
-
-// Boid behavior radii (DEPTH_INFLUENCE_RADIUS is used for CELL_SIZE but not in tweakable menu)
-const DEPTH_INFLUENCE_RADIUS = 50;
-
-// Additional Boid-specific constants
-const BOID_MAX_FORCE = 0.175;
-const BOID_SIZE_BASE = 20;
-const BOID_SIZE_VARIATION = 10;
-const BOID_OSCILLATION_SPEED_BASE = 0.02;
-const BOID_OSCILLATION_SPEED_VARIATION = 0.04;
-const BOID_ROTATION_SPEED = 0.1;
-const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
-
-// Easter egg parameters
-const EASTER_EGG_WIDTH = 45;
-const EASTER_EGG_HEIGHT = 40;
-const EASTER_EGG_RIGHT = 25;
-const EASTER_EGG_BOTTOM = 21;
-const SPREAD_FACTOR = 0.1;
-
-// Animation
-const END_ANIMATION_DURATION = 1000;
-
-// Edge buffering for wraparound effect
-const EDGE_BUFFER_POSITIONS = [
-    { dx: 0, dy: 0 },
-    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-    { dx: -1, dy: -1 }, { dx: 1, dy: -1 },
-    { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
-];
-
 // --- Spatial Partitioning Settings ---
-let CELL_SIZE; // Dynamically calculated based on simParams radii
+let cellSize; // Dynamically calculated based on simParams radii
 
-const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel
-
-// Helper function to calculate CELL_SIZE
+// Helper function to calculate cellSize
 function calculateCurrentCellSize() {
     return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS, simParams.OBSTACLE_RADIUS);
 }
@@ -112,10 +68,10 @@ function calculateCurrentCellSize() {
 // Function to update spatial grid parameters if radii change
 function updateSpatialGridParameters() {
     const newCellSize = calculateCurrentCellSize();
-    CELL_SIZE = newCellSize;
+    cellSize = newCellSize;
 
     if (spatialGrid) {
-        spatialGrid.cellSize = CELL_SIZE;
+        spatialGrid.cellSize = cellSize;
         spatialGrid.resize(canvas.width, canvas.height);
     }
 }
@@ -138,14 +94,6 @@ let boidsIgnoreTouch = false;
 let touchEndTimeoutId = null;
 let boidImageBitmap = null;
 let isSystemInitialized = false;
-
-
-// --- Vector Pool ---
-// Since FLOCK_SIZE is dynamic, the pool size must be based on a hard-coded maximum capacity.
-export const MAX_FLOCK_SIZE_HARD_CAP = 1000;
-const PEAK_VECTORS_PER_BOID = 7;
-const VECTOR_POOL_INITIAL_SIZE = MAX_FLOCK_SIZE_HARD_CAP * PEAK_VECTORS_PER_BOID;
-const VECTOR_POOL_MAX_SIZE = MAX_FLOCK_SIZE_HARD_CAP * PEAK_VECTORS_PER_BOID * 2;
 
 class VectorPool {
     constructor(initialSize, maxSize) {
@@ -1020,9 +968,11 @@ function removeBoid() {
 
 /**
  * Compares current flock size to the target in simParams and adds/removes boids.
+ * Limits the number of changes per frame to prevent performance spikes.
  */
 function adjustFlockToTargetSize() {
     const targetSize = Math.floor(simParams.FLOCK_SIZE);
+    const MAX_CHANGES_PER_FRAME = 50; // Limit to prevent lag spikes
 
     // Count only boids that are not in the process of fading out.
     let livingBoidsCount = 0;
@@ -1036,13 +986,14 @@ function adjustFlockToTargetSize() {
 
     if (difference > 0) {
         // Add boids if below target, respecting the hard cap on total boids (living + dying).
-        const boidsToAdd = Math.min(difference, MAX_FLOCK_SIZE_HARD_CAP - flock.length);
+        const boidsToAdd = Math.min(difference, MAX_FLOCK_SIZE_HARD_CAP - flock.length, MAX_CHANGES_PER_FRAME);
         for (let i = 0; i < boidsToAdd; i++) {
             addBoid();
         }
     } else if (difference < 0) {
         // Mark boids for removal if above target.
-        for (let i = 0; i < Math.abs(difference); i++) {
+        const boidsToRemove = Math.min(Math.abs(difference), MAX_CHANGES_PER_FRAME);
+        for (let i = 0; i < boidsToRemove; i++) {
             removeBoid();
         }
     }
@@ -1085,7 +1036,7 @@ async function startSimulation() {
         return;
     }
 
-    CELL_SIZE = calculateCurrentCellSize();
+    cellSize = calculateCurrentCellSize();
     if (spatialGrid) spatialGrid.resize(canvas.width, canvas.height);
     // Set initial flock size based on responsive calculation if not manually set
     if (!userHasSetFlockSize) {
@@ -1690,7 +1641,6 @@ const godModeButtonClickHandler = () => {
         composed: true
     });
     document.body.dispatchEvent(event);
-    console.log("God Mode:", godMode);
 };
 
 // State & Event Management
@@ -1854,7 +1804,7 @@ function performScrollUpdates() {
 }
 
 function resetSimulationParameters() {
-    simParams = { ...defaultSimParams }; // Reset to defaults
+    simParams = { ...DEFAULT_SIM_PARAMS }; // Reset to defaults
     userHasSetFlockSize = false;         // Allow responsive flock size again.
     updateSpatialGridParameters();      // Update dependent systems (grid)
     updateMenuValues(simParams);        // Update UI to reflect the reset
@@ -1943,7 +1893,7 @@ function drawNeighborhoodVisualization(boid, gridInstance, ctx) {
     for (const other of localNeighbors) {
         if (other === boid) continue;
         const distanceToOther = Vector.dist(boid.position, other.position);
-        if (distanceToOther <= CELL_SIZE) {
+        if (distanceToOther <= cellSize) {
             ctx.beginPath();
             ctx.moveTo(boid.position.x, boid.position.y);
             ctx.lineTo(other.position.x, other.position.y);

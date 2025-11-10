@@ -2,8 +2,8 @@
 // It receives initial state and dispatches events when the user interacts.
 // It does NOT modify the main application state directly.
 
-import { MAX_FLOCK_SIZE_HARD_CAP } from './simulation.js';
-import { updateSliderFill, enableSliderWheelControl } from './ui-utils.js';
+import { MAX_FLOCK_SIZE_HARD_CAP } from './config.js';
+import { updateSliderFill, enableSliderWheelControl, enableSliderDoubleClickReset } from './ui-utils.js';
 
 // --- Private variables ---
 let menuContainer; // Keep a reference to the main menu element
@@ -428,6 +428,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
 
                 updateSliderFill(inputEl);
                 enableSliderWheelControl(inputEl);
+                enableSliderDoubleClickReset(inputEl, initialParams[key]);
                 inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
                 controlRow.append(labelEl, inputEl, valueInput);
 
