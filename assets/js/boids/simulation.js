@@ -1,4 +1,3 @@
-import { vectorPool } from './vector.js';
 import { Boid, setBoidDependencies, updateBoidRuntimeValues } from './boid.js';
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
 import { setControlPanelVisibility } from './ui-utils.js';
@@ -7,68 +6,36 @@ import { SpatialGrid } from './spatial-grid.js';
 import { Flock } from './flock.js';
 import { Renderer } from './renderer.js';
 import { InputHandler } from './input-handler.js';
+import { SimulationState } from './state.js';
 import {
-    DEFAULT_SIM_PARAMS,
     HOLD_SCATTER_DURATION,
-    DEPTH_INFLUENCE_RADIUS,
     TARGET_FPS,
 } from './config.js';
 
-// Canvas and DOM elements
-const canvas = document.getElementById('boidCanvas');
-const ctx = canvas.getContext('2d');
-const speedSlider = document.getElementById('speedSlider');
-const speedControls = document.getElementById('controls');
-const speedValue = document.getElementById('speedValue');
-const godModeButton = document.getElementById('godModeButton');
+// Centralized state container
+const state = new SimulationState();
 
-// --- Tweakable Simulation Parameters (via experimental menu) ---
-let simParams = { ...DEFAULT_SIM_PARAMS };
+// Initialize UI references
+state.setUIReferences({
+    canvas: document.getElementById('boidCanvas'),
+    ctx: document.getElementById('boidCanvas')?.getContext('2d'),
+    speedSlider: document.getElementById('speedSlider'),
+    speedControls: document.getElementById('controls'),
+    speedValue: document.getElementById('speedValue'),
+    godModeButton: document.getElementById('godModeButton')
+});
 
-// --- Flock Management State ---
-let userHasSetFlockSize = false;
-let allObstacles = [];
-let flock;
-let renderer;
-let inputHandler;
-
-// --- Spatial Partitioning Settings ---
-let cellSize; // Dynamically calculated based on simParams radii
-
-// Helper function to calculate cellSize
-function calculateCurrentCellSize() {
-    return Math.max(simParams.ALIGNMENT_RADIUS, simParams.SEPARATION_RADIUS, simParams.COHESION_RADIUS, DEPTH_INFLUENCE_RADIUS, simParams.OBSTACLE_RADIUS);
-}
-
-// Function to update spatial grid parameters if radii change
+// Helper function to update spatial grid parameters when radii change
 function updateSpatialGridParameters() {
-    const newCellSize = calculateCurrentCellSize();
-    cellSize = newCellSize;
+    const { spatialGrid, canvas } = state;
+    const newCellSize = state.calculateCurrentCellSize();
 
     if (spatialGrid) {
-        spatialGrid.cellSize = cellSize;
+        spatialGrid.cellSize = newCellSize;
         spatialGrid.resize(canvas.width, canvas.height);
     }
 }
 
-// Global variables
-let speedMultiplier = 1;
-let animationFrameId = null;
-let isEnding = false;
-let endStartTime = 0;
-let spatialGrid;
-let godMode = false;
-let debugObstaclesMode = false;
-let debugGridMode = false;
-let debugLinesMode = false;
-let debugSelectedBoid = null;
-let boidImageBitmap = null;
-let isSystemInitialized = false;
-
-// Vector and VectorPool are now imported from vector.js
-let mouse = vectorPool.get(0, 0);
-
-// Public API / Entry Points
 /**
  * Starts the boid simulation.
  * It will LAZILY INITIALIZE the system on its first run.
@@ -76,35 +43,42 @@ let mouse = vectorPool.get(0, 0);
  */
 async function startSimulation() {
     // --- LAZY INITIALIZATION ---
-    if (!isSystemInitialized) {
+    if (!state.isSystemInitialized) {
         await _prepareEnvironment();
     }
-    if (!isSystemInitialized) {
+    if (!state.isSystemInitialized) {
         console.error("Cannot run simulation; system initialization failed.");
         return;
     }
 
     // --- REGULAR RUN LOGIC ---
+    const { animationFrameId, spatialGrid, canvas, userHasSetFlockSize, flock, simParams, speedSlider, speedValue } = state;
+
     if (animationFrameId) {
         console.warn("Simulation is already running. Call stopSimulation() first.");
         return;
     }
 
-    cellSize = calculateCurrentCellSize();
-    if (spatialGrid) spatialGrid.resize(canvas.width, canvas.height);
+    const cellSize = state.calculateCurrentCellSize();
+    if (spatialGrid) {
+        spatialGrid.cellSize = cellSize;
+        spatialGrid.resize(canvas.width, canvas.height);
+    }
+
     // Set initial flock size based on responsive calculation if not manually set
     if (!userHasSetFlockSize) {
         flock.updateResponsiveSize(updateMenuValues);
     }
+
     // Create the initial flock
     flock.clear();
     for (let i = 0; i < simParams.FLOCK_SIZE; i++) {
         flock.push(new Boid());
     }
 
-    speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
+    state.speedMultiplier = parseFloat(speedSlider.value) / 100 || 1;
     speedValue.textContent = `${speedSlider.value}%`;
-    isEnding = false;
+    state.isEnding = false;
     animate();
 }
 
@@ -112,14 +86,15 @@ async function startSimulation() {
  * Completely stops the simulation, cleans up all boids and state variables.
  */
 function stopSimulation() {
+    const { flock, renderer } = state;
+
     // 1. Stop the animation loop immediately.
-    stopAnimation();
+    state.stopAnimation();
 
     // 2. Clean up all existing boid objects to prevent memory leaks.
     if (flock) {
         flock.clear();
     }
-    debugSelectedBoid = null;
 
     // 3. Clear the canvas.
     if (renderer) {
@@ -127,12 +102,7 @@ function stopSimulation() {
     }
 
     // 4. Reset all simulation state variables to their defaults.
-    if (inputHandler) {
-        inputHandler.isScattering = false;
-        inputHandler.mouseInfluence = false;
-    }
-    isEnding = false; // Ensure we aren't stuck in the shutdown animation state.
-    godMode = false;
+    state.resetToDefaults();
     setMenuVisibility(false);
 
     // 5. Reset simulation parameters to their initial values.
@@ -140,121 +110,125 @@ function stopSimulation() {
 }
 
 function startExitAnimation() {
-    godMode = false;
+    const { isEnding } = state;
+    state.godMode = false;
     setMenuVisibility(false);
     if (!isEnding) {
-        isEnding = true;
-        endStartTime = performance.now();
+        state.isEnding = true;
+        state.endStartTime = performance.now();
     }
 }
-
-let lastFrameTime = 0;
 //  Core Simulation Loop
 function animate() {
     const currentTime = performance.now();
-    if (!lastFrameTime) {
-        lastFrameTime = currentTime;
-    }
-    // deltaTime is the time in milliseconds since the last frame
-    let deltaTime = currentTime - lastFrameTime;
-    lastFrameTime = currentTime;
+    const timeScale = updateFrameTiming(currentTime);
+    updateSpeedMultiplier(timeScale);
+    renderFrame(currentTime, timeScale);
 
-    // This makes the simulation slow down if FPS drops below ~60 FPS, instead of stuttering wildly.
-    // if (deltaTime > 17) {
-    //     deltaTime = 17;
-    // }
+    if (updateExitAnimation(currentTime)) {
+        return; // Exit animation complete
+    }
+
+    updateSimulationState();
+    updatePhysics(timeScale, currentTime);
+
+    state.animationFrameId = requestAnimationFrame(animate);
+}
+
+function updateFrameTiming(currentTime) {
+    if (!state.lastFrameTime) {
+        state.lastFrameTime = currentTime;
+    }
+    const deltaTime = currentTime - state.lastFrameTime;
+    state.lastFrameTime = currentTime;
 
     // timeScale is our adjustment factor. At 60fps, it will be ~2.0. At 120fps, it will be ~1.0.
-    const timeScale = (deltaTime / 1000) * TARGET_FPS;
+    return (deltaTime / 1000) * TARGET_FPS;
+}
 
-    // THE HACK: The slider's value is now adjusted by the per-frame timeScale.
+function updateSpeedMultiplier(timeScale) {
+    const { speedSlider, inputHandler } = state;
     const sliderValue = parseFloat(speedSlider.value) / 100;
-    speedMultiplier = sliderValue * timeScale;
+    state.speedMultiplier = sliderValue * timeScale;
 
-    // Update boid runtime values each frame
     updateBoidRuntimeValues({
-        speedMultiplier,
+        speedMultiplier: state.speedMultiplier,
         mouseInfluence: inputHandler.mouseInfluence,
         boidsIgnoreMouse: inputHandler.boidsIgnoreMouse
     });
+}
 
-    // Draw background with fade effect
+function renderFrame(currentTime, timeScale) {
+    const { renderer, debugObstaclesMode, allObstacles, debugGridMode, spatialGrid,
+        debugSelectedBoid, inputHandler, flock } = state;
+
     renderer.drawBackground();
 
-    // Draw debug visualizations
     if (debugObstaclesMode) {
         renderer.drawObstaclesDebug(allObstacles);
     }
-
     if (debugGridMode) {
         renderer.drawGridDebug(spatialGrid);
     }
     if (debugSelectedBoid) {
-        renderer.drawNeighborhoodDebug(debugSelectedBoid, spatialGrid, cellSize);
+        renderer.drawNeighborhoodDebug(debugSelectedBoid, spatialGrid, state.calculateCurrentCellSize());
     }
 
     if (inputHandler.isScattering) {
         inputHandler.scatter(HOLD_SCATTER_DURATION);
     }
 
-    // --- Cleanup Phase for faded-out boids ---
     flock.cleanup(currentTime);
+}
 
+function updateSimulationState() {
+    const { flock, spatialGrid, userHasSetFlockSize, isEnding } = state;
 
-    // --- Main Simulation Update Order ---
-
-    // 1. Update target flock size if in responsive mode.
     if (!userHasSetFlockSize && !isEnding) {
         flock.updateResponsiveSize(updateMenuValues);
     }
 
-    // 2. Adjust the flock to the target size. This uses the grid populated in step 2.
     if (!isEnding) {
         flock.adjustToTargetSize();
     }
 
-
-    // 3. Populate the grid with the current state of the flock.
     spatialGrid.clear();
     for (let boid of flock) {
-        // Do not include dying boids in the spatial grid for flocking calculations
         if (!boid.isDying) {
             spatialGrid.addItemAtPoint(boid);
         }
     }
+}
 
+function updatePhysics(timeScale, currentTime) {
+    const { flock, spatialGrid, allObstacles, debugLinesMode, renderer } = state;
 
-
-    if (isEnding) {
-        const endProgress = renderer.renderExitAnimation(flock, currentTime, endStartTime);
-
-        // --- Continue or Stop the Animation Loop ---
-        if (endProgress >= 1) {
-            return; // Stop the loop
-        }
-    } else {
-        // 4. Main Simulation Loop (if not ending)
-        for (let boid of flock) {
-            // Dying boids don't need to calculate forces, they just fade out
-            if (boid.isDying) continue;
-            const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
-            boid.calculateBoidAndMouseForces(localNeighbors, timeScale);
-        }
-
-        applyObstacleAvoidanceForces(allObstacles, spatialGrid, timeScale);
-
-        if (debugLinesMode) {
-            renderer.drawBoidConnections(flock, spatialGrid);
-        }
-
-        for (let boid of flock) {
-            boid.applyForcesAndMove(timeScale);
-            boid.renderSize = boid.calculateRenderSize();
-            boid.draw(currentTime);
-        }
+    for (let boid of flock) {
+        if (boid.isDying) continue;
+        const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
+        boid.calculateBoidAndMouseForces(localNeighbors, timeScale);
     }
 
-    animationFrameId = requestAnimationFrame(animate);
+    applyObstacleAvoidanceForces(allObstacles, spatialGrid, timeScale);
+
+    if (debugLinesMode) {
+        renderer.drawBoidConnections(flock, spatialGrid);
+    }
+
+    for (let boid of flock) {
+        boid.applyForcesAndMove(timeScale);
+        boid.renderSize = boid.calculateRenderSize();
+        boid.draw(currentTime);
+    }
+}
+
+function updateExitAnimation(currentTime) {
+    const { isEnding, flock, endStartTime, renderer } = state;
+
+    if (!isEnding) return false;
+
+    const endProgress = renderer.renderExitAnimation(flock, currentTime, endStartTime);
+    return endProgress >= 1;
 }
 
 // Simulation Sub-systems & Major Logic
@@ -265,27 +239,44 @@ function animate() {
  * This should only ever be called once.
  */
 async function _prepareEnvironment() {
-    // Prevent this from ever running more than once.
-    if (isSystemInitialized) return;
+    if (state.isSystemInitialized) return;
 
     try {
         await loadAndPrepareImage();
-    } catch (error) {
-        console.error("Could not prepare boid image:", error);
-        return; // Stop if the image fails to load
-    }
+        initializeCanvas();
+        initializeSimulationSystems();
+        initializeDependencyInjection();
+        initializeUI();
 
+        state.isSystemInitialized = true;
+        console.log("Boid system initialized.");
+    } catch (error) {
+        console.error("System initialization failed:", error);
+    }
+}
+
+function initializeCanvas() {
+    const { canvas } = state;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+}
 
-    spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
-    allObstacles = initializeObstacles();
-    flock = new Flock(simParams, canvas, spatialGrid);
-    renderer = new Renderer(canvas, ctx);
+function initializeSimulationSystems() {
+    const { canvas, ctx, simParams } = state;
 
-    // Initialize InputHandler with dependencies
+    state.spatialGrid = new SpatialGrid(canvas.width, canvas.height, state.calculateCurrentCellSize());
+    state.allObstacles = initializeObstacles();
+    state.flock = new Flock(simParams, canvas, state.spatialGrid);
+    state.renderer = new Renderer(canvas, ctx);
+    state.inputHandler = createInputHandler();
+}
+
+function createInputHandler() {
+    const { canvas, mouse, flock, spatialGrid, speedSlider, speedControls, speedValue,
+        godModeButton, allObstacles } = state;
     const throttledScrollUpdater = rafThrottle(() => updateAllObstacles(allObstacles));
-    inputHandler = new InputHandler(canvas, {
+
+    return new InputHandler(canvas, {
         mouse,
         flock,
         spatialGrid,
@@ -294,83 +285,66 @@ async function _prepareEnvironment() {
         speedValue,
         godModeButton,
         scrollUpdater: throttledScrollUpdater,
-        isEnding: () => isEnding,
-        isRunning: () => animationFrameId !== null,
-        userHasSetFlockSize: () => userHasSetFlockSize,
-        godMode: () => godMode,
-        debugGridMode: () => debugGridMode,
+        isEnding: () => state.isEnding,
+        isRunning: () => state.isRunning(),
+        userHasSetFlockSize: () => state.userHasSetFlockSize,
+        godMode: () => state.godMode,
+        debugGridMode: () => state.debugGridMode,
         updateAllObstacles: () => updateAllObstacles(allObstacles),
-        updateMenuValues: updateMenuValues,
-        setSpeedMultiplier: (value) => { speedMultiplier = value; },
-        setDebugSelectedBoid: (boid) => { debugSelectedBoid = boid; }
+        updateMenuValues,
+        setSpeedMultiplier: (value) => { state.speedMultiplier = value; },
+        setDebugSelectedBoid: (boid) => { state.debugSelectedBoid = boid; }
     });
+}
 
-    // Initialize Obstacle dependencies
-    setObstacleDependencies({
-        canvas,
-        simParams,
-        obstacles: allObstacles
-    });
+function initializeDependencyInjection() {
+    const { canvas, ctx, mouse, simParams, allObstacles, boidImageBitmap } = state;
+
+    setObstacleDependencies({ canvas, simParams, obstacles: allObstacles });
+    setBoidDependencies({ canvas, ctx, simParams, mouse, boidImageBitmap });
 
     updateAllObstacles(allObstacles);
+}
 
-    // Initialize Boid dependencies
-    setBoidDependencies({
-        canvas,
-        ctx,
-        simParams,
-        mouse,
-        boidImageBitmap
-    });
-
-    const initialDebugFlags = { grid: debugGridMode, obstacles: debugObstaclesMode, lines: debugLinesMode };
-    initializeMenu(simParams, initialDebugFlags);
+function initializeUI() {
+    const { simParams, inputHandler } = state;
+    initializeMenu(simParams, state.getDebugFlags());
     setupMenuEventListeners();
     inputHandler.setupEventListeners();
-
     closeNavMenu();
-
-    // Set the flag to true at the very end of a successful setup.
-    isSystemInitialized = true;
-    console.log("Boid system initialized for the first time.");
 }
 
 async function loadAndPrepareImage() {
-    // 1. Fetch the image data as a blob
     const response = await fetch('../assets/images/boid-logo.webp');
     if (!response.ok) {
         throw new Error('Failed to fetch boid image');
     }
     const imageBlob = await response.blob();
 
-    // 2. Decode the blob into an ImageBitmap
-    boidImageBitmap = await createImageBitmap(imageBlob, {
-        resizeWidth: 64,  // Set this to a reasonable max size for your boids
-        resizeHeight: 64, // e.g., 64x64
+    state.boidImageBitmap = await createImageBitmap(imageBlob, {
+        resizeWidth: 64,
+        resizeHeight: 64,
         resizeQuality: 'high'
     });
-
-    // console.log("Boid image is decoded and ready to render.");
 }
 
 // State & Event Management
 function setupAppLifecycleListeners() {
     window.addEventListener('pageshow', (event) => {
-        // This event fires on every page load, including back-button navigation.
         if (event.persisted) {
+            const { inputHandler } = state;
+
             if (inputHandler) {
                 inputHandler.mouseInfluence = false;
             }
-            // console.log("Page restored from back-forward cache. Resetting UI state.");
-            godMode = false;
 
+            state.godMode = false;
             setMenuVisibility(false, { animated: false });
 
             if (typeof window.resetEasterEggState === 'function') {
                 window.resetEasterEggState();
             }
 
-            // Dispatch event to sync the God Mode button's state (good practice)
             const customEvent = new CustomEvent('godModeToggled', {
                 detail: { enabled: false },
                 bubbles: true,
@@ -378,17 +352,12 @@ function setupAppLifecycleListeners() {
             });
             document.body.dispatchEvent(customEvent);
 
-
             const pageMode = document.body.dataset.pageMode;
 
-            // Only tear down the main simulation UI if we are NOT on the permanent page.
             if (pageMode !== 'permanent-sim') {
                 stopSimulation();
-                // console.log("Standard page detected. Hiding main simulation UI.");
-
                 setControlPanelVisibility(false, { animated: false });
 
-                // Instantly hide the canvas
                 const boidCanvas = document.getElementById('boidCanvas');
                 if (boidCanvas) {
                     boidCanvas.style.transition = 'none';
@@ -397,9 +366,7 @@ function setupAppLifecycleListeners() {
                     setTimeout(() => boidCanvas.style.transition = '', 20);
                 }
             } else {
-                // console.log("Permanent simulation page detected. Restarting simulation.");
-                // Restart the simulation for permanent pages when navigating back/forward
-                if (!animationFrameId) {
+                if (!state.isRunning()) {
                     startSimulation();
                 }
             }
@@ -409,77 +376,46 @@ function setupAppLifecycleListeners() {
 
 function setupMenuEventListeners() {
     document.body.addEventListener('godModeToggled', (e) => {
-        godMode = e.detail.enabled;
-        setMenuVisibility(godMode);
-        console.log("God Mode:", godMode);
+        state.godMode = e.detail.enabled;
+        setMenuVisibility(state.godMode);
+        console.log("God Mode:", state.godMode);
     });
 
     document.body.addEventListener('paramChanged', (e) => {
         const { key, value } = e.detail;
-        if (simParams.hasOwnProperty(key)) {
-            simParams[key] = value;
-            if (key.includes('RADIUS')) {
-                updateSpatialGridParameters();
-            }
-            // If the user manually changes flock size via the menu, set the flag.
-            if (key === 'FLOCK_SIZE') {
-                userHasSetFlockSize = true;
-            }
+        const wasUpdated = state.updateSimParam(key, value);
+        if (wasUpdated && key.includes('RADIUS')) {
+            updateSpatialGridParameters();
         }
     });
 
     document.body.addEventListener('debugFlagChanged', (e) => {
         const { flag, enabled } = e.detail;
-        if (flag === 'grid') {
-            debugGridMode = enabled;
-            if (!enabled) debugSelectedBoid = null;
-        } else if (flag === 'obstacles') {
-            debugObstaclesMode = enabled;
-        } else if (flag === 'lines') {
-            debugLinesMode = enabled;
-        }
+        state.updateDebugFlag(flag, enabled);
     });
 
     document.body.addEventListener('paramsReset', resetSimulationParameters);
 
-
-    // Handles mouse entering/leaving the menu itself
     document.body.addEventListener('menuInteraction', (e) => {
+        const { inputHandler } = state;
         if (inputHandler) {
             inputHandler.boidsIgnoreMouse = e.detail.hovering;
         }
-        // console.log("Boids ignore mouse:", e.detail.hovering);
     });
 
+    const { allObstacles } = state;
     const throttledScrollUpdater = rafThrottle(() => updateAllObstacles(allObstacles));
     document.body.addEventListener('layoutChanged', throttledScrollUpdater);
 }
 
 function resetSimulationParameters() {
-    // Mutate the existing simParams object instead of creating a new one
-    // This ensures boid.js and obstacle.js see the changes immediately
-    Object.assign(simParams, DEFAULT_SIM_PARAMS);
-
-    userHasSetFlockSize = false;         // Allow responsive flock size again.
-    updateSpatialGridParameters();      // Update dependent systems (grid)
-    updateMenuValues(simParams);        // Update UI to reflect the reset
-    debugGridMode = false;
-    debugObstaclesMode = false;
-    debugLinesMode = false;
-    updateDebugCheckboxes({
-        grid: debugGridMode,
-        obstacles: debugObstaclesMode,
-        lines: debugLinesMode
-    });
+    state.resetSimParams();
+    updateSpatialGridParameters();
+    updateMenuValues(state.simParams);
+    updateDebugCheckboxes(state.getDebugFlags());
 }
 
 // Utility & Helper Functions
-function stopAnimation() {
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
-}
 
 function rafThrottle(callback) {
     let requestId = null;
