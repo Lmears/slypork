@@ -64,6 +64,40 @@ export function enableSliderWheelControl(slider) {
 }
 
 /**
+ * Adds double-click reset behavior to a slider, returning it to its default value.
+ * The default value is stored when this function is first called.
+ * @param {HTMLInputElement} slider - The slider element to add double-click reset to.
+ * @param {number} [defaultValue] - Optional explicit default value. If not provided, uses slider's current value.
+ */
+export function enableSliderDoubleClickReset(slider, defaultValue) {
+    if (!slider || slider.type !== 'range') {
+        console.warn('Invalid element passed to enableSliderDoubleClickReset. Expected a range input.', slider);
+        return;
+    }
+
+    const resetHandlerKey = '_sliderResetEventHandler';
+    const defaultValueKey = '_sliderDefaultValue';
+
+    // Store the default value (either provided or current value)
+    if (!slider[defaultValueKey]) {
+        slider[defaultValueKey] = defaultValue !== undefined ? defaultValue : parseFloat(slider.value);
+    }
+
+    // Remove existing handler if present (idempotency)
+    if (slider[resetHandlerKey]) {
+        slider.removeEventListener('dblclick', slider[resetHandlerKey]);
+    }
+
+    const resetHandler = () => {
+        slider.value = slider[defaultValueKey];
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    slider[resetHandlerKey] = resetHandler;
+    slider.addEventListener('dblclick', resetHandler);
+}
+
+/**
  * Initializes a slider with visual fill updates, optional display value, and wheel control.
  * This is a complete initialization function that sets up all slider functionality.
  * @param {string} sliderId - The ID of the slider element
@@ -104,11 +138,8 @@ export function initializeSlider(sliderId, displayId = null, suffix = '%') {
     slider[sliderInputHandlerKey] = updateSliderHandler;
     slider.addEventListener('input', updateSliderHandler);
 
-    // --- ✅ Double-Click Reset Behavior ---
-    slider.addEventListener('dblclick', () => {
-        slider.value = defaultValue;
-        slider.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    // Add double-click reset behavior
+    enableSliderDoubleClickReset(slider, defaultValue);
 
     // Initial render setup
     updateSliderHandler();
