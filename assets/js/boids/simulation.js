@@ -1,4 +1,4 @@
-import { Vector, vectorPool } from './vector.js';
+import { vectorPool } from './vector.js';
 import { Boid, setBoidDependencies, updateBoidRuntimeValues } from './boid.js';
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
 import { setControlPanelVisibility } from './ui-utils.js';
