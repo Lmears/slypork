@@ -4,26 +4,21 @@ import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckbo
 import { setControlPanelVisibility } from './ui-utils.js';
 import { setObstacleDependencies, initializeObstacles, updateAllObstacles, applyObstacleAvoidanceForces } from './obstacle.js';
 import { SpatialGrid, drawGridVisualization, drawNeighborhoodVisualization } from './spatial-grid.js';
+import { Flock } from './flock.js';
 import {
-    FLOCK_DENSITY,
-    MIN_BOIDS,
-    MAX_BOIDS_PER_1000PX_WIDTH,
     DEFAULT_SIM_PARAMS,
-    MITOSIS_BOOST_STRENGTH,
     MOUSE_INFLUENCE_RADIUS,
     CLICK_SCATTER_DURATION,
     HOLD_SCATTER_DURATION,
     DEPTH_INFLUENCE_RADIUS,
     BOID_SIZE_BASE,
     BOID_SIZE_VARIATION,
-    BOID_DYING_DURATION,
     EASTER_EGG_WIDTH,
     EASTER_EGG_HEIGHT,
     EASTER_EGG_RIGHT,
     EASTER_EGG_BOTTOM,
     END_ANIMATION_DURATION,
     TARGET_FPS,
-    MAX_FLOCK_SIZE_HARD_CAP,
 } from './config.js';
 
 // Canvas and DOM elements
@@ -40,6 +35,7 @@ let simParams = { ...DEFAULT_SIM_PARAMS };
 // --- Flock Management State ---
 let userHasSetFlockSize = false;
 let allObstacles = [];
+let flock;
 
 // --- Spatial Partitioning Settings ---
 let cellSize; // Dynamically calculated based on simParams radii
@@ -81,8 +77,6 @@ let isSystemInitialized = false;
 
 // Vector and VectorPool are now imported from vector.js
 let mouse = vectorPool.get(0, 0);
-
-const flock = [];
 
 /**
  * Draws lines between nearby boids based on their distance.
@@ -141,162 +135,6 @@ function drawBoidConnections() {
     ctx.globalAlpha = 1.0;
 }
 
-// --- NEW FLOCK MANAGEMENT FUNCTIONS ---
-
-/**
- * Finds a boid within a "clump" by sampling the flock and checking neighbor density.
- * Used for both adding (as a parent) and removing boids.
- * @returns {Boid | null} The chosen boid, or null if the flock is empty.
- */
-function findBoidInClump() {
-    if (flock.length === 0) return null;
-
-    let bestBoid = null;
-    let maxNeighbors = -1;
-    // Sample a small number of boids to find a suitable candidate efficiently.
-    const sampleSize = Math.min(flock.length, 15);
-    const radius = simParams.COHESION_RADIUS;
-    const radiusSq = radius * radius;
-
-    // For correct toroidal distance calculation
-    const halfWidth = canvas.width / 2;
-    const halfHeight = canvas.height / 2;
-
-    for (let i = 0; i < sampleSize; i++) {
-        const candidate = flock[Math.floor(Math.random() * flock.length)];
-        // Get neighbors from the pre-populated spatial grid for this frame.
-        const potentialNeighbors = spatialGrid.getItemsInNeighborhood(candidate.position);
-        let neighborCount = 0;
-        for (const other of potentialNeighbors) {
-            if (other === candidate) {
-                continue;
-            }
-
-            // Perform correct, optimized toroidal distance check
-            let dx = candidate.position.x - other.position.x;
-            let dy = candidate.position.y - other.position.y;
-
-            if (Math.abs(dx) > halfWidth) {
-                dx = canvas.width - Math.abs(dx);
-            }
-            if (Math.abs(dy) > halfHeight) {
-                dy = canvas.height - Math.abs(dy);
-            }
-
-            const distSq = dx * dx + dy * dy;
-
-            if (distSq < radiusSq) {
-                neighborCount++;
-            }
-        }
-        if (neighborCount > maxNeighbors) {
-            maxNeighbors = neighborCount;
-            bestBoid = candidate;
-        }
-    }
-
-    // Fallback to a purely random boid if no suitable one is found.
-    return bestBoid || flock[Math.floor(Math.random() * flock.length)];
-}
-
-
-/** Adds one new boid to the flock using "mitosis" from a clumped parent. */
-function addBoid() {
-    const parentBoid = findBoidInClump();
-    const newBoid = new Boid(parentBoid);
-
-    // If a parent exists, apply the splitting force.
-    if (parentBoid) {
-        // Create temporary vectors for the calculation
-        const splitForce = vectorPool.get(parentBoid.velocity.y, -parentBoid.velocity.x);
-        const randomJitter = Vector.random2D(vectorPool.get(0, 0)).mult(0.25);
-
-        splitForce.normalize().mult(MITOSIS_BOOST_STRENGTH);
-        splitForce.add(randomJitter); // Add jitter for less uniform splits
-
-        // Apply opposing boosts
-        newBoid.boost.add(splitForce);
-        parentBoid.boost.sub(splitForce); // Parent gets an equal and opposite recoil
-
-        // Release the temporary vectors now that they've been used
-        vectorPool.release(splitForce);
-        vectorPool.release(randomJitter);
-    }
-
-    flock.push(newBoid);
-}
-
-/** Marks a boid for removal, starting a fade-out animation. */
-function removeBoid() {
-    if (flock.length === 0) return;
-
-    // Try a few times to find a boid that isn't already dying. This is to avoid
-    // always picking the same one if `findBoidInClump` is not perfectly random.
-    for (let i = 0; i < 10; i++) {
-        const candidate = findBoidInClump();
-        if (candidate && !candidate.isDying) {
-            candidate.startDying();
-            return;
-        }
-    }
-
-    // If the loop fails (e.g., many boids are already dying),
-    // find the first available boid to ensure one is always marked.
-    const fallbackBoid = flock.find(b => !b.isDying);
-    if (fallbackBoid) {
-        fallbackBoid.startDying();
-    }
-}
-
-
-/**
- * Compares current flock size to the target in simParams and adds/removes boids.
- * Limits the number of changes per frame to prevent performance spikes.
- */
-function adjustFlockToTargetSize() {
-    const targetSize = Math.floor(simParams.FLOCK_SIZE);
-    const MAX_CHANGES_PER_FRAME = 50; // Limit to prevent lag spikes
-
-    // Count only boids that are not in the process of fading out.
-    let livingBoidsCount = 0;
-    for (const boid of flock) {
-        if (!boid.isDying) {
-            livingBoidsCount++;
-        }
-    }
-
-    const difference = targetSize - livingBoidsCount;
-
-    if (difference > 0) {
-        // Add boids if below target, respecting the hard cap on total boids (living + dying).
-        const boidsToAdd = Math.min(difference, MAX_FLOCK_SIZE_HARD_CAP - flock.length, MAX_CHANGES_PER_FRAME);
-        for (let i = 0; i < boidsToAdd; i++) {
-            addBoid();
-        }
-    } else if (difference < 0) {
-        // Mark boids for removal if above target.
-        const boidsToRemove = Math.min(Math.abs(difference), MAX_CHANGES_PER_FRAME);
-        for (let i = 0; i < boidsToRemove; i++) {
-            removeBoid();
-        }
-    }
-}
-
-
-/**
- * Calculates the desired flock size based on canvas area and density settings.
- * This is called when `userHasSetFlockSize` is false.
- */
-function updateResponsiveFlockSize() {
-    const maxBoids = (canvas.width / 1000) * MAX_BOIDS_PER_1000PX_WIDTH;
-    let targetSize = canvas.width * canvas.height * FLOCK_DENSITY;
-    targetSize = Math.max(MIN_BOIDS, targetSize);
-    targetSize = Math.min(maxBoids, targetSize);
-    simParams.FLOCK_SIZE = Math.floor(targetSize);
-    updateMenuValues(simParams);
-}
-
-
 // Public API / Entry Points
 /**
  * Starts the boid simulation.
@@ -323,10 +161,10 @@ async function startSimulation() {
     if (spatialGrid) spatialGrid.resize(canvas.width, canvas.height);
     // Set initial flock size based on responsive calculation if not manually set
     if (!userHasSetFlockSize) {
-        updateResponsiveFlockSize();
+        flock.updateResponsiveSize(updateMenuValues);
     }
     // Create the initial flock
-    flock.length = 0; // Clear previous flock if any
+    flock.clear();
     for (let i = 0; i < simParams.FLOCK_SIZE; i++) {
         flock.push(new Boid());
     }
@@ -345,10 +183,9 @@ function stopSimulation() {
     stopAnimation();
 
     // 2. Clean up all existing boid objects to prevent memory leaks.
-    for (const boid of flock) {
-        boid.destroy();
+    if (flock) {
+        flock.clear();
     }
-    flock.length = 0;
     debugSelectedBoid = null;
 
     // 3. Clear the canvas.
@@ -437,26 +274,19 @@ function animate() {
     }
 
     // --- Cleanup Phase for faded-out boids ---
-    for (let i = flock.length - 1; i >= 0; i--) {
-        const boid = flock[i];
-        if (boid.isDying && (currentTime - boid.dyingStartTime > BOID_DYING_DURATION)) {
-            boid.destroy();
-            flock[i] = flock[flock.length - 1];
-            flock.pop();
-        }
-    }
+    flock.cleanup(currentTime);
 
 
     // --- Main Simulation Update Order ---
 
     // 1. Update target flock size if in responsive mode.
     if (!userHasSetFlockSize && !isEnding) {
-        updateResponsiveFlockSize();
+        flock.updateResponsiveSize(updateMenuValues);
     }
 
     // 2. Adjust the flock to the target size. This uses the grid populated in step 2.
     if (!isEnding) {
-        adjustFlockToTargetSize();
+        flock.adjustToTargetSize();
     }
 
 
@@ -552,6 +382,7 @@ async function _prepareEnvironment() {
 
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
     allObstacles = initializeObstacles();
+    flock = new Flock(simParams, canvas, spatialGrid);
 
     // Initialize Obstacle dependencies
     setObstacleDependencies({
@@ -720,7 +551,7 @@ const resizeHandler = () => {
     updateAllObstacles(allObstacles);
     // If simulation is running and in responsive mode, update the target flock size.
     if (animationFrameId && !userHasSetFlockSize) {
-        updateResponsiveFlockSize();
+        flock.updateResponsiveSize(updateMenuValues);
     }
 };
 
