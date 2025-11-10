@@ -3,21 +3,15 @@ import { Boid, setBoidDependencies, updateBoidRuntimeValues } from './boid.js';
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
 import { setControlPanelVisibility } from './ui-utils.js';
 import { setObstacleDependencies, initializeObstacles, updateAllObstacles, applyObstacleAvoidanceForces } from './obstacle.js';
-import { SpatialGrid, drawGridVisualization, drawNeighborhoodVisualization } from './spatial-grid.js';
+import { SpatialGrid } from './spatial-grid.js';
 import { Flock } from './flock.js';
+import { Renderer } from './renderer.js';
 import {
     DEFAULT_SIM_PARAMS,
     MOUSE_INFLUENCE_RADIUS,
     CLICK_SCATTER_DURATION,
     HOLD_SCATTER_DURATION,
     DEPTH_INFLUENCE_RADIUS,
-    BOID_SIZE_BASE,
-    BOID_SIZE_VARIATION,
-    EASTER_EGG_WIDTH,
-    EASTER_EGG_HEIGHT,
-    EASTER_EGG_RIGHT,
-    EASTER_EGG_BOTTOM,
-    END_ANIMATION_DURATION,
     TARGET_FPS,
 } from './config.js';
 
@@ -36,6 +30,7 @@ let simParams = { ...DEFAULT_SIM_PARAMS };
 let userHasSetFlockSize = false;
 let allObstacles = [];
 let flock;
+let renderer;
 
 // --- Spatial Partitioning Settings ---
 let cellSize; // Dynamically calculated based on simParams radii
@@ -77,63 +72,6 @@ let isSystemInitialized = false;
 
 // Vector and VectorPool are now imported from vector.js
 let mouse = vectorPool.get(0, 0);
-
-/**
- * Draws lines between nearby boids based on their distance.
- * The line opacity fades from full at 20px to zero at 200px.
- */
-function drawBoidConnections() {
-    const minDist = 10;
-    const maxDist = 150;
-    const range = maxDist - minDist;
-    const halfWidth = canvas.width / 2;
-    const halfHeight = canvas.height / 2;
-
-    // Use a Set to ensure each pair is drawn only once per frame.
-    const drawnPairs = new Set();
-
-    ctx.lineWidth = 0.5;
-    ctx.strokeStyle = 'rgba(125, 125, 125, 1)';
-
-    for (const boid of flock) {
-        if (boid.isDying) continue;
-
-        const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
-
-        for (const other of localNeighbors) {
-            if (boid === other || other.isDying) continue;
-
-            const pairKey = boid.id < other.id ? `${boid.id}-${other.id}` : `${other.id}-${boid.id}`;
-            if (drawnPairs.has(pairKey)) {
-                continue;
-            }
-
-            let dx = boid.position.x - other.position.x;
-            let dy = boid.position.y - other.position.y;
-
-            if (Math.abs(dx) > halfWidth) dx -= Math.sign(dx) * canvas.width;
-            if (Math.abs(dy) > halfHeight) dy -= Math.sign(dy) * canvas.height;
-
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < maxDist) {
-                const opacity = 1 - Math.max(0, Math.min(1, (dist - minDist) / range));
-                if (opacity > 0.001) {
-                    const drawX = boid.position.x - dx;
-                    const drawY = boid.position.y - dy;
-
-                    ctx.globalAlpha = opacity;
-                    ctx.beginPath();
-                    ctx.moveTo(boid.position.x, boid.position.y);
-                    ctx.lineTo(drawX, drawY);
-                    ctx.stroke();
-                }
-            }
-            drawnPairs.add(pairKey);
-        }
-    }
-    ctx.globalAlpha = 1.0;
-}
 
 // Public API / Entry Points
 /**
@@ -189,8 +127,8 @@ function stopSimulation() {
     debugSelectedBoid = null;
 
     // 3. Clear the canvas.
-    if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (renderer) {
+        renderer.clear();
     }
 
     // 4. Reset all simulation state variables to their defaults.
@@ -249,24 +187,19 @@ function animate() {
         boidsIgnoreMouse
     });
 
-    if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
-        ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
-    } else {
-        ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
-    }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw background with fade effect
+    renderer.drawBackground();
 
+    // Draw debug visualizations
     if (debugObstaclesMode) {
-        for (const obstacle of allObstacles) {
-            obstacle.drawDebug(ctx);
-        }
+        renderer.drawObstaclesDebug(allObstacles);
     }
 
     if (debugGridMode) {
-        drawGridVisualization(spatialGrid, ctx, canvas);
+        renderer.drawGridDebug(spatialGrid);
     }
     if (debugSelectedBoid) {
-        drawNeighborhoodVisualization(debugSelectedBoid, spatialGrid, ctx, cellSize);
+        renderer.drawNeighborhoodDebug(debugSelectedBoid, spatialGrid, cellSize);
     }
 
     if (isScattering) {
@@ -301,27 +234,13 @@ function animate() {
 
 
 
-    const endProgress = isEnding ? Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION) : 0;
     if (isEnding) {
-        const targetX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-        const targetY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
-        const targetPosForEnding = vectorPool.get(targetX, targetY);
-
-        for (let boid of flock) {
-            // Lerp position towards the target
-            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
-            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
-
-            // Shrink boids as they approach the end
-            boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
-            if (endProgress > 0.95 && Vector.dist(boid.position, targetPosForEnding) < 5) {
-                boid.position.x = targetPosForEnding.x;
-                boid.position.y = targetPosForEnding.y;
-            }
-            boid.renderSize = boid.calculateRenderSize();
-            boid.draw(currentTime);
+        const endProgress = renderer.renderExitAnimation(flock, currentTime, endStartTime);
+        
+        // --- Continue or Stop the Animation Loop ---
+        if (endProgress >= 1) {
+            return; // Stop the loop
         }
-        vectorPool.release(targetPosForEnding);
     } else {
         // 4. Main Simulation Loop (if not ending)
         for (let boid of flock) {
@@ -334,7 +253,7 @@ function animate() {
         applyObstacleAvoidanceForces(allObstacles, spatialGrid, timeScale);
 
         if (debugLinesMode) {
-            drawBoidConnections();
+            renderer.drawBoidConnections(flock, spatialGrid);
         }
 
         for (let boid of flock) {
@@ -344,10 +263,6 @@ function animate() {
         }
     }
 
-    // --- Continue or Stop the Animation Loop ---
-    if (isEnding && endProgress >= 1) {
-        return; // Stop the loop
-    }
     animationFrameId = requestAnimationFrame(animate);
 }
 
@@ -383,6 +298,7 @@ async function _prepareEnvironment() {
     spatialGrid = new SpatialGrid(canvas.width, canvas.height, calculateCurrentCellSize());
     allObstacles = initializeObstacles();
     flock = new Flock(simParams, canvas, spatialGrid);
+    renderer = new Renderer(canvas, ctx);
 
     // Initialize Obstacle dependencies
     setObstacleDependencies({
