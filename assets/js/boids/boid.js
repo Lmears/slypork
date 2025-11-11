@@ -7,6 +7,7 @@ import {
     BOID_SIZE_VARIATION,
     BOID_OSCILLATION_SPEED_BASE,
     BOID_OSCILLATION_SPEED_VARIATION,
+    BOID_OSCILLATION_SYNC_STRENGTH,
     BOID_ROTATION_SPEED,
     BOID_DYING_DURATION,
     NORMAL_MAX_SPEED,
@@ -262,7 +263,7 @@ export class Boid {
             const avgTargetPhase = Math.atan2(avgPhaseY / syncTotal, avgPhaseX / syncTotal);
             let phaseDifference = avgTargetPhase - this.oscillationPhase;
             phaseDifference = Math.atan2(Math.sin(phaseDifference), Math.cos(phaseDifference));
-            this.oscillationPhase += phaseDifference * 0.02 * timeScale;
+            this.oscillationPhase += phaseDifference * BOID_OSCILLATION_SYNC_STRENGTH * timeScale;
         }
 
         // --- Return the combined forces ---

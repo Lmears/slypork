@@ -57,8 +57,9 @@ export const DEPTH_INFLUENCE_RADIUS = 50;
 export const BOID_MAX_FORCE = 0.175;
 export const BOID_SIZE_BASE = 20;
 export const BOID_SIZE_VARIATION = 10;
-export const BOID_OSCILLATION_SPEED_BASE = 0.02;
-export const BOID_OSCILLATION_SPEED_VARIATION = 0.04;
+export const BOID_OSCILLATION_SPEED_BASE = 0.01;
+export const BOID_OSCILLATION_SPEED_VARIATION = 0.03;
+export const BOID_OSCILLATION_SYNC_STRENGTH = 0.02; // How strongly boids sync their oscillation with neighbors
 export const BOID_ROTATION_SPEED = 0.1;
 export const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
 
