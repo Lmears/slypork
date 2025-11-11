@@ -71,20 +71,52 @@ export class Obstacle {
 
     drawDebug(ctx) {
         if (!this.isEnabled || !this.paddedBounds) return;
+        if (!simParams || !canvas) return; // Need simParams for OBSTACLE_RADIUS and canvas for wrapping
 
         ctx.save();
+        
+        const influenceRadius = simParams.OBSTACLE_RADIUS;
         ctx.strokeStyle = OBSTACLE_DEBUG_COLOR;
         ctx.fillStyle = OBSTACLE_DEBUG_FILL_COLOR;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
+        
+        // Draw all 9 toroidal copies of the obstacle's influence area
+        for (const offset of EDGE_BUFFER_POSITIONS) {
+            const offsetX = offset.dx * canvas.width;
+            const offsetY = offset.dy * canvas.height;
+            
+            const influenceBounds = {
+                left: this.paddedBounds.left - influenceRadius + offsetX,
+                top: this.paddedBounds.top - influenceRadius + offsetY,
+                width: this.paddedBounds.width + influenceRadius * 2,
+                height: this.paddedBounds.height + influenceRadius * 2
+            };
+            
+            // Draw dashed line for the influence area
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(influenceBounds.left, influenceBounds.top, influenceBounds.width, influenceBounds.height);
+            
+            // Draw the actual obstacle bounds (solid) at each wrapped position
+            ctx.setLineDash([]);
+            ctx.lineWidth = 2;
+            const wrappedBounds = {
+                left: this.paddedBounds.left + offsetX,
+                top: this.paddedBounds.top + offsetY,
+                width: this.paddedBounds.width,
+                height: this.paddedBounds.height
+            };
+            ctx.fillRect(wrappedBounds.left, wrappedBounds.top, wrappedBounds.width, wrappedBounds.height);
+            ctx.strokeRect(wrappedBounds.left, wrappedBounds.top, wrappedBounds.width, wrappedBounds.height);
 
-        const pb = this.paddedBounds;
-        ctx.fillRect(pb.left, pb.top, pb.width, pb.height);
-        ctx.strokeRect(pb.left, pb.top, pb.width, pb.height);
-
-        ctx.beginPath();
-        ctx.arc(this.centerX, this.centerY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = OBSTACLE_DEBUG_COLOR;
-        ctx.fill();
+            // Draw center point at each wrapped position
+            ctx.beginPath();
+            ctx.arc(this.centerX + offsetX, this.centerY + offsetY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = OBSTACLE_DEBUG_COLOR;
+            ctx.fill();
+            
+            ctx.lineWidth = 1; // Reset for next iteration
+        }
+        
         ctx.restore();
     }
 }
