@@ -3,22 +3,13 @@
 // It does NOT modify the main application state directly.
 
 import { MAX_FLOCK_SIZE_HARD_CAP } from './config.js';
-import { updateSliderFill, enableSliderWheelControl, enableSliderDoubleClickReset } from './ui-utils.js';
+import { updateSliderFill, enableSliderWheelControl, enableSliderDoubleClickReset, dispatchEvent } from './ui-utils.js';
 
 // --- Private variables ---
 let menuContainer; // Keep a reference to the main menu element
 const inputElements = {}; // To easily update sliders from text inputs and vice-versa
 
 // --- Private Functions ---
-
-function dispatch(eventName, detail) {
-    const event = new CustomEvent(eventName, {
-        detail: detail,
-        bubbles: true,
-        composed: true
-    });
-    (menuContainer || document.body).dispatchEvent(event);
-}
 
 /**
  * Creates a DOM element with specified Tailwind classes and properties.
@@ -239,7 +230,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
 
         // Once a valid set is found, dispatch all changes and update the UI
         for (const key in newParams) {
-            dispatch('paramChanged', { key: key, value: newParams[key] });
+            dispatchEvent('paramChanged', { key: key, value: newParams[key] });
         }
         updateMenuValues(newParams);
     });
@@ -362,9 +353,9 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
             }
     `;
 
-    menuContainer.addEventListener('mouseenter', () => dispatch('menuInteraction', { hovering: true }));
-    menuContainer.addEventListener('mouseleave', () => dispatch('menuInteraction', { hovering: false }));
-    closeButton.addEventListener('click', () => dispatch('godModeToggled', { enabled: false }));
+    menuContainer.addEventListener('mouseenter', () => dispatchEvent('menuInteraction', { hovering: true }));
+    menuContainer.addEventListener('mouseleave', () => dispatchEvent('menuInteraction', { hovering: false }));
+    closeButton.addEventListener('click', () => dispatchEvent('godModeToggled', { enabled: false }));
     scrollableContent.appendChild(titleContainer);
 
     document.head.appendChild(styleSheet);
@@ -400,7 +391,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                     const newVal = parseFloat(inputEl.value);
                     valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
                     if (config.type === 'range') updateSliderFill(inputEl);
-                    dispatch('paramChanged', { key: key, value: newVal });
+                    dispatchEvent('paramChanged', { key: key, value: newVal });
                 });
                 valueInput.addEventListener('input', () => {
                     let newVal = parseFloat(valueInput.value);
@@ -408,7 +399,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                         newVal = Math.max(config.min, Math.min(config.max, newVal));
                         inputEl.value = newVal;
                         if (config.type === 'range') updateSliderFill(inputEl);
-                        dispatch('paramChanged', { key: key, value: newVal });
+                        dispatchEvent('paramChanged', { key: key, value: newVal });
                     }
                 });
                 const finalizeInputValue = () => {
@@ -422,7 +413,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                     valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
                     inputEl.value = currentVal;
                     updateSliderFill(inputEl);
-                    dispatch('paramChanged', { key: key, value: currentVal });
+                    dispatchEvent('paramChanged', { key: key, value: currentVal });
                 };
 
                 valueInput.addEventListener('blur', finalizeInputValue);
@@ -442,7 +433,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
             } else if (config.type === 'checkbox') {
                 const label = createElement('label', '', { htmlFor: `debug-${key}-toggle`, textContent: config.label });
                 const checkbox = createElement('input', '', { type: 'checkbox', id: `debug-${key}-toggle`, checked: config.checked });
-                checkbox.addEventListener('change', () => dispatch('debugFlagChanged', { flag: key, enabled: checkbox.checked }));
+                checkbox.addEventListener('change', () => dispatchEvent('debugFlagChanged', { flag: key, enabled: checkbox.checked }));
                 controlRow.append(label, checkbox);
             }
             contentDiv.appendChild(controlRow);
@@ -462,7 +453,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
     // --- Create and append Reset button ---
     const resetButton = createElement('button', 'px-3 py-2 mt-4 w-full bg-background text-gray-600 rounded-2xl cursor-pointer hover:bg-backgroundHovered', { textContent: 'Reset' });
     resetButton.addEventListener('click', () => {
-        dispatch('paramsReset');
+        dispatchEvent('paramsReset');
     });
     scrollableContent.appendChild(resetButton);
 

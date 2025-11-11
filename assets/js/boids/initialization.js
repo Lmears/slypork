@@ -1,6 +1,6 @@
 import { setBoidDependencies } from './boid.js';
 import { initializeMenu, setMenuVisibility, updateMenuValues, updateDebugCheckboxes } from './settings.js';
-import { setControlPanelVisibility, rafThrottle } from './ui-utils.js';
+import { setControlPanelVisibility, rafThrottle, dispatchEvent } from './ui-utils.js';
 import { setObstacleDependencies, initializeObstacles, updateAllObstacles } from './obstacle.js';
 import { SpatialGrid, updateSpatialGridParameters } from './spatial-grid.js';
 import { Flock } from './flock.js';
@@ -183,12 +183,7 @@ export function setupAppLifecycleListeners(state, startSimulation, stopSimulatio
                 window.resetEasterEggState();
             }
 
-            const customEvent = new CustomEvent('godModeToggled', {
-                detail: { enabled: false },
-                bubbles: true,
-                composed: true
-            });
-            document.body.dispatchEvent(customEvent);
+            dispatchEvent('godModeToggled', { enabled: false });
 
             const pageMode = document.body.dataset.pageMode;
 

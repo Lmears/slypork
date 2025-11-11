@@ -4,6 +4,7 @@ import {
     CLICK_SCATTER_DURATION,
     HOLD_SCATTER_DURATION,
 } from './config.js';
+import { dispatchEvent } from './ui-utils.js';
 
 export class InputHandler {
     constructor(canvas, dependencies) {
@@ -218,12 +219,7 @@ export class InputHandler {
 
     godModeButtonClickHandler() {
         const newGodModeState = !this.deps.godMode();
-        const event = new CustomEvent('godModeToggled', {
-            detail: { enabled: newGodModeState },
-            bubbles: true,
-            composed: true
-        });
-        document.body.dispatchEvent(event);
+        dispatchEvent('godModeToggled', { enabled: newGodModeState });
     }
 
     // Scatter behavior
