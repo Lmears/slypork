@@ -74,28 +74,28 @@ export class Obstacle {
         if (!simParams || !canvas) return; // Need simParams for OBSTACLE_RADIUS and canvas for wrapping
 
         ctx.save();
-        
+
         const influenceRadius = simParams.OBSTACLE_RADIUS;
         ctx.strokeStyle = OBSTACLE_DEBUG_COLOR;
         ctx.fillStyle = OBSTACLE_DEBUG_FILL_COLOR;
         ctx.lineWidth = 1;
-        
+
         // Draw all 9 toroidal copies of the obstacle's influence area
         for (const offset of EDGE_BUFFER_POSITIONS) {
             const offsetX = offset.dx * canvas.width;
             const offsetY = offset.dy * canvas.height;
-            
+
             const influenceBounds = {
                 left: this.paddedBounds.left - influenceRadius + offsetX,
                 top: this.paddedBounds.top - influenceRadius + offsetY,
                 width: this.paddedBounds.width + influenceRadius * 2,
                 height: this.paddedBounds.height + influenceRadius * 2
             };
-            
+
             // Draw dashed line for the influence area
             ctx.setLineDash([5, 5]);
             ctx.strokeRect(influenceBounds.left, influenceBounds.top, influenceBounds.width, influenceBounds.height);
-            
+
             // Draw the actual obstacle bounds (solid) at each wrapped position
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
@@ -113,10 +113,10 @@ export class Obstacle {
             ctx.arc(this.centerX + offsetX, this.centerY + offsetY, 5, 0, Math.PI * 2);
             ctx.fillStyle = OBSTACLE_DEBUG_COLOR;
             ctx.fill();
-            
+
             ctx.lineWidth = 1; // Reset for next iteration
         }
-        
+
         ctx.restore();
     }
 }
