@@ -11,6 +11,14 @@ var links = [
         type: 'bandcamp',
     },
     {
+        name: 'Keith - Out of the Crockpot and Into the Frying Pan',
+        credits: 'Credits: Writing, Mixing, Mastering',
+        date: '2025-01-21',
+        id: 'album=3319667576',
+        url: 'https://metacortexrecords.bandcamp.com/album/out-of-the-crockpot-and-into-the-frying-pan',
+        type: 'bandcamp',
+    },
+    {
         name: 'Weka Tek x Te Manu - Tūroa',
         credits: 'Credits: Mastering',
         date: '2024-12-20',
