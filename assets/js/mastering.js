@@ -53,7 +53,7 @@ var links = [
     },
     {
         name: 'Necropolis - Prophecy Of Ruin',
-        credits: 'Credits: Mixing, Mastering',
+        credits: 'Credits: Co-Mixing, Mastering',
         date: '2024-09-06',
         id: 'album=788398486',
         url: 'https://necropolis-siege.bandcamp.com/album/prophecy-of-ruin',
