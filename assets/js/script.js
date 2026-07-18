@@ -155,5 +155,26 @@ function isDarkReaderActive() {
     return document.documentElement.getAttribute('data-darkreader-mode') !== null;
 }
 
+var darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function isDarkMode() {
+    return darkModeMediaQuery.matches || isDarkReaderActive();
+}
+
+window.isDarkReaderActive = isDarkReaderActive;
+window.isDarkMode = isDarkMode;
+
+function notifyColorSchemeChanged() {
+    document.body.dispatchEvent(new CustomEvent('colorSchemeChanged', { detail: { dark: isDarkMode() } }));
+}
+
+darkModeMediaQuery.addEventListener('change', notifyColorSchemeChanged);
+
+var darkReaderObserver = new MutationObserver(notifyColorSchemeChanged);
+darkReaderObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-darkreader-mode']
+});
+
 window.addEventListener('load', adjustIframeHeight);
 window.addEventListener('resize', adjustIframeHeight);

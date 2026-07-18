@@ -1316,6 +1316,11 @@ video {
   color: rgb(229 231 235 / var(--tw-text-opacity, 1));
 }
 
+.text-gray-400 {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity, 1));
+}
+
 .text-gray-500 {
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity, 1));
@@ -1768,6 +1773,31 @@ nav ul li a:hover,
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
 }
 
+/* Keith's logo is a non-square SVG silhouette; constrain it to the same
+   square footprint as the other (square) project logos, and invert it
+   to black in light mode since the artwork itself is white-on-transparent. */
+
+#keith-logo {
+  aspect-ratio: 1 / 1;
+  -o-object-fit: contain;
+     object-fit: contain;
+  filter: invert(1) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+}
+
+.hover-effect:hover #keith-logo {
+  filter: invert(1) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+@media (prefers-color-scheme: dark) {
+  #keith-logo {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+  }
+
+  .hover-effect:hover #keith-logo {
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+  }
+}
+
 .project-name,
 .project-info {
   color: rgba(23, 23, 23);
@@ -1938,6 +1968,57 @@ input[type="checkbox"]:disabled {
 #boidCanvas,
 #controls {
   display: none;
+}
+
+/* Dark mode (follows OS/browser preference) */
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: rgb(32, 33, 31);
+    color: rgb(230, 231, 227);
+  }
+
+  body {
+    scrollbar-color: #63645f #3a3b38;
+  }
+
+  #hamburger-menu {
+    color: rgb(230, 231, 227);
+  }
+
+  nav ul li a:hover,
+    #hamburger-menu:hover,
+    .subtle-underline:hover,
+    .link-underline:hover,
+    .hover-effect:hover,
+    .hover-effect:hover .project-name,
+    .close:hover,
+    .close:focus {
+    color: rgba(230, 231, 227, 0.7);
+  }
+
+  .visual-container,
+    .visual-container-bottom {
+    border-top-color: rgba(230, 231, 227, 0.5);
+    border-bottom-color: rgba(230, 231, 227, 0.5);
+  }
+
+  #caption {
+    color: rgba(230, 231, 227, 0.75);
+  }
+
+  .close {
+    color: rgb(230, 231, 227);
+  }
+
+  .release-name,
+    .credits,
+    .various-artists,
+    .project-name,
+    .project-info,
+    .soundcloud-artist {
+    color: rgb(230, 231, 227);
+  }
 }
 
 /* Fonts */
@@ -2483,6 +2564,13 @@ input[type="checkbox"]:disabled {
 @media (min-height: 620px) {
   .group.nav-active .show-nav\:group-\[\.nav-active\]\:block {
     display: block;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .dark\:text-neutral-100 {
+    --tw-text-opacity: 1;
+    color: rgb(245 245 245 / var(--tw-text-opacity, 1));
   }
 }
 
