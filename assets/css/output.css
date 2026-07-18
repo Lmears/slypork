@@ -1491,20 +1491,20 @@ h1 {
 
 .visual-container,
 .visual-container-bottom {
-  border-top: 0.5px solid rgba(23, 23, 23, 0.5);
-  /* margin-top: -0.5px; */
-  border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
   position: relative;
   z-index: 1;
-  /* backdrop-filter: blur(8px); */
 }
 
 .visual-container {
   border-top: 0.5px solid rgba(23, 23, 23, 0.5);
+  border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
 }
 
+/* No top border: when paired beneath .visual-container (the only way this
+   class is used), its bottom border already supplies the shared divider. */
+
 .visual-container-bottom {
-  position: relative;
+  border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
 }
 
 /* Navigation */
@@ -2568,6 +2568,10 @@ input[type="checkbox"]:disabled {
 }
 
 @media (prefers-color-scheme: dark) {
+  .dark\:border-\[rgba\(230\2c 231\2c 227\2c 0\.5\)\] {
+    border-color: rgba(230,231,227,0.5);
+  }
+
   .dark\:text-neutral-100 {
     --tw-text-opacity: 1;
     color: rgb(245 245 245 / var(--tw-text-opacity, 1));
