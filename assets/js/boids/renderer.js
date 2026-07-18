@@ -20,9 +20,9 @@ export class Renderer {
      * Clears the canvas and draws the background with fade effect.
      */
     drawBackground() {
-        // Check if dark reader extension is active
-        if (typeof isDarkReaderActive === 'function' && isDarkReaderActive()) {
-            this.ctx.fillStyle = 'rgba(18, 18, 18, 0.1)';
+        // Check system/browser dark mode preference (or Dark Reader extension)
+        if (typeof isDarkMode === 'function' && isDarkMode()) {
+            this.ctx.fillStyle = 'rgba(32, 33, 31, 0.1)';
         } else {
             this.ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
         }
