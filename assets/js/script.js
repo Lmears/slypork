@@ -19,8 +19,8 @@ var homeLink = document.getElementById('homeLink');
 var homeLogo = document.querySelector('.home-logo');
 if (homeLink && homeLogo) {
     var isHovering = false;
-    var normalSrc = getLogoPath('home.webp');
-    var hoverSrc = getLogoPath('home-hover.webp');
+    var normalSrc = getLogoPath('slypork_logo.svg');
+    var hoverSrc = getLogoPath('slypork_logo_raised.svg');
 
     function handleHomeLinkMouseEnter() {
         if (homeLogo.src !== hoverSrc) { // Only change if different
