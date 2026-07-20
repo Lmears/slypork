@@ -20,12 +20,7 @@ export default {
         primary: '#073b4c',
         heading: '#193a4a',
         body: '#333333',
-        light: '#f3f5f6',
         section: '#e7ebed',
-      },
-      brightness: {
-        80: '.8',
-        110: '1.1',
       },
       screens: {
         'sm': '642px', // Even though this is close to default sm: there may be more nav items in the future
