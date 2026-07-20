@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Music | Slypork</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16x16.png">
+    <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="../assets/images/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/images/favicon-192x192.png">
+    <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
@@ -31,8 +30,8 @@
     </div>
     <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
         <header>
-            <nav class="flex flex-row justify-center sm:flex-col text-2xl group">
-                <button id="hamburger-menu" aria-label="Menu" class="py-3 px-2 sm:hidden">&#9776;</button>
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false" class="py-3 px-2 sm:hidden">&#9776;</button>
                 <ul id="navLinks"
                     class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
                     <li
@@ -71,7 +70,7 @@
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
             <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
-                <div id="pageTitle" class="inline-block">Music</div>
+                <span id="pageTitle" class="inline-block">Music</span>
             </h1>
             <section id="links">
                 <div class="visual-container" id="visualContainer">
@@ -79,7 +78,7 @@
                         <div class="pb-4 text-2xl">My projects:</div>
                         <div class="text-lg font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
                             <div class="project-container">
-                                <a href="https://linktr.ee/keithunsheathed" target="_blank"
+                                <a href="https://linktr.ee/keithunsheathed" target="_blank" rel="noopener noreferrer"
                                     class="hover-effect subtle-underline">
                                     <img src="../assets/images/project-logos/keith.svg" alt="Keith"
                                         class="project-logo" id="keith-logo">
@@ -89,7 +88,7 @@
                                 </div>
                             </div>
                             <div class="project-container">
-                                <a href="https://linktr.ee/djpretence" target="_blank"
+                                <a href="https://linktr.ee/djpretence" target="_blank" rel="noopener noreferrer"
                                     class="hover-effect subtle-underline">
                                     <img src="../assets/images/project-logos/dj-pretence.webp" alt="DJ PRETENCE"
                                         class="project-logo" id="dj-pretence-logo">
@@ -99,7 +98,7 @@
                                 </div>
                             </div>
                             <div class="project-container">
-                                <a href="https://linktr.ee/rootbasis" target="_blank"
+                                <a href="https://linktr.ee/rootbasis" target="_blank" rel="noopener noreferrer"
                                     class="hover-effect subtle-underline">
                                     <img src="../assets/images/project-logos/root-basis.webp" alt="Root Basis"
                                         class="project-logo" id="root-basis-logo">
@@ -119,7 +118,7 @@
                     </h2>
                     <div class="grid grid-cols-1 gap-8 text-lg soundcloud-artist">
                         <div>
-                            <a href="https://soundcloud.com/keithunsheathed" title="Keith" target="_blank"
+                            <a href="https://soundcloud.com/keithunsheathed" title="Keith" target="_blank" rel="noopener noreferrer"
                                 class="hover-effect thin-underline">Keith</a>
                             <iframe id="keith-player" class="rounded-xl" width="100%" height="166" scrolling="no"
                                 frameborder="no" allow="autoplay" loading="lazy"
@@ -127,7 +126,7 @@
                                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1714032603&color=%231f2937&inverse=true&auto_play=false&show_user=true"></iframe>
                         </div>
                         <div>
-                            <a href="https://soundcloud.com/djpretence" title="DJ PRETENCE" target="_blank"
+                            <a href="https://soundcloud.com/djpretence" title="DJ PRETENCE" target="_blank" rel="noopener noreferrer"
                                 class="hover-effect thin-underline">DJ PRETENCE</a>
                             <iframe id="dj-pretence-player" class="rounded-xl" width="100%" height="166" scrolling="no"
                                 frameborder="no" allow="autoplay" loading="lazy"
@@ -136,7 +135,7 @@
                         </div>
                         <div>
                             <div>
-                                <a href="https://soundcloud.com/rootbasis" title="Root Basis" target="_blank"
+                                <a href="https://soundcloud.com/rootbasis" title="Root Basis" target="_blank" rel="noopener noreferrer"
                                     class="hover-effect thin-underline">Root Basis</a>
                             </div>
                             <iframe id="root-basis-player" class="rounded-xl" width="100%" height="166" scrolling="no"
@@ -149,7 +148,7 @@
                         <p class="text-lg font-light">
                             <i class="fas fa-calendar-check" style="width: 24px;"></i>
                             <strong>Bookings:</strong>
-                            <a href="mailto:mastering@slypork.net" target="_blank" class="link-underline">
+                            <a href="mailto:bookings@slypork.net" target="_blank" rel="noopener noreferrer" class="link-underline">
                                 bookings@slypork.net
                             </a>
                         </p>

@@ -1,6 +1,6 @@
 // Utility functions
 function getLogoPath(file) {
-    var atRoot = window.location.pathname === '/' || window.location.pathname === '/slypork-studio/';
+    var atRoot = window.location.pathname === '/';
     var baseURL = atRoot ? 'assets/images/' : '../assets/images/';
     return baseURL + file;
 }
@@ -55,7 +55,6 @@ if (homeLink && homeLogo) {
 // Lightbox modal
 var modal = document.getElementById("myModal");
 var modalImg = document.getElementById("modalImage");
-// var closeButton = document.querySelector("#myModal .close");
 
 function openModal(event) {
     const triggerElement = event.target.closest('.modal-trigger');
@@ -66,7 +65,6 @@ function openModal(event) {
         if (imgSrc) {
             modal.style.display = "flex";
             modalImg.src = imgSrc;
-            // lockHTMLScroll();
         } else {
             console.warn("Modal trigger clicked, but no image source found.", triggerElement);
         }
@@ -76,7 +74,6 @@ function openModal(event) {
 function closeModal() {
     if (modal) {
         modal.style.display = "none";
-        // unlockHTMLScroll();
         if (modalImg) {
             modalImg.src = "";
         }
@@ -98,12 +95,6 @@ function handleEscapeKey(event) {
 document.body.addEventListener('click', openModal);
 
 if (modal) {
-    // if (closeButton) {
-    //     closeButton.onclick = closeModal;
-    // } else {
-    //     console.warn("Modal close button (.close) not found within #myModal.");
-    // }
-
     window.addEventListener('click', handleOutsideClick);
 
     document.addEventListener('keydown', handleEscapeKey);
@@ -118,6 +109,10 @@ function toggleNavMenu() {
     var nav = document.querySelector('nav');
     if (nav) {
         nav.classList.toggle('nav-active');
+        var hamburger = document.getElementById('hamburger-menu');
+        if (hamburger) {
+            hamburger.setAttribute('aria-expanded', nav.classList.contains('nav-active') ? 'true' : 'false');
+        }
         document.body.dispatchEvent(new CustomEvent('layoutChanged'));
     }
 }
@@ -126,14 +121,22 @@ function closeNavMenu() {
     var nav = document.querySelector('nav');
     if (nav && nav.classList.contains('nav-active')) {
         nav.classList.remove('nav-active');
+        var hamburger = document.getElementById('hamburger-menu');
+        if (hamburger) {
+            hamburger.setAttribute('aria-expanded', 'false');
+        }
         document.body.dispatchEvent(new CustomEvent('layoutChanged'));
     }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     var hamburger = document.getElementById('hamburger-menu');
+    var nav = document.querySelector('nav');
     if (hamburger) {
         hamburger.addEventListener('click', toggleNavMenu);
+        if (nav) {
+            hamburger.setAttribute('aria-expanded', nav.classList.contains('nav-active') ? 'true' : 'false');
+        }
     }
 });
 
@@ -163,18 +166,9 @@ function isDarkMode() {
 
 window.isDarkReaderActive = isDarkReaderActive;
 window.isDarkMode = isDarkMode;
-
-function notifyColorSchemeChanged() {
-    document.body.dispatchEvent(new CustomEvent('colorSchemeChanged', { detail: { dark: isDarkMode() } }));
-}
-
-darkModeMediaQuery.addEventListener('change', notifyColorSchemeChanged);
-
-var darkReaderObserver = new MutationObserver(notifyColorSchemeChanged);
-darkReaderObserver.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-darkreader-mode']
-});
+window.getLogoPath = getLogoPath;
+window.easeInOutElastic = easeInOutElastic;
+window.closeNavMenu = closeNavMenu;
 
 window.addEventListener('load', adjustIframeHeight);
 window.addEventListener('resize', adjustIframeHeight);

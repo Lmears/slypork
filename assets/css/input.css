@@ -177,18 +177,6 @@ nav ul li a:hover,
     max-height: 90%;
 }
 
-#caption {
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
-    text-align: center;
-    color: rgba(23, 23, 23, 0.75);
-    padding: 10px 0;
-    height: 150px;
-    font-style: italic;
-}
-
 .close {
     position: absolute;
     top: 10px;
@@ -563,10 +551,6 @@ input[type="checkbox"]:disabled {
     .visual-container-bottom {
         border-top-color: rgba(230, 231, 227, 0.5);
         border-bottom-color: rgba(230, 231, 227, 0.5);
-    }
-
-    #caption {
-        color: rgba(230, 231, 227, 0.75);
     }
 
     .close {

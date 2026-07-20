@@ -7,10 +7,9 @@
     <meta name="description"
         content="Slypork: Explore a portfolio of audio mastering, music, graphic design, and software development. Connect and delve into creative and technical work.">
     <title>Slypork</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon-16x16.png">
+    <link rel="icon" href="./assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="./assets/images/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="./assets/images/favicon-192x192.png">
+    <link rel="apple-touch-icon" href="./assets/images/favicon-192x192.png">
     <link rel="preload" href="./assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/home.webp" type="image/webp">
@@ -32,9 +31,9 @@
     </div>
     <main id="container" class="flex min-h-full px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
         <header>
-            <nav class="text-2xl flex justify-center mt-[10vh] md:mt-0 nav-active group">
-                <button id="hamburger-menu" aria-label="Menu" class="hidden show-hamburger:block"
-                    style="transform: translate(-8px, 12px);">&#9776;</button>
+            <nav id="site-nav" class="text-2xl flex justify-center mt-[10vh] md:mt-0 nav-active group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="true"
+                    class="hidden show-hamburger:block" style="transform: translate(-8px, 12px);">&#9776;</button>
                 <ul id="navLinks" class="inline-flex flex-col items-center md:items-start min-w-0 md:min-w-36">
                     <li class="group-[.nav-active]:pb-4 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
                         <a href=".." id="homeLink" class="p-1 block">

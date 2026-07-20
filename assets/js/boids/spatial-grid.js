@@ -10,6 +10,9 @@ export class SpatialGrid {
         this.canvasHeight = canvasHeight;
         this.cellSize = cellSize;
         this.resize(canvasWidth, canvasHeight);
+        // Scratch buffer reused by getItemsInNeighborhood(); callers must consume
+        // the returned array synchronously and never hold it across another call.
+        this._queryResult = [];
     }
 
     _initializeGrid() {
@@ -39,8 +42,12 @@ export class SpatialGrid {
     }
 
     _getCellCoords(position) {
-        const col = Math.floor(position.x / this.cellSize);
-        const row = Math.floor(position.y / this.cellSize);
+        let col = Math.floor(position.x / this.cellSize);
+        let row = Math.floor(position.y / this.cellSize);
+        // Clamp: a position wrapped to exactly canvas.width/height can floor to
+        // an out-of-range cell index (e.g. col === numCols).
+        col = Math.min(Math.max(col, 0), this.numCols - 1);
+        row = Math.min(Math.max(row, 0), this.numRows - 1);
         return { col, row };
     }
 
@@ -82,10 +89,13 @@ export class SpatialGrid {
     /**
      * Retrieves all items from the 3x3 neighborhood of cells around a position.
      * Returns an array of items (with duplicates if an item is in multiple cells).
+     * NOTE: returns a reused scratch buffer (this._queryResult) — consume it
+     * synchronously; it will be overwritten by the next call to this method.
      * @param {object} position - The center point of the query, { x, y }.
      */
     getItemsInNeighborhood(position) {
-        const items = [];
+        const items = this._queryResult;
+        items.length = 0;
         const { col: centerCol, row: centerRow } = this._getCellCoords(position);
 
         for (let rOffset = -1; rOffset <= 1; rOffset++) {
@@ -95,9 +105,10 @@ export class SpatialGrid {
                 const neighborCol = (centerCol + cOffset + this.numCols) % this.numCols;
 
                 if (this.grid[neighborRow] && this.grid[neighborRow][neighborCol]) {
-                    // This creates a shallow copy, which is fine.
-                    // For performance, could also loop and push items one by one.
-                    items.push(...this.grid[neighborRow][neighborCol]);
+                    const cell = this.grid[neighborRow][neighborCol];
+                    for (let k = 0; k < cell.length; k++) {
+                        items.push(cell[k]);
+                    }
                 }
             }
         }

@@ -140,17 +140,6 @@ export class Renderer {
     }
 
     /**
-     * Renders all boids in their normal state (non-exit animation).
-     */
-    renderBoids(flock, currentTime) {
-        for (let boid of flock) {
-            boid.applyForcesAndMove();
-            boid.renderSize = boid.calculateRenderSize();
-            boid.draw(currentTime);
-        }
-    }
-
-    /**
      * Clears the entire canvas.
      */
     clear() {
