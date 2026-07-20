@@ -300,12 +300,4 @@ export class InputHandler {
             iframe.removeEventListener('mouseleave', this.iframeMouseLeaveHandler);
         });
     }
-
-    cleanup() {
-        this.removeEventListeners();
-        if (this.touchEndTimeoutId) {
-            clearTimeout(this.touchEndTimeoutId);
-            this.touchEndTimeoutId = null;
-        }
-    }
 }

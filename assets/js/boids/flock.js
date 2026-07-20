@@ -1,5 +1,5 @@
 import { Boid } from './boid.js';
-import { Vector, vectorPool } from './vector.js';
+import { Vector, vectorPool, toroidalDistance } from './vector.js';
 import {
     FLOCK_DENSITY,
     MIN_BOIDS,
@@ -57,9 +57,6 @@ export class Flock {
         const radius = this.simParams.COHESION_RADIUS;
         const radiusSq = radius * radius;
 
-        const halfWidth = this.canvas.width / 2;
-        const halfHeight = this.canvas.height / 2;
-
         for (let i = 0; i < sampleSize; i++) {
             const candidate = this.boids[Math.floor(Math.random() * this.boids.length)];
             const potentialNeighbors = this.spatialGrid.getItemsInNeighborhood(candidate.position);
@@ -67,13 +64,11 @@ export class Flock {
             for (const other of potentialNeighbors) {
                 if (other === candidate) continue;
 
-                let dx = candidate.position.x - other.position.x;
-                let dy = candidate.position.y - other.position.y;
-
-                if (Math.abs(dx) > halfWidth) dx = this.canvas.width - Math.abs(dx);
-                if (Math.abs(dy) > halfHeight) dy = this.canvas.height - Math.abs(dy);
-
-                const distSq = dx * dx + dy * dy;
+                const { distSq } = toroidalDistance(
+                    candidate.position.x, candidate.position.y,
+                    other.position.x, other.position.y,
+                    this.canvas.width, this.canvas.height
+                );
 
                 if (distSq < radiusSq) {
                     neighborCount++;
