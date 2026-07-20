@@ -246,7 +246,7 @@ nav ul li a:hover,
     right: 32px;
     width: 45px;
     height: 40px;
-    background-image: url('../images/home.webp');
+    background-image: url('../images/slypork_logo.svg');
     background-size: 45px 40px;
     background-position: center;
     z-index: 2000;
@@ -263,7 +263,7 @@ nav ul li a:hover,
     height: 100%;
 
     /* The hover image */
-    background-image: url('../images/home-hover.webp');
+    background-image: url('../images/slypork_logo_raised.svg');
     background-size: 45px 40px;
     background-position: center;
     background-repeat: no-repeat;
