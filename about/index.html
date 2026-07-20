@@ -32,8 +32,8 @@
     </div>
     <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
         <header>
-            <nav class="flex flex-row justify-center sm:flex-col text-2xl group">
-                <button id="hamburger-menu" aria-label="Menu" class="py-3 px-2 sm:hidden">&#9776;</button>
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false" class="py-3 px-2 sm:hidden">&#9776;</button>
                 <ul id="navLinks"
                     class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
                     <li
@@ -72,7 +72,7 @@
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
             <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
-                <div id="pageTitle" class="inline-block">About</div>
+                <span id="pageTitle" class="inline-block">About</span>
             </h1>
             <div class="visual-container" id="visualContainer">
                 <div class="flex flex-col lg:flex-row justify-center my-4 md:my-8">
@@ -97,7 +97,7 @@
                                     <a href="../music/" class="link-underline">Music Projects</a>
                                     <br>
                                     •
-                                    <a href="https://teethandtail.bandcamp.com/" target="_blank"
+                                    <a href="https://teethandtail.bandcamp.com/" target="_blank" rel="noopener noreferrer"
                                         class="link-underline inline-flex items-center">
                                         Record Label (Bandcamp)
                                         <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24"

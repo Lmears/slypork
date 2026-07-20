@@ -34,8 +34,8 @@
     </div>
     <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
         <header>
-            <nav class="flex flex-row justify-center sm:flex-col text-2xl group">
-                <button id="hamburger-menu" aria-label="Menu" class="py-3 px-2 sm:hidden">&#9776;</button>
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false" class="py-3 px-2 sm:hidden">&#9776;</button>
                 <ul id="navLinks"
                     class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
                     <li
@@ -74,7 +74,7 @@
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
             <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
-                <div id="pageTitle" class="inline-block">Contact</div>
+                <span id="pageTitle" class="inline-block">Contact</span>
             </h1>
             <div class="visual-container flex flex-col lg:flex-row" id="visualContainer">
                 <div class="flex-1 mx-2 md:mx-4 my-4 md:mt-8 lg:mb-8">
@@ -107,17 +107,17 @@
                     <p class="text-lg font-light ml-4">
                         <i class="fab fa-instagram" style="width: 30px; text-align: center;"></i>
                         <strong>Instagram:</strong><br>
-                        <a href="https://www.instagram.com/slyporkstudio" target="_blank" class="link-underline ml-7">
+                        <a href="https://www.instagram.com/slyporkstudio" target="_blank" rel="noopener noreferrer" class="link-underline ml-7">
                             @slyporkstudio
                         </a><br><br>
                         <i class="fab fa-facebook" style="width: 30px; text-align: center;"></i>
                         <strong>Facebook:</strong><br>
-                        <a href="https://www.facebook.com/slyporkstudio" target="_blank" class="link-underline ml-7">
+                        <a href="https://www.facebook.com/slyporkstudio" target="_blank" rel="noopener noreferrer" class="link-underline ml-7">
                             @slyporkstudio
                         </a><br><br>
                         <i class="fab fa-twitch" style="width: 30px; text-align: center;"></i>
                         <strong>Twitch:</strong><br>
-                        <a href="https://www.twitch.tv/slyporkstudio" target="_blank" class="link-underline ml-7">
+                        <a href="https://www.twitch.tv/slyporkstudio" target="_blank" rel="noopener noreferrer" class="link-underline ml-7">
                             @slyporkstudio
                         </a>
                     </p>
