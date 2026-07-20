@@ -321,6 +321,10 @@ function createEmbed(item) {
 // Add all iframes to the grid
 function populateGrid() {
     var grid = document.getElementById('songsGrid');
+    if (!grid) {
+        console.error("Element with ID 'songsGrid' not found.");
+        return;
+    }
     links.forEach(function (item) {
         grid.appendChild(createEmbed(item));
     });
