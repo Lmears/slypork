@@ -19,7 +19,13 @@ function initializeDOMReferences(state) {
         return false;
     }
 
-    const ctx = canvas.getContext('2d');
+    // A half-float buffer, where supported. The trail fade erases alpha
+    // multiplicatively, and in the default 8-bit buffer rounding stops it a few
+    // /255 short of zero — a permanent stain in the boid's colour wherever the
+    // flock has flown, plainly visible against the dark-mode background. With
+    // float16 the fade reaches true zero and the stain doesn't exist. Browsers
+    // that don't support it ignore the attribute and get the 8-bit behaviour.
+    const ctx = canvas.getContext('2d', { colorType: 'float16' });
     if (!ctx) {
         console.error("Failed to initialize: Could not get 2D context from canvas.");
         return false;

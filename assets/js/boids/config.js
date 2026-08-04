@@ -72,13 +72,11 @@ export const SPREAD_FACTOR = 0.1;
 
 // --- Animation ---
 // Alpha erased from the canvas each frame to decay boid trails. Deliberately
-// the same in light and dark mode: the erase is multiplicative, so 8-bit
-// rounding leaves a small permanent residue wherever a boid has been, and that
-// residue shrinks as this value grows. At the old dark-mode value of 0.1 it was
-// large enough to read as a lighter stain over the dark background (4/255 of
-// the boid's colour, measured in Chromium's software rasterizer), and it also
-// made dark trails last ~3x longer than light ones. Lower this for longer
-// trails at the cost of a heavier residue.
+// the same in light and dark mode: dark mode used to fade at 0.1, which made
+// its trails last ~3x longer than light mode's. Lower this for longer trails —
+// but on a browser without float16 canvas support (see initializeDOMReferences)
+// a lower value also leaves a heavier trail residue, since the erase is
+// multiplicative and 8-bit rounding can't take it the last step to zero.
 export const TRAIL_FADE_ALPHA = 0.25;
 export const END_ANIMATION_DURATION = 1000;
 export const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel

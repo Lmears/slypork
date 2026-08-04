@@ -22,10 +22,9 @@ export class Renderer {
      *
      * This only erases alpha (`destination-out`) rather than painting the
      * background colour over the canvas: repeatedly compositing a translucent
-     * colour onto itself converges on a slightly darker value than the source
-     * (8-bit premultiplied rounding), which made the page background visibly
-     * shift once the simulation started. The backdrop colour comes from
-     * #boidCanvas's CSS `background-color` instead, so it stays exact.
+     * colour onto itself converges on a slightly darker value than the source,
+     * which made the page background visibly shift once the simulation started.
+     * Erasing alpha leaves the background to show through the canvas untouched.
      *
      * The fade is the same in both colour schemes — see TRAIL_FADE_ALPHA.
      */
