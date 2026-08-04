@@ -26,14 +26,17 @@ export default {
         body: '#333333',
         section: '#e7ebed',
         // KerBy's own palette, lifted from the plugin's KerbyLookAndFeel so the
-        // /kerby/ page and the plugin read as the same product. Light-theme
-        // names match the C++ members; kerbyDark* are that theme's dark values.
+        // /kerby/ page and the plugin read as the same product. Light-theme names
+        // match the C++ members; each kerbyDark* is the dark palette's value for
+        // the same role, so they pair up - kerbyDarkAccent is kerbyPink's partner
+        // (both are that theme's accentMid) and must stay in step with
+        // --kerby-accent in input.css, which the /kerby/ figures stroke with.
         kerbyCream: '#fff0f5',
         kerbyPink: '#ff8fab',
         kerbyPinkDark: '#ff6f91',
         kerbyRed: '#ff4d6d',
         kerbyDarkPanel: '#2b2226',
-        kerbyDarkAccent: '#ff7d9c',
+        kerbyDarkAccent: '#ff9fb8',
         kerbyDarkText: '#ffc2d1',
       },
       screens: {

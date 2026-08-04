@@ -1116,7 +1116,7 @@ video {
 
 .border-kerbyDarkAccent {
   --tw-border-opacity: 1;
-  border-color: rgb(255 125 156 / var(--tw-border-opacity, 1));
+  border-color: rgb(255 159 184 / var(--tw-border-opacity, 1));
 }
 
 .border-kerbyPink {
@@ -2706,7 +2706,7 @@ input[type="checkbox"]:disabled {
 
   .dark\:border-kerbyDarkAccent {
     --tw-border-opacity: 1;
-    border-color: rgb(255 125 156 / var(--tw-border-opacity, 1));
+    border-color: rgb(255 159 184 / var(--tw-border-opacity, 1));
   }
 
   .dark\:bg-kerbyDarkPanel {
