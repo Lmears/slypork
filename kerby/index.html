@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>KerBy | Slypork</title>
+    <meta name="description"
+        content="KerBy — a tempo-synced kick and bass percussion synth. Two voices, the Bass ducked by the Kick, every envelope a curve you draw. Closed beta.">
+    <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
+    <link rel="preload" href="../assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
+    <link href="../assets/css/output.css" rel="stylesheet">
+</head>
+
+<body class="text-neutral-900 dark:text-neutral-100">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="../assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
+    </div>
+    <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto">
+        <header>
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
+                <ul id="navLinks"
+                    class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
+                    <li
+                        class="group-[.nav-active]:pb-4 sm:group-[.nav-active]:pb-0 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
+                        <a href=".." id="homeLink" class="p-1 block">
+                            <img src="../assets/images/slypork_logo.svg" alt="Home"
+                                class="w-[64px] sm:w-[48px] md:w-[80px] aspect-[80/65.94] home-logo">
+                        </a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../about/" id="aboutLink">
+                            <span class="nav-link-text">About</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../mastering/" id="masteringLink">
+                            <span class="nav-link-text">Mastering</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../music/" id="musicLink">
+                            <span class="nav-link-text">Music</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../design/" id="designLink">
+                            <span class="nav-link-text">Design</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../software/" id="softwareLink">
+                            <span class="nav-link-text">Software</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="../contact/" id="contactLink">
+                            <span class="nav-link-text">Contact</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content" class="flex-1 md:px-4 flex flex-col">
+            <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7 text-center">
+                <span id="pageTitle" class="inline-block font-kerby">KerBy</span>
+            </h1>
+            <article id="blurb">
+                <div class="visual-container" id="visualContainer">
+                    <div class="mx-2 md:mx-4 my-4 md:my-8">
+                        <p class="text-lg font-light">
+                            KerBy is a tempo-synced kick and bass percussion synth I've been building. Two voices, with
+                            an opinion about how they relate: the Kick is the backbone, the Bass gets ducked out of its
+                            way, and neither ends up off the grid unless you ask it to.
+                            <br><br>
+                            Every envelope in it is a shape you draw by hand — amp, pitch, filter, the duck, and the
+                            oscillator waveform itself. It's set up for kicks and basslines, but can be used for much
+                            more.
+                        </p>
+                        <p class="mt-6">
+                            <span
+                                class="inline-block rounded-full border border-kerbyPink bg-kerbyCream text-kerbyRed dark:border-kerbyDarkAccent dark:bg-kerbyDarkPanel dark:text-kerbyDarkText text-base font-light px-4 py-1">
+                                Closed beta &middot; v0.1.1
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </article>
+            <section class="visual-container-bottom" id="kerbyDetail">
+                <div class="mx-2 md:mx-4 my-4 md:my-8">
+                    <img src="../assets/images/software/KerBy_lightmode.png" width="1620" height="1160"
+                        alt="The KerBy plugin window: a Kick row above a Bass row, each with Rate, Length and Spread knobs, envelope tabs, a freeform curve editor, a level fader and a bar-synced scope."
+                        class="dark:hidden w-full rounded-xl border border-kerbyPink modal-trigger cursor-pointer">
+                    <img src="../assets/images/software/KerBy_darkmode.png" width="1620" height="1159" loading="lazy"
+                        alt="The KerBy plugin window in its dark theme: a Kick row above a Bass row, each with Rate, Length and Spread knobs, envelope tabs, a freeform curve editor, a level fader and a bar-synced scope."
+                        class="hidden dark:block w-full rounded-xl border border-kerbyDarkAccent modal-trigger cursor-pointer">
+
+                    <h2 class="text-xl pt-8">How it works:</h2>
+                    <div class="ml-4 text-lg font-light">
+                        <div class="pt-4 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Two voices, one clock.</span>
+                                Each retriggers off a tempo-synced pulse clock at whatever division you give it. The
+                                Bass restarts on every Kick pulse, so an uneven pairing reads as one figure rather than
+                                two patterns drifting apart. Switch that off and it free-runs.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <!-- bar divided into quarters -->
+                                <g stroke="var(--kerby-grid)" stroke-width="1">
+                                    <line x1="20" y1="20" x2="20" y2="130" />
+                                    <line x1="90" y1="20" x2="90" y2="130" />
+                                    <line x1="160" y1="20" x2="160" y2="130" />
+                                    <line x1="230" y1="20" x2="230" y2="130" />
+                                    <line x1="300" y1="20" x2="300" y2="130" />
+                                </g>
+                                <!-- Kick: one pulse per quarter -->
+                                <g fill="var(--kerby-strong)">
+                                    <rect x="18" y="30" width="4" height="32" rx="2" />
+                                    <rect x="88" y="30" width="4" height="32" rx="2" />
+                                    <rect x="158" y="30" width="4" height="32" rx="2" />
+                                    <rect x="228" y="30" width="4" height="32" rx="2" />
+                                </g>
+                                <!-- Bass: four per quarter, restarting on each Kick -->
+                                <g fill="var(--kerby-accent)">
+                                    <rect x="36" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="53.5" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="71" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="106" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="123.5" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="141" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="176" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="193.5" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="211" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="246" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="263.5" y="94" width="3" height="20" rx="1.5" />
+                                    <rect x="281" y="94" width="3" height="20" rx="1.5" />
+                                </g>
+                                <g fill="var(--kerby-strong)">
+                                    <rect x="18" y="88" width="4" height="32" rx="2" />
+                                    <rect x="88" y="88" width="4" height="32" rx="2" />
+                                    <rect x="158" y="88" width="4" height="32" rx="2" />
+                                    <rect x="228" y="88" width="4" height="32" rx="2" />
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">The Bass is ducked by the
+                                    Kick.</span>
+                                The duck is a curve you draw, applied over a fixed quarter note after each Kick pulse,
+                                so
+                                it behaves the same at any Kick rate. A Duck amount takes it from off to full.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
+                                viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <!-- the two Kick pulses the duck restarts on -->
+                                <g stroke="var(--kerby-grid)" stroke-width="1">
+                                    <line x1="20" y1="18" x2="20" y2="132" />
+                                    <line x1="160" y1="18" x2="160" y2="132" />
+                                    <line x1="300" y1="18" x2="300" y2="132" />
+                                </g>
+                                <g fill="var(--kerby-strong)">
+                                    <rect x="18" y="18" width="4" height="18" rx="2" />
+                                    <rect x="158" y="18" width="4" height="18" rx="2" />
+                                </g>
+                                <!-- Bass gain: floored at each Kick, recovering across a quarter, then holding -->
+                                <path
+                                    d="M20 118 C 40 116, 58 60, 92 50 L 160 50 L 160 118 C 180 116, 198 60, 232 50 L 300 50"
+                                    fill="none" stroke="var(--kerby-strong)" stroke-width="2.5"
+                                    stroke-linejoin="round" />
+                                <circle cx="20" cy="118" r="4.5" fill="var(--kerby-strong)" />
+                                <circle cx="160" cy="118" r="4.5" fill="var(--kerby-strong)" />
+                            </svg>
+                        </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Everything is drawn.</span>
+                                Amp, pitch, filter, the duck and the waveform all share one editor. Click to add a
+                                point, drag to move it, Cmd-drag to bend a segment.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <g stroke="var(--kerby-grid)" stroke-width="1">
+                                    <line x1="86" y1="1" x2="86" y2="149" />
+                                    <line x1="160" y1="1" x2="160" y2="149" />
+                                    <line x1="234" y1="1" x2="234" y2="149" />
+                                    <line x1="1" y1="38" x2="319" y2="38" />
+                                    <line x1="1" y1="75" x2="319" y2="75" />
+                                    <line x1="1" y1="112" x2="319" y2="112" />
+                                </g>
+                                <!-- the Wave tab's default shape, five draggable points -->
+                                <path d="M12 75 C 30 75, 57 22, 86 22 C 115 22, 142 75, 160 75 C 178 75, 205 128, 234 128 C 263 128, 290 75, 308 75"
+                                    fill="none" stroke="var(--kerby-strong)" stroke-width="2.5" />
+                                <g fill="var(--kerby-strong)">
+                                    <circle cx="12" cy="75" r="6" />
+                                    <circle cx="86" cy="22" r="6" />
+                                    <circle cx="160" cy="75" r="6" />
+                                    <circle cx="234" cy="128" r="6" />
+                                    <circle cx="308" cy="75" r="6" />
+                                </g>
+                                <circle cx="86" cy="22" r="12" fill="none" stroke="var(--kerby-strong)"
+                                    stroke-width="1.5" stroke-dasharray="3 3" />
+                            </svg>
+                        </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">On the grid, when you want
+                                    it.</span>
+                                Quantize (Q) keeps the notes snapped to the grid. Launch with Kick (K) starts both
+                                voices together, instead of letting the faster one in first.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
+                                viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <!-- a note arriving early, held back onto the line -->
+                                <g stroke="var(--kerby-grid)" stroke-width="1">
+                                    <line x1="20" y1="32" x2="20" y2="118" />
+                                    <line x1="90" y1="32" x2="90" y2="118" />
+                                    <line x1="160" y1="32" x2="160" y2="118" />
+                                    <line x1="230" y1="32" x2="230" y2="118" />
+                                    <line x1="300" y1="32" x2="300" y2="118" />
+                                </g>
+                                <circle cx="186" cy="75" r="6" fill="none" stroke="var(--kerby-accent)"
+                                    stroke-width="2" />
+                                <path d="M197 75 L 218 75" stroke="var(--kerby-strong)" stroke-width="2"
+                                    stroke-linecap="round" />
+                                <path d="M213 69 L 220 75 L 213 81" fill="none" stroke="var(--kerby-strong)"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="230" cy="75" r="6" fill="var(--kerby-strong)" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h2 class="text-xl pt-8">Where it's at:</h2>
+                    <p class="ml-4 text-lg font-light pt-2">
+                        - Closed beta, v0.1.1
+                        <br>
+                        - AU and VST3 on macOS, VST3 on Windows
+                        <br>
+                        - Built with JUCE, in C++
+                        <br>
+                        - Not for sale — pricing isn't decided
+                    </p>
+                    <p class="ml-4 text-lg font-light pt-6">
+                        If you'd like to try it, or hear when it's done,
+                        <a href="../contact/" class="link-underline">get in touch</a>.
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div id="myModal" class="modal">
+            <img class="modal-content" id="modalImage">
+        </div>
+
+    </main>
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/boids/simulation.js" type="module"></script>
+    <div class="easter-egg" id="easterEgg"></div>
+    <script src="../assets/js/boids/easter-egg.js" type="module"></script>
+</body>
+
+</html>

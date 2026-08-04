@@ -576,6 +576,12 @@ video {
   }
 }
 
+@media (min-width: 1080px) {
+  .container {
+    max-width: 1080px;
+  }
+}
+
 @media (min-width: 1280px) {
   .container {
     max-width: 1280px;
@@ -734,6 +740,10 @@ video {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
 }
 
 .mt-\[10vh\] {
@@ -978,6 +988,10 @@ video {
   justify-content: space-evenly;
 }
 
+.gap-3 {
+  gap: 0.75rem;
+}
+
 .gap-4 {
   gap: 1rem;
 }
@@ -1041,6 +1055,10 @@ video {
   border-radius: 32px;
 }
 
+.rounded-full {
+  border-radius: 9999px;
+}
+
 .rounded-xl {
   border-radius: 0.75rem;
 }
@@ -1096,6 +1114,16 @@ video {
   border-color: rgb(25 58 74 / var(--tw-border-opacity, 1));
 }
 
+.border-kerbyDarkAccent {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 125 156 / var(--tw-border-opacity, 1));
+}
+
+.border-kerbyPink {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 143 171 / var(--tw-border-opacity, 1));
+}
+
 .bg-background {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 241 / var(--tw-bg-opacity, 1));
@@ -1103,6 +1131,11 @@ video {
 
 .bg-black\/60 {
   background-color: rgb(0 0 0 / 0.6);
+}
+
+.bg-kerbyCream {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 240 245 / var(--tw-bg-opacity, 1));
 }
 
 .bg-primary {
@@ -1223,6 +1256,14 @@ video {
   padding-top: 0.5rem;
 }
 
+.pt-4 {
+  padding-top: 1rem;
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
 .pt-8 {
   padding-top: 2rem;
 }
@@ -1239,6 +1280,10 @@ video {
   vertical-align: middle;
 }
 
+.font-kerby {
+  font-family: "Kiwi Soda", Roboto, sans-serif;
+}
+
 .font-sans {
   font-family: Roboto, sans-serif;
 }
@@ -1251,6 +1296,11 @@ video {
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .text-lg {
@@ -1334,6 +1384,11 @@ video {
 .text-heading {
   --tw-text-opacity: 1;
   color: rgb(25 58 74 / var(--tw-text-opacity, 1));
+}
+
+.text-kerbyRed {
+  --tw-text-opacity: 1;
+  color: rgb(255 77 109 / var(--tw-text-opacity, 1));
 }
 
 .text-neutral-900 {
@@ -1645,6 +1700,43 @@ nav ul li a:hover,
     border-radius: 6px;
     border: 3px solid #e9ebed;
 } */
+
+/* KerBy figures
+   The little diagrams on /kerby/ are drawn from the plugin's own two palettes
+   (see KerbyLookAndFeel.cpp) rather than the site's, so they read as pieces of
+   the instrument sitting on the page. Custom properties rather than Tailwind
+   utilities because each shape needs several of them at once. */
+
+.kerby-fig {
+  --kerby-panel: #fff0f5;
+  --kerby-grid: #ffb3c6;
+  --kerby-accent: #ff8fab;
+  --kerby-strong: #ff6f91;
+  --kerby-ink: #ff4d6d;
+}
+
+/* These figures stretch from ~288px wide (beside their text) to the full column,
+   so a stroke measured in viewBox units would land anywhere between 1px and 4px.
+   Pin every stroke to its literal width instead, which keeps the panel outline at
+   the same 1px as the screenshot's CSS border directly above it. Fills still
+   scale - it's only line weight that shouldn't. */
+
+.kerby-fig rect,
+.kerby-fig line,
+.kerby-fig path,
+.kerby-fig circle {
+  vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-color-scheme: dark) {
+  .kerby-fig {
+    --kerby-panel: #2b2226;
+    --kerby-grid: #6b4a58;
+    --kerby-accent: #ff9fb8;
+    --kerby-strong: #ff7d9c;
+    --kerby-ink: #ffc2d1;
+  }
+}
 
 /* Software iframes */
 
@@ -2117,6 +2209,24 @@ input[type="checkbox"]:disabled {
   /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+/* Kiwi Soda */
+
+/* The pixel face KerBy itself is set in (assets/KiwiSoda.ttf in that repo, embedded
+   there as BinaryData) - used on /kerby/ so the page title matches the plugin's own
+   wordmark. Converted to woff2 to match every other font here. */
+
+@font-face {
+  font-display: swap;
+
+  font-family: 'Kiwi Soda';
+
+  font-style: normal;
+
+  font-weight: 400;
+
+  src: url('../fonts/kiwi-soda.woff2') format('woff2');
+}
+
 /* Inter */
 
 /* inter-regular - latin */
@@ -2551,9 +2661,62 @@ input[type="checkbox"]:disabled {
   }
 }
 
+@media (min-width: 1080px) {
+  .fig-row\:order-first {
+    order: -9999;
+  }
+
+  .fig-row\:w-72 {
+    width: 18rem;
+  }
+
+  .fig-row\:flex-1 {
+    flex: 1 1 0%;
+  }
+
+  .fig-row\:shrink-0 {
+    flex-shrink: 0;
+  }
+
+  .fig-row\:flex-row {
+    flex-direction: row;
+  }
+
+  .fig-row\:items-center {
+    align-items: center;
+  }
+
+  .fig-row\:gap-6 {
+    gap: 1.5rem;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
+  .dark\:block {
+    display: block;
+  }
+
+  .dark\:hidden {
+    display: none;
+  }
+
   .dark\:border-\[rgba\(230\2c 231\2c 227\2c 0\.5\)\] {
     border-color: rgba(230,231,227,0.5);
+  }
+
+  .dark\:border-kerbyDarkAccent {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 125 156 / var(--tw-border-opacity, 1));
+  }
+
+  .dark\:bg-kerbyDarkPanel {
+    --tw-bg-opacity: 1;
+    background-color: rgb(43 34 38 / var(--tw-bg-opacity, 1));
+  }
+
+  .dark\:text-kerbyDarkText {
+    --tw-text-opacity: 1;
+    color: rgb(255 194 209 / var(--tw-text-opacity, 1));
   }
 
   .dark\:text-neutral-100 {
