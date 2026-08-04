@@ -261,8 +261,36 @@
                         <br>
                         - Not for sale — pricing isn't decided
                     </p>
+                    <!-- Posts to Buttondown's public embed endpoint; see assets/js/kerby.js for
+                         the inline-response upgrade. Without JS this still works, it just lands
+                         on Buttondown's own confirmation page instead. -->
+                    <form id="notifyForm" class="ml-4 pt-6"
+                        action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
+                        <label for="notifyEmail" class="block text-lg font-light">
+                            Hear when it's out:
+                        </label>
+                        <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
+                            <input type="email" id="notifyEmail" name="email" required autocomplete="email"
+                                placeholder="you@example.com"
+                                class="flex-1 min-w-0 rounded-full border border-kerbyPink bg-kerbyCream text-kerbyRed
+                                       placeholder:text-kerbyPink dark:border-kerbyDarkAccent dark:bg-kerbyDarkPanel
+                                       dark:text-kerbyDarkText dark:placeholder:text-kerbyDarkAccent text-base
+                                       font-light px-4 py-1 focus:outline-none focus:border-kerbyRed
+                                       dark:focus:border-kerbyDarkText">
+                            <input type="hidden" name="embed" value="1">
+                            <button type="submit" id="notifyButton"
+                                class="rounded-full border border-kerbyPink bg-kerbyPink text-kerbyCream
+                                       hover:bg-kerbyPinkDark hover:border-kerbyPinkDark dark:border-kerbyDarkAccent
+                                       dark:bg-kerbyDarkAccent dark:text-kerbyDarkPanel dark:hover:bg-kerbyDarkText
+                                       dark:hover:border-kerbyDarkText text-base font-light px-4 py-1
+                                       cursor-pointer transition-colors disabled:opacity-60">
+                                Notify me
+                            </button>
+                        </div>
+                        <p id="notifyStatus" class="text-base font-light pt-2" role="status" aria-live="polite"></p>
+                    </form>
                     <p class="ml-4 text-lg font-light pt-6">
-                        If you'd like to try it, or hear when it's done,
+                        If you'd like to try the beta,
                         <a href="../contact/" class="link-underline">get in touch</a>.
                     </p>
                 </div>
@@ -275,6 +303,7 @@
         </div>
 
     </main>
+    <script src="../assets/js/kerby.js"></script>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/boids/simulation.js" type="module"></script>
     <div class="easter-egg" id="easterEgg"></div>
