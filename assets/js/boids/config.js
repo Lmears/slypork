@@ -71,6 +71,13 @@ export const EASTER_EGG_BOTTOM = 21;
 export const SPREAD_FACTOR = 0.1;
 
 // --- Animation ---
+// Alpha erased from the canvas each frame to decay boid trails. Deliberately
+// the same in light and dark mode: dark mode used to fade at 0.1, which made
+// its trails last ~3x longer than light mode's. Lower this for longer trails —
+// but on a browser without float16 canvas support (see initializeDOMReferences)
+// a lower value also leaves a heavier trail residue, since the erase is
+// multiplicative and 8-bit rounding can't take it the last step to zero.
+export const TRAIL_FADE_ALPHA = 0.25;
 export const END_ANIMATION_DURATION = 1000;
 export const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel
 

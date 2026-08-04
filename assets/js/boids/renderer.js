@@ -8,6 +8,7 @@ import {
     EASTER_EGG_RIGHT,
     EASTER_EGG_BOTTOM,
     END_ANIMATION_DURATION,
+    TRAIL_FADE_ALPHA,
 } from './config.js';
 
 export class Renderer {
@@ -17,16 +18,21 @@ export class Renderer {
     }
 
     /**
-     * Clears the canvas and draws the background with fade effect.
+     * Fades the previous frame out so trails decay.
+     *
+     * This only erases alpha (`destination-out`) rather than painting the
+     * background colour over the canvas: repeatedly compositing a translucent
+     * colour onto itself converges on a slightly darker value than the source,
+     * which made the page background visibly shift once the simulation started.
+     * Erasing alpha leaves the background to show through the canvas untouched.
+     *
+     * The fade is the same in both colour schemes — see TRAIL_FADE_ALPHA.
      */
     drawBackground() {
-        // Check system/browser dark mode preference (or Dark Reader extension)
-        if (typeof isDarkMode === 'function' && isDarkMode()) {
-            this.ctx.fillStyle = 'rgba(32, 33, 31, 0.1)';
-        } else {
-            this.ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
-        }
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${TRAIL_FADE_ALPHA})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.globalCompositeOperation = 'source-over';
     }
 
     /**
