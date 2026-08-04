@@ -17,16 +17,23 @@ export class Renderer {
     }
 
     /**
-     * Clears the canvas and draws the background with fade effect.
+     * Fades the previous frame out so trails decay.
+     *
+     * This only erases alpha (`destination-out`) rather than painting the
+     * background colour over the canvas: repeatedly compositing a translucent
+     * colour onto itself converges on a slightly darker value than the source
+     * (8-bit premultiplied rounding), which made the page background visibly
+     * shift once the simulation started. The backdrop colour comes from
+     * #boidCanvas's CSS `background-color` instead, so it stays exact.
      */
     drawBackground() {
         // Check system/browser dark mode preference (or Dark Reader extension)
-        if (typeof isDarkMode === 'function' && isDarkMode()) {
-            this.ctx.fillStyle = 'rgba(32, 33, 31, 0.1)';
-        } else {
-            this.ctx.fillStyle = 'rgba(243, 244, 241, 0.25)';
-        }
+        const fade = (typeof isDarkMode === 'function' && isDarkMode()) ? 0.1 : 0.25;
+
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.globalCompositeOperation = 'source-over';
     }
 
     /**
