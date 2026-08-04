@@ -1544,6 +1544,53 @@ h1 {
   max-width: 1080px;
 }
 
+/* Pages with the sidebar nav (#container.nav-balanced) have their reading
+   column pushed off-centre: the nav eats 9rem on the left with nothing
+   mirroring it on the right, so #content's midpoint sits 4.5rem right of
+   the page's true centre. There's no spare width inside the existing
+   1080px cap to give back to a matching right-hand gutter without
+   shrinking #content itself, so instead this widens the container by up
+   to the nav's width (1080px + 9rem = 1224px) and hands all of that extra
+   width to padding-right - #content's own width is unchanged, it just
+   becomes centred.
+
+   correction is a clamp of (viewport - 1080px), i.e. 0 right at 1080px
+   (where the cap first binds and there's no spare width yet, so this
+   must match the un-corrected base rule exactly) rising 1:1 with the
+   viewport up to a full 9rem once the viewport reaches 1224px, then flat.
+   This has to be a continuous function of viewport width, not a
+   breakpoint switch - a switch changes max-width and padding-right in a
+   single frame, which moves #content and the nav sideways in a visible
+   jump when resizing across that width. The taper means the nav/content
+   drift smoothly instead; the rate of drift changes at 1080px and again
+   at 1224px, but the position never does. */
+
+#container.nav-balanced {
+  --nav-correction: clamp(0px, 100vw - 1080px, 9rem);
+}
+
+@media (min-width: 1080px) {
+  #container.nav-balanced {
+    max-width: calc(1080px + var(--nav-correction));
+    padding-right: calc(3rem + var(--nav-correction));
+  }
+
+  /* The homepage's #container has a third flex child (footer) after
+       #content, so unlike other nav-balanced pages, padding-right isn't
+       adjacent to #content - it would just push footer left instead of
+       resizing anything, leaving the extra correction become a lopsided
+       empty gap after footer. Keep padding-right at its base 3rem
+       instead: the container is still growing by the same
+       --nav-correction, so #content (flex-1) grows to fill that extra
+       space and carries footer the same distance to the right with it,
+       balancing the nav on the other side, exactly as it did before this
+       class existed. */
+
+  #container.nav-balanced.has-footer {
+    padding-right: 3rem;
+  }
+}
+
 .visual-container,
 .visual-container-bottom {
   position: relative;
