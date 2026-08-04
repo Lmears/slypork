@@ -217,6 +217,41 @@ nav ul li a:hover,
     border: 3px solid #e9ebed;
 } */
 
+/* KerBy figures
+   The little diagrams on /kerby/ are drawn from the plugin's own two palettes
+   (see KerbyLookAndFeel.cpp) rather than the site's, so they read as pieces of
+   the instrument sitting on the page. Custom properties rather than Tailwind
+   utilities because each shape needs several of them at once. */
+.kerby-fig {
+    --kerby-panel: #fff0f5;
+    --kerby-grid: #ffb3c6;
+    --kerby-accent: #ff8fab;
+    --kerby-strong: #ff6f91;
+    --kerby-ink: #ff4d6d;
+}
+
+/* These figures stretch from ~288px wide (beside their text) to the full column,
+   so a stroke measured in viewBox units would land anywhere between 1px and 4px.
+   Pin every stroke to its literal width instead, which keeps the panel outline at
+   the same 1px as the screenshot's CSS border directly above it. Fills still
+   scale - it's only line weight that shouldn't. */
+.kerby-fig rect,
+.kerby-fig line,
+.kerby-fig path,
+.kerby-fig circle {
+    vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-color-scheme: dark) {
+    .kerby-fig {
+        --kerby-panel: #2b2226;
+        --kerby-grid: #6b4a58;
+        --kerby-accent: #ff9fb8;
+        --kerby-strong: #ff7d9c;
+        --kerby-ink: #ffc2d1;
+    }
+}
+
 /* Software iframes */
 .software-iframe {
     width: 100%;
@@ -634,6 +669,18 @@ input[type="checkbox"]:disabled {
     font-weight: 500;
     src: url('../fonts/roboto-v48-latin-500italic.woff2') format('woff2');
     /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* Kiwi Soda */
+/* The pixel face KerBy itself is set in (assets/KiwiSoda.ttf in that repo, embedded
+   there as BinaryData) - used on /kerby/ so the page title matches the plugin's own
+   wordmark. Converted to woff2 to match every other font here. */
+@font-face {
+    font-display: swap;
+    font-family: 'Kiwi Soda';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/kiwi-soda.woff2') format('woff2');
 }
 
 /* Inter */
