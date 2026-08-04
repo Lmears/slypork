@@ -8,6 +8,7 @@ import {
     EASTER_EGG_RIGHT,
     EASTER_EGG_BOTTOM,
     END_ANIMATION_DURATION,
+    TRAIL_FADE_ALPHA,
 } from './config.js';
 
 export class Renderer {
@@ -25,13 +26,12 @@ export class Renderer {
      * (8-bit premultiplied rounding), which made the page background visibly
      * shift once the simulation started. The backdrop colour comes from
      * #boidCanvas's CSS `background-color` instead, so it stays exact.
+     *
+     * The fade is the same in both colour schemes — see TRAIL_FADE_ALPHA.
      */
     drawBackground() {
-        // Check system/browser dark mode preference (or Dark Reader extension)
-        const fade = (typeof isDarkMode === 'function' && isDarkMode()) ? 0.1 : 0.25;
-
         this.ctx.globalCompositeOperation = 'destination-out';
-        this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${TRAIL_FADE_ALPHA})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.globalCompositeOperation = 'source-over';
     }
