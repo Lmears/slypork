@@ -391,18 +391,36 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                     const newVal = parseFloat(inputEl.value);
                     valueInput.value = config.precision ? newVal.toFixed(config.precision) : newVal.toString();
                     if (config.type === 'range') updateSliderFill(inputEl);
+                    entry.lastDispatched = newVal;
                     dispatchEvent('paramChanged', { key: key, value: newVal });
                 });
+                // Tracks the value the simulation last heard about, so a blur that
+                // changes nothing stays a no-op (for FLOCK_SIZE a stray dispatch would
+                // latch userHasSetFlockSize and kill responsive sizing).
+                const entry = { input: inputEl, valueInput: valueInput, config: config, lastDispatched: parseFloat(initialParams[key]) };
+
+                // Typing a multi-digit number produces intermediate values (1, 15, 150),
+                // so the dispatch is debounced to stop the flock thrashing mid-keystroke.
+                let pendingDispatch = null;
                 valueInput.addEventListener('input', () => {
                     let newVal = parseFloat(valueInput.value);
-                    if (!isNaN(newVal)) {
-                        newVal = Math.max(config.min, Math.min(config.max, newVal));
-                        inputEl.value = newVal;
-                        if (config.type === 'range') updateSliderFill(inputEl);
+                    if (isNaN(newVal)) return; // Partial input ("", "-", "0.") — wait for more.
+
+                    newVal = Math.max(config.min, Math.min(config.max, newVal));
+                    inputEl.value = newVal;
+                    if (config.type === 'range') updateSliderFill(inputEl);
+
+                    clearTimeout(pendingDispatch);
+                    pendingDispatch = setTimeout(() => {
+                        pendingDispatch = null;
+                        entry.lastDispatched = newVal;
                         dispatchEvent('paramChanged', { key: key, value: newVal });
-                    }
+                    }, 250);
                 });
                 const finalizeInputValue = () => {
+                    clearTimeout(pendingDispatch);
+                    pendingDispatch = null;
+
                     let currentVal = parseFloat(valueInput.value);
                     if (isNaN(currentVal)) {
                         currentVal = parseFloat(inputEl.value);
@@ -413,7 +431,10 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                     valueInput.value = config.precision ? currentVal.toFixed(config.precision) : currentVal.toString();
                     inputEl.value = currentVal;
                     updateSliderFill(inputEl);
-                    dispatchEvent('paramChanged', { key: key, value: currentVal });
+                    if (currentVal !== entry.lastDispatched) {
+                        entry.lastDispatched = currentVal;
+                        dispatchEvent('paramChanged', { key: key, value: currentVal });
+                    }
                 };
 
                 valueInput.addEventListener('blur', finalizeInputValue);
@@ -427,7 +448,7 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
                 updateSliderFill(inputEl);
                 enableSliderWheelControl(inputEl);
                 enableSliderDoubleClickReset(inputEl, initialParams[key]);
-                inputElements[key] = { input: inputEl, valueInput: valueInput, config: config };
+                inputElements[key] = entry;
                 controlRow.append(labelEl, inputEl, valueInput);
 
             } else if (config.type === 'checkbox') {
@@ -466,9 +487,19 @@ export async function initializeMenu(initialParams, initialDebugFlags) {
 export function updateMenuValues(newParams) {
     for (const key in newParams) {
         if (inputElements[key]) {
-            const { input, valueInput, config } = inputElements[key];
+            const entry = inputElements[key];
+            const { input, valueInput, config } = entry;
+            // Never overwrite a control the user is actively editing — doing so
+            // resets the caret and undoes keystrokes. The per-frame responsive
+            // FLOCK_SIZE update repaints it once focus leaves.
+            if (document.activeElement === valueInput || document.activeElement === input) continue;
+
+            const text = config.precision ? newParams[key].toFixed(config.precision) : newParams[key].toString();
+            entry.lastDispatched = parseFloat(text);
+            if (valueInput.value === text) continue; // Called every frame; skip redundant DOM writes.
+
             input.value = newParams[key];
-            valueInput.value = config.precision ? newParams[key].toFixed(config.precision) : newParams[key].toString();
+            valueInput.value = text;
             if (input.type === 'range') {
                 updateSliderFill(input);
             }

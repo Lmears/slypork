@@ -168,7 +168,7 @@ export class Flock {
         targetSize = Math.max(MIN_BOIDS, targetSize);
         targetSize = Math.min(maxBoids, targetSize);
         this.simParams.FLOCK_SIZE = Math.floor(targetSize);
-        updateMenuValues(this.simParams);
+        updateMenuValues({ FLOCK_SIZE: this.simParams.FLOCK_SIZE });
     }
 
     cleanup(currentTime) {
