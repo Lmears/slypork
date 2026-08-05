@@ -622,6 +622,10 @@ video {
   position: relative;
 }
 
+.sticky {
+  position: sticky;
+}
+
 .bottom-4 {
   bottom: 1rem;
 }
@@ -1639,6 +1643,90 @@ h1 {
 
 /* Navigation */
 
+/* Pinned nav
+   The nav has three layouts (see the classes on #site-nav): a logo-plus-
+   hamburger row below sm, a full-width horizontal bar from sm to md, and the
+   left-hand sidebar column at md and up. All three are pinned from the one
+   sticky <header class="pinned-nav"> so the nav is reachable at any scroll
+   position; only the two narrow ones need the bar treatment below, since the
+   sidebar sits in its own gutter with no content passing behind it.
+
+   Sticky rather than fixed so the header keeps its space in #container's flow -
+   nothing has to be padded to compensate, and at rest every page looks exactly
+   as it did. assets/js/script.js drives --nav-offset (the scroll-direction
+   slide) and --nav-border-opacity (the border fade). */
+
+.pinned-nav {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  /* Breathing room between the nav and the edges of the bar that appears on
+       scroll. It is deliberately not padding: padding would push the page's
+       content down at rest too, and the bar only exists once you have scrolled.
+       The bar (::before) is grown by this much instead, and the pin point is
+       pushed down by the same amount so the extra sits evenly above and below.
+       script.js reads this property to know how far the bar has to travel to
+       clear the viewport. */
+  --nav-bar-padding: 4px;
+}
+
+@media (min-width: 768px) {
+  .pinned-nav {
+    /* #container is a flex row here, so the header stretches to the full
+           column height by default - an element that already spans the whole
+           scroll range has nowhere to stick to. Shrink it to the nav's own
+           height first; the nav was top-aligned inside it anyway, so this
+           changes nothing visually. */
+    align-self: flex-start;
+    /* Matches #container's own md:pt-12, so the pinned nav keeps the same
+           gap above it that it has at rest instead of jamming into the edge. */
+    top: 3rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .pinned-nav {
+    transform: translateY(var(--nav-offset, 0px));
+    /* Pins --nav-bar-padding down from the top so the bar's own top edge,
+           which overhangs the header by that much, lands flush with the
+           viewport. */
+    top: var(--nav-bar-padding);
+  }
+
+  /* The opaque bar. Full-bleed (the header is inset by #container's px-4)
+       via a 100vw pseudo-element centred on the header. Flat page-background
+       colour rather than a fading/blurred panel, so it is invisible at rest
+       and simply hides whatever scrolls underneath; only the border fades in,
+       and it matches .visual-container's divider exactly. */
+
+  .pinned-nav::before {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--nav-bar-padding));
+    bottom: calc(-1 * var(--nav-bar-padding));
+    left: 50%;
+    width: 100vw;
+    margin-left: -50vw;
+    background-color: rgb(243, 244, 241);
+    border-bottom: 0.5px solid rgba(23, 23, 23, calc(0.5 * var(--nav-border-opacity, 0)));
+    z-index: -1;
+  }
+
+  /* While the boids are running the page background is transparent so the
+       canvas shows through; an opaque nav bar would punch a hole in the flock. */
+
+  body.boid-active .pinned-nav::before {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 767.98px) {
+  .pinned-nav::before {
+    background-color: rgb(32, 33, 31);
+    border-bottom-color: rgba(230, 231, 227, calc(0.5 * var(--nav-border-opacity, 0)));
+  }
+}
+
 nav.nav-active {
   margin-bottom: 0px;
 }
@@ -1677,6 +1765,17 @@ nav ul li a.selected .nav-link-text {
   right: 16px;
   z-index: 1000;
   color: rgba(23, 23, 23);
+}
+
+/* .pinned-nav is positioned, so it - not <body> - is now the hamburger's
+   containing block. These offsets reproduce its previous position exactly
+   (the header's top edge sits at #container's pt-8 = 32px and its right edge
+   px-4 = 16px in from the page edge), and it now travels with the bar it
+   opens instead of scrolling away from it. */
+
+.pinned-nav #hamburger-menu {
+  top: 0;
+  right: 0;
 }
 
 /* Cursor */

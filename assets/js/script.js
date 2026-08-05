@@ -140,6 +140,105 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+// Pinned nav
+// Drives the two custom properties .pinned-nav reads (see input.css): how far
+// the bar is slid out of view, and how far the bottom border has faded in.
+// Only the two narrow layouts consume --nav-offset - at md and up the nav is
+// the sidebar column, which just stays pinned and never slides away.
+(function setupPinnedNav() {
+    var header = document.querySelector('.pinned-nav');
+    if (!header) return;
+
+    var nav = header.querySelector('#site-nav');
+    var hamburger = header.querySelector('#hamburger-menu');
+
+    // Distance scrolled past the pin point over which the border reaches full
+    // strength.
+    var BORDER_FADE_DISTANCE = 160;
+
+    var stickTop = 0;      // scroll position at which the header pins
+    var navHeight = 0;     // how far it can slide out of view
+    var offset = 0;        // current slide, in [-navHeight, 0]
+    var lastPinnedScroll = 0;
+    var menuOpen = false;
+
+    // html is overflow:hidden and body does the scrolling (see input.css).
+    function getScrollTop() {
+        return document.body.scrollTop || document.documentElement.scrollTop || 0;
+    }
+
+    // The hamburger is display:none in the sm-to-md bar layout and at md and
+    // up, where .nav-active is either irrelevant or permanently set.
+    function isMenuOpen() {
+        return !!(nav && nav.classList.contains('nav-active') &&
+            hamburger && window.getComputedStyle(hamburger).display !== 'none');
+    }
+
+    // Everything here forces layout, so it's kept out of the scroll handler and
+    // only re-run when something can actually have moved.
+    function measure() {
+        var style = window.getComputedStyle(header);
+        // For a sticky box the computed inset is the value we set, not the
+        // distance it has currently been shifted by.
+        var stickyInset = parseFloat(style.top) || 0;
+        var barPadding = parseFloat(style.getPropertyValue('--nav-bar-padding')) || 0;
+
+        // offsetTop on a *stuck* element includes the shift sticky has applied,
+        // so measuring mid-scroll would read the header's current on-screen
+        // position rather than its resting one and put the pin point below the
+        // scroll position - which zeroed the border fade every time the menu
+        // was opened or the window resized. Drop out of sticky for the read.
+        var restore = header.style.position;
+        header.style.position = 'static';
+        // <body> is the only positioned ancestor, so this is the header's
+        // distance from the top of the document.
+        var restingTop = header.offsetTop;
+        header.style.position = restore;
+
+        stickTop = Math.max(0, restingTop - stickyInset);
+        // The bar overhangs the header by barPadding at each end, so it has
+        // that much further to travel before it is fully off screen.
+        navHeight = header.offsetHeight + barPadding * 2;
+        menuOpen = isMenuOpen();
+        lastPinnedScroll = Math.max(0, getScrollTop() - stickTop);
+        offset = Math.max(-navHeight, offset);
+        update();
+    }
+
+    function update() {
+        var pinnedScroll = Math.max(0, getScrollTop() - stickTop);
+        var delta = pinnedScroll - lastPinnedScroll;
+        lastPinnedScroll = pinnedScroll;
+
+        // An open menu is taller than the viewport on small screens; sliding it
+        // away would close it out from under the reader mid-scroll.
+        if (menuOpen) {
+            offset = 0;
+        } else {
+            offset = Math.min(0, Math.max(-navHeight, offset - delta));
+        }
+
+        header.style.setProperty('--nav-offset', offset + 'px');
+        header.style.setProperty('--nav-border-opacity',
+            Math.min(1, pinnedScroll / BORDER_FADE_DISTANCE));
+    }
+
+    // Deliberately unthrottled: update() only reads cached measurements, and
+    // rAF-batching it would leave the bar a frame behind the scroll it tracks.
+    document.body.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
+    window.addEventListener('pageshow', measure);
+    // Dispatched by toggleNavMenu below, which changes the header's height.
+    document.body.addEventListener('layoutChanged', measure);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', measure);
+    } else {
+        measure();
+    }
+})();
+
 // Software iframes
 function adjustIframeHeight() {
     const iframes = document.querySelectorAll('.software-iframe');
