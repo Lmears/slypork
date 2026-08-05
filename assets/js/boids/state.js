@@ -34,6 +34,7 @@ export class SimulationState {
         this.speedMultiplier = 1;
         this.animationFrameId = null;
         this.lastFrameTime = 0;
+        this.smoothedTimeScale = 1; // Seeded at 1, never 0 — see TIME_SCALE_MIN
         this.isEnding = false;
         this.endStartTime = 0;
         this.isSystemInitialized = false;
@@ -124,6 +125,7 @@ export class SimulationState {
         this.debugSelectedBoid = null;
         this.isEnding = false;
         this.lastFrameTime = 0;
+        this.smoothedTimeScale = 1;
 
         if (this.inputHandler) {
             this.inputHandler.isScattering = false;
