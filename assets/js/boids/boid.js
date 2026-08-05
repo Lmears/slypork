@@ -24,8 +24,23 @@ import {
     EASTER_EGG_RIGHT,
     EASTER_EGG_BOTTOM,
     SPREAD_FACTOR,
-    EDGE_BUFFER_POSITIONS
+    EDGE_BUFFER_POSITIONS,
+    BOID_WANDER_STRENGTH,
+    BOID_WANDER_RATE,
+    NEIGHBOR_EDGE_FADE
 } from './config.js';
+
+/**
+ * Weight for a neighbour at `dist` within `radius`: full weight through the inner
+ * part of the neighbourhood, easing to zero across the outer band. Without it a
+ * neighbour crossing the radius contributes its whole self on one frame and
+ * nothing on the next, which shows up as the flock twitching.
+ */
+function neighborWeight(dist, radius) {
+    const band = radius * NEIGHBOR_EDGE_FADE;
+    if (band <= 0) return 1;
+    return Math.min(1, (radius - dist) / band);
+}
 
 // Module-level variables that the Boid class needs access to
 // These will be injected via setBoidDependencies()
@@ -37,6 +52,14 @@ let mouseInfluence = false;
 let boidsIgnoreMouse = false;
 let mouse = null;
 let boidImageBitmap = null;
+
+// Per-frame smoothing factors. Every input is frame-global, so they're computed
+// once in updateBoidRuntimeValues rather than per boid — at several hundred boids
+// that's the difference between four transcendental calls a frame and thousands.
+let boostDecayFactor = BOOST_DECAY;
+let depthBlend = 0.01;
+let syncBlend = BOID_OSCILLATION_SYNC_STRENGTH;
+let rotationBlend = 0;
 
 /**
  * Injects external dependencies that boids need to function.
@@ -58,6 +81,21 @@ export function updateBoidRuntimeValues(values) {
     speedMultiplier = values.speedMultiplier;
     mouseInfluence = values.mouseInfluence;
     boidsIgnoreMouse = values.boidsIgnoreMouse;
+
+    // Each of these is a per-frame decay tuned at TARGET_FPS, compounded over the
+    // frame's actual duration so the motion looks the same on any display.
+    const timeScale = values.timeScale;
+    boostDecayFactor = Math.pow(BOOST_DECAY, timeScale);
+    depthBlend = 1 - Math.pow(0.99, timeScale);
+    syncBlend = 1 - Math.pow(1 - BOID_OSCILLATION_SYNC_STRENGTH, timeScale);
+
+    // Compounding form of the turn rate. At TARGET_FPS it is exactly the 0.07 per
+    // frame this replaced — the earlier exponential form came out at 0.0676, a
+    // touch more rotational lag than the original. It still can't exceed 1 however
+    // far the speed slider and a long frame push it, so headings ease onto the
+    // target instead of overshooting and ringing. speedMultiplier carries timeScale.
+    const turnPerFrame = Math.min(1, (1 - simParams.ROTATION_INERTIA) * BOID_ROTATION_SPEED);
+    rotationBlend = 1 - Math.pow(1 - turnPerFrame, Math.max(0, speedMultiplier));
 }
 
 let nextBoidId = 0;
@@ -98,12 +136,12 @@ export class Boid {
         this.maxSpeed = NORMAL_MAX_SPEED;
 
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
-        this.rotationSpeed = BOID_ROTATION_SPEED;
 
         this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
         this.renderSize = this.calculateRenderSize();
         this.oscillationPhase = Math.random() * Math.PI * 2;
         this.oscillationSpeed = BOID_OSCILLATION_SPEED_BASE + Math.random() * BOID_OSCILLATION_SPEED_VARIATION;
+        this.wanderAngle = Math.random() * Math.PI * 2;
 
         this.scatterState = 0;
         this.cooldownTimer = 0;
@@ -168,6 +206,10 @@ export class Boid {
         const depthRadiusSq = DEPTH_INFLUENCE_RADIUS * DEPTH_INFLUENCE_RADIUS;
         const syncRadiusSq = 50 * 50;
 
+        // Anything past the widest radius influences nothing, so skip it before
+        // paying for the sqrt that every behavior below shares.
+        const maxRadiusSq = Math.max(alignRadiusSq, cohRadiusSq, sepRadiusSq, depthRadiusSq, syncRadiusSq);
+
         const tempDiff = vectorPool.get(0, 0); // Reusable vector for calculations
 
         // --- SINGLE LOOP ---
@@ -181,24 +223,29 @@ export class Boid {
                 canvas.width, canvas.height
             );
 
+            if (dSq >= maxRadiusSq) continue;
+            const distance = Math.sqrt(dSq);
+
             // --- 2. Apply Behaviors based on distance ---
             // Alignment
             if (dSq < alignRadiusSq) {
-                avgVelocity.add(other.velocity);
-                alignmentTotal++;
+                const w = neighborWeight(distance, simParams.ALIGNMENT_RADIUS);
+                avgVelocity.x += other.velocity.x * w;
+                avgVelocity.y += other.velocity.y * w;
+                alignmentTotal += w;
             }
             // Cohesion
             if (dSq < cohRadiusSq) {
+                const w = neighborWeight(distance, simParams.COHESION_RADIUS);
                 // Adjust neighbor position for wrapping to get correct average
                 const neighborX = this.position.x - tdx;
                 const neighborY = this.position.y - tdy;
-                avgPosition.x += neighborX;
-                avgPosition.y += neighborY;
-                cohesionTotal++;
+                avgPosition.x += neighborX * w;
+                avgPosition.y += neighborY * w;
+                cohesionTotal += w;
             }
             // Separation
             if (dSq < sepRadiusSq && dSq > 0) {
-                const distance = Math.sqrt(dSq);
                 const strength = 1.0 - (distance / simParams.SEPARATION_RADIUS);
                 tempDiff.set(tdx, tdy); // Vector pointing away from neighbor
                 tempDiff.normalize().mult(strength);
@@ -207,15 +254,17 @@ export class Boid {
             }
             // Depth
             if (dSq < depthRadiusSq) {
-                avgDepth += other.depth;
-                depthTotal++;
+                const w = neighborWeight(distance, DEPTH_INFLUENCE_RADIUS);
+                avgDepth += other.depth * w;
+                depthTotal += w;
             }
 
             // Oscillation Sync
             if (dSq < syncRadiusSq) {
-                avgPhaseX += Math.cos(other.oscillationPhase);
-                avgPhaseY += Math.sin(other.oscillationPhase);
-                syncTotal++;
+                const w = neighborWeight(distance, 50);
+                avgPhaseX += Math.cos(other.oscillationPhase) * w;
+                avgPhaseY += Math.sin(other.oscillationPhase) * w;
+                syncTotal += w;
             }
         }
 
@@ -254,7 +303,7 @@ export class Boid {
         // --- Finalize and apply DEPTH update ---
         if (depthTotal > 0) {
             const targetDepth = avgDepth / depthTotal;
-            this.depth = this.depth * 0.99 + targetDepth * 0.01;
+            this.depth += (targetDepth - this.depth) * depthBlend;
             this.depth = Math.max(0, Math.min(1, this.depth));
         }
 
@@ -263,7 +312,7 @@ export class Boid {
             const avgTargetPhase = Math.atan2(avgPhaseY / syncTotal, avgPhaseX / syncTotal);
             let phaseDifference = avgTargetPhase - this.oscillationPhase;
             phaseDifference = Math.atan2(Math.sin(phaseDifference), Math.cos(phaseDifference));
-            this.oscillationPhase += phaseDifference * BOID_OSCILLATION_SYNC_STRENGTH * timeScale;
+            this.oscillationPhase += phaseDifference * syncBlend;
         }
 
         // --- Return the combined forces ---
@@ -305,6 +354,28 @@ export class Boid {
     }
 
     /**
+     * A weak steering force applied perpendicular to the boid's heading, along a
+     * slowly drifting per-boid phase. The phase random-walks rather than being
+     * re-rolled each frame, so it meanders instead of jittering.
+     *
+     * Strictly lateral, deliberately. A wander pointing in an absolute world
+     * direction spends about half its time opposing the boid's velocity, and
+     * because the phase drifts over seconds that reads as a sustained brake —
+     * boids lurching between fast and slow, heavy on the turns. Projecting onto
+     * the perpendicular lets it bank the boid without ever changing its speed.
+     */
+    applyWander(timeScale) {
+        this.wanderAngle += (Math.random() - 0.5) * BOID_WANDER_RATE * timeScale;
+
+        const speed = this.velocity.mag();
+        if (speed === 0) return;
+
+        const lateral = Math.sin(this.wanderAngle) * BOID_WANDER_STRENGTH * timeScale;
+        this.desiredVelocity.x += (-this.velocity.y / speed) * lateral;
+        this.desiredVelocity.y += (this.velocity.x / speed) * lateral;
+    }
+
+    /**
     * Calculates flocking and mouse forces and accumulates them in desiredVelocity.
     * Obstacle forces will be added externally after this step.
     */
@@ -326,6 +397,7 @@ export class Boid {
         this.desiredVelocity.add(cohesionForce);
         this.desiredVelocity.add(separationForce);
         this.desiredVelocity.add(mouseForce);
+        this.applyWander(timeScale);
         // Note: obstacleAvoidanceForce is now added externally between this method and the next.
 
         // --- 4. Release temporary force vectors ---
@@ -348,14 +420,14 @@ export class Boid {
             this.velocity.y = this.velocity.y * simParams.VELOCITY_INERTIA + this.desiredVelocity.y * (1 - simParams.VELOCITY_INERTIA);
 
             // --- 2. Update state, determine max speed, and limit the base velocity ---
-            this.updateScatterState();
+            this.updateScatterState(timeScale);
             this.updateMaxSpeed();
             this.velocity.limit(this.maxSpeed); // Limit the boid's normal, sustainable speed
 
             // --- 3. Apply the decaying boost AFTER limiting ---
             // This allows the boost to temporarily exceed the max speed.
             this.velocity.add(this.boost);
-            this.boost.mult(BOOST_DECAY);
+            this.boost.mult(boostDecayFactor);
         }
 
 
@@ -367,9 +439,9 @@ export class Boid {
     }
 
 
-    updateScatterState() {
+    updateScatterState(timeScale) {
         if (this.scatterState !== 0) {
-            this.cooldownTimer--;
+            this.cooldownTimer -= timeScale;
             if (this.cooldownTimer <= 0) {
                 this.scatterState = this.scatterState === 1 ? 2 : 0;
                 this.cooldownTimer = this.scatterState === 2 ? COOLDOWN_DURATION : 0;
@@ -395,8 +467,7 @@ export class Boid {
         let rotationDiff = targetRotation - this.rotation;
         rotationDiff = Math.atan2(Math.sin(rotationDiff), Math.cos(rotationDiff));
 
-        const smoothedRotationDiff = rotationDiff * (1 - simParams.ROTATION_INERTIA) * this.rotationSpeed * speedMultiplier;
-        this.rotation += smoothedRotationDiff;
+        this.rotation += rotationDiff * rotationBlend;
 
         this.rotation = (this.rotation + 2 * Math.PI) % (2 * Math.PI);
     }

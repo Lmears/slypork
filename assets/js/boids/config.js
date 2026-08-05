@@ -15,8 +15,8 @@ export const DEFAULT_SIM_PARAMS = {
     COHESION_RADIUS: 120,
     SEPARATION_RADIUS: 45,
     OBSTACLE_RADIUS: 120,
-    VELOCITY_INERTIA: 0.45,
-    ROTATION_INERTIA: 0.3,
+    VELOCITY_INERTIA: 0.25,
+    ROTATION_INERTIA: 0.05,
 };
 
 // --- Obstacle Parameters ---
@@ -63,6 +63,25 @@ export const BOID_OSCILLATION_SYNC_STRENGTH = 0.02; // How strongly boids sync t
 export const BOID_ROTATION_SPEED = 0.1;
 export const BOID_DYING_DURATION = 250; // Time in ms for a boid to fade out
 
+// A slow random walk driving a weak sideways steering force (see applyWander).
+// Keeps the flock from settling into a mathematically converged glide — birds
+// don't hold a perfect line.
+//
+// The two knobs map onto two different symptoms:
+//   STRENGTH — how hard each boid banks. Raise for looser, more restless flocking;
+//     too high and it reads as lurching rather than life. This is the amplitude.
+//   RATE — how fast the phase drifts, i.e. the *period* of the sway. Low values
+//     lean a boid the same way for many seconds, which reads as drunk even at a
+//     modest strength. Raise it to shorten the bank without draining liveliness.
+export const BOID_WANDER_STRENGTH = 0.075;
+export const BOID_WANDER_RATE = 0.30; // Radians of drift per frame at TARGET_FPS
+
+// Neighbours are weighted to zero across the outer band of each radius rather than
+// popping in and out at the boundary. Expressed as a fraction of the radius, so the
+// inner majority of the neighbourhood keeps full weight and the tuned radii still
+// mean what they say.
+export const NEIGHBOR_EDGE_FADE = 0.20;
+
 // --- Easter Egg Parameters ---
 export const EASTER_EGG_WIDTH = 45;
 export const EASTER_EGG_HEIGHT = 40;
@@ -80,6 +99,16 @@ export const SPREAD_FACTOR = 0.1;
 export const TRAIL_FADE_ALPHA = 0.25;
 export const END_ANIMATION_DURATION = 1000;
 export const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel
+
+// --- Frame Timing ---
+// timeScale scales every force and speed limit, so a single stalled frame (tab
+// switch, GC pause, layout thrash) would otherwise fling the whole flock. Clamp
+// it to a sane band and low-pass it so the motion rides through frame-time noise
+// instead of reproducing it. The floor must stay above 0: a timeScale of 0 makes
+// maxSpeed 0, and `velocity.limit(0)` zeroes velocity outright.
+export const TIME_SCALE_MIN = 0.25;
+export const TIME_SCALE_MAX = 3.0;
+export const TIME_SCALE_SMOOTHING = 0.1; // EMA weight for each new frame's raw timeScale
 
 // --- Edge Buffering ---
 export const EDGE_BUFFER_POSITIONS = [

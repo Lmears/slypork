@@ -205,7 +205,12 @@ export function applyObstacleAvoidanceForces(obstacles, spatialGrid, timeScale) 
             let bestDistSqForBoid = Infinity;
             let bestTypeForBoid = null; // 'steer' or 'bounce'
 
-            const boidRadius = boid.renderSize / 2;
+            // Deliberately boid.size, not boid.renderSize: renderSize pulses ±10%
+            // with the wing oscillation and jumps 50% while scattering, which made
+            // the overlap test and vision radius breathe. A boid grazing the nav or
+            // footer would flip between 'steer' and 'bounce' — a 3x force step and a
+            // direction change — driven by nothing but its own animation.
+            const boidRadius = boid.size / 2;
 
             const margin = simParams.OBSTACLE_RADIUS + boidRadius;
 

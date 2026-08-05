@@ -15,6 +15,10 @@ export class Renderer {
     constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = ctx;
+        // Whether the float16 buffer was actually granted (see initializeDOMReferences).
+        // Anything unreported is treated as the 8-bit fallback, which is the safe
+        // assumption for the trail fade below.
+        this.hasFloatBuffer = ctx.getContextAttributes?.().colorType === 'float16';
     }
 
     /**
@@ -27,10 +31,22 @@ export class Renderer {
      * Erasing alpha leaves the background to show through the canvas untouched.
      *
      * The fade is the same in both colour schemes — see TRAIL_FADE_ALPHA.
+     *
+     * TRAIL_FADE_ALPHA is the erase per frame at TARGET_FPS; compounding it over
+     * timeScale frames keeps trails the same length in wall-clock time whatever
+     * the display refresh rate, instead of running twice as long at 60Hz.
+     *
+     * Above TARGET_FPS that compounding means erasing *less* per frame (0.134 at
+     * 240Hz), and on an 8-bit buffer a lower per-frame alpha can't round the last
+     * step to zero — the trail residue TRAIL_FADE_ALPHA's note warns about. So the
+     * exponent is floored at 1 without a float16 buffer: shorter trails on a fast
+     * display is the cheaper side of that trade than a permanent stain.
      */
-    drawBackground() {
+    drawBackground(timeScale = 1) {
+        const exponent = this.hasFloatBuffer ? timeScale : Math.max(1, timeScale);
+        const fade = 1 - Math.pow(1 - TRAIL_FADE_ALPHA, exponent);
         this.ctx.globalCompositeOperation = 'destination-out';
-        this.ctx.fillStyle = `rgba(0, 0, 0, ${TRAIL_FADE_ALPHA})`;
+        this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.globalCompositeOperation = 'source-over';
     }
@@ -120,16 +136,19 @@ export class Renderer {
     /**
      * Renders the exit animation where all boids converge to a point and shrink.
      */
-    renderExitAnimation(flock, currentTime, endStartTime) {
+    renderExitAnimation(flock, currentTime, endStartTime, timeScale = 1) {
         const endProgress = Math.min(1, (currentTime - endStartTime) / END_ANIMATION_DURATION);
+        // The convergence is a per-frame lerp; compound it so the flock reaches the
+        // easter egg at the same moment the time-based progress does, on any display.
+        const converge = 1 - Math.pow(0.9, timeScale);
         const targetX = this.canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
         const targetY = this.canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         const targetPosForEnding = vectorPool.get(targetX, targetY);
 
         for (let boid of flock) {
             // Lerp position towards the target
-            boid.position.x += (targetPosForEnding.x - boid.position.x) * 0.1;
-            boid.position.y += (targetPosForEnding.y - boid.position.y) * 0.1;
+            boid.position.x += (targetPosForEnding.x - boid.position.x) * converge;
+            boid.position.y += (targetPosForEnding.y - boid.position.y) * converge;
 
             // Shrink boids as they approach the end
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
