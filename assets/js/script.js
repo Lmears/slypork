@@ -156,11 +156,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // strength.
     var BORDER_FADE_DISTANCE = 160;
 
+    // How far you have to scroll down with the menu open before it collapses.
+    // Comfortably above the ~10px a browser still counts as a tap, so someone
+    // who has just opened the menu and is dragging a thumb towards a link does
+    // not have it shut under them; still short enough that a deliberate scroll
+    // closes it before the second line of content arrives.
+    var MENU_CLOSE_DISTANCE = 48;
+
     var stickTop = 0;      // scroll position at which the header pins
     var navHeight = 0;     // how far it can slide out of view
     var offset = 0;        // current slide, in [-navHeight, 0]
     var lastPinnedScroll = 0;
     var menuOpen = false;
+    var downWhileOpen = 0; // downward scroll accumulated since the menu opened
 
     // html is overflow:hidden and body does the scrolling (see input.css).
     function getScrollTop() {
@@ -200,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // that much further to travel before it is fully off screen.
         navHeight = header.offsetHeight + barPadding * 2;
         menuOpen = isMenuOpen();
+        downWhileOpen = 0;
         lastPinnedScroll = Math.max(0, getScrollTop() - stickTop);
         offset = Math.max(-navHeight, offset);
         update();
@@ -210,9 +219,42 @@ document.addEventListener('DOMContentLoaded', function () {
         var delta = pinnedScroll - lastPinnedScroll;
         lastPinnedScroll = pinnedScroll;
 
-        // An open menu is taller than the viewport on small screens; sliding it
-        // away would close it out from under the reader mid-scroll.
+        // An open menu takes a good part of the viewport at hamburger widths,
+        // and the hamburger is its only other way out, so scrolling down is the
+        // reader saying they are done with it. Collapse it rather than sliding
+        // it away: sliding leaves the links hovering half off-screen on the way
+        // out, where a collapse keeps the bar pinned with the hamburger in
+        // reach. Below the threshold it stays put - an open menu must not creep
+        // off the top of its own accord.
         if (menuOpen) {
+            downWhileOpen = delta > 0 ? downWhileOpen + delta : 0;
+            if (downWhileOpen > MENU_CLOSE_DISTANCE) {
+                // The header is in flow (#container is a column at these
+                // widths), so collapsing it pulls everything below it up the
+                // page. Measured off that next element rather than off the
+                // header's own offsetHeight, which would miss margins and any
+                // reflow #container does around it.
+                var below = header.nextElementSibling;
+                var topBefore = below ? below.getBoundingClientRect().top : 0;
+                // Dispatches layoutChanged, so measure() re-enters and takes
+                // over from here with the collapsed header's dimensions.
+                closeNavMenu();
+                var shrink = below ? topBefore - below.getBoundingClientRect().top : 0;
+
+                // Where there is room, hand that distance back to the scroll
+                // position so the page does not leap forward under a reader who
+                // only asked for a few pixels. Only when there is room for the
+                // whole of it: a partial correction would clamp at the top of
+                // the document and shove the scroll backwards into an
+                // in-progress flick, which is worse than the reflow it fixes.
+                // Near the top the content just fills in, which is what closing
+                // a menu should look like anyway.
+                if (shrink > 0 && getScrollTop() >= shrink) {
+                    document.body.scrollTop = getScrollTop() - shrink;
+                    measure();
+                }
+                return;
+            }
             offset = 0;
         } else {
             offset = Math.min(0, Math.max(-navHeight, offset - delta));
