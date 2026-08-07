@@ -1498,6 +1498,10 @@ video {
   transition-duration: 150ms;
 }
 
+.duration-200 {
+  transition-duration: 200ms;
+}
+
 .duration-300 {
   transition-duration: 300ms;
 }
@@ -2612,6 +2616,14 @@ input[type="checkbox"]:disabled {
 
 .disabled\:opacity-60:disabled {
   opacity: 0.6;
+}
+
+.group:hover .group-hover\:opacity-80 {
+  opacity: 0.8;
+}
+
+.group:hover .group-hover\:opacity-70 {
+  opacity: 0.7;
 }
 
 .group.nav-active .group-\[\.nav-active\]\:block {
