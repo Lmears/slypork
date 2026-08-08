@@ -44,9 +44,13 @@ export const BOOST_DECAY = 0.95;
 
 // --- Mouse Interaction ---
 export const MOUSE_INFLUENCE_RADIUS = 200;
-export const CLICK_SCATTER_DURATION = 22;
-export const HOLD_SCATTER_DURATION = 45;
-export const COOLDOWN_DURATION = 30;
+// The simulation loop re-scatters every frame while the mouse is held, so these
+// are only the flat-capped tail after a boid leaves MOUSE_INFLUENCE_RADIUS (~13
+// frames at scatter speed) or the button releases. Past that the boid is flying
+// ballistically at a constant cap, so keep them short relative to the cooldown.
+export const CLICK_SCATTER_DURATION = 16;
+export const HOLD_SCATTER_DURATION = 28;
+export const COOLDOWN_DURATION = 75;
 export const MOUSE_FORCE_NORMAL = 3.0;
 export const MOUSE_FORCE_SCATTER = 2.5;
 
