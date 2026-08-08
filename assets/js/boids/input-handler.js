@@ -223,11 +223,11 @@ export class InputHandler {
     }
 
     // Scatter behavior
-    scatter() {
+    scatter(duration = HOLD_SCATTER_DURATION) {
         this.deps.flock.forEach(boid => {
             if (Vector.dist(this.deps.mouse, boid.position) < MOUSE_INFLUENCE_RADIUS) {
                 boid.scatterState = 1;
-                boid.cooldownTimer = HOLD_SCATTER_DURATION;
+                boid.cooldownTimer = duration;
             }
         });
     }

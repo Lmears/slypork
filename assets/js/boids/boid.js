@@ -449,11 +449,26 @@ export class Boid {
         }
     }
 
+    /**
+     * Eased 1 → 0 falloff for the scatter cooldown, shared by the speed cap and
+     * the render size so the two never visibly desync.
+     *
+     * Nothing in the physics damps speed — desiredVelocity is seeded with the
+     * current velocity, so velocity.limit(maxSpeed) is the only brake and this
+     * curve *is* the deceleration curve. Any easing swapped in here needs a
+     * steep slope at t=1 and a flat one at t=0, or the scatter reads as a ramp
+     * between two speed plateaus rather than as drag.
+     */
+    scatterFalloff() {
+        const t = this.cooldownTimer / COOLDOWN_DURATION;
+        return t * t * t;
+    }
+
     updateMaxSpeed() {
         if (this.scatterState === 1) {
             this.maxSpeed = SCATTER_MAX_SPEED * speedMultiplier;
         } else if (this.scatterState === 2) {
-            this.maxSpeed = (NORMAL_MAX_SPEED + (SCATTER_MAX_SPEED - NORMAL_MAX_SPEED) * (this.cooldownTimer / COOLDOWN_DURATION)) * speedMultiplier;
+            this.maxSpeed = (NORMAL_MAX_SPEED + (SCATTER_MAX_SPEED - NORMAL_MAX_SPEED) * this.scatterFalloff()) * speedMultiplier;
         } else {
             this.maxSpeed = NORMAL_MAX_SPEED * speedMultiplier;
         }
@@ -539,7 +554,7 @@ export class Boid {
         if (this.scatterState === 1) {
             size *= 1.5;
         } else if (this.scatterState === 2) {
-            size *= 1 + 0.5 * (this.cooldownTimer / COOLDOWN_DURATION);
+            size *= 1 + 0.5 * this.scatterFalloff();
         }
         return size;
     }
