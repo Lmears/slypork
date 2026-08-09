@@ -52,6 +52,7 @@ let mouseInfluence = false;
 let boidsIgnoreMouse = false;
 let mouse = null;
 let boidImageBitmap = null;
+let trailTracker = null;
 
 // Per-frame smoothing factors. Every input is frame-global, so they're computed
 // once in updateBoidRuntimeValues rather than per boid — at several hundred boids
@@ -71,6 +72,7 @@ export function setBoidDependencies(dependencies) {
     simParams = dependencies.simParams;
     mouse = dependencies.mouse;
     boidImageBitmap = dependencies.boidImageBitmap;
+    trailTracker = dependencies.trailTracker;
 }
 
 /**
@@ -532,6 +534,14 @@ export class Boid {
             ctx.restore();
             return;
         }
+
+        // Every pixel a boid paints goes through here — the wrapped edge copies and
+        // the exit animation included — so this is where the trail sweep is told
+        // which cells still hold ink. The sprite is drawn rotated, so it reaches
+        // half its diagonal from the centre; a pixel of slack covers the edge
+        // antialiasing. Marking wider than that only protects residue from the
+        // sweep, so it's kept tight.
+        trailTracker?.markPainted(position.x, position.y, finalRenderSize * Math.SQRT1_2 + 1);
 
         ctx.globalAlpha = opacity;
         ctx.translate(position.x, position.y);

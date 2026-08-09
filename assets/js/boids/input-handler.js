@@ -150,8 +150,15 @@ export class InputHandler {
 
     // Window event handlers
     resizeHandler() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        // Only assign when the size actually changed. Assigning at all wipes the
+        // canvas, and a resize that reports the same dimensions would wipe the
+        // trails out from under the renderer's record of what it has painted.
+        if (this.canvas.width !== window.innerWidth) {
+            this.canvas.width = window.innerWidth;
+        }
+        if (this.canvas.height !== window.innerHeight) {
+            this.canvas.height = window.innerHeight;
+        }
 
         if (this.deps.spatialGrid) {
             this.deps.spatialGrid.resize(this.canvas.width, this.canvas.height);
