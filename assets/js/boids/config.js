@@ -96,11 +96,26 @@ export const SPREAD_FACTOR = 0.1;
 // --- Animation ---
 // Alpha erased from the canvas each frame to decay boid trails. Deliberately
 // the same in light and dark mode: dark mode used to fade at 0.1, which made
-// its trails last ~3x longer than light mode's. Lower this for longer trails —
-// but on a browser without float16 canvas support (see initializeDOMReferences)
-// a lower value also leaves a heavier trail residue, since the erase is
-// multiplicative and 8-bit rounding can't take it the last step to zero.
+// its trails last ~3x longer than light mode's. Lower this for longer trails.
+// The erase is multiplicative and so can't reach zero on its own — see
+// TrailRegionTracker for what finishes the job.
 export const TRAIL_FADE_ALPHA = 0.25;
+
+// The trail fade scales alpha down but can't quite reach zero (see
+// TrailRegionTracker), so the canvas is divided into cells of this size and each
+// cell is cleared outright once the boid that last painted into it is long gone.
+// Small cells matter: a cell is spared for as long as any boid touches any part of
+// it, so oversized cells shelter residue that no longer has a trail over it.
+export const TRAIL_CELL_SIZE = 8;
+
+// How far the fade has to have progressed before a cell counts as spent. A trail
+// starts at alpha 255 and each frame multiplies it by (1 - fade), so summing
+// -ln(1 - fade) per frame measures decay in a way that doesn't care about the
+// frame rate. At ln(510) even a full-strength trail is below half a step of 8-bit
+// alpha, so clearing at that point can only remove what the buffer is already
+// rounding away.
+export const TRAIL_SPENT_FADE = Math.log(510);
+
 export const END_ANIMATION_DURATION = 1000;
 export const TARGET_FPS = 120; // The desired FPS for your simulation's look and feel
 

@@ -9,12 +9,132 @@ import {
     EASTER_EGG_BOTTOM,
     END_ANIMATION_DURATION,
     TRAIL_FADE_ALPHA,
+    TRAIL_CELL_SIZE,
+    TRAIL_SPENT_FADE,
 } from './config.js';
+
+/**
+ * Remembers which parts of the canvas boids have painted into, so the trail fade
+ * can be finished off with an outright clear.
+ *
+ * `destination-out` scales alpha down rather than subtracting from it, and in an
+ * 8-bit buffer that scaling has a fixed point above zero: an alpha of 1/255 times
+ * 0.75 rounds straight back to 1/255, every frame, forever. So every pixel the
+ * flock has ever crossed keeps a last 1/255 of boid colour — which is what stained
+ * the page background wherever the boids had been, while the halos around
+ * obstacles that boids never enter stayed clean. A float16 buffer has no such
+ * fixed point (see initializeDOMReferences), but only Chromium grants one.
+ *
+ * The fix doesn't depend on the buffer: note how far the fade had progressed when
+ * each cell was last painted into, and clear the cell outright once TRAIL_SPENT_FADE
+ * more fade has gone by. At that point the trail there is below half a step of
+ * 8-bit alpha, so the clear can only take away what is already rounding error —
+ * which is exactly the stain.
+ */
+class TrailRegionTracker {
+    constructor(cellSize) {
+        this.cellSize = cellSize;
+        this.width = 0;
+        this.height = 0;
+        this.cols = 0;
+        this.rows = 0;
+        // Total fade applied so far, as a sum of per-frame -ln(1 - fade), against
+        // which each cell records the reading at its last painting.
+        this.fadeTotal = 0;
+        this.paintedAt = new Float64Array(0);
+        this.hasInk = new Uint8Array(0);
+    }
+
+    /**
+     * Rebuilds the grid when the canvas dimensions change. Assigning canvas.width
+     * wipes the canvas, so the fresh cells correctly start out with no ink.
+     */
+    matchCanvas(width, height) {
+        if (width === this.width && height === this.height) return;
+
+        this.width = width;
+        this.height = height;
+        this.cols = Math.max(1, Math.ceil(width / this.cellSize));
+        this.rows = Math.max(1, Math.ceil(height / this.cellSize));
+        this.paintedAt = new Float64Array(this.cols * this.rows);
+        this.hasInk = new Uint8Array(this.cols * this.rows);
+    }
+
+    /**
+     * Records a frame's worth of fade. Called once the fade has been composited,
+     * so a boid painting later in the same frame is correctly unaffected by it.
+     */
+    advance(fade) {
+        this.fadeTotal += -Math.log(1 - fade);
+    }
+
+    /**
+     * Records that a boid painted a box of `halfExtent` either side of (x, y).
+     * Boids near an edge are drawn wrapped to the opposite side, so the marked
+     * cell range wraps with them.
+     */
+    markPainted(x, y, halfExtent) {
+        if (!this.cols) return;
+
+        const { cellSize, cols, rows } = this;
+        const firstCol = Math.floor((x - halfExtent) / cellSize);
+        const firstRow = Math.floor((y - halfExtent) / cellSize);
+        const colSpan = Math.min(cols, Math.floor((x + halfExtent) / cellSize) - firstCol + 1);
+        const rowSpan = Math.min(rows, Math.floor((y + halfExtent) / cellSize) - firstRow + 1);
+
+        for (let row = 0; row < rowSpan; row++) {
+            const wrappedRow = ((firstRow + row) % rows + rows) % rows;
+            for (let col = 0; col < colSpan; col++) {
+                const wrappedCol = ((firstCol + col) % cols + cols) % cols;
+                const index = wrappedRow * cols + wrappedCol;
+                this.paintedAt[index] = this.fadeTotal;
+                this.hasInk[index] = 1;
+            }
+        }
+    }
+
+    /**
+     * Clears every cell whose trail has decayed to residue. Adjacent stale cells
+     * in a row are cleared as a single rect, so a flock leaving a region en masse
+     * costs a handful of calls rather than one per cell.
+     */
+    sweep(ctx) {
+        const { cellSize, cols, rows, hasInk, paintedAt } = this;
+        const cutoff = this.fadeTotal - TRAIL_SPENT_FADE;
+
+        for (let row = 0; row < rows; row++) {
+            const rowOffset = row * cols;
+            let runStart = -1;
+
+            // One past the last column, so a run reaching the edge still closes.
+            for (let col = 0; col <= cols; col++) {
+                const index = rowOffset + col;
+                const isStale = col < cols && hasInk[index] === 1 && paintedAt[index] <= cutoff;
+
+                if (isStale) {
+                    hasInk[index] = 0;
+                    if (runStart === -1) runStart = col;
+                } else if (runStart !== -1) {
+                    ctx.clearRect(runStart * cellSize, row * cellSize, (col - runStart) * cellSize, cellSize);
+                    runStart = -1;
+                }
+            }
+        }
+    }
+
+    /**
+     * Forgets all ink. For use when the whole canvas has been cleared elsewhere.
+     */
+    reset() {
+        this.hasInk.fill(0);
+    }
+}
 
 export class Renderer {
     constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = ctx;
+        this.trailTracker = new TrailRegionTracker(TRAIL_CELL_SIZE);
         // Whether the float16 buffer was actually granted (see initializeDOMReferences).
         // Anything unreported is treated as the 8-bit fallback, which is the safe
         // assumption for the trail fade below.
@@ -37,18 +157,25 @@ export class Renderer {
      * the display refresh rate, instead of running twice as long at 60Hz.
      *
      * Above TARGET_FPS that compounding means erasing *less* per frame (0.134 at
-     * 240Hz), and on an 8-bit buffer a lower per-frame alpha can't round the last
-     * step to zero — the trail residue TRAIL_FADE_ALPHA's note warns about. So the
-     * exponent is floored at 1 without a float16 buffer: shorter trails on a fast
-     * display is the cheaper side of that trade than a permanent stain.
+     * 240Hz), and on an 8-bit buffer a smaller per-frame alpha settles on a larger
+     * residue — 3/255 rather than 1/255. The sweep takes either away, but only once
+     * the trail is spent, so the exponent is floored at 1 without a float16 buffer
+     * to keep the residue waiting to be swept as faint as it can be.
+     *
+     * The sweep runs straight after the fade, before anything is drawn on top.
      */
     drawBackground(timeScale = 1) {
+        this.trailTracker.matchCanvas(this.canvas.width, this.canvas.height);
+
         const exponent = this.hasFloatBuffer ? timeScale : Math.max(1, timeScale);
         const fade = 1 - Math.pow(1 - TRAIL_FADE_ALPHA, exponent);
         this.ctx.globalCompositeOperation = 'destination-out';
         this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.globalCompositeOperation = 'source-over';
+
+        this.trailTracker.advance(fade);
+        this.trailTracker.sweep(this.ctx);
     }
 
     /**
@@ -169,5 +296,6 @@ export class Renderer {
      */
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.trailTracker.reset();
     }
 }

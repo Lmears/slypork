@@ -21,10 +21,10 @@ function initializeDOMReferences(state) {
 
     // A half-float buffer, where supported. The trail fade erases alpha
     // multiplicatively, and in the default 8-bit buffer rounding stops it a few
-    // /255 short of zero — a permanent stain in the boid's colour wherever the
-    // flock has flown, plainly visible against the dark-mode background. With
-    // float16 the fade reaches true zero and the stain doesn't exist. Browsers
-    // that don't support it ignore the attribute and get the 8-bit behaviour.
+    // /255 short of zero; float16 lets it keep decaying instead. That only reduces
+    // how much residue is left sitting on the canvas though — what actually removes
+    // it, on any buffer, is TrailRegionTracker. Browsers that don't support the
+    // attribute ignore it and get the 8-bit behaviour.
     const ctx = canvas.getContext('2d', { colorType: 'float16' });
     if (!ctx) {
         console.error("Failed to initialize: Could not get 2D context from canvas.");
@@ -134,10 +134,13 @@ function createInputHandler(state) {
  * Initializes dependency injection for boids and obstacles
  */
 function initializeDependencyInjection(state) {
-    const { canvas, ctx, mouse, simParams, allObstacles, boidImageBitmap } = state;
+    const { canvas, ctx, mouse, simParams, allObstacles, boidImageBitmap, renderer } = state;
 
     setObstacleDependencies({ canvas, simParams, obstacles: allObstacles });
-    setBoidDependencies({ canvas, ctx, simParams, mouse, boidImageBitmap });
+    setBoidDependencies({
+        canvas, ctx, simParams, mouse, boidImageBitmap,
+        trailTracker: renderer.trailTracker
+    });
 
     updateAllObstacles(allObstacles);
 }
