@@ -21,6 +21,7 @@ export class InputHandler {
         // Bind handlers to maintain context
         this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
         this.mouseLeaveHandler = this.mouseLeaveHandler.bind(this);
+        this.mouseOutHandler = this.mouseOutHandler.bind(this);
         this.mouseDownHandler = this.mouseDownHandler.bind(this);
         this.mouseUpHandler = this.mouseUpHandler.bind(this);
         this.touchStartHandler = this.touchStartHandler.bind(this);
@@ -46,6 +47,17 @@ export class InputHandler {
     mouseLeaveHandler() {
         this.mouseInfluence = false;
         this.isScattering = false;
+    }
+
+    // Firefox doesn't fire 'mouseleave' on the document itself, so the pointer
+    // leaving the window would otherwise leave a ghost mouse the boids chase.
+    // A 'mouseout' with no relatedTarget means the pointer went outside the
+    // document entirely; anything within the page names the element it entered.
+    mouseOutHandler(event) {
+        if (event.relatedTarget) {
+            return;
+        }
+        this.mouseLeaveHandler();
     }
 
     mouseDownHandler(event) {
@@ -245,6 +257,7 @@ export class InputHandler {
 
         document.addEventListener('mousemove', this.mouseMoveHandler);
         document.addEventListener('mouseleave', this.mouseLeaveHandler);
+        document.addEventListener('mouseout', this.mouseOutHandler);
         document.addEventListener('mousedown', this.mouseDownHandler);
         document.addEventListener('mouseup', this.mouseUpHandler);
         document.addEventListener('touchstart', this.touchStartHandler, { passive: false });
@@ -278,6 +291,7 @@ export class InputHandler {
     removeEventListeners() {
         document.removeEventListener('mousemove', this.mouseMoveHandler);
         document.removeEventListener('mouseleave', this.mouseLeaveHandler);
+        document.removeEventListener('mouseout', this.mouseOutHandler);
         document.removeEventListener('mousedown', this.mouseDownHandler);
         document.removeEventListener('mouseup', this.mouseUpHandler);
         document.removeEventListener('touchstart', this.touchStartHandler);
