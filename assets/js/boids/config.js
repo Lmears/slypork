@@ -33,6 +33,7 @@ export const OBSTACLE_ELEMENT_IDS = [
     'keith-logo',
     'dj-pretence-logo',
     'root-basis-logo',
+    'kerbyTitle',
 ];
 
 // --- Other Simulation parameters (mostly non-tweakable via new menu) ---
