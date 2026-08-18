@@ -94,7 +94,7 @@
                         <p class="mt-6">
                             <span
                                 class="inline-block rounded-full border border-kerbyPink bg-kerbyCream text-kerbyRed dark:border-kerbyDarkAccent dark:bg-kerbyDarkPanel dark:text-kerbyDarkText text-base font-light px-4 py-1">
-                                Closed beta &middot; <span data-kerby-version>v0.2.1</span>
+                                Closed beta &middot; <span data-kerby-version>v0.3.0</span>
                             </span>
                         </p>
                     </div>
@@ -256,7 +256,7 @@
 
                     <h2 class="text-xl pt-8">Where it's at:</h2>
                     <p class="ml-4 text-lg font-light pt-2">
-                        - Closed beta, <span data-kerby-version>v0.2.1</span>
+                        - Closed beta, <span data-kerby-version>v0.3.0</span>
                         <br>
                         - AU and VST3 on macOS, VST3 on Windows
                         <br>
@@ -284,13 +284,36 @@
                          never the attribute. -->
                     <!-- data-kerby-changelog:start -->
                     <div class="text-lg font-light">
-                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.1</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.3.0</span><span class="text-base opacity-75"> &middot; 2026-08-18</span></h3>
                         <h4 class="text-base pt-3 opacity-75">Added</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>Free-running rate.</strong> Each voice's Rate can run in Hz instead of a note division — right-click the Rate knob to switch.</li>
+                            <li><strong>A tempo wheel</strong>, at the right-hand end of the keyboard. It springs back on release but leaves the pattern where the bend put it. Right-click for range.</li>
+                            <li><strong>Reverb on the Kick</strong> — Amt, LP and Size on its More tab, ducked by the Bass's Sidechain curve.</li>
+                            <li><strong>Reverse</strong>, the new <strong>R</strong> in the header. It records one Kick rate period and plays it back reversed, so the hits return in reverse <em>order</em>, not just each hit backwards.</li>
+                            <li><strong>MIDI output — one short note per Kick pulse.</strong> Drives a compressor's MIDI trigger, a sampler, a gate. In Live it needs the VST3; the AU can't route MIDI out there.</li>
+                            <li><strong>A combined scope.</strong> The <strong>+</strong> between the two scopes merges them into one panel showing the summed output, tinted by which voice is responsible for it.</li>
+                            <li><strong>Both bends are parameters as well as wheels</strong>, so a controller with no bend wheel can reach them. Map the two to one macro for a tape stop.</li>
+                        </ul>
+                        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+                        <ul class="list-disc pl-5 pt-1 space-y-2">
+                            <li><strong>The scope gridlines sit on real pulses</strong>, which fixes dotted rates and unquantized note-ons. They also re-flow onto each Kick pulse, which makes Restart on Kick visible for the first time.</li>
+                            <li><strong>The Wave tab dims the part of the cycle a pulse never reaches</strong> — a low note under a fast Rate doesn't get all the way round the drawn waveform.</li>
+                            <li><strong>Muting the Bass no longer greys out its Duck tab</strong> while that curve is still shaping the Kick's reverb.</li>
+                            <li><strong>A level meter's clipping cap grows with the overshoot</strong>, instead of reading the same at 0.1dB over and 18dB over.</li>
+                            <li><strong>Shortcuts &amp; gestures</strong> (the logo button) now covers the mouse gestures too.</li>
+                            <li><strong>The scope grows with the window</strong>, instead of staying a fixed width.</li>
+                        </ul>
+                        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+                        <ul class="list-disc pl-5 pt-1 space-y-2">
+                            <li><strong>Hovering an envelope point looked like it would add one.</strong> It now previews the move.</li>
                         </ul>
                         <details class="pt-6">
                             <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
+                            <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.1</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+                            <h4 class="text-base pt-3 opacity-75">Added</h4>
+                            <ul class="list-disc pl-5 pt-1 space-y-2">
+                                <li><strong>Free-running rate.</strong> Each voice's Rate can run in Hz instead of a note division — right-click the Rate knob to switch.</li>
+                            </ul>
                             <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.0</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
                             <h4 class="text-base pt-3 opacity-75">Added</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
