@@ -1,4 +1,8 @@
-// /kerby/'s "hear when it's out" signup.
+// /kerby/'s "follow along" signup.
+//
+// One list, two things arriving on it: a changelog email with each beta build, and
+// word when KerBy is released. The page's copy names both - a signup that promised
+// only the release would make the build notes read as spam to whoever didn't ask.
 //
 // The form posts to Buttondown's public embed endpoint, which needs no API key -
 // so nothing secret ends up in the page source. Without JS the form still submits
@@ -56,8 +60,8 @@ function initNotifyForm() {
             form.innerHTML =
                 '<p class="text-lg font-light">Almost there — check your inbox and click the ' +
                 'confirmation link.</p>' +
-                '<p class="text-base font-light pt-2 opacity-75">If it doesn\'t turn up, have a ' +
-                'look in spam.</p>';
+                '<p class="text-base font-light pt-2 opacity-75">Then you\'ll get the changelog ' +
+                'with each new build. If it doesn\'t turn up, have a look in spam.</p>';
         }).catch(function () {
             button.disabled = false;
             button.textContent = buttonLabel;
