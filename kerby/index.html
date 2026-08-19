@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
-        content="KerBy — a tempo-synced kick and bass percussion synth. Two voices, the Bass ducked by the Kick, every envelope a curve you draw. Closed beta.">
+        content="KerBy, a tempo-synced kick and bass percussion synth. Two voices, the bass ducked by the kick, every envelope a curve you draw. Closed beta.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -81,14 +81,14 @@
                 <div class="visual-container" id="visualContainer">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <p class="text-lg font-light">
-                            KerBy is a one-stop shop for kick and bass generation I've been building. Two voices, with
-                            an opinion about how they relate: the Kick is the backbone, the Bass gets ducked out of its
+                            KerBy is a one-stop shop for kick and bass synthesis I've been building. Two voices, with
+                            an opinion about how they relate: the kick is the backbone, the bass gets ducked out of its
                             way, and neither ends up off the grid unless you ask it to. It's set up for kicks and
                             basslines, but can be used for much more.
                             <br><br>
-                            Every envelope in it is a curve — amp, pitch, filter, the duck, and the oscillator waveform
+                            Every envelope in it is a curve: amp, pitch, filter, the duck, and the oscillator waveform
                             itself. Start from a preset shape or draw your own. Hold a note and the clock plays the
-                            pattern for you, or feed it a rhythm and it follows — live with your hands on the knobs, or
+                            pattern for you, or feed it a rhythm and it follows, live with your hands on the knobs, or
                             as clips you launch or draw in.
                         </p>
                         <p class="mt-6">
@@ -102,11 +102,11 @@
             </article>
             <section class="visual-container-bottom" id="kerbyDetail">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
-                    <img src="../assets/images/software/KerBy_lightmode.png" width="1620" height="1160"
-                        alt="The KerBy plugin window: a Kick row above a Bass row, each with Rate, Length and Spread knobs, envelope tabs, a freeform curve editor, a level fader and a bar-synced scope."
+                    <img src="../assets/images/software/KerBy_lightmode.png" width="1620" height="1228"
+                        alt="The KerBy plugin window: a kick row above a bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
                         class="dark:hidden w-full rounded-xl border border-kerbyPink modal-trigger cursor-pointer">
-                    <img src="../assets/images/software/KerBy_darkmode.png" width="1620" height="1159" loading="lazy"
-                        alt="The KerBy plugin window in its dark theme: a Kick row above a Bass row, each with Rate, Length and Spread knobs, envelope tabs, a freeform curve editor, a level fader and a bar-synced scope."
+                    <img src="../assets/images/software/KerBy_darkmode.png" width="1620" height="1228" loading="lazy"
+                        alt="The KerBy plugin window in its dark theme: a kick row above a bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
                         class="hidden dark:block w-full rounded-xl border border-kerbyDarkAccent modal-trigger cursor-pointer">
 
                     <h2 class="text-xl pt-8">How it works:</h2>
@@ -114,9 +114,8 @@
                         <div class="pt-4 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
                                 <span class="text-kerbyRed dark:text-kerbyDarkText">Two voices, one clock.</span>
-                                Each runs at its own division, and the Bass restarts on every Kick pulse so the two
-                                read as one figure — switch that off and it free-runs. Clip length counts too: a dotted
-                                Kick under a one-bar clip resets each bar instead of drifting across them.
+                                Each runs at its own rate. The bass restarts
+                                on every kick pulse so the two read as one figure. Switch that off for a polyrhythm.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
                                 aria-hidden="true">
@@ -162,11 +161,11 @@
                         </div>
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
-                                <span class="text-kerbyRed dark:text-kerbyDarkText">The Bass is ducked by the
-                                    Kick.</span>
-                                The duck is a curve you draw, applied over a fixed quarter note after each Kick pulse,
-                                so
-                                it behaves the same at any Kick rate. A Duck amount takes it from off to full.
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">The bass is ducked by the
+                                    kick.</span>
+                                The duck is a curve you draw, played out after each kick pulse over a note
+                                division you set.
+                                The kick's reverb rides the same curve.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
                                 viewBox="0 0 320 150" aria-hidden="true">
@@ -252,6 +251,43 @@
                                 <circle cx="230" cy="75" r="6" fill="var(--kerby-strong)" />
                             </svg>
                         </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Made to be played.</span>
+                                The keyboard has a wheel at each end, one for pitch and one for tempo. Bend the
+                                tempo wheel mid-phrase for a stumble or glitch effect. <strong>R</strong> plays the
+                                output
+                                backwards, a kick period at a time.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
+                                aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <!-- the host's grid -->
+                                <g stroke="var(--kerby-grid)" stroke-width="1">
+                                    <line x1="20" y1="20" x2="20" y2="130" />
+                                    <line x1="90" y1="20" x2="90" y2="130" />
+                                    <line x1="160" y1="20" x2="160" y2="130" />
+                                    <line x1="230" y1="20" x2="230" y2="130" />
+                                    <line x1="300" y1="20" x2="300" y2="130" />
+                                </g>
+                                <!-- on the grid, and then bent off it as the wheel goes down -->
+                                <g fill="var(--kerby-accent)">
+                                    <rect x="18" y="30" width="4" height="32" rx="2" />
+                                    <rect x="88" y="30" width="4" height="32" rx="2" />
+                                    <rect x="158" y="30" width="4" height="32" rx="2" />
+                                    <rect x="228" y="30" width="4" height="32" rx="2" />
+                                    <rect x="298" y="30" width="4" height="32" rx="2" />
+                                </g>
+                                <g fill="var(--kerby-strong)">
+                                    <rect x="18" y="88" width="4" height="32" rx="2" />
+                                    <rect x="74" y="88" width="4" height="32" rx="2" />
+                                    <rect x="138" y="88" width="4" height="32" rx="2" />
+                                    <rect x="210" y="88" width="4" height="32" rx="2" />
+                                    <rect x="298" y="88" width="4" height="32" rx="2" />
+                                </g>
+                            </svg>
+                        </div>
                     </div>
 
                     <h2 class="text-xl pt-8">Where it's at:</h2>
@@ -262,7 +298,7 @@
                         <br>
                         - Built with JUCE, in C++
                         <br>
-                        - Not for sale — pricing isn't decided
+                        - Not for sale, pricing isn't decided
                     </p>
 
                     <h2 class="text-xl pt-8">What's new:</h2>
@@ -284,56 +320,82 @@
                          never the attribute. -->
                     <!-- data-kerby-changelog:start -->
                     <div class="text-lg font-light">
-                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.3.0</span><span class="text-base opacity-75"> &middot; 2026-08-18</span></h3>
+                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.3.0</span><span
+                                class="text-base opacity-75"> &middot; 2026-08-18</span></h3>
                         <h4 class="text-base pt-3 opacity-75">Added</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>A tempo wheel</strong>, at the right-hand end of the keyboard. Right-click for range.</li>
-                            <li><strong>Reverb on the Kick</strong> — Amt, LP and Size on its More tab, ducked by the Bass's Sidechain curve.</li>
-                            <li><strong>Reverse</strong>, the new <strong>R</strong> in the header. It records one Kick rate period and plays it back reversed.</li>
-                            <li><strong>MIDI output — one short note per Kick pulse</strong>, for sidechaining anything to the Kick. In Live this is VST3 only; other DAWs untested.</li>
-                            <li><strong>A combined scope.</strong> The <strong>+</strong> between the two scopes merges them into one panel showing the summed output.</li>
-                            <li><strong>The pitch and tempo wheels can be automated or mapped to hardware.</strong> Map both to one macro for a tape stop.</li>
+                            <li><strong>A tempo wheel</strong>, at the right-hand end of the keyboard. Right-click for
+                                range.</li>
+                            <li><strong>Reverb on the Kick</strong> — Amt, LP and Size on its More tab, ducked by the
+                                Bass's Sidechain curve.</li>
+                            <li><strong>Reverse</strong>, the new <strong>R</strong> in the header. It records one Kick
+                                rate period and plays it back reversed.</li>
+                            <li><strong>MIDI output — one short note per Kick pulse</strong>, for sidechaining anything
+                                to the Kick. In Live this is VST3 only; other DAWs untested.</li>
+                            <li><strong>A combined scope.</strong> The <strong>+</strong> between the two scopes merges
+                                them into one panel showing the summed output.</li>
+                            <li><strong>The pitch and tempo wheels can be automated or mapped to hardware.</strong> Map
+                                both to one macro for a tape stop.</li>
                         </ul>
                         <h4 class="text-base pt-3 opacity-75">Changed</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>The scope gridlines sit on real pulses</strong>, which fixes dotted rates and unquantized notes. With Restart on Kick on, the Bass's lines start again on each Kick pulse, so you can see what it's doing.</li>
-                            <li><strong>The Wave tab dims the part of the cycle a pulse never reaches</strong> — a low note under a fast Rate doesn't get all the way round the drawn waveform.</li>
-                            <li><strong>Muting the Bass no longer greys out its Duck tab</strong> while that curve is still shaping the Kick's reverb.</li>
+                            <li><strong>The scope gridlines sit on real pulses</strong>, which fixes dotted rates and
+                                unquantized notes. With Restart on Kick on, the Bass's lines start again on each Kick
+                                pulse, so you can see what it's doing.</li>
+                            <li><strong>The Wave tab dims the part of the cycle a pulse never reaches</strong> — a low
+                                note under a fast Rate doesn't get all the way round the drawn waveform.</li>
+                            <li><strong>Muting the Bass no longer greys out its Duck tab</strong> while that curve is
+                                still shaping the Kick's reverb.</li>
                             <li><strong>A level meter's clipping cap grows with the overshoot.</strong></li>
-                            <li><strong>The logo button lists every shortcut and mouse gesture in the plugin.</strong></li>
+                            <li><strong>The logo button lists every shortcut and mouse gesture in the plugin.</strong>
+                            </li>
                             <li><strong>The scope grows with the window.</strong></li>
                         </ul>
                         <h4 class="text-base pt-3 opacity-75">Fixed</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>Hovering an envelope point takes the same colour as hovering a line.</strong></li>
+                            <li><strong>Hovering an envelope point takes the same colour as hovering a line.</strong>
+                            </li>
                         </ul>
                         <details class="pt-6">
                             <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
-                            <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.1</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+                            <h3 class="text-lg pt-4"><span
+                                    class="text-kerbyRed dark:text-kerbyDarkText">v0.2.1</span><span
+                                    class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
                             <h4 class="text-base pt-3 opacity-75">Added</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
-                                <li><strong>Free-running rate.</strong> Each voice's Rate can run in Hz instead of a note division — right-click the Rate knob to switch.</li>
+                                <li><strong>Free-running rate.</strong> Each voice's Rate can run in Hz instead of a
+                                    note division — right-click the Rate knob to switch.</li>
                             </ul>
-                            <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.0</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+                            <h3 class="text-lg pt-4"><span
+                                    class="text-kerbyRed dark:text-kerbyDarkText">v0.2.0</span><span
+                                    class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
                             <h4 class="text-base pt-3 opacity-75">Added</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
-                                <li><strong>An on-screen keyboard, with a pitch wheel.</strong> Pitch bend from the host or a hardware wheel works now too.</li>
+                                <li><strong>An on-screen keyboard, with a pitch wheel.</strong> Pitch bend from the host
+                                    or a hardware wheel works now too.</li>
                                 <li><strong>A bottom bar, and a tooltip on every control.</strong></li>
-                                <li><strong>Bend, on the Bass</strong> — a continuous pitch offset, on its More tab.</li>
-                                <li><strong>Interface scale</strong>, 75–200%. Right-click the background or the resize corner.</li>
+                                <li><strong>Bend, on the Bass</strong> — a continuous pitch offset, on its More tab.
+                                </li>
+                                <li><strong>Interface scale</strong>, 75–200%. Right-click the background or the resize
+                                    corner.</li>
                             </ul>
                             <h4 class="text-base pt-3 opacity-75">Changed</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
-                                <li><strong>Dragging the window bigger grows the shape editor</strong>, rather than magnifying everything. Double-click the resize corner to reset it.</li>
-                                <li><strong>Value boxes are typeable and draggable.</strong> Hold Cmd to fine-adjust, double-click to reset.</li>
-                                <li><strong>Length moved</strong> out of the knob column onto the shape editor's control strip.</li>
+                                <li><strong>Dragging the window bigger grows the shape editor</strong>, rather than
+                                    magnifying everything. Double-click the resize corner to reset it.</li>
+                                <li><strong>Value boxes are typeable and draggable.</strong> Hold Cmd to fine-adjust,
+                                    double-click to reset.</li>
+                                <li><strong>Length moved</strong> out of the knob column onto the shape editor's control
+                                    strip.</li>
                                 <li><strong>Dragging a knob hides and pins the cursor.</strong></li>
                             </ul>
                             <h4 class="text-base pt-3 opacity-75">Fixed</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
                                 <li><strong>Resonance self-oscillated slightly off-pitch.</strong></li>
                             </ul>
-                            <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.1.x</span><span class="text-base opacity-75"> &middot; August 2026</span></h3>
+                            <h3 class="text-lg pt-4"><span
+                                    class="text-kerbyRed dark:text-kerbyDarkText">v0.1.x</span><span
+                                    class="text-base opacity-75"> &middot; August 2026</span></h3>
                             <h4 class="text-base pt-3 opacity-75">Notes</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
                                 <li><strong>The first tester drops</strong>, before this changelog existed.</li>
