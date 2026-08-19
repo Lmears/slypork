@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
-        content="KerBy — a tempo-synced kick and bass percussion synth. Two voices, the Bass ducked by the Kick, every envelope a curve you draw. Closed beta.">
+        content="KerBy, a tempo-synced kick and bass percussion synth. Two voices, the bass ducked by the kick, every envelope a curve you draw. Closed beta.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -82,13 +82,13 @@
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <p class="text-lg font-light">
                             KerBy is a one-stop shop for kick and bass synthesis I've been building. Two voices, with
-                            an opinion about how they relate: the Kick is the backbone, the Bass gets ducked out of its
+                            an opinion about how they relate: the kick is the backbone, the bass gets ducked out of its
                             way, and neither ends up off the grid unless you ask it to. It's set up for kicks and
                             basslines, but can be used for much more.
                             <br><br>
-                            Every envelope in it is a curve — amp, pitch, filter, the duck, and the oscillator waveform
+                            Every envelope in it is a curve: amp, pitch, filter, the duck, and the oscillator waveform
                             itself. Start from a preset shape or draw your own. Hold a note and the clock plays the
-                            pattern for you, or feed it a rhythm and it follows — live with your hands on the knobs, or
+                            pattern for you, or feed it a rhythm and it follows, live with your hands on the knobs, or
                             as clips you launch or draw in.
                         </p>
                         <p class="mt-6">
@@ -103,10 +103,10 @@
             <section class="visual-container-bottom" id="kerbyDetail">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
                     <img src="../assets/images/software/KerBy_lightmode.png" width="1620" height="1228"
-                        alt="The KerBy plugin window: a Kick row above a Bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
+                        alt="The KerBy plugin window: a kick row above a bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
                         class="dark:hidden w-full rounded-xl border border-kerbyPink modal-trigger cursor-pointer">
                     <img src="../assets/images/software/KerBy_darkmode.png" width="1620" height="1228" loading="lazy"
-                        alt="The KerBy plugin window in its dark theme: a Kick row above a Bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
+                        alt="The KerBy plugin window in its dark theme: a kick row above a bass row, each with Rate and Spread knobs, envelope tabs, a freeform curve editor showing its drawn waveform, a level fader and a bar-synced scope."
                         class="hidden dark:block w-full rounded-xl border border-kerbyDarkAccent modal-trigger cursor-pointer">
 
                     <h2 class="text-xl pt-8">How it works:</h2>
@@ -114,10 +114,8 @@
                         <div class="pt-4 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
                                 <span class="text-kerbyRed dark:text-kerbyDarkText">Two voices, one clock.</span>
-                                Each runs at its own rate — a note division, or free in Hz — and the Bass restarts
-                                on every Kick pulse so the two read as one figure. Switch that off for a polyrhythm.
-                                Clip length counts too: a dotted Kick under a one-bar clip resets each bar instead of
-                                drifting across them.
+                                Each runs at its own rate. The bass restarts
+                                on every kick pulse so the two read as one figure. Switch that off for a polyrhythm.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
                                 aria-hidden="true">
@@ -163,12 +161,11 @@
                         </div>
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
-                                <span class="text-kerbyRed dark:text-kerbyDarkText">The Bass is ducked by the
-                                    Kick.</span>
-                                The duck is a curve you draw, played out after each Kick pulse over a note
-                                division you set — its own, not the Kick's, so it behaves the same at any Kick rate.
-                                A Duck amount takes it from off to full. The Kick's reverb rides the same curve, so
-                                the tail pumps with it.
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">The bass is ducked by the
+                                    kick.</span>
+                                The duck is a curve you draw, played out after each kick pulse over a note
+                                division you set.
+                                The kick's reverb rides the same curve.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
                                 viewBox="0 0 320 150" aria-hidden="true">
@@ -257,10 +254,9 @@
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
                                 <span class="text-kerbyRed dark:text-kerbyDarkText">Made to be played.</span>
-                                The keyboard has a wheel at each end — one bends the pitch, the other bends the clock.
-                                Bend the clock mid-phrase for a stumble or a glitch, and with Quantize on, letting
-                                go walks the pattern back onto the grid. <strong>R</strong> plays the output backwards,
-                                a Kick period at a time, and both wheels take an automation lane or a hardware knob.
+                                The keyboard has a wheel at each end, one for pitch and one for the clock. Bend the
+                                clock mid-phrase for a stumble or a glitch. <strong>R</strong> plays the output
+                                backwards, a kick period at a time.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
                                 aria-hidden="true">
@@ -301,7 +297,7 @@
                         <br>
                         - Built with JUCE, in C++
                         <br>
-                        - Not for sale — pricing isn't decided
+                        - Not for sale, pricing isn't decided
                     </p>
 
                     <h2 class="text-xl pt-8">What's new:</h2>
