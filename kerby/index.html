@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
-        content="KerBy, a tempo-synced kick and bass percussion synth. Two voices, the bass ducked by the kick, every envelope a curve you draw. Closed beta.">
+        content="KerBy, a tempo-synced kick and bass percussion synth. Two voices, the bass ducked by the kick, every envelope a curve you draw, samples you drop in. Closed beta.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -87,14 +87,17 @@
                             basslines, but can be used for much more.
                             <br><br>
                             Every envelope in it is a curve: amp, pitch, filter, the duck, and the oscillator waveform
-                            itself. Start from a preset shape or draw your own. Hold a note and the clock plays the
-                            pattern for you, or feed it a rhythm and it follows, live with your hands on the knobs, or
-                            as clips you launch or draw in.
+                            itself. Start from a preset shape or draw your own, or drop an audio file onto a voice and
+                            it plays that instead, retriggered by the same clock.
+                            <br><br>
+                            There are two ways to play it. Hold a note down and the clock divides it into a pattern for
+                            you, live, with your hands on the knobs. Or turn Quantize off and draw short notes into a
+                            clip, and every hit lands where you put it.
                         </p>
                         <p class="mt-6">
                             <span
                                 class="inline-block rounded-full border border-kerbyPink bg-kerbyCream text-kerbyRed dark:border-kerbyDarkAccent dark:bg-kerbyDarkPanel dark:text-kerbyDarkText text-base font-light px-4 py-1">
-                                Closed beta &middot; <span data-kerby-version>v0.5.0</span>
+                                Closed beta &middot; <span data-kerby-version>v0.6.0</span>
                             </span>
                         </p>
                     </div>
@@ -194,7 +197,7 @@
                             <p class="fig-row:flex-1">
                                 <span class="text-kerbyRed dark:text-kerbyDarkText">Everything is drawn.</span>
                                 Amp, pitch, filter, the duck and the waveform all share one editor. Click to add a
-                                point, drag to move it, Cmd-drag to bend a segment.
+                                point, drag to move it, Option-drag (Alt on Windows) to bend a segment.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
                                 aria-hidden="true">
@@ -225,13 +228,44 @@
                         </div>
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
-                                <span class="text-kerbyRed dark:text-kerbyDarkText">On the grid, when you want
-                                    it.</span>
-                                Quantize (Q) keeps the notes snapped to the grid. Launch with Kick (K) starts both
-                                voices together, instead of letting the faster one in first.
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Or drop in a sample.</span>
+                                Drag an audio file onto a voice's Wave tab and it plays that instead of the drawn
+                                shape, trimmed to the part you want, retriggered by the same clock and pitched by
+                                the note you play.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
                                 viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <line x1="1" y1="75" x2="319" y2="75" stroke="var(--kerby-grid)" stroke-width="1" />
+                                <!-- the part of the file the trim leaves out -->
+                                <path d="M232 69 L255 71 L275 73 L300 74 L300 76 L275 77 L255 79 L232 81 Z"
+                                    fill="var(--kerby-grid)" />
+                                <!-- the trimmed region, played from phase 0 to 1 -->
+                                <path
+                                    d="M30 75 L40 23 L55 31 L75 39 L100 46 L130 53 L165 60 L200 65 L232 69 L232 81 L200 85 L165 90 L130 97 L100 104 L75 111 L55 119 L40 127 Z"
+                                    fill="var(--kerby-strong)" />
+                                <!-- the two trim handles -->
+                                <g stroke="var(--kerby-ink)" stroke-width="2">
+                                    <line x1="30" y1="24" x2="30" y2="126" />
+                                    <line x1="232" y1="24" x2="232" y2="126" />
+                                </g>
+                                <g fill="var(--kerby-ink)">
+                                    <rect x="26" y="18" width="9" height="9" rx="2" />
+                                    <rect x="228" y="18" width="9" height="9" rx="2" />
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">On the grid, when you want
+                                    it.</span>
+                                Quantize (Q) holds notes to the grid, so a chord grabbed halfway through a beat
+                                still comes in on it. Turn it off and each note fires where you played it. Launch with
+                                Kick (K) starts both voices together, instead of letting the faster one in first.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0" viewBox="0 0 320 150"
+                                aria-hidden="true">
                                 <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
                                     stroke="var(--kerby-accent)" stroke-width="1" />
                                 <!-- a note arriving early, held back onto the line -->
@@ -249,6 +283,49 @@
                                 <path d="M213 69 L 220 75 L 213 81" fill="none" stroke="var(--kerby-strong)"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 <circle cx="230" cy="75" r="6" fill="var(--kerby-strong)" />
+                            </svg>
+                        </div>
+                        <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
+                            <p class="fig-row:flex-1">
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Steps, under the bass.</span>
+                                A row of boxes saying which of its pulses actually sound, which is how an even run
+                                of them becomes a bassline. Drag a box up or down to tune that step, 24 semitones
+                                either way.
+                            </p>
+                            <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
+                                viewBox="0 0 320 150" aria-hidden="true">
+                                <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                    stroke="var(--kerby-accent)" stroke-width="1" />
+                                <!-- drag up or down to tune the step under it -->
+                                <g stroke="var(--kerby-ink)" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" fill="none">
+                                    <line x1="178" y1="28" x2="178" y2="52" />
+                                    <path d="M172 34 L178 28 L184 34" />
+                                    <path d="M172 46 L178 52 L184 46" />
+                                </g>
+                                <!-- eight boxes: filled sounds, hollow doesn't -->
+                                <g fill="var(--kerby-strong)">
+                                    <rect x="19" y="60" width="30" height="30" rx="5" />
+                                    <rect x="91" y="60" width="30" height="30" rx="5" />
+                                    <rect x="163" y="60" width="30" height="30" rx="5" />
+                                    <rect x="199" y="60" width="30" height="30" rx="5" />
+                                    <rect x="271" y="60" width="30" height="30" rx="5" />
+                                </g>
+                                <g fill="none" stroke="var(--kerby-grid)" stroke-width="2">
+                                    <rect x="55" y="60" width="30" height="30" rx="5" />
+                                    <rect x="127" y="60" width="30" height="30" rx="5" />
+                                    <rect x="235" y="60" width="30" height="30" rx="5" />
+                                </g>
+                                <text x="178" y="80" text-anchor="middle" font-size="13"
+                                    fill="var(--kerby-panel)">+7</text>
+                                <!-- the pulses the boxes let through -->
+                                <g fill="var(--kerby-accent)">
+                                    <rect x="32" y="104" width="4" height="22" rx="2" />
+                                    <rect x="104" y="104" width="4" height="22" rx="2" />
+                                    <rect x="176" y="104" width="4" height="22" rx="2" />
+                                    <rect x="212" y="104" width="4" height="22" rx="2" />
+                                    <rect x="284" y="104" width="4" height="22" rx="2" />
+                                </g>
                             </svg>
                         </div>
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
@@ -290,9 +367,24 @@
                         </div>
                     </div>
 
+                    <h2 class="text-xl pt-8">Also in there:</h2>
+                    <p class="ml-4 text-lg font-light pt-2">
+                        - Presets, and a menu of starting shapes on every curve
+                        <br>
+                        - FM, noise and crush on both voices, resonance and glide on the bass
+                        <br>
+                        - Reverb on the kick, riding the same duck curve the bass does
+                        <br>
+                        - Free-running rates in Hz, for coming off the grid entirely
+                        <br>
+                        - A MIDI note out on every kick pulse, for sidechaining anything else
+                        <br>
+                        - Interface scale 75-200%, and a tooltip on every control
+                    </p>
+
                     <h2 class="text-xl pt-8">Where it's at:</h2>
                     <p class="ml-4 text-lg font-light pt-2">
-                        - Closed beta, <span data-kerby-version>v0.5.0</span>
+                        - Closed beta, <span data-kerby-version>v0.6.0</span>
                         <br>
                         - AU and VST3 on macOS, VST3 on Windows
                         <br>
@@ -320,19 +412,40 @@
                          never the attribute. -->
                     <!-- data-kerby-changelog:start -->
                     <div class="text-lg font-light">
-                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.5.0</span><span class="text-base opacity-75"> &middot; 2026-08-22</span></h3>
+                        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.6.0</span><span class="text-base opacity-75"> &middot; 2026-09-06</span></h3>
                         <h4 class="text-base pt-3 opacity-75">Added</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>Grid divisions on the shape editor's strip</strong>, X and Y, between the zoom bar and Length. They rule the gridlines and set what Shift+drag snaps to.</li>
-                            <li><strong>Random Steps and Random Curves</strong>, at the foot of the shape editor's right-click menu. Both draw one step per X division with every level on a Y gridline.</li>
+                            <li><strong>Drop an audio file on a voice's Wave tab and that voice plays it as a one-shot</strong> instead of its drawn waveform, retriggered by the same pulse clock.</li>
+                            <li><strong>A step row under the Bass masks which of its pulses actually sound, and tunes them.</strong> Drag a box up or down for ±24 semitones on that step. Show the row from the bottom bar.</li>
+                            <li><strong>Key, on both voices' More tabs</strong> — pins that voice to one note, so what you play only triggers it.</li>
+                            <li><strong>Crush, on both voices' More tabs.</strong> Sample rate reduction.</li>
+                            <li><strong>A bypass box on the Pitch, Filter and Duck tabs.</strong></li>
                         </ul>
                         <h4 class="text-base pt-3 opacity-75">Changed</h4>
                         <ul class="list-disc pl-5 pt-1 space-y-2">
-                            <li><strong>Letting go of the tempo wheel puts the pattern back on the grid at once</strong>, rather than walking it there over the following bar. <strong>Walk back</strong>, at the bottom of the wheel's right-click menu, ramps it there over the next bar instead, with Quantize on.</li>
-                            <li><strong>Bending a curve in the shape editor is Option+drag</strong> (Alt on Windows), not Cmd.</li>
+                            <li><strong>The More tab's knobs are bracketed into named runs.</strong></li>
+                            <li><strong>Reset window size is now an item in the right-click scale menu.</strong></li>
+                        </ul>
+                        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+                        <ul class="list-disc pl-5 pt-1 space-y-2">
+                            <li><strong>Turning Rate to a faster division while a note is held speeds the pulse up immediately</strong>, rather than waiting up to four beats for the slower rate's already-scheduled pulse to arrive first.</li>
+                            <li><strong>Sweeping a free-running Rate in Hz now accelerates smoothly</strong>, rather than lurching the other way on some pulses.</li>
+                            <li><strong>Spread no longer eats headroom under FM.</strong></li>
+                            <li><strong>Noise follows Spread</strong>, widening with the oscillators instead of staying centred.</li>
                         </ul>
                         <details class="pt-6">
                             <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
+                            <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.5.0</span><span class="text-base opacity-75"> &middot; 2026-08-22</span></h3>
+                            <h4 class="text-base pt-3 opacity-75">Added</h4>
+                            <ul class="list-disc pl-5 pt-1 space-y-2">
+                                <li><strong>Grid divisions on the shape editor's strip</strong>, X and Y, between the zoom bar and Length. They rule the gridlines and set what Shift+drag snaps to.</li>
+                                <li><strong>Random Steps and Random Curves</strong>, at the foot of the shape editor's right-click menu. Both draw one step per X division with every level on a Y gridline.</li>
+                            </ul>
+                            <h4 class="text-base pt-3 opacity-75">Changed</h4>
+                            <ul class="list-disc pl-5 pt-1 space-y-2">
+                                <li><strong>Letting go of the tempo wheel puts the pattern back on the grid at once</strong>, rather than walking it there over the following bar. <strong>Walk back</strong>, at the bottom of the wheel's right-click menu, ramps it there over the next bar instead, with Quantize on.</li>
+                                <li><strong>Bending a curve in the shape editor is Option+drag</strong> (Alt on Windows), not Cmd.</li>
+                            </ul>
                             <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.4.0</span><span class="text-base opacity-75"> &middot; 2026-08-20</span></h3>
                             <h4 class="text-base pt-3 opacity-75">Added</h4>
                             <ul class="list-disc pl-5 pt-1 space-y-2">
