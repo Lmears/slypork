@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
-        content="KerBy, a tempo-synced kick and bass percussion synth. Two voices, the bass ducked by the kick, every envelope a curve you draw, samples you drop in. Closed beta.">
+        content="KerBy, a tempo-synced kick and bass instrument. Two voices, the bass ducked by the kick, every envelope a curve you draw, samples you drop in. Closed beta.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -81,7 +81,7 @@
                 <div class="visual-container" id="visualContainer">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <p class="text-lg font-light">
-                            KerBy is a one-stop shop for kick and bass synthesis I've been building. Two voices, with
+                            KerBy is a one-stop shop for kick and bass I've been building. Two voices, with
                             an opinion about how they relate: the kick is the backbone, the bass gets ducked out of its
                             way, and neither ends up off the grid unless you ask it to. It's set up for kicks and
                             basslines, but can be used for much more.
@@ -116,7 +116,7 @@
                     <div class="text-lg font-light">
                         <div class="pt-4 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
-                                <span class="text-kerbyRed dark:text-kerbyDarkText">Two voices, one clock.</span>
+                                <span class="text-kerbyRed dark:text-kerbyDarkText">Two voices, in step.</span>
                                 Each runs at its own rate. The bass restarts
                                 on every kick pulse so the two read as one figure. Switch that off for a polymeter.
                             </p>
@@ -239,12 +239,11 @@
                                     stroke="var(--kerby-accent)" stroke-width="1" />
                                 <line x1="1" y1="75" x2="319" y2="75" stroke="var(--kerby-grid)" stroke-width="1" />
                                 <!-- the part of the file the trim leaves out -->
-                                <path d="M232 69 L255 71 L275 73 L300 74 L300 76 L275 77 L255 79 L232 81 Z"
-                                    fill="var(--kerby-grid)" />
+                                <path d="M232 69.1 L233.5 69.5 L235 71.3 L236.5 74 L238 76.9 L239.5 79.2 L241 80.3 L242.5 80 L244 78.4 L245.5 75.9 L247 73.3 L248.5 71.2 L250 70.1 L251.5 70.4 L253 71.9 L254.5 74.2 L256 76.6 L257.5 78.5 L259 79.4 L260.5 79.2 L262 77.8 L263.5 75.7 L265 73.6 L266.5 71.8 L268 71 L269.5 71.2 L271 72.5 L272.5 74.3 L274 76.3 L275.5 77.9 L277 78.7 L278.5 78.4 L280 77.3 L281.5 75.6 L283 73.8 L284.5 72.4 L286 71.7 L287.5 71.9 L289 72.9 L290.5 74.4 L292 76.1 L293.5 77.4 L295 78 L296.5 77.8 L298 76.9 L299.5 75.5" fill="none" stroke="var(--kerby-grid)" stroke-width="1.5"
+                                    stroke-linejoin="round" />
                                 <!-- the trimmed region, played from phase 0 to 1 -->
-                                <path
-                                    d="M30 75 L40 23 L55 31 L75 39 L100 46 L130 53 L165 60 L200 65 L232 69 L232 81 L200 85 L165 90 L130 97 L100 104 L75 111 L55 119 L40 127 Z"
-                                    fill="var(--kerby-strong)" />
+                                <path d="M30 75 L31.5 67.6 L33 49.8 L34.5 32.1 L36 34.3 L37.5 51.9 L39 75 L40.5 97.4 L42 113.2 L43.5 118.4 L45 112 L46.5 96 L48 75 L49.5 54.6 L51 40.3 L52.5 35.5 L54 41.4 L55.5 55.9 L57 75 L58.5 93.5 L60 106.6 L61.5 110.9 L63 105.6 L64.5 92.4 L66 75 L67.5 58.2 L69 46.3 L70.5 42.4 L72 47.2 L73.5 59.2 L75 75 L76.5 90.3 L78 101.1 L79.5 104.7 L81 100.3 L82.5 89.4 L84 75 L85.5 61.1 L87 51.2 L88.5 48 L90 52 L91.5 61.9 L93 75 L94.5 87.7 L96 96.6 L97.5 99.6 L99 95.9 L100.5 86.9 L102 75 L103.5 63.5 L105 55.3 L106.5 52.7 L108 55.9 L109.5 64.2 L111 75 L112.5 85.5 L114 92.9 L115.5 95.3 L117 92.3 L118.5 84.8 L120 75 L121.5 65.5 L123 58.7 L124.5 56.5 L126 59.2 L127.5 66 L129 75 L130.5 83.7 L132 89.8 L133.5 91.8 L135 89.3 L136.5 83.1 L138 75 L139.5 67.1 L141 61.5 L142.5 59.7 L144 62 L145.5 67.6 L147 75 L148.5 82.2 L150 87.2 L151.5 88.9 L153 86.9 L154.5 81.7 L156 75 L157.5 68.5 L159 63.9 L160.5 62.3 L162 64.2 L163.5 68.9 L165 75 L166.5 80.9 L168 85.1 L169.5 86.5 L171 84.8 L172.5 80.6 L174 75 L175.5 69.6 L177 65.8 L178.5 64.5 L180 66.1 L181.5 69.9 L183 75 L184.5 79.9 L186 83.4 L187.5 84.5 L189 83.1 L190.5 79.6 L192 75 L193.5 70.5 L195 67.4 L196.5 66.3 L198 67.6 L199.5 70.8 L201 75 L202.5 79.1 L204 81.9 L205.5 82.9 L207 81.7 L208.5 78.8 L210 75 L211.5 71.3 L213 68.7 L214.5 67.8 L216 68.9 L217.5 71.5 L219 75 L220.5 78.4 L222 80.7 L223.5 81.5 L225 80.6 L226.5 78.2 L228 75 L229.5 71.9 L231 69.8 L232 69.1" fill="none" stroke="var(--kerby-strong)" stroke-width="1.5"
+                                    stroke-linejoin="round" />
                                 <!-- the two trim handles -->
                                 <g stroke="var(--kerby-ink)" stroke-width="2">
                                     <line x1="30" y1="24" x2="30" y2="126" />
@@ -288,9 +287,9 @@
                         <div class="pt-6 flex flex-col fig-row:flex-row fig-row:items-center gap-3 fig-row:gap-6">
                             <p class="fig-row:flex-1">
                                 <span class="text-kerbyRed dark:text-kerbyDarkText">Steps, under the bass.</span>
-                                A row of boxes saying which of its pulses actually sound, which is how an even run
-                                of them becomes a bassline. Drag a box up or down to tune that step, 24 semitones
-                                either way.
+                                Optional, for when you want a rhythm rather than an even pulse: a row of boxes
+                                saying which of the bass's pulses actually sound. Drag a box up or down to tune that
+                                step, 24 semitones either way.
                             </p>
                             <svg class="kerby-fig w-full fig-row:w-72 fig-row:shrink-0 fig-row:order-first"
                                 viewBox="0 0 320 150" aria-hidden="true">
@@ -373,13 +372,14 @@
                         <br>
                         - FM, noise and crush on both voices, resonance and glide on the bass
                         <br>
-                        - Reverb on the kick, riding the same duck curve the bass does
-                        <br>
                         - Free-running rates in Hz, for coming off the grid entirely
                         <br>
                         - A MIDI note out on every kick pulse, for sidechaining anything else
                         <br>
-                        - Interface scale 75-200%, and a tooltip on every control
+                        - A window you stretch rather than zoom, so the extra room goes to the shape
+                        editor and the scopes, with 75-200% scaling if you'd rather
+                        <br>
+                        - A tooltip on every control
                     </p>
 
                     <h2 class="text-xl pt-8">Where it's at:</h2>
