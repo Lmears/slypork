@@ -1,8 +1,6 @@
 // Utility functions
 function getLogoPath(file) {
-    var atRoot = window.location.pathname === '/';
-    var baseURL = atRoot ? 'assets/images/' : '../assets/images/';
-    return baseURL + file;
+    return '/assets/images/' + file;
 }
 
 // Easing function

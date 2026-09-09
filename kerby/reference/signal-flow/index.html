@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Signal flow | KerBy | Slypork</title>
+    <meta name="description"
+        content="A signal-flow diagram of KerBy’s kick, Click layer, bass, processing, ducking, reverb and output.">
+    <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
+    <link href="/assets/css/output.css" rel="stylesheet">
+    <link href="/assets/css/kerby.css" rel="stylesheet">
+</head>
+
+<body class="text-neutral-900 dark:text-neutral-100">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="/assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
+    </div>
+    <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced">
+        <header class="pinned-nav">
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
+                <ul id="navLinks"
+                    class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
+                    <li
+                        class="group-[.nav-active]:pb-4 sm:group-[.nav-active]:pb-0 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
+                        <a href="/" id="homeLink" class="p-1 block">
+                            <img src="/assets/images/slypork_logo.svg" alt="Home"
+                                class="w-[64px] sm:w-[48px] md:w-[80px] aspect-[80/65.94] home-logo">
+                        </a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/about/" id="aboutLink">
+                            <span class="nav-link-text">About</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/mastering/" id="masteringLink">
+                            <span class="nav-link-text">Mastering</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/music/" id="musicLink">
+                            <span class="nav-link-text">Music</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/design/" id="designLink">
+                            <span class="nav-link-text">Design</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/software/" id="softwareLink">
+                            <span class="nav-link-text">Software</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/contact/" id="contactLink">
+                            <span class="nav-link-text">Contact</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content" class="kerby-content flex-1 md:px-4 flex flex-col">
+            <div class="kerby-header">
+                <a class="kerby-brand font-kerby" href="/kerby/" aria-label="KerBy overview">KerBy</a>
+                <nav class="kerby-nav" aria-label="KerBy"><div><a href="/kerby/">Overview</a><a href="/kerby/learn/">Learn</a><a href="/kerby/reference/" aria-current="location">Reference</a></div></nav>
+            </div>
+            <div class="visual-container kerby-frame">
+                <div class="kerby-page kerby-doc">
+                    <header class="kerby-doc-header"><a class="link-underline kerby-back" href="/kerby/reference/">← Reference</a><p class="kerby-eyebrow">Signal flow</p><h1 class="kerby-doc-title">Follow the sound.</h1><p class="kerby-lead">From the two sources to the space between them.</p><p class="kerby-doc-meta">Checked against KerBy 0.7.0 · 8 September 2026</p></header>
+<article class="kerby-prose">
+<p>The kick and bass are generated separately. The kick also feeds a reverb, and its pulses restart the ducking curve that controls both the bass and the reverb tail.</p>
+<p class="kerby-map-hint">Select a box to read more. On a narrow screen, scroll the map sideways.</p>
+<figure class="kerby-signal-map">
+<div class="kerby-map-scroll" tabindex="0" role="region" aria-label="Signal-flow diagram, horizontally scrollable">
+<svg viewBox="0 0 720 618" role="img" aria-labelledby="signalTitle signalDesc">
+<title id="signalTitle">KerBy audio and ducking signal flow</title>
+<desc id="signalDesc">The kick splits into dry audio and a reverb send. Kick pulses control the Duck curve, which acts on the bass and the filtered reverb. Dry kick and ducked reverb recombine with level compensation. Each voice then passes through Reverse and its meters and scopes. The voices sum into the output soft clipper.</desc>
+<defs><marker id="audioArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--kb-ink)"/></marker><marker id="controlArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--kb-ink)"/></marker></defs>
+<g class="kerby-audio-wire">
+<path d="M174 88V112H80V350H160" marker-end="url(#audioArrow)"/>
+<path d="M174 112H270V152" marker-end="url(#audioArrow)"/>
+<path d="M270 212V262" marker-end="url(#audioArrow)"/>
+<path d="M270 314V350H188" marker-end="url(#audioArrow)"/>
+<path d="M558 88V262" marker-end="url(#audioArrow)"/>
+<path d="M174 364V389" marker-end="url(#audioArrow)"/>
+<path d="M558 314V389" marker-end="url(#audioArrow)"/>
+<path d="M174 461V495H360V534" marker-end="url(#audioArrow)"/>
+<path d="M558 461V495H360"/>
+</g>
+<g class="kerby-control-wire">
+<path d="M324 56H410V152" marker-end="url(#controlArrow)"/>
+<path d="M410 212V238H330V285" marker-end="url(#controlArrow)"/>
+<path d="M410 238H490V285" marker-end="url(#controlArrow)"/>
+</g>
+<g class="kerby-map-label"><text x="92" y="204">Dry kick</text><text x="204" y="133">Send</text><text x="421" y="119">Kick pulses</text></g>
+<a href="#kick" class="kerby-map-node"><rect x="24" y="24" width="300" height="64" rx="8"/><text x="174" y="51.5">Kick source + Click</text><text x="174" y="70.5">Crush → Volume</text></a>
+<a href="#bass" class="kerby-map-node"><rect x="420" y="24" width="276" height="64" rx="8"/><text x="558" y="51.5">Bass source + processing</text><text x="558" y="70.5">Crush → Volume</text></a>
+<a href="/kerby/reference/#duck-reverb" class="kerby-map-node"><rect x="210" y="152" width="120" height="60" rx="8"/><text x="270" y="177.5">Reverb</text><text x="270" y="196.5">→ LP</text></a>
+<a href="/kerby/reference/#duck-reverb" class="kerby-map-node"><rect x="350" y="152" width="120" height="60" rx="8"/><text x="410" y="177.5">Duck curve</text><text x="410" y="196.5">+ Amt</text></a>
+<a href="#mix" class="kerby-map-node"><rect x="210" y="262" width="120" height="52" rx="8"/><text x="270" y="293">Duck gain</text></a>
+<a href="#mix" class="kerby-map-node"><rect x="490" y="262" width="136" height="52" rx="8"/><text x="558" y="293">Duck gain</text></a>
+<circle class="kerby-map-sum" cx="174" cy="350" r="14"/><text class="kerby-map-plus" x="174" y="356">+</text>
+<a href="#mix" class="kerby-map-node"><rect x="24" y="389" width="300" height="72" rx="8"/><text x="174" y="420.5">Reverb level compensation</text><text x="174" y="439.5">→ Reverse → meters / scopes</text></a>
+<a href="#mix" class="kerby-map-node"><rect x="420" y="389" width="276" height="72" rx="8"/><text x="558" y="420.5">Reverse</text><text x="558" y="439.5">→ meters / scopes</text></a>
+<a href="#mix" class="kerby-map-node"><rect x="230" y="534" width="260" height="60" rx="8"/><text x="360" y="559.5">Sum both voices</text><text x="360" y="578.5">→ soft clip → output</text></a>
+</svg></div><figcaption>Solid lines carry audio. Dashed lines carry ducking control. Voice processing is expanded below.</figcaption></figure>
+<section id="kick"><h2>Inside the kick</h2><p>The main source and the Click layer have separate envelopes. They join before Crush and the kick’s volume control.</p>
+<div class="kerby-flow-branches"><div><h3>Main source</h3><ol class="kerby-flow-path"><li><a href="/kerby/reference/#samples">Oscillator or Wave sample</a><span>Pitch, FM and Spread act here</span></li><li><a href="/kerby/reference/#colour">+ Noise</a></li><li><a href="/kerby/reference/#colour">Tone</a></li><li><a href="/kerby/reference/#shapes">Amp envelope</a></li></ol></div>
+<div><h3>Click layer</h3><ol class="kerby-flow-path"><li><a href="/kerby/reference/#click">Click sample</a><span>Own Pitch and optional key tracking; FM also reaches it</span></li><li><a href="/kerby/reference/#colour">Tone</a></li><li><a href="/kerby/reference/#click">Click envelope</a></li><li><a href="/kerby/reference/#click">HP → Click Amt</a></li></ol></div></div>
+<div class="kerby-flow-join"><ol class="kerby-flow-path"><li><a href="#kick">Combine main + Click</a></li><li><a href="/kerby/reference/#colour">Crush → Volume</a><span>Then split into dry kick and reverb send</span></li></ol></div>
+<p>Tone uses the same setting on both branches, before each branch’s envelope. Crush reduces the sample rate of their combined output. Noise and Spread shape the main source, leaving the Click layer’s own sound separate.</p>
+</section>
+<section id="bass"><h2>Inside the bass</h2><div class="kerby-bass-chain"><ol class="kerby-flow-path"><li><a href="/kerby/reference/#samples">Oscillator or Wave sample</a><span>Pitch, FM and Spread</span></li><li><a href="/kerby/reference/#shapes">Filter + Reso</a><span>Cutoff follows the Filter envelope</span></li><li><a href="/kerby/reference/#colour">+ Noise</a><span>Noise is shaped separately to follow the cutoff</span></li><li><a href="/kerby/reference/#colour">Tone → Amp envelope</a></li><li><a href="/kerby/reference/#colour">Crush → Volume</a></li><li><a href="/kerby/reference/#duck-reverb">Duck gain</a><span>Then Reverse and meters / scopes</span></li></ol></div>
+<p>The noise joins after the main filter, but has its own filtering that follows the same cutoff. Turning off the Filter tab opens the cutoff; it does not remove the stages that follow it.</p></section>
+<section id="mix"><h2>Where the voices meet</h2>
+<dl><dt>Reverb</dt><dd>The kick’s output feeds the send. Reverb and its LP filter come before ducking. The ducked tail rejoins the dry kick, with level compensation as the send increases.</dd><dt>Duck</dt><dd>Kick pulses restart the curve. The resulting gain, including Duck Amt and bypass, multiplies the bass and the wet reverb. It does not multiply the dry kick.</dd><dt>Reverse</dt><dd>Works on each voice’s finished audio, after ducking and reverb. A reversed kick therefore includes its reverb tail.</dd><dt>Meters and scopes</dt><dd>Read the finished voices after Reverse, before the master sum and output clipper.</dd><dt>Output</dt><dd>The two voices are added together, then pass through an always-on soft clipper. A voice’s meter can show a peak above 0 dB even though the final output is bounded.</dd></dl>
+<p>This map describes the sound path. The <a href="/kerby/reference/#timing" class="link-underline">pulse clock and launch settings</a> decide when a voice starts; the <a href="/kerby/reference/#steps" class="link-underline">bass step row</a> decides which pulses play. They are controls on the path, rather than effects inserted into it.</p>
+</section>
+<p class="kerby-end-link"><a href="/kerby/learn/shape-the-duck/" class="link-underline">Put the map to use: shape the duck →</a></p></article>
+            </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div id="myModal" class="modal">
+            <img class="modal-content" id="modalImage">
+        </div>
+
+    </main>
+    <script src="/assets/js/kerby.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/boids/simulation.js" type="module"></script>
+    <div class="easter-egg" id="easterEgg"></div>
+    <script src="/assets/js/boids/easter-egg.js" type="module"></script>
+</body>
+
+</html>
