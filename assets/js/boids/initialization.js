@@ -160,7 +160,7 @@ function initializeUI(state) {
  * Loads and prepares the boid image as ImageBitmap
  */
 async function loadAndPrepareImage(state) {
-    const response = await fetch('../assets/images/boid-logo.webp');
+    const response = await fetch('/assets/images/boid-logo.webp');
     if (!response.ok) {
         throw new Error('Failed to fetch boid image');
     }
@@ -283,4 +283,3 @@ function closeNavMenu() {
         window.closeNavMenu();
     }
 }
-

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Learn | KerBy | Slypork</title>
+    <meta name="description"
+        content="An illustrated tour of KerBy, with practical guides to patterns, ducking and layering samples.">
+    <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
+    <link href="/assets/css/output.css" rel="stylesheet">
+    <link href="/assets/css/kerby.css" rel="stylesheet">
+</head>
+
+<body class="text-neutral-900 dark:text-neutral-100">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="/assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
+    </div>
+    <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced">
+        <header class="pinned-nav">
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
+                <ul id="navLinks"
+                    class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
+                    <li
+                        class="group-[.nav-active]:pb-4 sm:group-[.nav-active]:pb-0 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
+                        <a href="/" id="homeLink" class="p-1 block">
+                            <img src="/assets/images/slypork_logo.svg" alt="Home"
+                                class="w-[64px] sm:w-[48px] md:w-[80px] aspect-[80/65.94] home-logo">
+                        </a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/about/" id="aboutLink">
+                            <span class="nav-link-text">About</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/mastering/" id="masteringLink">
+                            <span class="nav-link-text">Mastering</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/music/" id="musicLink">
+                            <span class="nav-link-text">Music</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/design/" id="designLink">
+                            <span class="nav-link-text">Design</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/software/" id="softwareLink">
+                            <span class="nav-link-text">Software</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/contact/" id="contactLink">
+                            <span class="nav-link-text">Contact</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content" class="kerby-content flex-1 md:px-4 flex flex-col">
+            <div class="kerby-header">
+                <a class="kerby-brand font-kerby" href="/kerby/" aria-label="KerBy overview">KerBy</a>
+                <nav class="kerby-nav" aria-label="KerBy">
+                    <div><a href="/kerby/">Overview</a><span aria-current="page">Learn</span><a
+                            href="/kerby/reference/">Reference</a></div>
+                </nav>
+            </div>
+            <div class="visual-container kerby-frame">
+                <div class="kerby-page kerby-doc">
+                    <header class="kerby-doc-header">
+                        <p class="kerby-eyebrow">Learn KerBy</p>
+
+                        <h1 class="kerby-doc-title">A feel for the instrument.</h1>
+                        <p class="kerby-lead">What the pieces do together, and where to take them next.</p>
+                        <p><a class="link-underline kerby-text-link" href="#tour">Take the illustrated tour ↓</a>, or
+                            pick a guide and follow along in your DAW.</p>
+                    </header>
+                    <nav class="kerby-guide-list" aria-label="Practical guides">
+                        <a href="/kerby/learn/first-pattern/"><span>Start here</span><strong>Your
+                                first kick &amp; bass pattern</strong><span>Get playing, add gaps, and keep the kick in
+                                tune.</span></a>
+                        <a href="/kerby/learn/shape-the-duck/"><span>Sound &amp;
+                                groove</span><strong>Find the space between the hits</strong><span>Balance the kick’s
+                                tail, bass length and ducking.</span></a>
+                        <a href="/kerby/learn/layer-a-click/"><span>Sound
+                                design</span><strong>Add an attack with a sample</strong><span>Use the Click layer
+                                without losing the kick’s body.</span></a>
+                    </nav>
+                    <article class="kerby-prose" id="tour">
+                        <div class="kerby-article-heading">
+                            <p class="kerby-eyebrow">The illustrated tour</p>
+                            <h2>Two voices, with a relationship.</h2>
+                        </div>
+                        <p>The kick and bass each have a sound and a rhythm of their own. What makes KerBy useful is
+                            being able to work on the way they meet: when the bass starts, how it moves between notes,
+                            and how much room it leaves around the kick.</p>
+                        <aside class="kerby-callout">
+                            <h2>How it started</h2>
+                            <p>I built KerBy around the way I like to play: a steady four-to-the-floor kick, with a turn
+                                of Rate for a stutter at the end of a phrase or a little glitch on the way back in.
+                                Testing with producers whose music worked differently led to Draw mode. That’s where the
+                                instrument started; there’s no right rhythm or way to use it.</p>
+                        </aside>
+                        <section id="rhythm">
+                            <h2>A note can become a rhythm.</h2>
+                            <div class="kerby-explained">
+                                <div>
+                                    <p>Every MIDI note triggers both kick and bass. In Live mode, keep a note held, or
+                                        play overlapping notes legato, and the Rate knobs do the repeating. A
+                                        quarter-note kick with a sixteenth-note bass gives you four bass pulses for
+                                        every kick. Turn Rate briefly for a stutter or repeat, then return to the
+                                        original pulse. It stays visible on every tab so you can play the rhythm while
+                                        editing the sound.</p>
+                                    <p>Restart on Kick can bring the bass rhythm back to its beginning at each kick.
+                                        Switch it off to let the two rates run independently.</p>
+                                </div>
+                                <figure class="kerby-explainer"><svg class="kerby-fig" viewBox="0 0 320 150"
+                                        aria-hidden="true">
+                                        <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                            stroke="var(--kerby-accent)" stroke-width="1" />
+                                        <!-- bar divided into quarters -->
+                                        <g stroke="var(--kerby-grid)" stroke-width="1">
+                                            <line x1="20" y1="20" x2="20" y2="130" />
+                                            <line x1="90" y1="20" x2="90" y2="130" />
+                                            <line x1="160" y1="20" x2="160" y2="130" />
+                                            <line x1="230" y1="20" x2="230" y2="130" />
+                                            <line x1="300" y1="20" x2="300" y2="130" />
+                                        </g>
+                                        <!-- Kick: one pulse per quarter -->
+                                        <g fill="var(--kerby-strong)">
+                                            <rect x="18" y="30" width="4" height="32" rx="2" />
+                                            <rect x="88" y="30" width="4" height="32" rx="2" />
+                                            <rect x="158" y="30" width="4" height="32" rx="2" />
+                                            <rect x="228" y="30" width="4" height="32" rx="2" />
+                                        </g>
+                                        <!-- Bass: four per quarter, restarting on each Kick -->
+                                        <g fill="var(--kerby-accent)">
+                                            <rect x="36" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="53.5" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="71" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="106" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="123.5" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="141" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="176" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="193.5" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="211" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="246" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="263.5" y="94" width="3" height="20" rx="1.5" />
+                                            <rect x="281" y="94" width="3" height="20" rx="1.5" />
+                                        </g>
+                                        <g fill="var(--kerby-strong)">
+                                            <rect x="18" y="88" width="4" height="32" rx="2" />
+                                            <rect x="88" y="88" width="4" height="32" rx="2" />
+                                            <rect x="158" y="88" width="4" height="32" rx="2" />
+                                            <rect x="228" y="88" width="4" height="32" rx="2" />
+                                        </g>
+                                    </svg>
+                                    <figcaption>Quarter-note kick above sixteenth-note bass. The bolder marks line up.
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <p>In Draw mode, write separate notes in your DAW for separate hits. The sound-shaping tools
+                                are the same; the notes decide when to use them.</p>
+                            <p>In Draw mode, MIDI notes place the kick and bass together. Give each note enough duration
+                                for the bass to sound after the initial duck. To hear a faster divided bass rhythm, keep
+                                notes held or legato with Rate enabled; a short note won’t leave time for the later
+                                pulses.</p>
+                            <p class="kerby-related"><a href="/kerby/learn/first-pattern/" class="link-underline">Try
+                                    it: your first pattern</a> <a href="/kerby/reference/#timing"
+                                    class="link-underline">Look up Rate and Length</a></p>
+                        </section>
+                        <section id="shapes">
+                            <h2>The shape is part of the sound.</h2>
+                            <div class="kerby-explained">
+                                <div>
+                                    <p>The Wave tab draws one cycle of the oscillator. A rounded shape and a sharp-edged
+                                        one give you different starting sounds before you touch an effect.</p>
+                                    <p>The other curves describe change over time: how a hit fades, how its pitch falls,
+                                        how the bass filter opens, or how the bass returns after a kick.</p>
+                                </div>
+                                <figure class="kerby-explainer"><svg class="kerby-fig" viewBox="0 0 320 150"
+                                        aria-hidden="true">
+                                        <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                            stroke="var(--kerby-accent)" stroke-width="1" />
+                                        <g stroke="var(--kerby-grid)" stroke-width="1">
+                                            <line x1="86" y1="1" x2="86" y2="149" />
+                                            <line x1="160" y1="1" x2="160" y2="149" />
+                                            <line x1="234" y1="1" x2="234" y2="149" />
+                                            <line x1="1" y1="38" x2="319" y2="38" />
+                                            <line x1="1" y1="75" x2="319" y2="75" />
+                                            <line x1="1" y1="112" x2="319" y2="112" />
+                                        </g>
+                                        <!-- the Wave tab's default shape, five draggable points -->
+                                        <path
+                                            d="M12 75 C 36.7 47.3, 61.3 22, 86 22 C 110.7 22, 135.3 47.3, 160 75 C 184.7 102.8, 209.3 128, 234 128 C 258.7 128, 283.3 102.8, 308 75"
+                                            fill="none" stroke="var(--kerby-strong)" stroke-width="2.5" />
+                                        <g fill="var(--kerby-strong)">
+                                            <circle cx="12" cy="75" r="6" />
+                                            <circle cx="86" cy="22" r="6" />
+                                            <circle cx="160" cy="75" r="6" />
+                                            <circle cx="234" cy="128" r="6" />
+                                            <circle cx="308" cy="75" r="6" />
+                                        </g>
+                                        <circle cx="86" cy="22" r="12" fill="none" stroke="var(--kerby-strong)"
+                                            stroke-width="1.5" stroke-dasharray="3 3" />
+                                    </svg>
+                                    <figcaption>Points set the shape; bending the lines changes how it moves between
+                                        them.</figcaption>
+                                </figure>
+                            </div>
+                            <p>Start with a shape preset, then move a few points. There is also a drawing tool for
+                                painting steps onto the grid. A long envelope may be interrupted by the next pulse, so
+                                Rate and Length are worth listening to together.</p>
+                            <p class="kerby-related"><a href="/kerby/reference/#shapes" class="link-underline">Look up
+                                    the shape editor</a></p>
+                        </section>
+                        <section id="samples">
+                            <h2>Bring a recording into the pattern.</h2>
+                            <p>Drop a sample onto the Wave tab and it becomes that voice’s source. The same rhythm now
+                                retriggers the recording. Played notes change its playback speed and pitch.</p>
+                            <p>For a sampled attack over a synthesised kick, use the separate Click tab. The kick keeps
+                                its own waveform, and the sample gets its own level, envelope, high-pass filter and
+                                playback pitch.</p>
+                            <p class="kerby-related"><a href="/kerby/learn/layer-a-click/" class="link-underline">Try
+                                    it: layer a sampled attack</a> <a href="/kerby/reference/#samples"
+                                    class="link-underline">Look up sample playback</a></p>
+                        </section>
+                        <section id="steps">
+                            <h2>Leave holes. Change a few notes.</h2>
+                            <div class="kerby-explained">
+                                <div>
+                                    <p>The bass step row decides which parts of the bar are allowed to sound. Switch a
+                                        box off to leave a gap; drag it vertically to change the pitch there.</p>
+                                    <p>It works with the bass’s Rate, so changing the rate can change which parts of the
+                                        pattern you hear. It is a way to shape the repeating rhythm while keeping your
+                                        hands free to play.</p>
+                                </div>
+                                <figure class="kerby-explainer"><svg class="kerby-fig" viewBox="0 0 320 150"
+                                        aria-hidden="true">
+                                        <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                            stroke="var(--kerby-accent)" stroke-width="1" />
+                                        <!-- drag up or down to tune the step under it -->
+                                        <g stroke="var(--kerby-ink)" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" fill="none">
+                                            <line x1="178" y1="28" x2="178" y2="52" />
+                                            <path d="M172 34 L178 28 L184 34" />
+                                            <path d="M172 46 L178 52 L184 46" />
+                                        </g>
+                                        <!-- eight boxes: filled sounds, hollow doesn't -->
+                                        <g fill="var(--kerby-strong)">
+                                            <rect x="19" y="60" width="30" height="30" rx="5" />
+                                            <rect x="91" y="60" width="30" height="30" rx="5" />
+                                            <rect x="163" y="60" width="30" height="30" rx="5" />
+                                            <rect x="199" y="60" width="30" height="30" rx="5" />
+                                            <rect x="271" y="60" width="30" height="30" rx="5" />
+                                        </g>
+                                        <g fill="none" stroke="var(--kerby-grid)" stroke-width="2">
+                                            <rect x="55" y="60" width="30" height="30" rx="5" />
+                                            <rect x="127" y="60" width="30" height="30" rx="5" />
+                                            <rect x="235" y="60" width="30" height="30" rx="5" />
+                                        </g>
+                                        <text x="178" y="80" text-anchor="middle" font-size="13"
+                                            fill="var(--kerby-panel)">+7</text>
+                                        <!-- the pulses the boxes let through -->
+                                        <g fill="var(--kerby-accent)">
+                                            <rect x="32" y="104" width="4" height="22" rx="2" />
+                                            <rect x="104" y="104" width="4" height="22" rx="2" />
+                                            <rect x="176" y="104" width="4" height="22" rx="2" />
+                                            <rect x="212" y="104" width="4" height="22" rx="2" />
+                                            <rect x="284" y="104" width="4" height="22" rx="2" />
+                                        </g>
+                                    </svg>
+                                    <figcaption>Empty boxes leave gaps. Pitch offset changes a step.
+                                    </figcaption>
+                                </figure>
+                            </div>
+                            <p class="kerby-related"><a href="/kerby/reference/#steps" class="link-underline">Look up
+                                    steps and their gestures</a></p>
+                        </section>
+                        <section id="duck">
+                            <h2>The space is something you can shape.</h2>
+                            <p>The ducking curve is the bass’s volume after a kick. Low at the start leaves room for the
+                                hit; the rise brings the bass back in. Dial it in to find the desired groove.</p>
+                            <figure class="kerby-duck">
+                                <svg id="kerbyDuckGraphic" viewBox="0 0 640 200" role="img"
+                                    aria-labelledby="kerbyDuckTitle kerbyDuckDesc">
+                                    <title id="kerbyDuckTitle">How the bass makes room for the kick</title>
+                                    <desc id="kerbyDuckDesc">Two kick hits above a bass volume curve. The bass drops at
+                                        each hit and gradually returns.</desc>
+                                    <g class="kerby-diagram-grid">
+                                        <path d="M104 24V176 M228 24V176 M352 24V176 M476 24V176 M600 24V176" />
+                                        <path d="M104 66H600 M104 176H600" />
+                                    </g>
+                                    <g class="kerby-diagram-label"><text x="16" y="53">Kick</text><text x="16"
+                                            y="122">Bass</text></g>
+                                    <path class="kerby-kick-shape"
+                                        d="M104 66V28 Q110 30 116 49 T150 66Z M352 66V28 Q358 30 364 49 T398 66Z" />
+                                    <path id="kerbyBassFill" class="kerby-bass-fill"
+                                        d="M104 176 C132 176 137 102 248 102 L352 102 L352 176 C380 176 385 102 496 102 L600 102 L600 176Z" />
+                                    <path id="kerbyBassCurve" class="kerby-bass-curve"
+                                        d="M104 176 C132 176 137 102 248 102 L352 102 L352 176 C380 176 385 102 496 102 L600 102" />
+                                </svg>
+                                <div class="kerby-duck-control" hidden>
+                                    <label for="kerbyRecovery">Bass comes back</label>
+                                    <span>Tight</span>
+                                    <input id="kerbyRecovery" type="range" min="25" max="95" value="58"
+                                        aria-describedby="kerbyDuckCaption">
+                                    <span>Slow</span>
+                                </div>
+                                <figcaption id="kerbyDuckCaption">An illustration of ducking. In KerBy, you draw the
+                                    whole curve.</figcaption>
+                            </figure>
+                            <p>The kick’s optional reverb follows that curve too. Try it with the bass muted for a low
+                                techno rumble that rises between kicks.</p>
+                            <p class="kerby-related"><a href="/kerby/learn/shape-the-duck/" class="link-underline">Try
+                                    it: find the space between the hits</a></p>
+                        </section>
+                        <section id="performance">
+                            <h2>Take the pattern somewhere else.</h2>
+                            <p>Pitch bend changes the notes; tempo bend stretches or compresses KerBy’s rhythm against
+                                the DAW. Reverse works on a captured stretch of the finished sound, including the
+                                ducking and reverb.</p>
+                            <p>There is more sound shaping in the More tabs: FM, Tone, Noise and Crush on both voices,
+                                with resonance and glide on the bass. The <a href="/kerby/reference/signal-flow/"
+                                    class="link-underline">signal-flow map</a> shows where these act.</p>
+                        </section>
+                    </article>
+                    <aside class="kerby-next"><a href="/kerby/reference/"><span class="kerby-eyebrow">Keep it beside
+                                your DAW</span><strong>Open the
+                                reference</strong><span>Find a control, gesture or behaviour by name.</span></a><a
+                            href="/kerby/reference/signal-flow/"><span class="kerby-eyebrow">Under the
+                                hood</span><strong>Follow the
+                                signal</strong><span>Sources, processing and the connections between the
+                                voices.</span></a></aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div id="myModal" class="modal">
+            <img class="modal-content" id="modalImage">
+        </div>
+
+    </main>
+    <script src="/assets/js/kerby.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/boids/simulation.js" type="module"></script>
+    <div class="easter-egg" id="easterEgg"></div>
+    <script src="/assets/js/boids/easter-egg.js" type="module"></script>
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Your first kick &amp; bass pattern | KerBy | Slypork</title>
+    <meta name="description"
+        content="Get a repeating kick and bass pattern going in KerBy, then add gaps and pitch changes.">
+    <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
+    <link href="/assets/css/output.css" rel="stylesheet">
+    <link href="/assets/css/kerby.css" rel="stylesheet">
+</head>
+
+<body class="text-neutral-900 dark:text-neutral-100">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="/assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
+    </div>
+    <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced">
+        <header class="pinned-nav">
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
+                <ul id="navLinks"
+                    class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
+                    <li
+                        class="group-[.nav-active]:pb-4 sm:group-[.nav-active]:pb-0 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
+                        <a href="/" id="homeLink" class="p-1 block">
+                            <img src="/assets/images/slypork_logo.svg" alt="Home"
+                                class="w-[64px] sm:w-[48px] md:w-[80px] aspect-[80/65.94] home-logo">
+                        </a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/about/" id="aboutLink">
+                            <span class="nav-link-text">About</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/mastering/" id="masteringLink">
+                            <span class="nav-link-text">Mastering</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/music/" id="musicLink">
+                            <span class="nav-link-text">Music</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/design/" id="designLink">
+                            <span class="nav-link-text">Design</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/software/" id="softwareLink">
+                            <span class="nav-link-text">Software</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/contact/" id="contactLink">
+                            <span class="nav-link-text">Contact</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content" class="kerby-content flex-1 md:px-4 flex flex-col">
+            <div class="kerby-header">
+                <a class="kerby-brand font-kerby" href="/kerby/" aria-label="KerBy overview">KerBy</a>
+                <nav class="kerby-nav" aria-label="KerBy">
+                    <div><a href="/kerby/">Overview</a><a href="/kerby/learn/" aria-current="location">Learn</a><a
+                            href="/kerby/reference/">Reference</a></div>
+                </nav>
+            </div>
+            <div class="visual-container kerby-frame">
+                <div class="kerby-page kerby-doc">
+                    <header class="kerby-doc-header"><a class="link-underline kerby-back" href="/kerby/learn/">← Learn
+                            KerBy</a>
+                        <p class="kerby-eyebrow">Practical guide</p>
+                        <h1 class="kerby-doc-title">Your first kick &amp; bass pattern</h1>
+                    </header>
+                    <article class="kerby-prose">
+                        <p class="kerby-standfirst">A starting point you can play with one held note.</p>
+                        <ol class="kerby-recipe">
+                            <li>
+                                <h2>Get the two voices running.</h2>
+                                <p>Load KerBy on a MIDI track, start from Init, and choose Live in the header. Hold a
+                                    note on your keyboard or draw one long note in a MIDI clip. Init already has the
+                                    kick Rate at 1/4 and the bass Rate at 1/16.</p>
+                                <p>In 4/4, that gives you a kick on each beat and four bass pulses per beat (or three if
+                                    we're ducking the first one). With
+                                    quantization on, a note will wait for the next grid point before it starts.</p>
+                            </li>
+                            <li>
+                                <h2>Keep the kick on one note.</h2>
+                                <p>If you want to play a bassline while the kick stays in tune, open the kick’s More tab
+                                    and set Key to the note you want. Leave the bass’s Key on MIDI. Play overlapping
+                                    notes (legato) and listen to the bass move beneath the kick while the pulse
+                                    continues.</p>
+                            </li>
+                            <li>
+                                <h2>Decide how long each hit lasts.</h2>
+                                <p>Adjust Length below the shape editor. Rate is the spacing between hits; Length is
+                                    the duration of a hit. Try a short bass hit first, then lengthen it until the gap
+                                    between pulses starts to fill.</p>
+                                <p>If the next pulse arrives before a curve finishes, you will hear only the part it
+                                    reaches. Slowing Rate is a useful way to hear the rest.</p>
+                            </li>
+                            <li>
+                                <h2>Play with Rate.</h2>
+                                <p>Let the quarter-note kick run for a phrase. Near the end, turn its Rate to a faster
+                                    division for a short stutter, then return to 1/4. Try the same with the bass. Rate
+                                    stays visible on every tab so you can keep playing the rhythm while shaping the
+                                    sound.</p>
+                            </li>
+                            <li>
+                                <h2>Put a little variation in the bass.</h2>
+                                <p>Show the bass step row from the bottom bar. Tap a box to leave a gap. Drag one of the
+                                    remaining boxes up to +7 semitones, then play the pattern again.</p>
+                                <p>The row marks positions in the bar. It lets pulses through or skips them; the bass’s
+                                    Rate still provides the rhythm.</p>
+                            </li>
+                            <li>
+                                <h2>Try a MIDI clip in Draw mode.</h2>
+                                <p>Switch to Draw and replace the long note with a rhythm in the piano roll. Each note
+                                    triggers both kick and bass together; there are no separate MIDI notes for the two
+                                    voices. Draw turns off both Rate divisions, so each note starts one pulse in each
+                                    voice.</p>
+                                <p>Keep the notes long enough for the bass to reach past the initial duck. Very short
+                                    notes can cut it off before you hear it. For several bass pulses between kicks, use
+                                    Live with a held note and a faster bass Rate.</p>
+                            </li>
+                        </ol>
+                        <aside class="kerby-callout">
+                            <h2>If the bass seems to vanish</h2>
+                            <p>Check its level, the step row, and the Duck tab. If a bass hit starts with the kick, it
+                                can finish before a slow ducking curve lets it through. When both voices repeat together
+                                at the same rate, this can affect every hit. With the faster bass pattern here, keep the
+                                MIDI note held and listen for later hits after the duck recovers. Check MIDI note
+                                duration as well as bass Length and the Duck curve.</p>
+                        </aside>
+                        <p class="kerby-related"><a href="/kerby/reference/#playing" class="link-underline">Live and
+                                Draw reference</a><a href="/kerby/reference/#timing" class="link-underline">Rate, Length
+                                and restart settings</a></p>
+                        <p class="kerby-end-link"><a href="/kerby/learn/shape-the-duck/" class="link-underline">Next:
+                                find the space between the hits →</a></p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div id="myModal" class="modal">
+            <img class="modal-content" id="modalImage">
+        </div>
+
+    </main>
+    <script src="/assets/js/kerby.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/boids/simulation.js" type="module"></script>
+    <div class="easter-egg" id="easterEgg"></div>
+    <script src="/assets/js/boids/easter-egg.js" type="module"></script>
+</body>
+
+</html>
