@@ -1,0 +1,24 @@
+# Pages builds master using Jekyll. These files belong in the public source
+# repository, but should not become website routes. Do not add .nojekyll:
+# that would bypass these exclusions. New files are public unless excluded.
+exclude:
+  - README.md
+  - CLAUDE.md
+  - SECURITY.md
+  - docs
+  - scripts
+  - tests
+  - package.json
+  - package-lock.json
+  - tailwind.config.mjs
+  - node_modules
+  - vendor
+  - rsvp-disabled
+  - assets/css/input.css
+  - .env
+  - .env.*
+  - .cloudflared
+  - '*.pem'
+  - '*.key'
+  - '*.p12'
+  - '*.pfx'

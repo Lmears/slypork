@@ -8,3 +8,15 @@ assets/css/mastering.css
 assets/css/music.css
 assets/css/styles.css
 CLAUDE.md
+
+# Local credentials must never enter this public repository.
+.env
+.env.*
+!.env.example
+.cloudflared/
+*.pem
+*.key
+*.p12
+*.pfx
+_site/
+.jekyll-cache/
