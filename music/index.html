@@ -78,7 +78,7 @@
                 <div class="visual-container" id="visualContainer">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <div class="pb-4 text-2xl">My projects:</div>
-                        <div class="text-lg font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="text-lg font-light grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-8">
                             <div class="project-container">
                                 <a href="https://linktr.ee/keithunsheathed" target="_blank" rel="noopener noreferrer"
                                     class="hover-effect subtle-underline">
@@ -87,16 +87,6 @@
                                     <div class="project-name">Keith</div>
                                 </a>
                                 <div class="project-info text-sm">experimental • psychedelic • slambient • post core
-                                </div>
-                            </div>
-                            <div class="project-container">
-                                <a href="https://linktr.ee/djpretence" target="_blank" rel="noopener noreferrer"
-                                    class="hover-effect subtle-underline">
-                                    <img src="../assets/images/project-logos/dj-pretence.webp" alt="DJ PRETENCE"
-                                        class="project-logo" id="dj-pretence-logo">
-                                    <div class="project-name">DJ PRETENCE</div>
-                                </a>
-                                <div class="project-info text-sm">club • techno • trance • post goa
                                 </div>
                             </div>
                             <div class="project-container">
@@ -114,6 +104,14 @@
                     </div>
                 </div>
             </section>
+            <!-- Populated by assets/js/releases.js from assets/js/music-releases.js;
+                 hidden until that runs so the heading never sits above nothing. -->
+            <section id="releases" class="visual-container-bottom" hidden>
+                <div class="mx-2 md:mx-4 my-4 md:my-8">
+                    <h2 class="pb-6 text-2xl">Releases:</h2>
+                    <div id="releaseList"></div>
+                </div>
+            </section>
             <section id="playerGrid" class="visual-container-bottom">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
                     <h2 class="pb-4 text-2xl">Latest sets:
@@ -126,14 +124,6 @@
                                 frameborder="no" allow="autoplay" loading="lazy"
                                 style="border: 1px solid rgba(23, 23, 23, 0.2);"
                                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1714032603&color=%231f2937&inverse=true&auto_play=false&show_user=true"></iframe>
-                        </div>
-                        <div>
-                            <a href="https://soundcloud.com/djpretence" title="DJ PRETENCE" target="_blank" rel="noopener noreferrer"
-                                class="hover-effect thin-underline">DJ PRETENCE</a>
-                            <iframe id="dj-pretence-player" class="rounded-xl" width="100%" height="166" scrolling="no"
-                                frameborder="no" allow="autoplay" loading="lazy"
-                                style="border: 1px solid rgba(23, 23, 23, 0.2);"
-                                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1313168281&color=%231f2937&inverse=true&auto_play=false&show_user=true"></iframe>
                         </div>
                         <div>
                             <div>
@@ -160,6 +150,7 @@
         </section>
     </main>
     <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/releases.js" type="module"></script>
     <script src="../assets/js/boids/simulation.js" type="module"></script>
     <div class="easter-egg" id="easterEgg"></div>
     <script src="../assets/js/boids/easter-egg.js" type="module"></script>

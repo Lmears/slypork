@@ -31,7 +31,6 @@ export const OBSTACLE_ELEMENT_IDS = [
     'simpleHomeLink',
     'downloadPdfBtn',
     'keith-logo',
-    'dj-pretence-logo',
     'root-basis-logo',
     'kerbyTitle',
 ];

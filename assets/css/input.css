@@ -553,6 +553,94 @@ nav ul li a:hover,
     font-weight: 300;
 }
 
+/* Discography
+   Cards are built by assets/js/releases.js from the data in
+   music-releases.js. Cover art is square, so the grid just tracks a
+   minimum card width and lets the columns fall where they may. */
+
+.release-group + .release-group {
+    padding-top: 2.5rem;
+}
+
+.release-group-title {
+    color: rgba(23, 23, 23);
+    font-size: 1.25rem;
+    font-weight: 500;
+    padding-bottom: 1rem;
+}
+
+.release-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2rem;
+}
+
+.release {
+    display: flex;
+    flex-direction: column;
+    color: rgba(23, 23, 23);
+    font-weight: 300;
+}
+
+.release-art {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+}
+
+.release-link {
+    display: block;
+}
+
+.release-link:hover .release-art {
+    transform: scale(1.03);
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Inside .release-link, so it carries the gap below the cover art. */
+.release-title {
+    display: block;
+    padding-top: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.release-artist {
+    padding-top: 0.125rem;
+    font-size: 0.875rem;
+}
+
+.release-meta {
+    padding-top: 0.25rem;
+    font-size: 0.8125rem;
+    opacity: 0.7;
+}
+
+/* Which tracks on a various-artists release are mine. */
+.release-tracks {
+    padding-top: 0.5rem;
+    font-size: 0.875rem;
+    list-style: none;
+}
+
+.release-tracks li {
+    padding-top: 0.25rem;
+    padding-left: 1rem;
+    text-indent: -1rem;
+}
+
+.release-tracks li::before {
+    content: '\21b3\00a0';
+    opacity: 0.5;
+}
+
+.release-track-artist {
+    opacity: 0.7;
+}
+
 /* Boid Simulation */
 
 #boidCanvas {
@@ -733,7 +821,9 @@ input[type="checkbox"]:disabled {
     .various-artists,
     .project-name,
     .project-info,
-    .soundcloud-artist {
+    .soundcloud-artist,
+    .release-group-title,
+    .release {
         color: rgb(230, 231, 227);
     }
 }
