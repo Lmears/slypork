@@ -388,26 +388,19 @@
                          the inline-response upgrade. Without JS this still works, it just lands
                          on Buttondown's own confirmation page instead.
 
-                         One list, two audiences: beta testers who want the changelog as each build
-                         lands, and everyone else waiting on a release. The copy names both, since
-                         a signup that only promised the second would make the first look like
-                         spam. The checkbox sends Buttondown's `tag` field rather than metadata, so a
-                         request shows on the subscriber in the list and can be filtered on;
-                         Buttondown auto-creates the tag, so `beta-request` has to stay spelled
-                         the way it is here. The hero's "Ask to try the beta" button ticks the
-                         box on the way down, so that route ends in an address I can answer
-                         rather than on the contact page's list of seven addresses. -->
+                         One list, one promise: everyone who signs up is treated as wanting a
+                         build. Splitting testers from followers needed a tag, and tags are a paid
+                         Buttondown add-on - so rather than record a distinction that the free
+                         plan drops on the floor, the copy just promises both things to everyone.
+                         The hero's "Ask to try the beta" button scrolls here. -->
                     <form id="notifyForm" class="kerby-signup pt-8"
                         action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
                         <label for="notifyEmail" class="block text-lg font-light">
-                            Ask to try the beta, or just follow along:
+                            Ask to try the beta:
                         </label>
                         <p class="text-base font-light pt-1 opacity-75">
-                            The changelog by email with every beta build, and word when KerBy is out.
-                        </p>
-                        <p class="kerby-check pt-3">
-                            <input type="checkbox" id="notifyBeta" name="tag" value="beta-request">
-                            <label for="notifyBeta">I'd like to test it &mdash; send me a build.</label>
+                            Leave your email and I'll be in touch about a build. You'll get the
+                            changelog as each new one lands, and word when KerBy is out.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
                             <input type="email" id="notifyEmail" name="email" required autocomplete="email"
@@ -415,7 +408,7 @@
                             <input type="hidden" name="embed" value="1">
                             <button type="submit" id="notifyButton"
                                 class="kerby-button flex items-center justify-center text-center">
-                                Sign up
+                                Send
                             </button>
                         </div>
                         <p id="notifyStatus" class="text-base font-light pt-2" role="status" aria-live="polite"></p>

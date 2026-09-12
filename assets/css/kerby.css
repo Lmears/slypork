@@ -84,9 +84,6 @@
 /* The hero's "Ask to try the beta" button jumps here, so leave the form some air
    above it rather than landing it hard against the top of the viewport. */
 .kerby-signup { scroll-margin-top: 2rem; }
-.kerby-check { display: flex; align-items: center; gap: .55rem; font-size: 1rem; font-weight: 300; }
-.kerby-check input { width: 1rem; height: 1rem; accent-color: var(--kb-ink); }
-.kerby-check label { cursor: pointer; }
 .kerby-signup :is(input, button):focus-visible {
     outline: 2px solid var(--kb-ink);
     outline-offset: 4px;
