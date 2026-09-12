@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^4.3.3"
   },
   "scripts": {
     "build:css": "tailwindcss -i assets/css/input.css -o assets/css/output.css --minify",
