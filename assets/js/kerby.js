@@ -20,9 +20,20 @@ function initNotifyForm() {
     if (!form) return;
 
     var input = document.getElementById('notifyEmail');
+    var beta = document.getElementById('notifyBeta');
     var button = document.getElementById('notifyButton');
     var status = document.getElementById('notifyStatus');
     var buttonLabel = button.textContent;
+    var cta = document.getElementById('kerbyBetaCta');
+
+    // The hero button is an anchor to this form, so the browser does the scrolling.
+    // Someone arriving that way has already said what they want, so arrive with the
+    // box ticked rather than making them find it at the bottom of the page.
+    if (cta) cta.addEventListener('click', function () {
+        beta.checked = true;
+        // After the jump, so focusing doesn't fight the browser's own scroll.
+        setTimeout(function () { input.focus({ preventScroll: true }); }, 0);
+    });
 
     function setStatus(message, isError) {
         status.textContent = message;
@@ -39,10 +50,17 @@ function initNotifyForm() {
         button.textContent = 'Sending…';
         setStatus('', false);
 
+        var wantsBeta = beta.checked;
+        var fields = { email: input.value, embed: '1' };
+        // Buttondown tags the subscriber, so a tester is visible and filterable on the
+        // list rather than being a name I have to remember. The tag is auto-created on
+        // first use, so this string has to match the form's checkbox exactly.
+        if (wantsBeta) fields.tag = 'beta-request';
+
         fetch(NOTIFY_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ email: input.value, embed: '1' })
+            body: new URLSearchParams(fields)
         }).then(function (response) {
             // `response.ok` is NOT a usable success signal here, and this is measured
             // rather than assumed: Buttondown answers a successful signup awaiting
@@ -60,8 +78,11 @@ function initNotifyForm() {
             form.innerHTML =
                 '<p class="text-lg font-light">Almost there — check your inbox and click the ' +
                 'confirmation link.</p>' +
-                '<p class="text-base font-light pt-2 opacity-75">Then you\'ll get the changelog ' +
-                'with each new build. If it doesn\'t turn up, have a look in spam.</p>';
+                '<p class="text-base font-light pt-2 opacity-75">' + (wantsBeta ?
+                    'Then I\'ll be in touch about a build, and you\'ll get the changelog as each ' +
+                    'one lands.' :
+                    'Then you\'ll get the changelog with each new build.') +
+                ' If it doesn\'t turn up, have a look in spam.</p>';
         }).catch(function () {
             button.disabled = false;
             button.textContent = buttonLabel;
