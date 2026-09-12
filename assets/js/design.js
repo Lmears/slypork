@@ -19,17 +19,18 @@ function createImageElement(src) {
     img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
     img.src = src;
     img.alt = "Design Poster";
-    img.classList.add('modal-trigger', 'cursor-pointer', 'rounded-xl');
+    img.classList.add('rounded-xl');
     img.loading = 'lazy';
     return img;
 }
 
-// Create common elements for the image
+// Wrap each poster in the shared lightbox trigger, which also makes the grid
+// keyboard-navigable and leaves the plain image as the no-JavaScript fallback.
 function createImageWrapper(src) {
-    var wrapperDiv = createElementWithClass('div', 'image-wrapper');
-    var img = createImageElement(src);
-    wrapperDiv.appendChild(img);
-    return wrapperDiv;
+    var link = createElementWithClass('a', 'image-wrapper modal-trigger');
+    link.href = src;
+    link.appendChild(createImageElement(src));
+    return link;
 }
 
 // Add all images to the grid

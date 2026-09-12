@@ -118,9 +118,12 @@
                     </div>
                     <div class="w-full max-w-full lg:w-1/3 px-2 md:px-4">
                         <section>
-                            <img id="aboutImage" src="../assets/images/about/about.webp"
-                                class="w-full lg:h-auto mx-auto modal-trigger cursor-pointer rounded-xl"
-                                alt="Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a hi-tech morning at Twisted Frequency festival." />
+                            <a class="modal-trigger" href="../assets/images/about/about.webp"
+                                aria-label="Enlarge the portrait of Lachie">
+                                <img id="aboutImage" src="../assets/images/about/about.webp"
+                                    class="w-full lg:h-auto mx-auto rounded-xl"
+                                    alt="Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a hi-tech morning at Twisted Frequency festival." />
+                            </a>
                             <p class="text-center text-gray-500 text-sm mt-2">
                                 <em>
                                     Portrait of Lachie, founder of Slypork Studio, donned in lilac and enjoying a
@@ -132,13 +135,7 @@
                 </div>
             </div>
         </section>
-        <!-- Lightbox Modal -->
-
     </main>
-    <div id="myModal" class="modal">
-        <!-- <span class="close cursor-pointer">×</span> -->
-        <img class="modal-content" id="modalImage">
-    </div>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/boids/simulation.js" type="module"></script>
     <div class="easter-egg" id="easterEgg"></div>

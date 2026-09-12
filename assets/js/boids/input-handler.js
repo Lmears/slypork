@@ -90,8 +90,7 @@ export class InputHandler {
         const softwareContainer = document.getElementById('softwareContainer');
         const homeLink = document.getElementById('homeLink');
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        const myModal = document.getElementById('myModal');
-        const modalImage = document.getElementById('modalImage');
+        const lightbox = document.getElementById('lightbox');
         const speedControls = this.deps.speedControls;
 
         const shouldBoidsIgnoreTouch = (easterEgg && easterEgg.contains(event.target)) ||
@@ -107,8 +106,7 @@ export class InputHandler {
             (softwareContainer && softwareContainer.contains(event.target)) ||
             (homeLink && homeLink.contains(event.target)) ||
             (downloadPdfBtn && downloadPdfBtn.contains(event.target)) ||
-            (myModal && myModal.contains(event.target)) ||
-            (modalImage && modalImage.contains(event.target));
+            (lightbox && lightbox.contains(event.target));
 
         this.boidsIgnoreTouch = shouldBoidsIgnoreTouch;
 

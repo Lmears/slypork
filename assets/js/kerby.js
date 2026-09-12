@@ -106,31 +106,6 @@ function initKerbyOverview() {
         recovery.addEventListener('input', drawDuck);
         drawDuck();
     }
-
-    var screenshot = document.getElementById('kerbyScreenshot');
-    if (!screenshot || typeof HTMLDialogElement === 'undefined') return;
-
-    // Keep a regular image link as the no-JavaScript fallback.
-    var dialog = document.createElement('dialog');
-    dialog.className = 'kerby-lightbox';
-    dialog.setAttribute('aria-label', 'KerBy interface, enlarged');
-    dialog.innerHTML = '<form method="dialog"><button autofocus>Close <span aria-hidden="true">×</span></button></form><img alt="">';
-    document.body.appendChild(dialog);
-    screenshot.addEventListener('click', function (event) {
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        var source = screenshot.querySelector('img');
-        var enlarged = dialog.querySelector('img');
-        enlarged.src = source.currentSrc || source.src;
-        enlarged.alt = source.alt;
-        dialog.showModal();
-    });
-    dialog.addEventListener('click', function (event) {
-        if (event.target !== dialog) return;
-        var bounds = dialog.getBoundingClientRect();
-        if (event.clientX < bounds.left || event.clientX > bounds.right ||
-            event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
-    });
 }
 
 function initKerbyReference() {

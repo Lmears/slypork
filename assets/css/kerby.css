@@ -93,7 +93,7 @@
 .kerby-availability { margin-top: 1.1rem; color: var(--kb-muted); font-size: .78rem; }
 .kerby-availability span:last-child { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
-.kerby-preview a { display: block; border-radius: .6rem; cursor: zoom-in; }
+.kerby-preview a { display: block; border-radius: .6rem; }
 .kerby-preview img {
     display: block;
     width: 100%;
@@ -128,11 +128,6 @@
 .kerby-duck-control input::-moz-range-track { background: var(--kb-accent-line); }
 .kerby-duck figcaption { margin-top: .6rem; color: var(--kb-muted); font-size: .75rem; }
 .kerby-page :is(a, input):focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 5px; }
-.kerby-lightbox { width: min(96vw, 1620px); max-width: 96vw; max-height: 95vh; padding: .75rem; border: 1px solid #9c6475; border-radius: .65rem; background: #fff0f5; color: #91344e; }
-.kerby-lightbox::backdrop { background: #171014d9; }
-.kerby-lightbox form { display: flex; justify-content: flex-end; margin-bottom: .6rem; }
-.kerby-lightbox button { padding: .35rem .7rem; border: 1px solid currentColor; border-radius: .3rem; font-size: .9rem; }
-.kerby-lightbox img { display: block; max-height: calc(95vh - 5rem); width: 100%; object-fit: contain; }
 @media (max-width: 767px) {
     .kerby-page { margin: 0 .5rem; }
     .kerby-hero { padding-top: 1.8rem; }
@@ -148,7 +143,6 @@
 @media (prefers-color-scheme: dark) {
     .kerby-header { --kb-ink: #ffc2d1; }
     .kerby-page, .kerby-signup { --kb-ink: #ffc2d1; --kb-accent: #ff7d9c; --kb-accent-line: #63434f; --kb-panel: #2b2226; --kb-line: rgba(230, 231, 227, .5); --kb-muted: #bbb2b5; }
-    .kerby-lightbox { color: #ffc2d1; background: #2b2226; }
 }
 
 /* The same compact brand/navigation row precedes the divider on every KerBy page. */

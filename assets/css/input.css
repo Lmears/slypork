@@ -272,9 +272,7 @@ nav ul li a:hover,
 .subtle-underline:hover,
 .link-underline:hover,
 .hover-effect:hover,
-.hover-effect:hover .project-name,
-.close:hover,
-.close:focus {
+.hover-effect:hover .project-name {
     color: rgba(23, 23, 23, 0.7);
 }
 
@@ -294,35 +292,73 @@ nav ul li a:hover,
     border-radius: 12px;
 }
 
-/* Modal */
-.modal {
+/* Lightbox */
+.modal-trigger {
+    cursor: zoom-in;
+}
+
+a.modal-trigger {
+    display: block;
+}
+
+.lightbox {
     display: none;
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
+    inset: 0;
     width: 100%;
+    max-width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+}
+
+.lightbox[open] {
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.modal-content {
-    max-width: 90%;
-    max-height: 90%;
+.lightbox::backdrop {
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
-.close {
+.lightbox-image {
+    max-width: 95vw;
+    max-height: 92vh;
+    border-radius: 12px;
+    cursor: zoom-out;
+}
+
+/* Always sits on the dimmed backdrop, so its colours don't follow the theme. */
+.lightbox-close {
     position: absolute;
-    top: 10px;
-    right: 35px;
-    color: rgba(23, 23, 23);
-    font-size: 30px;
-    font-weight: 100;
-    transition: color 0.2s;
-    background: transparent;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
     border: none;
+    border-radius: 9999px;
+    background-color: rgba(23, 23, 23, 0.55);
+    color: rgb(230, 231, 227);
+    font-size: 1.75rem;
+    font-weight: 100;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.lightbox-close:hover,
+.lightbox-close:focus-visible {
+    background-color: rgba(23, 23, 23, 0.8);
+    color: rgb(243, 244, 241);
 }
 
 /* Scrollbar */
@@ -800,9 +836,7 @@ input[type="checkbox"]:disabled {
     .subtle-underline:hover,
     .link-underline:hover,
     .hover-effect:hover,
-    .hover-effect:hover .project-name,
-    .close:hover,
-    .close:focus {
+    .hover-effect:hover .project-name {
         color: rgba(230, 231, 227, 0.7);
     }
 
@@ -810,10 +844,6 @@ input[type="checkbox"]:disabled {
     .visual-container-bottom {
         border-top-color: rgba(230, 231, 227, 0.5);
         border-bottom-color: rgba(230, 231, 227, 0.5);
-    }
-
-    .close {
-        color: rgb(230, 231, 227);
     }
 
     .release-name,

@@ -50,57 +50,86 @@ if (homeLink && homeLogo) {
     homeLink.addEventListener('mouseup', handleHomeLinkMouseUp);
 }
 
-// Lightbox modal
-var modal = document.getElementById("myModal");
-var modalImg = document.getElementById("modalImage");
+// Lightbox
+// One <dialog> is created on first use and shared by every `.modal-trigger` on the
+// page, so a page only needs the trigger markup — no per-page modal container.
+var lightbox = null;
+var lightboxImg = null;
 
-function openModal(event) {
-    const triggerElement = event.target.closest('.modal-trigger');
+function buildLightbox() {
+    lightbox = document.createElement('dialog');
+    lightbox.id = 'lightbox';
+    lightbox.className = 'lightbox';
+    lightbox.setAttribute('aria-label', 'Enlarged image');
 
-    if (triggerElement && modal && modalImg) {
-        const imgSrc = triggerElement.src || triggerElement.querySelector('img')?.src;
+    var closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'lightbox-close';
+    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.innerHTML = '<span aria-hidden="true">&times;</span>';
+    closeButton.addEventListener('click', closeLightbox);
 
-        if (imgSrc) {
-            modal.style.display = "flex";
-            modalImg.src = imgSrc;
-        } else {
-            console.warn("Modal trigger clicked, but no image source found.", triggerElement);
+    lightboxImg = document.createElement('img');
+    lightboxImg.className = 'lightbox-image';
+    lightboxImg.alt = '';
+
+    lightbox.appendChild(closeButton);
+    lightbox.appendChild(lightboxImg);
+
+    // Clicking the backdrop or the image itself dismisses, matching `cursor: zoom-out`.
+    lightbox.addEventListener('click', function (event) {
+        if (event.target === lightbox || event.target === lightboxImg) {
+            closeLightbox();
         }
+    });
+
+    // Fires for the close button, a dismissing click and the native Escape key alike.
+    lightbox.addEventListener('close', function () {
+        lightboxImg.removeAttribute('src');
+        lightboxImg.alt = '';
+    });
+
+    document.body.appendChild(lightbox);
+}
+
+function openLightbox(event) {
+    var trigger = event.target.closest('.modal-trigger');
+    if (!trigger) {
+        return;
+    }
+
+    // Leave modified clicks and dialog-less browsers to the trigger's own href.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+    }
+    if (typeof HTMLDialogElement === 'undefined') {
+        return;
+    }
+
+    var source = trigger.tagName === 'IMG' ? trigger : trigger.querySelector('img');
+    if (!source) {
+        console.warn("Modal trigger clicked, but no image was found inside it.", trigger);
+        return;
+    }
+
+    event.preventDefault();
+    if (!lightbox) {
+        buildLightbox();
+    }
+
+    // `currentSrc` honours <picture> sources and srcset, e.g. dark-mode variants.
+    lightboxImg.src = source.currentSrc || source.src;
+    lightboxImg.alt = source.alt;
+    lightbox.showModal();
+}
+
+function closeLightbox() {
+    if (lightbox && lightbox.open) {
+        lightbox.close();
     }
 }
 
-function closeModal() {
-    if (modal) {
-        modal.style.display = "none";
-        if (modalImg) {
-            modalImg.src = "";
-        }
-    }
-}
-
-function handleOutsideClick(event) {
-    if (event.target === modal) {
-        closeModal();
-    }
-}
-
-function handleEscapeKey(event) {
-    if (event.key === "Escape" && modal && modal.style.display === "flex") {
-        closeModal();
-    }
-}
-
-document.body.addEventListener('click', openModal);
-
-if (modal) {
-    window.addEventListener('click', handleOutsideClick);
-
-    document.addEventListener('keydown', handleEscapeKey);
-}
-
-if (modal && !modalImg) {
-    console.warn("Modal image element (#modalImage) not found. Modal cannot display images.");
-}
+document.body.addEventListener('click', openLightbox);
 
 // Hamburger menu
 function toggleNavMenu() {
