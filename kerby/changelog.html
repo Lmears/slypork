@@ -2,26 +2,45 @@
      release.sh runs as part of cutting a drop. kerby.js fetches this into the
      "What's new" section of kerby/index.html. Don't hand-edit; edit CHANGELOG.md. -->
 <div class="text-lg font-light">
-    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.7.0</span><span class="text-base opacity-75"> &middot; 2026-09-08</span></h3>
+    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.8.0</span><span class="text-base opacity-75"> &middot; 2026-09-17</span></h3>
     <h4 class="text-base pt-3 opacity-75">Added</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>A Click tab on the Kick layers a second one-shot over every pulse.</strong> Drag and drop a sample to get started.</li>
-        <li><strong>Live and Draw modes, in the header.</strong> Live turns on quantization and rate division for live play. Draw mode is the opposite, intended for pre-drawn MIDI clips. A bypass box has been added to each rate knob to achieve this.</li>
-        <li><strong>Triplet, in each Rate value's dropdown</strong>, swaps the dotted divisions for triplets. VST3 hosts can show either division; some AU hosts may keep the dotted label when toggling.</li>
-        <li><strong>Draw mode in every shape editor.</strong> Press B and drag to paint one step per grid cell; Esc or B leaves the mode.</li>
-        <li><strong>A folded corner marks a step box whose finer steps disagree.</strong> Rest the pointer on it to open the stored pattern underneath.</li>
+        <li><strong>A signed installer for macOS.</strong> Run KerBy.pkg and choose the VST3, the AU or the standalone app; the Terminal step from earlier drops is no longer needed.</li>
+        <li><strong>Drag a scope out as audio.</strong> The bar on screen, or the quarter bar when zoomed, drops into your DAW or back onto a Wave tab as a WAV.</li>
+        <li><strong>Return Home, in the bottom bar</strong>, sends both Rate knobs home and both bends to centre. Right-click a Rate knob to set its home.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Changed</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>The Wave tab's sample trim now has Start only.</strong> End control was overkill when we already have Length.</li>
+        <li><strong>Everything below 120Hz is summed to mono</strong>, on each voice.</li>
+        <li><strong>The Kick reverb's Size gets tighter below 25%.</strong></li>
+        <li><strong>Switching a Rate to Free keeps the rhythm</strong>, starting from the division's speed at the current tempo.</li>
+        <li><strong>A scope keeps the last bar played on screen after the voice stops.</strong></li>
+        <li><strong>Anchor points are smaller, and hidden in Draw mode.</strong></li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Fixed</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>Holding or releasing Cmd/Ctrl during a value drag no longer jumping occasionally</strong></li>
-        <li><strong>The Kick reverb's Size now reaches a genuinely short room.</strong></li>
+        <li><strong>Turning Rate back on while a note is held brings its pulses back.</strong></li>
     </ul>
     <details class="pt-6">
         <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.7.0</span><span class="text-base opacity-75"> &middot; 2026-09-08</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>A Click tab on the Kick layers a second one-shot over every pulse.</strong> Drag and drop a sample to get started.</li>
+            <li><strong>Live and Draw modes, in the header.</strong> Live turns on quantization and rate division for live play. Draw mode is the opposite, intended for pre-drawn MIDI clips. A bypass box has been added to each rate knob to achieve this.</li>
+            <li><strong>Triplet, in each Rate value's dropdown</strong>, swaps the dotted divisions for triplets. VST3 hosts can show either division; some AU hosts may keep the dotted label when toggling.</li>
+            <li><strong>Draw mode in every shape editor.</strong> Press B and drag to paint one step per grid cell; Esc or B leaves the mode.</li>
+            <li><strong>A folded corner marks a step box whose finer steps disagree.</strong> Rest the pointer on it to open the stored pattern underneath.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>The Wave tab's sample trim now has Start only.</strong> End control was overkill when we already have Length.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Holding or releasing Cmd/Ctrl during a value drag no longer jumping occasionally</strong></li>
+            <li><strong>The Kick reverb's Size now reaches a genuinely short room.</strong></li>
+        </ul>
         <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.6.0</span><span class="text-base opacity-75"> &middot; 2026-09-06</span></h3>
         <h4 class="text-base pt-3 opacity-75">Added</h4>
         <ul class="list-disc pl-5 pt-1 space-y-2">
