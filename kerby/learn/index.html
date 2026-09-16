@@ -127,7 +127,7 @@
                                     <p>Every MIDI note triggers both kick and bass. In Live mode, keep a note held, or
                                         play overlapping notes legato, and the Rate knobs do the repeating. A
                                         quarter-note kick with a sixteenth-note bass gives you four bass pulses for
-                                        every kick. Turn Rate briefly for a stutter or repeat, then return to the
+                                        every kick. Turn Rate briefly for a stutter or repeat, then send it home to the
                                         original pulse. It stays visible on every tab so you can play the rhythm while
                                         editing the sound.</p>
                                     <p>Restart on Kick can bring the bass rhythm back to its beginning at each kick.
@@ -188,6 +188,54 @@
                                     it: your first pattern</a> <a href="/kerby/reference/#timing"
                                     class="link-underline">Look up Rate and Length</a></p>
                         </section>
+                        <section id="home">
+                            <h2>Go anywhere. Come home on the beat.</h2>
+                            <div class="kerby-explained">
+                                <div>
+                                    <p>Rate is there to be played, and the house button at the right of the bottom bar, beside the step row and keyboard buttons,
+                                        is what makes that safe. Press it and both Rate knobs go back to their home and
+                                        both bend wheels return to centre. Push a stutter as far as it goes or drag the
+                                        tempo around, then bring the whole pattern back in one move.</p>
+                                    <p>Home starts as the rate the patch loaded with. To choose your own, right-click a
+                                        Rate knob and pick Set as home; a small tick on the knob marks it while you’re
+                                        away. Untick Goes home on a knob or wheel to leave it where it is while
+                                        everything else returns.</p>
+                                </div>
+                                <figure class="kerby-explainer"><svg class="kerby-fig" viewBox="0 0 320 150"
+                                        aria-hidden="true">
+                                        <rect x="1" y="1" width="318" height="148" rx="10" fill="var(--kerby-panel)"
+                                            stroke="var(--kerby-accent)" stroke-width="1" />
+                                        <!-- a Rate knob turned past its home tick -->
+                                        <path d="M68.9 115.1 A44 44 0 1 1 131.1 115.1" fill="none"
+                                            stroke="var(--kerby-grid)" stroke-width="5" stroke-linecap="round" />
+                                        <path d="M68.9 115.1 A44 44 0 1 1 138.1 62" fill="none"
+                                            stroke="var(--kerby-accent)" stroke-width="5" stroke-linecap="round" />
+                                        <line x1="100" y1="84" x2="126" y2="69" stroke="var(--kerby-strong)"
+                                            stroke-width="3" stroke-linecap="round" />
+                                        <line x1="73.1" y1="57.1" x2="64.6" y2="48.6" stroke="var(--kerby-strong)"
+                                            stroke-width="3" stroke-linecap="round" />
+                                        <!-- the way back -->
+                                        <path d="M150.2 55 A58 58 0 0 0 66.7 36.5" fill="none"
+                                            stroke="var(--kerby-ink)" stroke-width="1.5" stroke-dasharray="4 4" />
+                                        <path d="M70.3 27.8 L66.7 36.5 L76.1 36" fill="none" stroke="var(--kerby-ink)"
+                                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        <!-- the house button -->
+                                        <rect x="206" y="50" width="76" height="56" rx="8" fill="none"
+                                            stroke="var(--kerby-strong)" stroke-width="2" />
+                                        <path d="M230 94 V76 L244 64 L258 76 V94 Z" fill="var(--kerby-strong)" />
+                                    </svg>
+                                    <figcaption>The tick marks home. One press of the house button brings the knob back
+                                        to it.</figcaption>
+                                </figure>
+                            </div>
+                            <p>Put it on a button you can hit without looking. Return Home is a plugin parameter, so
+                                use your DAW’s MIDI mapping to give it a button on your controller, mapped straight to
+                                the parameter. Each Goes home switch is a parameter too: map one to a button to
+                                take a control out of Return Home, or put it back, mid-set.</p>
+                            <p class="kerby-related"><a href="/kerby/learn/first-pattern/" class="link-underline">Try
+                                    it: your first pattern</a> <a href="/kerby/reference/#home"
+                                    class="link-underline">Look up Return Home</a></p>
+                        </section>
                         <section id="shapes">
                             <h2>The shape is part of the sound.</h2>
                             <div class="kerby-explained">
@@ -240,6 +288,8 @@
                             <p>For a sampled attack over a synthesised kick, use the separate Click tab. The kick keeps
                                 its own waveform, and the sample gets its own level, envelope, high-pass filter and
                                 playback pitch.</p>
+                            <p>It works the other way too. Drag either scope and the bar it shows drops into your DAW,
+                                or back onto a Wave tab, as a WAV. Zoomed in, you get the quarter bar on screen.</p>
                             <p class="kerby-related"><a href="/kerby/learn/layer-a-click/" class="link-underline">Try
                                     it: layer a sampled attack</a> <a href="/kerby/reference/#samples"
                                     class="link-underline">Look up sample playback</a></p>
@@ -337,7 +387,7 @@
                         <section id="performance">
                             <h2>Take the pattern somewhere else.</h2>
                             <p>Pitch bend changes the notes; tempo bend stretches or compresses KerBy’s rhythm against
-                                the DAW. Reverse works on a captured stretch of the finished sound, including the
+                                the DAW. Return Home brings both back to centre. Reverse works on a captured stretch of the finished sound, including the
                                 ducking and reverb.</p>
                             <p>There is more sound shaping in the More tabs: FM, Tone, Noise and Crush on both voices,
                                 with resonance and glide on the bass. The <a href="/kerby/reference/signal-flow/"
