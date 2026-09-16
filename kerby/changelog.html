@@ -1,0 +1,126 @@
+<!-- Generated from the KerBy repo's CHANGELOG.md by scripts/changelog.py, which
+     release.sh runs as part of cutting a drop. kerby.js fetches this into the
+     "What's new" section of kerby/index.html. Don't hand-edit; edit CHANGELOG.md. -->
+<div class="text-lg font-light">
+    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.7.0</span><span class="text-base opacity-75"> &middot; 2026-09-08</span></h3>
+    <h4 class="text-base pt-3 opacity-75">Added</h4>
+    <ul class="list-disc pl-5 pt-1 space-y-2">
+        <li><strong>A Click tab on the Kick layers a second one-shot over every pulse.</strong> Drag and drop a sample to get started.</li>
+        <li><strong>Live and Draw modes, in the header.</strong> Live turns on quantization and rate division for live play. Draw mode is the opposite, intended for pre-drawn MIDI clips. A bypass box has been added to each rate knob to achieve this.</li>
+        <li><strong>Triplet, in each Rate value's dropdown</strong>, swaps the dotted divisions for triplets. VST3 hosts can show either division; some AU hosts may keep the dotted label when toggling.</li>
+        <li><strong>Draw mode in every shape editor.</strong> Press B and drag to paint one step per grid cell; Esc or B leaves the mode.</li>
+        <li><strong>A folded corner marks a step box whose finer steps disagree.</strong> Rest the pointer on it to open the stored pattern underneath.</li>
+    </ul>
+    <h4 class="text-base pt-3 opacity-75">Changed</h4>
+    <ul class="list-disc pl-5 pt-1 space-y-2">
+        <li><strong>The Wave tab's sample trim now has Start only.</strong> End control was overkill when we already have Length.</li>
+    </ul>
+    <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+    <ul class="list-disc pl-5 pt-1 space-y-2">
+        <li><strong>Holding or releasing Cmd/Ctrl during a value drag no longer jumping occasionally</strong></li>
+        <li><strong>The Kick reverb's Size now reaches a genuinely short room.</strong></li>
+    </ul>
+    <details class="pt-6">
+        <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.6.0</span><span class="text-base opacity-75"> &middot; 2026-09-06</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Drop an audio file on a voice's Wave tab and that voice plays it as a one-shot</strong> instead of its drawn waveform, retriggered by the same pulse clock.</li>
+            <li><strong>A step row under the Bass masks which of its pulses actually sound, and tunes them.</strong> Drag a box up or down for ±24 semitones on that step. Show the row from the bottom bar.</li>
+            <li><strong>Key, on both voices' More tabs</strong> — pins that voice to one note.</li>
+            <li><strong>Crush, on both voices' More tabs.</strong> Sample rate reduction.</li>
+            <li><strong>A bypass box on the Pitch, Filter and Duck tabs.</strong></li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>The More tab's knobs are bracketed into named runs.</strong></li>
+            <li><strong>Reset window size is now an item in the right-click scale menu.</strong></li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Turning Rate to a faster division while a note is held speeds the pulse up immediately</strong>, rather than waiting up to four beats for the slower rate's already-scheduled pulse to arrive first.</li>
+            <li><strong>Sweeping a free-running Rate in Hz now accelerates smoothly</strong>, rather than lurching the other way on some pulses.</li>
+            <li><strong>Spread no longer eats headroom under FM.</strong></li>
+            <li><strong>Noise follows Spread</strong>, widening with the voice instead of staying centred.</li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.5.0</span><span class="text-base opacity-75"> &middot; 2026-08-22</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Grid divisions on the shape editor's strip</strong>, X and Y, between the zoom bar and Length. They rule the gridlines and set what Shift+drag snaps to.</li>
+            <li><strong>Random Steps and Random Curves</strong>, at the foot of the shape editor's right-click menu. Both draw one step per X division with every level on a Y gridline.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Letting go of the tempo wheel puts the pattern back on the grid at once</strong>, rather than walking it there over the following bar. <strong>Walk back</strong>, at the bottom of the wheel's right-click menu, ramps it there over the next bar instead, with Quantize on.</li>
+            <li><strong>Bending a curve in the shape editor is Option+drag</strong> (Alt on Windows), not Cmd.</li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.4.0</span><span class="text-base opacity-75"> &middot; 2026-08-20</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Duck Rate</strong>, in Length's slot on the Duck tab. The duck window is no longer fixed at a quarter note.</li>
+            <li><strong>A lock at the right-hand end of the envelope strip</strong> fits the plot to the part of the gate that plays, and refits it as you drag Length.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>The Rate list now runs 2/1 to 1/128.</strong> Presets and sessions come back on the division they were saved with; Rate automation drawn in an earlier build now points at a different one.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>With Quantize on, letting go of the tempo wheel puts the pattern back on the DAW's grid</strong> over the next bar.</li>
+            <li><strong>The scope's gridlines line up with the trace while the transport is stopped.</strong></li>
+            <li><strong>The keyboard toggle dims evenly when hovered.</strong></li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.3.0</span><span class="text-base opacity-75"> &middot; 2026-08-18</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>A tempo wheel</strong>, at the right-hand end of the keyboard. Right-click for range.</li>
+            <li><strong>Reverb on the Kick</strong> — Amt, LP and Size on its More tab, ducked by the Bass's Sidechain curve.</li>
+            <li><strong>Reverse</strong>, the new <strong>R</strong> in the header. It records one Kick rate period and plays it back reversed.</li>
+            <li><strong>MIDI output — one short note per Kick pulse</strong>, for sidechaining anything to the Kick. In Live this is VST3 only; other DAWs untested.</li>
+            <li><strong>A combined scope.</strong> The <strong>+</strong> between the two scopes merges them into one panel showing the summed output.</li>
+            <li><strong>The pitch and tempo wheels can be automated or mapped to hardware.</strong> Map both to one macro for a tape stop.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>The scope gridlines sit on real pulses</strong>, which fixes dotted rates and unquantized notes. With Restart on Kick on, the Bass's lines start again on each Kick pulse, so you can see what it's doing.</li>
+            <li><strong>The Wave tab dims the part of the cycle a pulse never reaches</strong> — a low note under a fast Rate doesn't get all the way round the drawn waveform.</li>
+            <li><strong>Muting the Bass no longer greys out its Duck tab</strong> while that curve is still shaping the Kick's reverb.</li>
+            <li><strong>A level meter's clipping cap grows with the overshoot.</strong></li>
+            <li><strong>The logo button lists every shortcut and mouse gesture in the plugin.</strong></li>
+            <li><strong>The scope grows with the window.</strong></li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Hovering an envelope point takes the same colour as hovering a line.</strong></li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.1</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Free-running rate.</strong> Each voice's Rate can run in Hz instead of a note division — right-click the Rate knob to switch.</li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.2.0</span><span class="text-base opacity-75"> &middot; 2026-08-13</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>An on-screen keyboard, with a pitch wheel.</strong> Pitch bend from the host or a hardware wheel works now too.</li>
+            <li><strong>A bottom bar, and a tooltip on every control.</strong></li>
+            <li><strong>Bend, on the Bass</strong> — a continuous pitch offset, on its More tab.</li>
+            <li><strong>Interface scale</strong>, 75–200%. Right-click the background or the resize corner.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Dragging the window bigger grows the shape editor</strong>, rather than magnifying everything. Double-click the resize corner to reset it.</li>
+            <li><strong>Value boxes are typeable and draggable.</strong> Hold Cmd to fine-adjust, double-click to reset.</li>
+            <li><strong>Length moved</strong> out of the knob column onto the shape editor's control strip.</li>
+            <li><strong>Dragging a knob hides and pins the cursor.</strong></li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Resonance self-oscillated slightly off-pitch.</strong></li>
+        </ul>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.1.x</span><span class="text-base opacity-75"> &middot; August 2026</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Notes</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>The first tester drops</strong>, before this changelog existed.</li>
+        </ul>
+    </details>
+</div>

@@ -155,10 +155,35 @@ function initKerbyReference() {
     showLinkedTopic();
 }
 
+// "What's new" is fetched from changelog.html, which the plugin repo's release script
+// generates from CHANGELOG.md - kept out of index.html so the page isn't carrying a
+// generated history that grows every release. Same-origin, so the CSP's
+// connect-src 'self' already allows it. no-cache revalidates rather than refetching,
+// so a visitor right after a release sees the new notes, not a cached copy.
+function initKerbyChangelog() {
+    var container = document.getElementById('kerbyChangelog');
+    if (!container) return;
+
+    fetch('/kerby/changelog.html', { cache: 'no-cache' }).then(function (response) {
+        if (!response.ok) throw new Error(response.status);
+        return response.text();
+    }).then(function (html) {
+        container.innerHTML = html;
+    }).catch(function () {
+        // A link rather than an error message: the notes still exist, the fetch just failed.
+        container.innerHTML = '<p class="text-lg font-light pt-4"><a href="changelog.html" ' +
+            'class="link-underline">Read the changelog</a></p>';
+    }).then(function () {
+        document.body.dispatchEvent(new CustomEvent('layoutChanged'));
+    });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initKerbyOverview);
     document.addEventListener('DOMContentLoaded', initKerbyReference);
+    document.addEventListener('DOMContentLoaded', initKerbyChangelog);
 } else {
     initKerbyOverview();
     initKerbyReference();
+    initKerbyChangelog();
 }
