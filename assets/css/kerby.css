@@ -145,6 +145,22 @@
     .kerby-page, .kerby-signup { --kb-ink: #ffc2d1; --kb-accent: #ff7d9c; --kb-accent-line: #63434f; --kb-panel: #2b2226; --kb-line: rgba(230, 231, 227, .5); --kb-muted: #bbb2b5; }
 }
 
+/* Any on-screen label quoted in running text - a knob, tab, button, switch or menu
+   command, written with the plugin's own capitalisation ("the Duck tab", "Untick
+   Goes home"). The name of a control, not what it's set to: values stay plain,
+   whether numbers or words ("Rate at 1/4", "Key on MIDI", "Free", "Init").
+   Headings, <dt> terms, links and the signal-flow diagram stay plain too.
+   Body weight, so a sentence full of them doesn't turn bold. */
+.kerby-ui {
+    padding: .05em .35em;
+    border: 1px solid var(--kb-accent-line);
+    border-radius: .3em;
+    background: var(--kb-panel);
+    white-space: nowrap;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
 /* The same compact brand/navigation row precedes the divider on every KerBy page. */
 .kerby-nav { display: flex; align-items: center; justify-content: flex-start; gap: 1rem; padding: 1rem 0 0; font-size: .9rem; }
 .kerby-nav > div { display: flex; gap: 1.2rem; }
