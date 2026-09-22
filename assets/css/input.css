@@ -591,8 +591,9 @@ a.modal-trigger {
 
 /* Discography
    Cards are built by assets/js/releases.js from the data in
-   music-releases.js. Cover art is square, so the grid just tracks a
-   minimum card width and lets the columns fall where they may. */
+   music-releases.js. Cover art is square. Flex-wrap (rather than grid) so
+   that an incomplete last row centers itself in the gap under the rows
+   above it, instead of hugging the left edge. */
 
 .release-group + .release-group {
     padding-top: 2.5rem;
@@ -603,17 +604,20 @@ a.modal-trigger {
     font-size: 1.25rem;
     font-weight: 500;
     padding-bottom: 1rem;
+    text-align: center;
 }
 
 .release-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 2rem;
 }
 
 .release {
     display: flex;
     flex-direction: column;
+    flex: 0 0 220px;
     color: rgba(23, 23, 23);
     font-weight: 300;
 }
