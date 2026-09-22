@@ -29,6 +29,21 @@ export const PROJECT_ORDER = ['Keith', 'Root Basis'];
 export const releases = [
     {
         project: 'Keith',
+        title: 'A Year from the Abyss',
+        type: 'Compilation',
+        label: 'Abyssal Soundworks',
+        date: '2026-09-21',
+        url: 'https://abyssalsoundworks.bandcamp.com/album/a-year-from-the-abyss',
+        art: 'a-year-from-the-abyss.webp',
+        tracks: [
+            {
+                title: 'Internal Dilemma',
+                url: 'https://abyssalsoundworks.bandcamp.com/track/keith-internal-dilemma',
+            },
+        ],
+    },
+    {
+        project: 'Keith',
         title: 'Ghost Train',
         type: 'Album',
         label: 'Abyssal Soundworks',
