@@ -78,6 +78,21 @@ export const releases = [
     },
     {
         project: 'Keith',
+        title: 'ACP 2.1',
+        type: 'Compilation',
+        label: 'acoldplace',
+        date: '2023-12-01',
+        url: 'https://acoldplace.bandcamp.com/album/acp-21',
+        art: 'acp-21.webp',
+        tracks: [
+            {
+                title: 'Return of the Water Nymph',
+                url: 'https://acoldplace.bandcamp.com/track/return-of-the-water-nymph',
+            },
+        ],
+    },
+    {
+        project: 'Keith',
         title: 'WE ARE HERE 001',
         type: 'Compilation',
         label: 'Khnum Crew',
