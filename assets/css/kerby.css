@@ -81,7 +81,7 @@
     font-weight: 300;
 }
 .kerby-email::placeholder { color: var(--kb-muted); }
-/* The hero's "Ask to try the beta" button jumps here, so leave the form some air
+/* The hero's "Get notified at launch" button jumps here, so leave the form some air
    above it rather than landing it hard against the top of the viewport. */
 .kerby-signup { scroll-margin-top: 2rem; }
 .kerby-signup :is(input, button):focus-visible {
@@ -93,6 +93,7 @@
 .kerby-availability { margin-top: 1.1rem; color: var(--kb-muted); font-size: .78rem; }
 .kerby-availability span:last-child { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
+.kerby-section .kerby-preview { margin-top: 1.6rem; }
 .kerby-preview a { display: block; border-radius: .6rem; }
 .kerby-preview img {
     display: block;

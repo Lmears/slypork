@@ -1,7 +1,7 @@
 // /kerby/'s "follow along" signup and product illustrations.
 //
-// One list, two things arriving on it: a changelog email with each beta build, and
-// word when KerBy is released. The page's copy names both - a signup that promised
+// One list, two things arriving on it: word when KerBy is released, and a changelog
+// email with each new version. The page's copy names both - a signup that promised
 // only the release would make the build notes read as spam to whoever didn't ask.
 //
 // The form posts to Buttondown's public embed endpoint, which needs no API key -
@@ -23,7 +23,7 @@ function initNotifyForm() {
     var button = document.getElementById('notifyButton');
     var status = document.getElementById('notifyStatus');
     var buttonLabel = button.textContent;
-    var cta = document.getElementById('kerbyBetaCta');
+    var cta = document.getElementById('kerbyNotifyCta');
 
     // The hero button is an anchor to this form, so the browser does the scrolling;
     // this only puts the cursor in the field once it has arrived, after the jump, so
@@ -68,8 +68,8 @@ function initNotifyForm() {
             form.innerHTML =
                 '<p class="text-lg font-light">Almost there — check your inbox and click the ' +
                 'confirmation link.</p>' +
-                '<p class="text-base font-light pt-2 opacity-75">Then I\'ll be in touch about ' +
-                'a build, and you\'ll get the changelog as each new one lands. If it doesn\'t ' +
+                '<p class="text-base font-light pt-2 opacity-75">Then you\'ll hear when KerBy is ' +
+                'out, and get the changelog as each new version lands. If it doesn\'t ' +
                 'turn up, have a look in spam.</p>';
         }).catch(function () {
             button.disabled = false;

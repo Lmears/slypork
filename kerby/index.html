@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
-        content="KerBy is a kick and bass instrument built for playing. Turn Rate for rhythmic variations, write MIDI clips, and make sounds with synthesis or samples. macOS and Windows. Closed beta.">
+        content="KerBy is a kick and bass instrument built for playing. Turn Rate for rhythmic variations, write MIDI clips, and make sounds with synthesis or samples. macOS and Windows. Coming soon.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -94,9 +94,9 @@
                         <p class="kerby-intro">Hold a note to get a pattern going, or write each hit in your DAW.
                             Draw your own sounds, bring in samples, and shape how the kick and bass work together.</p>
                         <div class="kerby-actions">
-                            <a class="kerby-button" href="#notifyForm" id="kerbyBetaCta">Ask to try the beta</a>
+                            <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
                         </div>
-                        <p class="kerby-availability">Closed beta · <span data-kerby-version>v0.8.0</span>
+                        <p class="kerby-availability">Coming soon · <span data-kerby-version>v0.8.0</span>
                             <span>macOS · AU / VST3 &nbsp; Windows · VST3</span>
                         </p>
                     </header>
@@ -163,6 +163,28 @@
                             The voices are called Kick and Bass, but the sounds and patterns can go well beyond either.
                         </p>
                     </section>
+
+                    <section class="kerby-section" aria-labelledby="kerby-matrix-heading">
+                        <p class="kerby-eyebrow">Make it move</p>
+                        <h2 id="kerby-matrix-heading">Macros, LFOs and your own shapes.</h2>
+                        <p>The Matrix page routes macros, LFOs and the envelopes you’ve drawn to controls on either
+                            voice. One macro can reshape the kick and bass together, and an LFO can move the bass in
+                            time with the track.</p>
+                        <figure class="kerby-preview">
+                            <a class="modal-trigger" href="../assets/images/software/KerBy_matrix_lightmode.png"
+                                aria-label="Enlarge the Matrix page">
+                                <picture>
+                                    <source media="(prefers-color-scheme: dark)"
+                                        srcset="../assets/images/software/KerBy_matrix_darkmode.png">
+                                    <img src="../assets/images/software/KerBy_matrix_lightmode.png" width="1620"
+                                        height="1228" loading="lazy"
+                                        alt="KerBy’s Matrix page: four macro knobs, two LFO curves, and a route list sending LFO 1 to LFO 2’s shape and LFO 2 to the bass wave shape.">
+                                </picture>
+                            </a>
+                            <figcaption><span>A smooth random LFO wanders the shape of a second LFO, which morphs the
+                                    bass waveform.</span></figcaption>
+                        </figure>
+                    </section>
                     <aside class="kerby-next" aria-label="Explore KerBy">
                         <a href="/kerby/learn/"><span class="kerby-eyebrow">Learn</span><strong>Get to know the
                                 instrument</strong><span>An
@@ -196,19 +218,18 @@
                          the inline-response upgrade. Without JS this still works, it just lands
                          on Buttondown's own confirmation page instead.
 
-                         One list, one promise: everyone who signs up is treated as wanting a
-                         build. Splitting testers from followers needed a tag, and tags are a paid
-                         Buttondown add-on - so rather than record a distinction that the free
-                         plan drops on the floor, the copy just promises both things to everyone.
-                         The hero's "Ask to try the beta" button scrolls here. -->
+                         One list for the launch announcement and each version's changelog. It
+                         used to double as beta sign-up; testers are now recruited directly, so
+                         the copy promises no build. The hero's "Get notified at launch" button
+                         scrolls here. -->
                     <form id="notifyForm" class="kerby-signup pt-8"
                         action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
                         <label for="notifyEmail" class="block text-lg font-light">
-                            Ask to try the beta:
+                            Get notified at launch:
                         </label>
                         <p class="text-base font-light pt-1 opacity-75">
-                            Leave your email and I'll be in touch about a build. You'll get the
-                            changelog as each new one lands, and word when KerBy is out.
+                            Leave your email for word when KerBy is out, and the changelog as each
+                            new version lands.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
                             <input type="email" id="notifyEmail" name="email" required autocomplete="email"
@@ -221,6 +242,8 @@
                         </div>
                         <p id="notifyStatus" class="text-base font-light pt-2" role="status" aria-live="polite"></p>
                     </form>
+                    <p class="text-base font-light pt-8 opacity-75">KerBy ships unlocked: no key, no activation.
+                        <a href="/kerby/licence/" class="link-underline">Read the licence</a></p>
                 </div>
             </section>
         </section>
