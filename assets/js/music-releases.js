@@ -70,7 +70,7 @@ export const releases = [
         art: 'cosmic-enigma.webp',
         tracks: [
             {
-                title: "This Life Thing's Pretty Cool [220]",
+                title: "This Life Thing's Pretty Cool",
                 artist: 'Saturnin x Keith',
                 url: 'https://khnumcrew.bandcamp.com/track/this-life-things-pretty-cool-220',
             },
