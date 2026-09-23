@@ -4,12 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; media-src 'self'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz https://www.youtube-nocookie.com; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
     <meta name="description"
         content="KerBy is a kick and bass instrument built for playing. Turn Rate for rhythmic variations, write MIDI clips, and make sounds with synthesis or samples. macOS and Windows. Coming soon.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Slypork">
+    <meta property="og:title" content="KerBy: a kick &amp; bass instrument">
+    <meta property="og:description" content="KerBy is a kick and bass instrument built for playing. Turn Rate for rhythmic variations, write MIDI clips, and make sounds with synthesis or samples. macOS and Windows. Coming soon.">
+    <meta property="og:url" content="https://slypork.net/kerby/">
+    <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
+    <meta property="og:image:width" content="1620">
+    <meta property="og:image:height" content="1228">
+    <meta property="og:image:alt" content="KerBy: kick above bass, with separate rates, drawn waveforms and scopes.">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -97,7 +107,7 @@
                             <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
                         </div>
                         <p class="kerby-availability">Coming soon · <span data-kerby-version>v0.9.0</span>
-                            <span>macOS · AU / VST3 &nbsp; Windows · VST3</span>
+                            <span>macOS 11+ · AU / VST3 / Standalone &nbsp; Windows 10+ · VST3</span>
                         </p>
                     </header>
 
@@ -243,7 +253,10 @@
                         </div>
                         <p id="notifyStatus" class="text-base font-light pt-2" role="status" aria-live="polite"></p>
                     </form>
-                    <p class="text-base font-light pt-8 opacity-75">KerBy ships unlocked: no key, no activation.
+                    <p class="text-base font-light pt-8 opacity-75">Runs on macOS 11 or later, Apple Silicon or
+                        Intel, and 64-bit Windows 10 or later.
+                        <a href="/kerby/install/#requirements" class="link-underline">What you need</a></p>
+                    <p class="text-base font-light pt-2 opacity-75">KerBy ships unlocked: no key, no activation.
                         <a href="/kerby/licence/" class="link-underline">Read the licence</a></p>
                 </div>
             </section>

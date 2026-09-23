@@ -4,7 +4,7 @@ The product area has three destinations. Keep the distinction when adding materi
 
 | Destination | Reader's question | What belongs here |
 | --- | --- | --- |
-| `/kerby/` — Overview | What is it, and would I use it? | Short introduction, current interface, core benefits, beta contact, updates. |
+| `/kerby/` — Overview | What is it, and would I use it? | Short introduction, current interface, core benefits, requirements, launch sign-up, updates. |
 | `/kerby/learn/` — Learn | How do I use it, and what could I try? | Illustrated explanation and links to practical guides. The original product page's explanatory figures live here. |
 | `/kerby/reference/` — Reference | What does this control do? | The wiki/reference layer: searchable topics, stable heading links, precise behaviour. |
 
@@ -31,7 +31,7 @@ account system or visitor editing. Stable topic IDs allow guides and support rep
 link directly to an answer. Search progressively filters complete HTML sections; every
 topic remains readable without JavaScript.
 
-Behaviour was checked against plugin tag `v0.7.0`. The dated reference labels record that
+Behaviour was last checked against plugin tag `v0.9.0`. The dated reference labels record that
 review, rather than automatically claiming compatibility with every new build. On a
 behaviour change, update the affected topic, related guide and signal map together.
 
@@ -69,6 +69,18 @@ simplifying or redrawing the diagram.
   separately. Do not move the changelog without changing and verifying that integration.
 - Keep the Overview concise. New detail normally belongs in Learn or Reference, with a
   contextual link from the Overview if it helps a first-time visitor.
+- Every KerBy page carries Open Graph and `twitter:card` tags so links shared in Discord,
+  Instagram and video descriptions show a preview. `og:description` repeats the page's meta
+  description; change both together. A new page needs its own block with its own `og:url`.
+- The KerBy pages' CSP allows `media-src 'self'` for self-hosted audio and video, and
+  `https://www.youtube-nocookie.com` in `frame-src` for embedded videos. Use the nocookie
+  domain for YouTube embeds. A plain link to Gumroad needs no CSP change; Gumroad's overlay
+  script would need `script-src` and `frame-src` entries, which is why it isn't allowed.
+  `npm run check:security` checks media and iframe sources against the policy.
+- System requirements live on `/kerby/install/#requirements`, with a short copy in the
+  Overview hero and footer. They come from the plugin repository: `CMAKE_OSX_DEPLOYMENT_TARGET`
+  and the universal build in `CMakeLists.txt`, the x64 Windows job, and JUCE's own minimum
+  Windows version. Update all three places together.
 
 Validate nested links and assets, mobile layout, both colour schemes, keyboard navigation,
 search clearing/no-results/deep links, and no-JavaScript fallbacks when changing this area.
@@ -76,7 +88,7 @@ search clearing/no-results/deep links, and no-JavaScript fallbacks when changing
 ## Voice and site consistency
 
 KerBy belongs to the personal site. Use its shared title spacing, neutral half-pixel
-rules and `link-underline` hover offset (3px to 6px). Keep the KerBy font, pink accents, hero, beta button, eyebrow labels and boxed Live/Draw labels.
+rules and `link-underline` hover offset (3px to 6px). Keep the KerBy font, pink accents, hero, call-to-action button, eyebrow labels and boxed Live/Draw labels.
 Only the current local navigation destination is underlined. The shared divider
 position and colour and the text-link hover behavior still belong to the site.
 
@@ -120,5 +132,5 @@ Reserve neutral rules for page/section dividers. The interface snapshot border a
 ducking illustration's border, grid and slider track use the pink accent-line colour.
 The signal-flow card, search input, signal-map frame/caption rule and individual
 processing boxes use that same pink border; they are not page dividers.
-The newsletter and beta actions share `kerby-button`; newsletter inputs use the same
+The newsletter and hero actions share `kerby-button`; newsletter inputs use the same
 ink/panel/accent palette, in both themes.

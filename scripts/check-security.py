@@ -54,6 +54,8 @@ class Page(HTMLParser):
             self.resource("script-src", attrs["src"])
         if tag == "iframe":
             self.resource("frame-src", attrs["src"])
+        if tag in {"audio", "video", "source", "track"} and attrs.get("src"):
+            self.resource("media-src", attrs["src"])
         if tag == "form" and attrs.get("action"):
             self.resource("form-action", attrs["action"])
         if tag == "link" and attrs.get("rel") == "stylesheet":

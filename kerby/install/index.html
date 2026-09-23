@@ -4,12 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; media-src 'self'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz https://www.youtube-nocookie.com; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>Install | KerBy | Slypork</title>
     <meta name="description"
-        content="How to install KerBy on macOS and Windows, find it in your DAW, update it and remove it.">
+        content="What KerBy needs, how to install it on macOS and Windows, find it in your DAW, update it and remove it.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Slypork">
+    <meta property="og:title" content="Install | KerBy">
+    <meta property="og:description" content="What KerBy needs, how to install it on macOS and Windows, find it in your DAW, update it and remove it.">
+    <meta property="og:url" content="https://slypork.net/kerby/install/">
+    <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
+    <meta property="og:image:width" content="1620">
+    <meta property="og:image:height" content="1228">
+    <meta property="og:image:alt" content="KerBy: kick above bass, with separate rates, drawn waveforms and scopes.">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
@@ -92,6 +102,19 @@
                         <h1 class="kerby-doc-title">Get KerBy running.</h1>
                     </header>
                     <article class="kerby-prose">
+                        <section id="requirements">
+                            <h2>What you need</h2>
+                            <dl>
+                                <dt>macOS</dt>
+                                <dd>macOS 11 Big Sur or later, on Apple Silicon or Intel. VST3, AU and a standalone
+                                    app.</dd>
+                                <dt>Windows</dt>
+                                <dd>64-bit Windows 10 or later. VST3.</dd>
+                                <dt>DAW</dt>
+                                <dd>Any host that loads VST3 or AU instruments. There’s no AAX version, so it won’t
+                                    run in Pro Tools.</dd>
+                            </dl>
+                        </section>
                         <section id="macos">
                             <h2>macOS</h2>
                             <p>Open <strong>KerBy-macOS.pkg</strong> and follow the installer. Pick the formats you
