@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width">
     <title>Reference | KerBy | Slypork</title>
     <meta name="description"
-        content="Look up KerBy controls, playback modes, Return Home, samples, envelopes, steps, ducking and signal flow.">
+        content="Look up KerBy controls, playback modes, Return Home, the Matrix, samples, envelopes, steps, ducking and signal flow.">
     <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
@@ -91,7 +91,7 @@
                         <p class="kerby-eyebrow">KerBy reference</p>
                         <h1 class="kerby-doc-title">Look something up.</h1>
                         <p class="kerby-lead">Controls, behaviour and the connections between them.</p>
-                        <p class="kerby-doc-meta">Checked against KerBy 0.8.0 · 17 September 2026</p>
+                        <p class="kerby-doc-meta">Checked against KerBy 0.9.0 · 24 September 2026</p>
                     </header>
                     <a class="kerby-reference-map" href="/kerby/reference/signal-flow/"><span
                             class="kerby-eyebrow">Signal flow</span><strong>Where does the sound go?
@@ -112,29 +112,35 @@
                             layer</a><a href="#colour" class="link-underline">Tone, FM, Noise &amp; Crush</a><a
                             href="#duck-reverb" class="link-underline">Duck &amp; Reverb</a><a href="#steps"
                             class="link-underline">The bass step row</a><a href="#performance"
-                            class="link-underline">Bend, Reverse &amp; MIDI out</a><a href="#presets"
-                            class="link-underline">Presets &amp; sessions</a><a href="#interface"
-                            class="link-underline">Window, scopes &amp; gestures</a></nav>
+                            class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a><a href="#matrix"
+                            class="link-underline">The Matrix</a><a href="#presets" class="link-underline">Presets &amp;
+                            sessions</a><a href="#interface" class="link-underline">Window, scopes &amp; gestures</a>
+                    </nav>
                     <div class="kerby-prose kerby-reference-entries" id="kerbyReferenceEntries">
                         <section id="playing" data-reference>
                             <h2><a href="#playing" class="link-underline">Live &amp; Draw</a></h2>
-                            <p>The header’s <span class="kerby-ui">Live</span> and <span class="kerby-ui">Draw</span> buttons set up two ways of playing. You can still change their
+                            <p>The header’s <span class="kerby-ui">Live</span> and <span class="kerby-ui">Draw</span>
+                                buttons set up two ways of playing. You can still change their
                                 individual switches afterwards.</p>
                             <dl>
                                 <dt>Live</dt>
-                                <dd>Enables <span class="kerby-ui">Quantize</span> and both <span class="kerby-ui">Rate</span> switches. Held notes become repeating pulses.</dd>
+                                <dd>Enables <span class="kerby-ui">Quantize</span> and both <span
+                                        class="kerby-ui">Rate</span> switches. Held notes become repeating pulses.</dd>
                                 <dt>Draw</dt>
-                                <dd>Disables <span class="kerby-ui">Quantize</span> and both <span class="kerby-ui">Rate</span> switches. Each MIDI note triggers one pulse in both
+                                <dd>Disables <span class="kerby-ui">Quantize</span> and both <span
+                                        class="kerby-ui">Rate</span> switches. Each MIDI note triggers one pulse in both
                                     kick and bass; the voices do not have separate MIDI note lanes.</dd>
                                 <dt>A mark beside the mode</dt>
                                 <dd>The settings have been changed from that mode’s defaults. Click the mode again to
                                     restore those defaults.</dd>
                             </dl>
                             <p>MIDI note duration matters. For repeated bass pulses between kicks, keep a note held or
-                                play overlapping notes legato, with the bass <span class="kerby-ui">Rate</span> enabled. When both voices trigger once
+                                play overlapping notes legato, with the bass <span class="kerby-ui">Rate</span> enabled.
+                                When both voices trigger once
                                 per MIDI note, let the note and bass envelope last long enough to reach beyond the
                                 initial duck. Short notes can end before the bass is heard.</p>
-                            <p>The header’s <span class="kerby-ui">Draw</span> mode is separate from the shape editor’s drawing tool, toggled with B.
+                            <p>The header’s <span class="kerby-ui">Draw</span> mode is separate from the shape editor’s
+                                drawing tool, toggled with B.
                             </p>
                             <p class="kerby-related"><a href="/kerby/learn/first-pattern/" class="link-underline">Guide:
                                     your first pattern</a></p>
@@ -143,26 +149,34 @@
                             <h2><a href="#timing" class="link-underline">Rate, Length &amp; timing</a></h2>
                             <dl>
                                 <dt>Rate</dt>
-                                <dd>How often a held note retriggers. Right-click <span class="kerby-ui">Rate</span> for its timing mode and its home;
-                                    synced divisions follow the DAW tempo, while Free uses Hz. Switching to Free starts
-                                    at the division’s speed at the current tempo, so the rhythm carries on.</dd>
+                                <dd>How often a held note retriggers. Right-click <span class="kerby-ui">Rate</span> for
+                                    its timing mode, <span class="kerby-ui">Triplet</span>
+                                    and its home; synced divisions follow the DAW tempo, while Free runs from 0.1Hz to
+                                    100Hz. Switching to Free starts at the division’s speed at the current tempo, so the
+                                    rhythm carries on.</dd>
                                 <dt>The Rate on/off box</dt>
-                                <dd>With repetition off, a note triggers one pulse. The <span class="kerby-ui">Rate</span> value can still supply a
-                                    launch grid when <span class="kerby-ui">Quantize</span> is on. Turning it back on while a note is held brings the
+                                <dd>With repetition off, a note triggers one pulse. The <span
+                                        class="kerby-ui">Rate</span> value can still supply a
+                                    launch grid when <span class="kerby-ui">Quantize</span> is on. Turning it back on
+                                    while a note is held brings the
                                     pulses back.</dd>
                                 <dt>Triplet</dt>
-                                <dd>In the <span class="kerby-ui">Rate</span> value’s dropdown, switches the dotted choices to triplets. Straight
-                                    divisions stay the same.</dd>
+                                <dd>In the <span class="kerby-ui">Rate</span> knob’s right-click menu, switches the dotted choices to triplets.
+                                    Straight divisions stay the same.</dd>
                                 <dt>Length</dt>
                                 <dd>How much of a bar a pulse lasts. It controls the hit’s duration, independently of
-                                    <span class="kerby-ui">Rate</span>. A new pulse can interrupt it.</dd>
+                                    <span class="kerby-ui">Rate</span>. A new pulse can interrupt it.
+                                </dd>
                                 <dt>Q — Quantize</dt>
                                 <dd>Places incoming notes on the launch grid.</dd>
                                 <dt>K — Launch with Kick</dt>
-                                <dd>Uses the kick’s grid to start both voices when <span class="kerby-ui">Quantize</span> is enabled.</dd>
+                                <dd>Uses the kick’s grid to start both voices when <span
+                                        class="kerby-ui">Quantize</span> is enabled.</dd>
                                 <dt>Restart on Kick</dt>
-                                <dd>Restarts the bass’s repeating pulse clock on kick pulses. This is separate from <span class="kerby-ui">K</span>,
-                                    which controls the initial launch.</dd>
+                                <dd>In the bass <span class="kerby-ui">Rate</span> knob’s right-click menu. Restarts the bass’s
+                                    repeating pulse clock on kick pulses. This is separate from <span
+                                        class="kerby-ui">K</span>, which controls the
+                                    initial launch.</dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/#rhythm" class="link-underline">Tour: a note
                                     becomes a rhythm</a></p>
@@ -170,35 +184,50 @@
                         <section id="home" data-reference>
                             <h2><a href="#home" class="link-underline">Return Home</a></h2>
                             <p>The home button at the right of the bottom bar, beside the step row and keyboard
-                                buttons. Press it to undo a performance in one move: each <span class="kerby-ui">Rate</span> knob goes to its home and
-                                both bend wheels return to centre. Synced rates land straight back on the grid. The
-                                button flashes whenever a return happens, including one from a controller.</p>
+                                buttons. Press it to undo a performance in one move: each <span
+                                    class="kerby-ui">Rate</span> knob goes to its home,
+                                both bend wheels return to centre, and every other control set to go home follows.
+                                Synced rates land straight back on the grid. The button flashes whenever a return
+                                happens, including one from a controller.</p>
                             <dl>
                                 <dt>Home</dt>
-                                <dd>Each voice’s <span class="kerby-ui">Rate</span> has one. It starts as the rate the patch or preset loaded with.
-                                    Right-click a <span class="kerby-ui">Rate</span> knob and choose <span class="kerby-ui">Set as home</span> to move it; the item is ticked while
-                                    the knob is at home.</dd>
+                                <dd>Each voice’s <span class="kerby-ui">Rate</span> has one, and so does every knob on
+                                    the voices’ tabs and <span class="kerby-ui">More</span>
+                                    tabs, each macro, each LFO’s rate, <span class="kerby-ui">Glitch</span>, <span
+                                        class="kerby-ui">Reverse</span> and <span class="kerby-ui">Launch with
+                                        Kick</span>. It starts as
+                                    the value the patch or preset loaded with. Right-click the control and choose <span
+                                        class="kerby-ui">Set as
+                                        home</span> to move it.</dd>
                                 <dt>The home tick</dt>
-                                <dd>A short mark on a <span class="kerby-ui">Rate</span> knob’s track shows where home is while the knob is away from
-                                    it.</dd>
+                                <dd>A short mark on a knob’s track shows where home is. A knob that doesn’t go home
+                                    shows none.</dd>
                                 <dt>Goes home</dt>
-                                <dd>In the right-click menu of each <span class="kerby-ui">Rate</span> knob and each keyboard wheel. Untick it to
-                                    leave that control where it is when you return. An excluded <span class="kerby-ui">Rate</span> shows no home tick.
+                                <dd>In the same right-click menu. The rates, the wheels, the macros, the LFO rates,
+                                    <span class="kerby-ui">Glitch</span>, <span class="kerby-ui">Reverse</span> and
+                                    <span class="kerby-ui">Launch with Kick</span> go home to start with; untick one to
+                                    leave
+                                    it where it is when you return. The sound knobs stay put until you tick theirs.
                                 </dd>
+                                <dt>Double-click</dt>
+                                <dd>Sends a knob to its home, even with its <span class="kerby-ui">Goes home</span> unticked.</dd>
                                 <dt>Bend wheels</dt>
                                 <dd>Always return to centre. Their home can’t be moved.</dd>
                                 <dt>On a controller</dt>
-                                <dd><span class="kerby-ui">Return Home</span> is a plugin parameter, so any DAW’s MIDI mapping can put it on a button.
+                                <dd><span class="kerby-ui">Return Home</span> is a plugin parameter, so any DAW’s MIDI
+                                    mapping can put it on a button.
                                     Momentary buttons, toggles and pads that only send “on” all work. Map the button to
                                     the parameter directly, not through a macro.</dd>
                                 <dt>Switching Goes home live</dt>
-                                <dd>The four <span class="kerby-ui">Goes home</span> switches (kick <span class="kerby-ui">Rate</span>, bass <span class="kerby-ui">Rate</span>, pitch bend, tempo bend) are
-                                    parameters too. Map one to a button to take that control out of <span class="kerby-ui">Return Home</span>, or put
-                                    it
-                                    back, without opening its menu.</dd>
+                                <dd>Every <span class="kerby-ui">Goes home</span> switch is a parameter too. Map one to
+                                    a button to take that
+                                    control out of <span class="kerby-ui">Return Home</span>, or put it back, without
+                                    opening its menu.</dd>
                                 <dt>What stays put</dt>
-                                <dd><span class="kerby-ui">Rate</span> on/off, Sync or Free, <span class="kerby-ui">Triplet</span>, the wheels’ ranges and every sound setting.
-                                    <span class="kerby-ui">Return Home</span> only moves the rates and bends.</dd>
+                                <dd><span class="kerby-ui">Rate</span> on/off, Sync or Free, <span
+                                        class="kerby-ui">Triplet</span>, the wheels’ ranges and any control whose
+                                    <span class="kerby-ui">Goes home</span> is unticked.
+                                </dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/#home" class="link-underline">Tour: go
                                     anywhere, come home</a><a href="/kerby/learn/first-pattern/"
@@ -208,15 +237,18 @@
                             <h2><a href="#pitch" class="link-underline">Key, Tune &amp; pitch</a></h2>
                             <dl>
                                 <dt>Key</dt>
-                                <dd>In each <span class="kerby-ui">More</span> tab. MIDI follows played notes; a fixed note keeps that voice on one
+                                <dd>In each <span class="kerby-ui">More</span> tab. MIDI follows played notes; a fixed
+                                    note keeps that voice on one
                                     pitch while you play the other.</dd>
                                 <dt>Tune</dt>
                                 <dd>Transposes a voice in semitones.</dd>
                                 <dt>Pitch tab</dt>
-                                <dd>A drawn pitch sweep for each hit. <span class="kerby-ui">Amt</span> sets its depth; the tab’s box enables or
+                                <dd>A drawn pitch sweep for each hit. <span class="kerby-ui">Amt</span> sets its depth;
+                                    the tab’s box enables or
                                     bypasses it.</dd>
                                 <dt>Bend</dt>
-                                <dd>The bass’s continuous pitch offset, available in <span class="kerby-ui">More</span>.</dd>
+                                <dd>The bass’s continuous pitch offset, available in <span class="kerby-ui">More</span>.
+                                </dd>
                                 <dt>Glide</dt>
                                 <dd>The bass’s slide time between notes.</dd>
                             </dl>
@@ -229,11 +261,21 @@
                                 <dt>Wave</dt>
                                 <dd>One repeating oscillator cycle, or a loaded sample. A waveform’s horizontal axis is
                                     one cycle, rather than a whole hit.</dd>
+                                <dt>Wave Shape</dt>
+                                <dd>Morphs the oscillator from your drawing through Sine, Triangle, Ramp Up, Ramp Down,
+                                    Square and Sidechain Duck. A fixed shape picked from the <span
+                                        class="kerby-ui">Wave</span> tab’s shape menu moves
+                                    it to that stop; route a macro or LFO to it on the <a href="#matrix"
+                                        class="link-underline">Matrix</a> page to sweep
+                                    between them. Editing a morphed shape makes it your drawing, unless a route is
+                                    holding
+                                    it. A loaded sample ignores it.</dd>
                                 <dt>Amp</dt>
                                 <dd>The level over the duration of a hit.</dd>
                                 <dt>Filter</dt>
-                                <dd>The bass’s cutoff movement over a hit. <span class="kerby-ui">Amt</span> sets the sweep’s depth. Bypassing the tab
-                                    opens the filter.</dd>
+                                <dd>A low-pass cutoff sweep over each hit. <span class="kerby-ui">Amt</span> sets the sweep’s depth. Bypassing the
+                                    tab opens the filter. The kick’s has no <span class="kerby-ui">Reso</span> knob: its resonance rises as the cutoff
+                                    comes down.</dd>
                                 <dt>Shape presets</dt>
                                 <dd>Right-click a shape or its tab to choose a starting curve.</dd>
                                 <dt>Points</dt>
@@ -241,28 +283,35 @@
                                     remove it. Shift-drag snaps to the grid.</dd>
                                 <dt>Drawing tool</dt>
                                 <dd>Focus the shape editor and press B to paint one step per grid cell. B or Esc leaves
-                                    the tool. <span class="kerby-ui">X</span> and <span class="kerby-ui">Y</span> set the grid divisions. Points are hidden while it is on.</dd>
+                                    the tool. <span class="kerby-ui">X</span> and <span class="kerby-ui">Y</span> set
+                                    the grid divisions. Points are hidden while it is on.</dd>
                             </dl>
                             <p>The shaded reach shows limits on what can be heard. A fast retrigger can arrive before
-                                the envelope reaches its end. The <span class="kerby-ui">Click</span> envelope uses its sample’s timeline, and <span class="kerby-ui">Duck</span>
+                                the envelope reaches its end. The <span class="kerby-ui">Click</span> envelope uses its
+                                sample’s timeline, and <span class="kerby-ui">Duck</span>
                                 uses its own <span class="kerby-ui">Rate</span>.</p>
                             <p class="kerby-related"><a href="/kerby/learn/#shapes" class="link-underline">Tour: shapes
                                     and sound</a></p>
                         </section>
                         <section id="samples" data-reference>
                             <h2><a href="#samples" class="link-underline">Wave samples</a></h2>
-                            <p>Drop an audio file onto either voice’s <span class="kerby-ui">Wave</span> tab, or use its file button. The voice plays
+                            <p>Drop an audio file onto either voice’s <span class="kerby-ui">Wave</span> tab, or use its
+                                file button. The voice plays
                                 it as a one-shot in place of the drawn oscillator. A new pulse retriggers it; played
                                 pitch changes playback speed.</p>
                             <dl>
                                 <dt>Start</dt>
-                                <dd>Moves the beginning of playback into the file. Use <span class="kerby-ui">Length</span> and <span class="kerby-ui">Amp</span> to shape the hit’s
+                                <dd>Moves the beginning of playback into the file. Use <span
+                                        class="kerby-ui">Length</span> and <span class="kerby-ui">Amp</span> to shape
+                                    the hit’s
                                     duration.</dd>
                                 <dt>Pitch and Filter after loading</dt>
-                                <dd>Loading a <span class="kerby-ui">Wave</span> sample switches these envelopes off where present. Enable their tab
+                                <dd>Loading a <span class="kerby-ui">Wave</span> sample switches these envelopes off
+                                    where present. Enable their tab
                                     boxes to process the sample.</dd>
                                 <dt>Removing a sample</dt>
-                                <dd>The cross in the <span class="kerby-ui">Wave</span> plot returns to the drawn oscillator and turns those envelopes
+                                <dd>The cross in the <span class="kerby-ui">Wave</span> plot returns to the drawn
+                                    oscillator and turns those envelopes
                                     back on.</dd>
                                 <dt>Saving</dt>
                                 <dd>Sample audio is embedded in presets and session state.</dd>
@@ -282,11 +331,17 @@
                                 <dt>HP</dt>
                                 <dd>A high-pass filter that removes low frequencies from the click.</dd>
                                 <dt>Pitch and padlock</dt>
-                                <dd><span class="kerby-ui">Pitch</span> changes playback speed. Locked keeps it independent of played notes; unlocked
+                                <dd><span class="kerby-ui">Pitch</span> changes playback speed. Locked keeps it
+                                    independent of played notes; unlocked
                                     enables note tracking.</dd>
                                 <dt>Processing</dt>
-                                <dd><span class="kerby-ui">FM</span> and <span class="kerby-ui">Tone</span> reach the click. <span class="kerby-ui">Crush</span> acts on the combined kick and click. The click
-                                    also enters the kick’s reverb send. <span class="kerby-ui">Spread</span> and <span class="kerby-ui">Noise</span> belong to the main source.</dd>
+                                <dd><span class="kerby-ui">FM</span> and <span class="kerby-ui">Tone</span> reach the
+                                    click. <span class="kerby-ui">Crush</span> acts on the combined kick and click. The
+                                    click
+                                    also enters the kick’s reverb send. <span class="kerby-ui">Filter</span>, <span
+                                        class="kerby-ui">Spread</span> and <span class="kerby-ui">Noise</span> belong to
+                                    the main
+                                    source.</dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/layer-a-click/" class="link-underline">Guide:
                                     add a sampled attack</a></p>
@@ -298,18 +353,22 @@
                                 <dd>Saturation that adds odd harmonics. It acts before the amplitude envelope, including
                                     within the <span class="kerby-ui">Click</span> layer.</dd>
                                 <dt>FM Amt and Ratio</dt>
-                                <dd><span class="kerby-ui">Amt</span> sets modulation depth; <span class="kerby-ui">Ratio</span> sets the modulator’s pitch relative to the note. It
-                                    can reshape the oscillator, a <span class="kerby-ui">Wave</span> sample and the <span class="kerby-ui">Click</span> sample.</dd>
+                                <dd><span class="kerby-ui">Amt</span> sets modulation depth; <span
+                                        class="kerby-ui">Ratio</span> sets the modulator’s pitch relative to the note.
+                                    It
+                                    can reshape the oscillator, a <span class="kerby-ui">Wave</span> sample and the
+                                    <span class="kerby-ui">Click</span> sample.
+                                </dd>
                                 <dt>Noise</dt>
-                                <dd>A noise layer that follows the main amplitude envelope. On the bass, its tone also
-                                    follows the filter cutoff.</dd>
+                                <dd>A noise layer that follows the main amplitude envelope. Its tone also follows the
+                                    filter cutoff.</dd>
                                 <dt>Spread</dt>
                                 <dd>Detuned stereo unison. The noise layer widens along with the oscillator stack.</dd>
                                 <dt>Crush</dt>
                                 <dd>Sample-rate reduction, also called Downsample in the signal map. It processes the
                                     voice’s combined output before the volume control.</dd>
                                 <dt>Reso</dt>
-                                <dd>Resonance around the bass filter’s cutoff.</dd>
+                                <dd>Resonance around the bass filter’s cutoff, up to self-oscillation at the top.</dd>
                                 <dt>Mono lows</dt>
                                 <dd>Everything below 120Hz is summed to mono on each voice. Always on, with no control.
                                 </dd>
@@ -329,24 +388,33 @@
                                 <dt>Duck Rate</dt>
                                 <dd>How long the curve takes to play. Each kick restarts it; after it finishes, its
                                     final level holds until the next kick.</dd>
+                                <dt>Duck Smooth</dt>
+                                <dd>Beside <span class="kerby-ui">Duck Rate</span>. Turns jumps in the curve into ramps;
+                                    0% plays the curve as
+                                    drawn.</dd>
                                 <dt>Duck bypass</dt>
-                                <dd>The box on the <span class="kerby-ui">Duck</span> tab disables ducking for both the bass and the kick’s reverb.
+                                <dd>The box on the <span class="kerby-ui">Duck</span> tab disables ducking for both the
+                                    bass and the kick’s reverb.
                                 </dd>
                                 <dt>Reverb Amt</dt>
-                                <dd>The kick’s reverb send, in <span class="kerby-ui">More</span>. The wet tail follows the bass’s ducking gain.</dd>
+                                <dd>The kick’s reverb send, in <span class="kerby-ui">More</span>. The wet tail follows
+                                    the bass’s ducking gain.</dd>
                                 <dt>Reverb LP and Size</dt>
-                                <dd><span class="kerby-ui">LP</span> filters the wet signal’s high end; <span class="kerby-ui">Size</span> controls the room’s decay, down to a
-                                    tight, short room below 25%.</dd>
+                                <dd><span class="kerby-ui">LP</span> filters the wet signal’s high end, low enough to leave only the rumble; <span class="kerby-ui">Size</span>
+                                    controls the room’s decay, down to a tight, short room below 25%.</dd>
                             </dl>
-                            <p>The dry kick stays outside the duck. Changing <span class="kerby-ui">Duck Amt</span> affects both the bass and the
+                            <p>The dry kick stays outside the duck. Changing <span class="kerby-ui">Duck Amt</span>
+                                affects both the bass and the
                                 reverb tail.</p>
                             <p class="kerby-related"><a href="/kerby/learn/shape-the-duck/"
                                     class="link-underline">Guide: find the space between hits</a></p>
                         </section>
                         <section id="steps" data-reference>
                             <h2><a href="#steps" class="link-underline">The bass step row</a></h2>
-                            <p>Show the row from the bottom bar. It stores allowed positions and pitch offsets within a
-                                bar; <span class="kerby-ui">Rate</span> decides when pulses try to play.</p>
+                            <p>Show the row from the bottom bar. It stores allowed positions, pitch offsets and step
+                                lengths over a pattern from one step to two bars long; <span
+                                    class="kerby-ui">Rate</span> decides when pulses try to
+                                play.</p>
                             <dl>
                                 <dt>Tap</dt>
                                 <dd>Switch a box on or off.</dd>
@@ -355,6 +423,15 @@
                                 <dt>Drag vertically</dt>
                                 <dd>Tune that step by up to 24 semitones either way. Turning the box off keeps its pitch
                                     setting.</dd>
+                                <dt>Drag a step’s right edge</dt>
+                                <dd>Stretch the step over the ones after it, making one longer note. Double-click the
+                                    edge to undo it, or right-click the row for <span class="kerby-ui">Reset step
+                                        lengths</span>.</dd>
+                                <dt>− and +</dt>
+                                <dd>At the row’s ends, shorten or lengthen the pattern a step at a time. Hold to repeat.
+                                    A pattern shorter or longer than a bar repeats on its own cycle against the bar.
+                                    Right-click the row and choose <span class="kerby-ui">One bar long</span> to reset
+                                    it.</dd>
                                 <dt>Folded corner</dt>
                                 <dd>A coarse box contains finer steps with different settings. Rest the pointer on it to
                                     inspect them.</dd>
@@ -365,8 +442,14 @@
                                     holes and change notes</a></p>
                         </section>
                         <section id="performance" data-reference>
-                            <h2><a href="#performance" class="link-underline">Bend, Reverse &amp; MIDI out</a></h2>
+                            <h2><a href="#performance" class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a>
+                            </h2>
                             <dl>
+                                <dt>Glitch</dt>
+                                <dd>On each voice’s <span class="kerby-ui">More</span> tab. Rolls and dropouts inside each
+                                    pulse, in time with the beat: an occasional 1/16 roll at low settings, fast rolls that
+                                    change speed at the top. A kick roll that repeats the hit ducks the bass and sends
+                                    MIDI out like a pulse.</dd>
                                 <dt>Pitch wheel</dt>
                                 <dd>Bends the voices’ pitch. Right-click the wheel for its range and whether it goes
                                     home.</dd>
@@ -383,12 +466,56 @@
                             <p class="kerby-related"><a href="/kerby/reference/signal-flow/#mix"
                                     class="link-underline">See Reverse in the signal path</a></p>
                         </section>
+                        <section id="matrix" data-reference>
+                            <h2><a href="#matrix" class="link-underline">The Matrix</a></h2>
+                            <p>The modulation page. Open it from the pair of icons in the footer, or press N. Up to
+                                sixteen routes each connect a source to nearly any control on either voice.</p>
+                            <dl>
+                                <dt>Macros</dt>
+                                <dd>Eight knobs to map to anything. Four show to start with; the <span
+                                        class="kerby-ui">+</span> beside them reveals
+                                    more, and right-clicking one hides it. A hidden macro keeps working. Click a macro’s
+                                    name to rename it.</dd>
+                                <dt>LFOs</dt>
+                                <dd>Up to four drawn modulators, added with <span class="kerby-ui">+</span>. Each has a
+                                    rate, Sync or Free, and a
+                                    curve you draw in the same editor as the voices’ shapes, or a live random mode.</dd>
+                                <dt>Shape</dt>
+                                <dd>Morphs an LFO from your drawing through Sine, Triangle, Ramp Up, Ramp Down, Square
+                                    and Sidechain Duck, and is itself something a route can move. Each voice’s <a
+                                        href="#shapes" class="link-underline">Wave Shape</a> works the same way.</dd>
+                                <dt>Other sources</dt>
+                                <dd>Both voices’ drawn envelopes, velocity, and the pitch and tempo wheels.</dd>
+                                <dt>Making a route</dt>
+                                <dd>Drag a macro’s name or an LFO’s label onto a control, or right-click the control and
+                                    choose <span class="kerby-ui">Modulate with</span>. Destinations include the knobs,
+                                    <span class="kerby-ui">Length</span>, the Volume faders,
+                                    <span class="kerby-ui">Reverse</span>, the wheels and the Matrix page’s own
+                                    controls.
+                                </dd>
+                                <dt>Depth handle</dt>
+                                <dd>A routed knob shows a small handle while you hover it. Drag it to set how far the
+                                    route moves the knob; double-click to return it to its starting amount.</dd>
+                                <dt>Routes in a menu</dt>
+                                <dd>Right-click a routed control to see each route into it, with an amount you can
+                                    drag.</dd>
+                                <dt>Uni and Bi</dt>
+                                <dd>A Uni route moves the control one way from where it sits; a Bi route moves it both
+                                    ways around it.</dd>
+                                <dt>Clear matrix</dt>
+                                <dd>Removes every route and resets the macros and LFOs. There is no undo.</dd>
+                            </dl>
+                        </section>
                         <section id="presets" data-reference>
                             <h2><a href="#presets" class="link-underline">Presets &amp; sessions</a></h2>
                             <p>Presets carry sounds, shapes, step patterns and samples. Loading one keeps your current
-                                mode of play: <span class="kerby-ui">Live</span>/<span class="kerby-ui">Draw</span>, <span class="kerby-ui">Quantize</span>, launch behaviour, the <span class="kerby-ui">Rate</span> on/off switches and the
-                                <span class="kerby-ui">Goes home</span> switches stay where you put them. A preset brings its <span class="kerby-ui">Rate</span> homes with it; one
-                                saved without them makes its own rates home.</p>
+                                mode of play: <span class="kerby-ui">Live</span>/<span class="kerby-ui">Draw</span>,
+                                <span class="kerby-ui">Quantize</span>, launch behaviour, the <span
+                                    class="kerby-ui">Rate</span> on/off switches and the
+                                <span class="kerby-ui">Goes home</span> switches stay where you put them. A preset
+                                brings its homes with it; one saved
+                                without them makes its own values home.
+                            </p>
                             <p>Session state also remembers the mode of play. Save a DAW project when you want the sound
                                 and the way you are playing it back together.</p>
                         </section>
@@ -403,15 +530,17 @@
                                     overlap. With the transport stopped, a scope keeps the last bar its voice played.
                                 </dd>
                                 <dt>Drag a scope out</dt>
-                                <dd>Drag from a scope to drop what it shows into your DAW, or onto a <span class="kerby-ui">Wave</span> tab, as a WAV:
+                                <dd>Drag from a scope to drop what it shows into your DAW, or onto a <span
+                                        class="kerby-ui">Wave</span> tab, as a WAV:
                                     a bar, or a quarter bar when zoomed. A voice’s scope gives that voice; the merged
                                     scope gives both. Files are kept in a Bounces folder beside your presets, so
                                     projects that use them don’t lose them.</dd>
                                 <dt>Value reset</dt>
-                                <dd>Double-click a value to return it to its default. The shape editor has its own
-                                    point-editing gestures.</dd>
+                                <dd>Double-click a value to return it to its home, or its default where it has none.
+                                    The shape editor has its own point-editing gestures.</dd>
                                 <dt>Tooltips and shortcuts</dt>
-                                <dd>Hover a control to read its tooltip along the bottom. Open <span class="kerby-ui">Shortcuts &amp; gestures</span>
+                                <dd>Hover a control to read its tooltip along the bottom. Open <span
+                                        class="kerby-ui">Shortcuts &amp; gestures</span>
                                     for the full editing vocabulary and platform-specific modifiers.</dd>
                             </dl>
                         </section>
