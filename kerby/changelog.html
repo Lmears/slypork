@@ -2,27 +2,55 @@
      release.sh runs as part of cutting a drop. kerby.js fetches this into the
      "What's new" section of kerby/index.html. Don't hand-edit; edit CHANGELOG.md. -->
 <div class="text-lg font-light">
-    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.8.0</span><span class="text-base opacity-75"> &middot; 2026-09-17</span></h3>
+    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.9.0</span><span class="text-base opacity-75"> &middot; 2026-09-24</span></h3>
     <h4 class="text-base pt-3 opacity-75">Added</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>A signed installer for macOS.</strong> Run the installer and choose the VST3, the AU or the standalone app; the Terminal step from earlier drops is no longer needed.</li>
-        <li><strong>Drag a scope out as audio.</strong> The bar on screen, or the quarter bar when zoomed, drops into your DAW or back onto a Wave tab as a WAV.</li>
-        <li><strong>Return Home, in the bottom bar</strong>, sends both Rate knobs home and both bends to centre. Right-click a Rate knob to set its home.</li>
+        <li><strong>A Matrix page, for modulation.</strong> Open it from the pair of icons in the footer, or press N. Eight macros, four modulators you draw, both voices' envelopes, velocity and both wheels can each drive nearly any control, in up to sixteen routes.</li>
+        <li><strong>Drag a macro's name or a modulator's label onto a control to route it</strong>, or right-click the control and choose Modulate with. A routed knob shows a small handle while you hover it; drag that to set how far the route moves it.</li>
+        <li><strong>A modulator's Shape morphs from your drawing through the fixed shapes</strong>, and so does each voice's Wave: route something to Wave Shape to sweep the oscillator.</li>
+        <li><strong>Three presets in a new Modulation folder</strong> to start from.</li>
+        <li><strong>Glitch, on each voice's More tab</strong>, for beat-synced rolls and dropouts. A Kick roll that repeats the hit also ducks the Bass and sends the Kick's MIDI note out.</li>
+        <li><strong>A Filter tab on the Kick</strong>, with the Bass's lowpass, fully open to start. Resonance rises as the cutoff comes down.</li>
+        <li><strong>Smooth, on the Duck tab</strong>, turns jumps in the duck curve into ramps.</li>
+        <li><strong>The step row's pattern runs from one step to two bars long</strong>, set with the − and + at its ends. Drag a step's right edge to stretch it into a longer note.</li>
+        <li><strong>Any knob can go home with Return Home</strong>, and so can Reverse and Launch with Kick.</li>
+        <li><strong>KerBy asks to save unsaved changes</strong> before you browse to another preset.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Changed</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>Everything below 120Hz is summed to mono</strong>, on each voice.</li>
-        <li><strong>The Kick reverb's Size gets tighter below 25%.</strong></li>
-        <li><strong>Switching a Rate to Free keeps the rhythm</strong>, starting from the division's speed at the current tempo.</li>
-        <li><strong>A scope keeps the last bar played on screen after the voice stops.</strong></li>
-        <li><strong>Anchor points are smaller, and hidden in Draw mode.</strong></li>
+        <li><strong>Triplet and Restart on Kick have moved to the Rate knob's right-click menu.</strong></li>
+        <li><strong>Reso self-oscillates at 100%.</strong> Patches with Reso up may need it turned down.</li>
+        <li><strong>Free Rate gives every doubling of speed the same travel</strong>, from 0.1Hz to 100Hz.</li>
+        <li><strong>The Kick reverb no longer turns the Kick down as you raise it.</strong></li>
+        <li><strong>Reverb LP reaches down to 100Hz and cuts more steeply.</strong></li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Fixed</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>Turning Rate back on while a note is held brings its pulses back.</strong></li>
+        <li><strong>B and Esc work for Draw mode after you click a knob or value box.</strong></li>
+        <li><strong>Raising FM Amt from 0 during a note no longer leaves a DC offset.</strong></li>
+        <li><strong>A reopened session shows its preset's name.</strong></li>
     </ul>
     <details class="pt-6">
         <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
+        <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.8.0</span><span class="text-base opacity-75"> &middot; 2026-09-17</span></h3>
+        <h4 class="text-base pt-3 opacity-75">Added</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>A signed installer for macOS.</strong> Run the installer and choose the VST3, the AU or the standalone app; the Terminal step from earlier drops is no longer needed.</li>
+            <li><strong>Drag a scope out as audio.</strong> The bar on screen, or the quarter bar when zoomed, drops into your DAW or back onto a Wave tab as a WAV.</li>
+            <li><strong>Return Home, in the bottom bar</strong>, sends both Rate knobs home and both bends to centre. Right-click a Rate knob to set its home.</li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Changed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Everything below 120Hz is summed to mono</strong>, on each voice.</li>
+            <li><strong>The Kick reverb's Size gets tighter below 25%.</strong></li>
+            <li><strong>Switching a Rate to Free keeps the rhythm</strong>, starting from the division's speed at the current tempo.</li>
+            <li><strong>A scope keeps the last bar played on screen after the voice stops.</strong></li>
+            <li><strong>Anchor points are smaller, and hidden in Draw mode.</strong></li>
+        </ul>
+        <h4 class="text-base pt-3 opacity-75">Fixed</h4>
+        <ul class="list-disc pl-5 pt-1 space-y-2">
+            <li><strong>Turning Rate back on while a note is held brings its pulses back.</strong></li>
+        </ul>
         <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v0.7.0</span><span class="text-base opacity-75"> &middot; 2026-09-08</span></h3>
         <h4 class="text-base pt-3 opacity-75">Added</h4>
         <ul class="list-disc pl-5 pt-1 space-y-2">
