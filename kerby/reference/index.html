@@ -144,11 +144,9 @@
                                 <dd>The settings have been changed from that mode’s defaults. Click the mode again to
                                     restore those defaults.</dd>
                             </dl>
-                            <p>MIDI note duration matters. For repeated bass pulses between kicks, keep a note held or
-                                play overlapping notes legato, with the bass <span class="kerby-ui">Rate</span> enabled.
-                                When both voices trigger once
-                                per MIDI note, let the note and bass envelope last long enough to reach beyond the
-                                initial duck. Short notes can end before the bass is heard.</p>
+                            <p>Note length matters. For repeated bass pulses between kicks, hold the note or play legato
+                                with the bass <span class="kerby-ui">Rate</span> on. With one pulse per note, a short note
+                                can end while the bass is still ducked, before it’s heard.</p>
                             <p>The header’s <span class="kerby-ui">Draw</span> mode is separate from the shape editor’s
                                 drawing tool, toggled with B.
                             </p>
@@ -166,8 +164,8 @@
                                     rhythm carries on.</dd>
                                 <dt>The Rate on/off box</dt>
                                 <dd>With repetition off, a note triggers one pulse. The <span
-                                        class="kerby-ui">Rate</span> value can still supply a
-                                    launch grid when <span class="kerby-ui">Quantize</span> is on. Turning it back on
+                                        class="kerby-ui">Rate</span> value still sets where
+                                    <span class="kerby-ui">Quantize</span> places it. Turning it back on
                                     while a note is held brings the
                                     pulses back.</dd>
                                 <dt>Triplet</dt>
@@ -178,15 +176,21 @@
                                     <span class="kerby-ui">Rate</span>. A new pulse can interrupt it.
                                 </dd>
                                 <dt>Q — Quantize</dt>
-                                <dd>Places incoming notes on the launch grid.</dd>
+                                <dd>While the DAW is playing, moves a note that arrives off the beat forward to the next
+                                    division of that voice’s <span class="kerby-ui">Rate</span>, so a late press still
+                                    lands in time. Dotted rates use their plain division. Notes already on the grid play
+                                    as written.</dd>
                                 <dt>K — Launch with Kick</dt>
-                                <dd>Uses the kick’s grid to start both voices when <span
-                                        class="kerby-ui">Quantize</span> is enabled.</dd>
+                                <dd>With <span class="kerby-ui">Quantize</span> on, the bass waits for the kick’s
+                                    division instead of its own, so both voices start together. Switch it off to let a
+                                    faster bass come in ahead of the first kick.</dd>
                                 <dt>Restart on Kick</dt>
-                                <dd>In the bass <span class="kerby-ui">Rate</span> knob’s right-click menu. Restarts the bass’s
-                                    repeating pulse clock on kick pulses. This is separate from <span
-                                        class="kerby-ui">K</span>, which controls the
-                                    initial launch.</dd>
+                                <dd>In the bass <span class="kerby-ui">Rate</span> knob’s right-click menu. The bass
+                                    starts its pattern again at each kick. When the rates divide evenly, this changes
+                                    nothing. With a dotted, triplet or Free rate, switching it off lets the bass run across
+                                    the kick as a polyrhythm. With a bass <span class="kerby-ui">Rate</span> slower than the
+                                    kick’s, leaving it on makes the bass play with every kick. Separate from
+                                    <span class="kerby-ui">K</span>, which controls the first launch.</dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/#rhythm" class="link-underline">Tour: a note
                                     becomes a rhythm</a></p>
@@ -296,8 +300,9 @@
                                     the tool. <span class="kerby-ui">X</span> and <span class="kerby-ui">Y</span> set
                                     the grid divisions. Points are hidden while it is on.</dd>
                             </dl>
-                            <p>The shaded reach shows limits on what can be heard. A fast retrigger can arrive before
-                                the envelope reaches its end. The <span class="kerby-ui">Click</span> envelope uses its
+                            <p>A shaded stretch at the end of a shape is the part the pattern never reaches: each
+                                pulse ends, or the next one arrives, before the envelope gets there. Change
+                                <span class="kerby-ui">Rate</span> or <span class="kerby-ui">Length</span> and it moves. The <span class="kerby-ui">Click</span> envelope uses its
                                 sample’s timeline, and <span class="kerby-ui">Duck</span>
                                 uses its own <span class="kerby-ui">Rate</span>.</p>
                             <p class="kerby-related"><a href="/kerby/learn/#shapes" class="link-underline">Tour: shapes
@@ -375,7 +380,7 @@
                                 <dt>Spread</dt>
                                 <dd>Detuned stereo unison. The noise layer widens along with the oscillator stack.</dd>
                                 <dt>Crush</dt>
-                                <dd>Sample-rate reduction, also called Downsample in the signal map. It processes the
+                                <dd>Sample-rate reduction. It processes the
                                     voice’s combined output before the volume control.</dd>
                                 <dt>Reso</dt>
                                 <dd>Resonance around the bass filter’s cutoff, up to self-oscillation at the top.</dd>
@@ -443,8 +448,9 @@
                                     Right-click the row and choose <span class="kerby-ui">One bar long</span> to reset
                                     it.</dd>
                                 <dt>Folded corner</dt>
-                                <dd>A coarse box contains finer steps with different settings. Rest the pointer on it to
-                                    inspect them.</dd>
+                                <dd>The steps under this box disagree, because they were set at a faster
+                                    <span class="kerby-ui">Rate</span>: some are off or tuned differently. Rest the
+                                    pointer on it to see each one.</dd>
                                 <dt>Free rate mode</dt>
                                 <dd>The bar-based step row is inactive when the bass uses a free-running Hz rate.</dd>
                             </dl>
