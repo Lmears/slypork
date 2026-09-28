@@ -308,6 +308,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 })();
 
+// Email links
+// Addresses are only ever put together here, never written whole into the HTML,
+// so scrapers reading the page source (or the public repo) don't harvest them.
+// The markup carries the local part in data-email, an optional
+// data-email-domain, and a readable "[at]" fallback for anyone without JS.
+var EMAIL_DOMAIN = ['slypork', 'net'].join('.');
+
+function revealEmailLinks() {
+    document.querySelectorAll('[data-email]').forEach(function (link) {
+        var address = link.dataset.email + '@' + (link.dataset.emailDomain || EMAIL_DOMAIN);
+        link.href = 'mailto:' + address;
+        link.textContent = address;
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', revealEmailLinks);
+} else {
+    revealEmailLinks();
+}
+
 // Software iframes
 function adjustIframeHeight() {
     const iframes = document.querySelectorAll('.software-iframe');

@@ -82,7 +82,7 @@ function initNotifyForm() {
         }).catch(function () {
             button.disabled = false;
             button.textContent = buttonLabel;
-            setStatus('That didn\'t go through. Try again, or email dev@slypork.net.', true);
+            setStatus('That didn\'t go through. Try again, or email dev' + '@' + 'slypork.net.', true);
         });
     });
 }
