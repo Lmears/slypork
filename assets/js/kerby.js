@@ -25,11 +25,19 @@ function initNotifyForm() {
     var buttonLabel = button.textContent;
     var cta = document.getElementById('kerbyNotifyCta');
 
-    // The hero button is an anchor to this form, so the browser does the scrolling;
-    // this only puts the cursor in the field once it has arrived, after the jump, so
-    // focusing doesn't fight the browser's own scroll.
-    if (cta) cta.addEventListener('click', function () {
-        setTimeout(function () { input.focus({ preventScroll: true }); }, 0);
+    // The hero button is an anchor to this form, so without JS it still jumps there.
+    // With JS it also puts the cursor in the field, so a visitor can tap the button and
+    // start typing. The focus has to happen synchronously inside the click: iOS (and
+    // Instagram's in-app browser, where most of these visits come from) only raises
+    // the keyboard for a focus() made during the user's own tap, and silently ignored
+    // the old setTimeout one. So the scroll is done here too rather than left to the
+    // browser, and preventScroll keeps focus() from making a jump of its own.
+    // The URL is left as it was: nothing reads the hash, and the bare /kerby/ is tidier.
+    if (cta) cta.addEventListener('click', function (event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        form.scrollIntoView({ block: 'start' });
+        input.focus({ preventScroll: true });
     });
 
     function setStatus(message, isError) {
