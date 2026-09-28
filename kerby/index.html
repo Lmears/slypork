@@ -106,7 +106,11 @@
                         <div class="kerby-actions">
                             <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
                         </div>
-                        <p class="kerby-availability">Coming soon · <span data-kerby-version>v0.9.0</span>
+                        <!-- release.sh keeps the version current, and the link leads to the notes
+                             on /kerby/whats-new/. Don't spell out its marker attribute in a comment
+                             on this page: the release's sed would match the comment. -->
+                        <p class="kerby-availability">Coming soon · <a href="/kerby/whats-new/" class="link-underline"
+                                title="What's new" data-kerby-version>v0.9.0</a>
                             <span>macOS 11+ · AU / VST3 / Standalone &nbsp; Windows 10+ · VST3</span>
                         </p>
                     </header>
@@ -209,22 +213,6 @@
             <section class="visual-container-bottom" id="kerbyDetail">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
 
-                    <h2 class="text-xl pt-8">What's new:</h2>
-                    <!-- Filled by kerby.js from changelog.html, which scripts/changelog.py in
-                         the plugin repo generates from CHANGELOG.md each release. The notes live
-                         in their own file so this hand-written page isn't carrying a generated
-                         block that only grows. release.sh checks this container exists, so
-                         removing it fails a release loudly rather than silently dropping the notes.
-
-                         Don't spell out the version marker's attribute name in a comment here:
-                         release.sh rewrites it with a sed that would match the comment too. -->
-                    <div id="kerbyChangelog" data-kerby-changelog>
-                        <noscript>
-                            <p class="text-lg font-light pt-4"><a href="changelog.html" class="link-underline">Read the
-                                    changelog</a></p>
-                        </noscript>
-                    </div>
-
                     <!-- Posts to Buttondown's public embed endpoint; see assets/js/kerby.js for
                          the inline-response upgrade. Without JS this still works, it just lands
                          on Buttondown's own confirmation page instead.
@@ -239,7 +227,8 @@
                             Get notified at launch:
                         </label>
                         <p class="text-base font-light pt-1 opacity-75">
-                            Leave your email for word when KerBy is out, and the changelog as each
+                            Leave your email for word when KerBy is out, and
+                            <a href="/kerby/whats-new/" class="link-underline">the changelog</a> as each
                             new version lands.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">

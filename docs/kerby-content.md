@@ -64,9 +64,10 @@ simplifying or redrawing the diagram.
   and reference search. New functions should return early on pages without their controls.
 - New nested pages use root-relative assets and navigation. Shared logo hover and boid
   image loading also use root-relative paths so they work at any route depth.
-- Keep the existing changelog markers, version marker and signup on `/kerby/`. The plugin
-  release scripts own the generated changelog; the reference's review date is maintained
-  separately. Do not move the changelog without changing and verifying that integration.
+- Keep the version markers and signup on `/kerby/`, and the changelog container on
+  `/kerby/whats-new/`. The plugin release scripts own the generated changelog and check for that
+  container there; the reference's review date is maintained separately. Do not move the
+  changelog without changing and verifying that integration.
 - Keep the Overview concise. New detail normally belongs in Learn or Reference, with a
   contextual link from the Overview if it helps a first-time visitor.
 - Every KerBy page carries Open Graph and `twitter:card` tags so links shared in Discord,
