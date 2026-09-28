@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
-    <title>Design | Slypork</title>
+    <title>Plugins | Slypork</title>
+    <meta name="description"
+        content="Audio plugins by Slypork, built by a mastering engineer and producer. KerBy: a kick and bass instrument for macOS and Windows.">
     <link rel="icon" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="../assets/images/favicon-192x192.png">
@@ -14,7 +16,8 @@
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
-    <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo_raised.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
     <link href="../assets/css/output.css" rel="stylesheet">
 </head>
 
@@ -33,7 +36,8 @@
     <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced">
         <header class="pinned-nav">
             <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
-                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false" class="py-3 px-2 sm:hidden">&#9776;</button>
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
                 <ul id="navLinks"
                     class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
                     <li
@@ -44,7 +48,7 @@
                         </a>
                     </li>
                     <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
-                        <a href="../plugins/" id="pluginsLink">
+                        <a href="./" class="selected" id="pluginsLink">
                             <span class="nav-link-text">Plugins</span></a>
                     </li>
                     <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
@@ -72,50 +76,47 @@
         </header>
         <section id="content" class="flex-1 md:px-4 flex flex-col">
             <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
-                <span id="pageTitle" class="inline-block">Design</span>
+                <span id="pageTitle" class="inline-block">Plugins</span>
             </h1>
             <article id="blurb">
                 <div class="visual-container" id="visualContainer">
                     <div class="mx-2 md:mx-4 my-4 md:my-8">
                         <p class="text-lg font-light">
-                            With over 13 years of Adobe Photoshop experience, I've recently expanded into offering
-                            graphic design services. I specialize in creating gig posters, album art, and logos; drawing
-                            from a diverse range of influences.
+                            I make audio plugins for producers, shaped by years of mastering and making music.
                             <br><br>
                         </p>
                         <h2 class="text-xl">Connect with me:</h2>
                         <p class="text-lg font-light ml-4">
-                            Insta:
-                            <a href="https://www.instagram.com/slyporkstudio" target="_blank" rel="noopener noreferrer"
-                                class="link-underline inline-flex items-center">
-                                @slyporkstudio
-                                <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24"
-                                    style="text-align: center; display: inline-block; vertical-align: middle;">
-                                    <path d="M7 17L17 7M17 16L17 7L8 7" stroke="currentColor" stroke-width="1.2"
-                                        stroke-linecap="butt" stroke-linejoin="butt" fill="none" />
-                                </svg>
-                            </a>
-                            <br>
                             Email:
-                            <a href="mailto:slyporkstudio@icloud.com" target="_blank" rel="noopener noreferrer"
-                                class="link-underline">slyporkstudio@icloud.com
+                            <a href="mailto:dev@slypork.net" target="_blank" rel="noopener noreferrer"
+                                class="link-underline">dev@slypork.net
                             </a>
                         </p>
                     </div>
                 </div>
             </article>
-            <section class="visual-container-bottom" id="designGrid">
+            <section class="visual-container-bottom" id="softwareContainer">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
-                    <h2 class="pb-4 text-2xl">Past work:
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="imageGrid">
-                        <!-- Items will be added here by JavaScript -->
+                    <div>
+                        <div class="my-4 text-xl">
+                            <h2><a href="../kerby/" class="subtle-underline">KerBy</a>:</h2>
+                            <p class="ml-4 text-lg font-light">
+                                A kick and bass instrument built for playing. macOS and Windows. Coming soon.
+                            </p>
+                        </div>
+                        <a href="../kerby/" class="cursor-pointer group">
+                            <img src="../assets/images/software/KerBy_lightmode.png" width="1620" height="1228"
+                                alt="KerBy: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
+                                class="dark:hidden w-full rounded-xl border border-kerbyPink transition-opacity duration-200 group-hover:opacity-80">
+                            <img src="../assets/images/software/KerBy_darkmode.png" width="1620" height="1228"
+                                alt="KerBy in its dark theme: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
+                                class="hidden dark:block w-full rounded-xl border border-kerbyDarkAccent transition-opacity duration-200 group-hover:opacity-80">
+                        </a>
                     </div>
                 </div>
             </section>
         </section>
     </main>
-    <script src="../assets/js/design.js"></script>
     <script src="../assets/js/script.js"></script>
     <script src="../assets/js/boids/simulation.js" type="module"></script>
     <div class="easter-egg" id="easterEgg"></div>
