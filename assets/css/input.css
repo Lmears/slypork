@@ -61,6 +61,13 @@ h1 {
     text-underline-offset: 6px;
 }
 
+/* Keep the "[at]" fallback from flashing before script.js fills in the address */
+@media (scripting: enabled) {
+    a[data-email]:not([href]) {
+        visibility: hidden;
+    }
+}
+
 /* Layout */
 #container {
     width: 100%;
