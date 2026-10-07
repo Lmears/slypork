@@ -139,7 +139,9 @@ function initializeDependencyInjection(state) {
     setObstacleDependencies({ canvas, simParams, obstacles: allObstacles });
     setBoidDependencies({
         canvas, ctx, simParams, mouse, boidImageBitmap,
-        trailTracker: renderer.trailTracker
+        trailTracker: renderer.trailTracker,
+        frontCtx: renderer.frontCtx,
+        orbitBackCtx: renderer.orbitBackCtx
     });
 
     updateAllObstacles(allObstacles);

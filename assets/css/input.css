@@ -103,20 +103,6 @@ h1 {
         max-width: calc(1080px + var(--nav-correction));
         padding-right: calc(3rem + var(--nav-correction));
     }
-
-    /* The homepage's #container has a third flex child (footer) after
-       #content, so unlike other nav-balanced pages, padding-right isn't
-       adjacent to #content - it would just push footer left instead of
-       resizing anything, leaving the extra correction become a lopsided
-       empty gap after footer. Keep padding-right at its base 3rem
-       instead: the container is still growing by the same
-       --nav-correction, so #content (flex-1) grows to fill that extra
-       space and carries footer the same distance to the right with it,
-       balancing the nav on the other side, exactly as it did before this
-       class existed. */
-    #container.nav-balanced.has-footer {
-        padding-right: 3rem;
-    }
 }
 
 .visual-container,
@@ -136,7 +122,291 @@ h1 {
     border-bottom: 0.5px solid rgba(23, 23, 23, 0.5);
 }
 
+/* Homepage: wordmark above the 3D hero, navigation below it. */
+#container.home-page {
+    --hero-warm: rgba(235, 133, 157, 0.14);
+    --hero-cool: rgba(118, 155, 224, 0.12);
+    display: flex;
+    flex-direction: column;
+    max-width: 1280px;
+    min-height: 100svh;
+    padding: 2rem 1rem 3rem;
+}
+
+.home-header {
+    display: flex;
+    justify-content: center;
+    flex: none;
+}
+
+.home-wordmark {
+    font-size: clamp(1.625rem, 2.2vw, 2rem);
+    letter-spacing: -0.035em;
+    line-height: 2.25rem;
+}
+
+.home-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 0;
+}
+
+.home-hero .pig-stage {
+    flex: none;
+    width: min(100%, 1040px, 104svh);
+    aspect-ratio: 1.4;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 50%;
+    touch-action: manipulation;
+    isolation: isolate;
+}
+
+/* Ambient colour echoes the model's rim lights, behind the transparent canvas. */
+.pig-stage::before {
+    content: '';
+    position: absolute;
+    inset: 8% 0;
+    z-index: -1;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at var(--hero-warm-x, 35%) var(--hero-warm-y, 55%), var(--hero-warm), transparent 65%),
+        radial-gradient(ellipse at var(--hero-cool-x, 68%) var(--hero-cool-y, 42%), var(--hero-cool), transparent 65%);
+    filter: blur(clamp(24px, 4vw, 64px)) brightness(1);
+    opacity: 0;
+    transition: opacity 1s ease, filter 0.4s ease;
+    pointer-events: none;
+}
+
+.pig-ready::before {
+    opacity: var(--flock-glow, 1);
+}
+
+.pig-hint {
+    position: absolute;
+    bottom: 9%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translate(-50%, 6px);
+    transition: opacity 0.25s ease, transform 0.35s ease;
+    pointer-events: none;
+}
+
+.pig-hint > span {
+    transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .pig-ready:not(:disabled):not([aria-expanded="true"]):hover .pig-hint {
+        opacity: 0.6;
+        transform: translate(-50%, 0);
+    }
+}
+
+.pig-ready:not(:disabled):not([aria-expanded="true"]):focus-visible .pig-hint {
+    opacity: 0.6;
+    transform: translate(-50%, 0);
+}
+
+@media (prefers-color-scheme: dark) {
+    #container.home-page {
+        --hero-warm: rgba(205, 84, 132, 0.14);
+        --hero-cool: rgba(89, 126, 222, 0.14);
+    }
+}
+
+@media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
+    .pig-ready:not(:disabled):hover::before {
+        filter: blur(clamp(24px, 4vw, 64px)) brightness(1.2);
+    }
+}
+
+.pig-stage:not(:disabled) {
+    cursor: pointer;
+}
+
+.pig-stage:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: clamp(-4rem, -6vw, -1.5rem);
+}
+
+.home-nav {
+    flex: none;
+    width: 100%;
+    /* The canvas has clear space below the model for its idle tilt. */
+    margin-top: clamp(-4.5rem, -6vw, -1.75rem);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0s 0.35s;
+}
+
+.home-nav.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+
+/* Reserve the links' space so revealing them never moves the pig. */
+.home-nav li {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.home-nav.is-open li {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.home-nav.is-open li:nth-child(2) { transition-delay: 35ms; }
+.home-nav.is-open li:nth-child(3) { transition-delay: 70ms; }
+.home-nav.is-open li:nth-child(4) { transition-delay: 105ms; }
+.home-nav.is-open li:nth-child(5) { transition-delay: 140ms; }
+.home-nav.is-open li:nth-child(6) { transition-delay: 175ms; }
+
+@media (prefers-reduced-motion: reduce) {
+    .home-nav, .home-nav li, .home-nav.is-open li,
+    .pig-stage::before, .pig-hint {
+        transition: none;
+    }
+}
+
+@media (scripting: none) {
+    .home-nav {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .home-nav li {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.home-nav ul {
+    --nav-space-x: 0.75rem;
+    --nav-space-y: 0.25rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    width: fit-content;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.home-nav ul li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    /* Adjacent hit areas meet, including between the two mobile rows. */
+    padding: calc(0.5rem + var(--nav-space-y) / 2) calc(0.5rem + var(--nav-space-x) / 2);
+    font-size: 1.25rem;
+}
+
+@media (min-width: 642px) {
+    .home-nav ul {
+        --nav-space-x: clamp(0.75rem, 2vw, 2rem);
+        --nav-space-y: 0rem;
+        display: flex;
+    }
+
+    .home-nav ul li a {
+        font-size: clamp(1.25rem, 2.6vw, 1.5rem);
+    }
+}
+
+@media (min-width: 768px) {
+    #container.home-page {
+        padding: 2.25rem 3rem 3rem;
+    }
+}
+
+@media (max-width: 641.98px) {
+    #container.home-page {
+        padding-top: 1.5rem;
+    }
+
+    .home-hero .pig-stage {
+        width: min(calc(100% + 1.5rem), 62svh);
+        aspect-ratio: 1.18;
+    }
+
+    .home-nav {
+        margin-top: -0.75rem;
+    }
+}
+
+@media (max-height: 500px) {
+    #container.home-page {
+        padding: 0.75rem 1rem 2rem;
+    }
+
+    .home-hero {
+        padding: 0.75rem 0;
+    }
+
+    .home-hero .pig-stage {
+        width: min(100%, 740px, 70svh);
+        aspect-ratio: 1.4;
+    }
+
+    .home-nav {
+        margin-top: -0.75rem;
+    }
+
+    .pig-stage:focus-visible {
+        outline-offset: -1rem;
+    }
+}
+
 /* Navigation */
+
+/* Homepage pig stays empty until its first rendered frame, then fades in. */
+.pig-stage {
+    position: relative;
+    flex: 1;
+    min-height: 240px;
+    transition: opacity 0.5s ease;
+}
+
+/* The layout and hit area stay on the stage; the transparent render surface
+   lets its miniature companion fly out to the navigation and hidden egg. */
+.pig-stage canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.pig-ready canvas { opacity: 1; }
+/* Keep the canvas visible as the model itself takes flight. Let the flock
+   receive pointer gestures across the stage's original, much larger area. */
+.pig-flocking { pointer-events: none; }
+.pig-flocking .pig-hint { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .pig-stage, .pig-stage canvas { transition: none; }
+}
 
 /* Pinned nav
    The nav has three layouts (see the classes on #site-nav): a logo-plus-

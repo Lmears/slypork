@@ -1,3 +1,4 @@
+import { updateHeroOrbits, updateHeroOrbitInfluence, finishHeroOrbits } from './hero-field.js';
 import { updateBoidRuntimeValues } from './boid.js';
 import { updateMenuValues } from './settings.js';
 import { applyObstacleAvoidanceForces } from './obstacle.js';
@@ -36,8 +37,13 @@ export class SimulationLoop {
         this.updateSpeedMultiplier(timeScale);
         this.renderFrame(currentTime, timeScale);
 
-        if (this.updateExitAnimation(currentTime, timeScale)) {
-            return; // Exit animation complete
+        if (this.state.isEnding) {
+            if (!this.updateExitAnimation(currentTime, timeScale)) {
+                this.state.animationFrameId = requestAnimationFrame(this.animate);
+            }
+            // The return animation owns positions and draws the flock. Running
+            // normal physics as well would draw every returning boid twice.
+            return;
         }
 
         this.updateSimulationState();
@@ -138,6 +144,7 @@ export class SimulationLoop {
     updatePhysics(timeScale, currentTime) {
         const { flock, spatialGrid, allObstacles, debugLinesMode, renderer } = this.state;
 
+        updateHeroOrbits(flock, timeScale, this.state.speedMultiplier);
         for (let boid of flock) {
             if (boid.isDying) continue;
             const localNeighbors = spatialGrid.getItemsInNeighborhood(boid.position);
@@ -151,10 +158,12 @@ export class SimulationLoop {
         }
 
         for (let boid of flock) {
+            updateHeroOrbitInfluence(boid, timeScale, this.state.simParams);
             boid.applyForcesAndMove(timeScale);
             boid.renderSize = boid.calculateRenderSize();
-            boid.draw(currentTime);
         }
+        finishHeroOrbits(flock, timeScale);
+        renderer.drawFlock(flock, currentTime);
     }
 
     /**

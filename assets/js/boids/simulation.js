@@ -49,6 +49,9 @@ async function startSimulation() {
     // Start animation loop
     state.startRun();
     loop.start();
+
+    // Notify listeners the flock is out
+    dispatchEvent('simulationStarted');
 }
 
 /**

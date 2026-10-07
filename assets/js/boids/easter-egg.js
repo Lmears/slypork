@@ -1,12 +1,18 @@
 import { initializeSlider, setControlPanelVisibility } from './ui-utils.js';
+import { heroField } from './hero-field.js';
 
 function setupEasterEgg() {
     const easterEgg = document.getElementById('easterEgg');
     const boidCanvas = document.getElementById('boidCanvas');
     let tapCount = 0;
     let canIncrement = true;
+    let transitioning = false;
     let currentScale = 1; // Logical current scale
     let isAnimating = false; // Main animation lock
+
+    function notifyProgress(count) {
+        document.body.dispatchEvent(new CustomEvent('easterEggProgress', { detail: { count } }));
+    }
 
     // Shared state for transform properties
     let activeTransformState = {
@@ -21,7 +27,9 @@ function setupEasterEgg() {
         tapCount = 0;
         currentScale = 1;
         canIncrement = true;
+        transitioning = false;
         isAnimating = false;
+        notifyProgress(0);
 
         // Reset the logical state for transformations
         activeTransformState = { x: 0, y: 0, scale: 1, rotate: 0 };
@@ -253,7 +261,7 @@ function setupEasterEgg() {
 
         easterEgg.addEventListener('click', () => {
             // No change needed for this initial section.
-            if (!canIncrement) return;
+            if (!canIncrement || transitioning) return;
             canIncrement = false;
             tapCount++;
             activeTransformState.scale = currentScale;
@@ -265,6 +273,7 @@ function setupEasterEgg() {
             // --- HIDING LOGIC (Tap 4) ---
             // Refactored to use the new function and preserve staggered timing.
             if (tapCount === 4) {
+                transitioning = true;
                 // These animations for the egg itself start immediately.
                 activeTransformState.scale = currentScale;
                 activeTransformState.y = 0;
@@ -287,12 +296,14 @@ function setupEasterEgg() {
                     // Call our new, clean function to hide the controls with animation.
                     setControlPanelVisibility(false);
 
-                    // Start the canvas fade-out at the same time.
-                    if (boidCanvas) boidCanvas.style.opacity = '0';
+                    // On the homepage, keep the returning flock visible as it
+                    // spirals into the head. Other pages retain their fade-out.
+                    if (boidCanvas && !heroField.available) boidCanvas.style.opacity = '0';
                 }, 50);
 
                 // REFACTOR: Schedule the final cleanup to run after the 1000ms animation completes.
                 setTimeout(() => {
+                    transitioning = false;
                     if (boidCanvas) boidCanvas.style.display = 'none';
                     // Note: setControlPanelVisibility handles its own display change, no need to repeat.
                     document.body.classList.remove('boid-active');
@@ -310,10 +321,12 @@ function setupEasterEgg() {
             // --- BUILD-UP & SHOWING LOGIC (Taps 1-3) ---
             else if (tapCount >= 1 && tapCount <= 3) {
                 // This runs on taps 1, 2, and 3.
+                notifyProgress(tapCount);
                 animate('down');
 
                 // This nested block ONLY runs on the 3rd tap to reveal the simulation.
                 if (tapCount === 3) {
+                    transitioning = true;
                     // The original timing chain is preserved for the desired visual effect.
                     setTimeout(() => {
                         if (boidCanvas) {
@@ -332,7 +345,9 @@ function setupEasterEgg() {
 
                                 // Initialize the simulation and slider as the controls are fading in.
                                 initializeSlider('speedSlider', 'speedValue', '%');
-                                if (typeof startSimulation === 'function') startSimulation();
+                                Promise.resolve(window.startSimulation?.()).finally(() => {
+                                    transitioning = false;
+                                });
                             }, 500);
                         }, 50);
                     }, 500);

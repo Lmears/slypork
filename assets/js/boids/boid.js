@@ -1,3 +1,4 @@
+import { heroField, projectHeroOrbit } from './hero-field.js';
 // boid.js - Individual boid behavior and rendering
 
 import { Vector, vectorPool, toroidalDistance } from './vector.js';
@@ -53,6 +54,8 @@ let boidsIgnoreMouse = false;
 let mouse = null;
 let boidImageBitmap = null;
 let trailTracker = null;
+let frontCtx = null;
+let orbitBackCtx = null;
 
 // Per-frame smoothing factors. Every input is frame-global, so they're computed
 // once in updateBoidRuntimeValues rather than per boid — at several hundred boids
@@ -73,6 +76,8 @@ export function setBoidDependencies(dependencies) {
     mouse = dependencies.mouse;
     boidImageBitmap = dependencies.boidImageBitmap;
     trailTracker = dependencies.trailTracker;
+    frontCtx = dependencies.frontCtx;
+    orbitBackCtx = dependencies.orbitBackCtx;
 }
 
 /**
@@ -129,6 +134,15 @@ export class Boid {
             this.velocity = Vector.random2D(vectorPool.get(0, 0));
             this.velocity.setMag(Math.random() * 2 + 2);
             this.boost = vectorPool.get(-INITIAL_BOOST, -INITIAL_BOOST);
+            if (heroField.available) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = heroField.radius * (0.65 + Math.random() * 0.35);
+                this.position.set(heroField.x + Math.cos(angle) * radius,
+                    heroField.y + Math.sin(angle) * radius * 0.8);
+                this.velocity.set(Math.cos(angle) * 3, Math.sin(angle) * 3);
+                this.boost.set(Math.cos(angle) * INITIAL_BOOST * 0.3,
+                    Math.sin(angle) * INITIAL_BOOST * 0.3);
+            }
             this.depth = Math.random();
         }
 
@@ -138,6 +152,8 @@ export class Boid {
         this.maxSpeed = NORMAL_MAX_SPEED;
 
         this.rotation = Math.atan2(this.velocity.y, this.velocity.x);
+        this.orbit = null;
+        this.orbitCooldown = 0;
 
         this.size = BOID_SIZE_BASE + this.depth * BOID_SIZE_VARIATION;
         this.renderSize = this.calculateRenderSize();
@@ -200,6 +216,7 @@ export class Boid {
         let cohesionTotal = 0;
         let separationTotal = 0;
         let depthTotal = 0;
+        let passingX = 0, passingY = 0, passingVX = 0, passingVY = 0, passingTotal = 0;
 
         // --- Pre-calculate constants for this boid ---
         const alignRadiusSq = simParams.ALIGNMENT_RADIUS * simParams.ALIGNMENT_RADIUS;
@@ -227,6 +244,18 @@ export class Boid {
 
             if (dSq >= maxRadiusSq) continue;
             const distance = Math.sqrt(dSq);
+
+            if (this.orbit && !other.orbit && other.scatterState === 0) {
+                const w = Math.max(
+                    dSq < cohRadiusSq ? neighborWeight(distance, simParams.COHESION_RADIUS) * simParams.COHESION_FORCE : 0,
+                    dSq < alignRadiusSq ? neighborWeight(distance, simParams.ALIGNMENT_RADIUS) * simParams.ALIGNMENT_FORCE : 0,
+                );
+                passingX += (this.position.x - tdx) * w;
+                passingY += (this.position.y - tdy) * w;
+                passingVX += other.velocity.x * w;
+                passingVY += other.velocity.y * w;
+                passingTotal += w;
+            }
 
             // --- 2. Apply Behaviors based on distance ---
             // Alignment
@@ -271,6 +300,23 @@ export class Boid {
         }
 
         vectorPool.release(tempDiff); // Done with this temporary vector
+
+        if (this.orbit) {
+            this.orbit.flockPull = 0;
+            if (passingTotal > 0) {
+                const dx = passingX / passingTotal - heroField.x;
+                const dy = passingY / passingTotal - heroField.y;
+                const radius = Math.hypot(dx, dy);
+                const ownRadius = Math.hypot(this.position.x - heroField.x, this.position.y - heroField.y);
+                const outwardSpeed = (passingVX * dx + passingVY * dy) / passingTotal / (radius || 1);
+                // A nearby group departing the leader tugs at the disk. Groups
+                // approaching it remain candidates for capture instead.
+                if (radius > ownRadius + 10 && outwardSpeed > 0) {
+                    this.orbit.flockPull = Math.min(1, passingTotal / 3)
+                        * Math.min(1, outwardSpeed / (this.maxSpeed || 1));
+                }
+            }
+        }
 
         // --- Finalize ALIGNMENT force ---
         if (alignmentTotal > 0) {
@@ -434,10 +480,14 @@ export class Boid {
 
 
         // --- 4. Update position and visuals (for ALL boids, living or dying) ---
-        this.position.add(this.velocity);
-        this.updateRotation();
+        // The orbit owns a smooth path and heading. Applying free-flight
+        // steering here as well would turn the sprite twice each frame.
+        if (!this.orbit) {
+            this.position.add(this.velocity);
+            this.updateRotation();
+            this.edges(); // Wrap around canvas
+        }
         this.oscillationPhase = (this.oscillationPhase + this.oscillationSpeed * timeScale) % (Math.PI * 2);
-        this.edges(); // Wrap around canvas
     }
 
 
@@ -490,7 +540,11 @@ export class Boid {
     }
 
     draw(currentTime) {
-        const margin = this.renderSize; // A slightly larger margin for safety
+        if (this.orbit) {
+            this.drawAt(this.position, currentTime);
+            return;
+        }
+        const margin = this.renderSize;
 
         // If the boid is safely away from all edges, draw it just once.
         if (this.position.x > margin && this.position.x < canvas.width - margin &&
@@ -518,7 +572,9 @@ export class Boid {
 
     drawAt(position, currentTime) {
         if (!boidImageBitmap) return;
-        ctx.save();
+        const orbit = heroField.available && frontCtx && orbitBackCtx ? this.orbit : null;
+        const drawCtx = orbit ? (orbit.point.depth > 0 ? frontCtx : orbitBackCtx) : ctx;
+        drawCtx.save();
 
         let opacity = 1.0;
         let scale = 1.0;
@@ -531,7 +587,7 @@ export class Boid {
 
         const finalRenderSize = this.renderSize * scale;
         if (finalRenderSize <= 0) {
-            ctx.restore();
+            drawCtx.restore();
             return;
         }
 
@@ -541,20 +597,53 @@ export class Boid {
         // half its diagonal from the centre; a pixel of slack covers the edge
         // antialiasing. Marking wider than that only protects residue from the
         // sweep, so it's kept tight.
-        trailTracker?.markPainted(position.x, position.y, finalRenderSize * Math.SQRT1_2 + 1);
+        const orbitBlend = orbit?.blend ?? 0;
+        if (orbitBlend < 1) trailTracker?.markPainted(position.x, position.y, finalRenderSize * Math.SQRT1_2 + 1);
 
-        ctx.globalAlpha = opacity;
-        ctx.translate(position.x, position.y);
-        ctx.rotate(this.rotation + Math.PI / 2);
-        ctx.drawImage(boidImageBitmap, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
-        ctx.restore();
+        // Orbit sprites are cleared every frame. A short, smooth arc gives the
+        // disk its flow without stacking ghost copies of the logo into noise.
+        const trailEntry = Math.max(0, (orbitBlend - 0.45) / 0.55);
+        const trailBlend = trailEntry * trailEntry * (3 - 2 * trailEntry);
+        if (orbit && trailBlend > 0) {
+            drawCtx.lineWidth = 1;
+            for (let segment = 0; segment < 5; segment++) {
+                const phase = orbit.phase - (5 - segment) * 0.07;
+                const from = projectHeroOrbit(phase, orbit.lane, orbit.trailPoint);
+                // Split at the disk's horizon so the trail respects the pig.
+                if ((from.depth > 0) !== (orbit.point.depth > 0)) continue;
+                drawCtx.globalAlpha = opacity * (segment + 1) * 0.07 * trailBlend;
+                drawCtx.strokeStyle = '#8c939c';
+                drawCtx.beginPath();
+                drawCtx.moveTo(from.x + orbit.offsetX, from.y + orbit.offsetY);
+                const to = projectHeroOrbit(phase + 0.07, orbit.lane, orbit.trailPoint);
+                drawCtx.lineTo(to.x + orbit.offsetX, to.y + orbit.offsetY);
+                drawCtx.stroke();
+            }
+        }
+
+        // Fade the layering in along with the pull, so entering boids don't
+        // suddenly jump in front of the head or lose their ordinary trails.
+        if (orbit && orbitBlend < 1) {
+            ctx.save();
+            ctx.globalAlpha = opacity * (1 - orbitBlend);
+            ctx.translate(position.x, position.y);
+            ctx.rotate(this.rotation + Math.PI / 2);
+            ctx.drawImage(boidImageBitmap, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
+            ctx.restore();
+        }
+        drawCtx.globalAlpha = opacity * (orbit ? orbitBlend : 1);
+        drawCtx.translate(position.x, position.y);
+        drawCtx.rotate(this.rotation + Math.PI / 2);
+        drawCtx.drawImage(boidImageBitmap, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
+        drawCtx.restore();
     }
 
     isPositionVisible(pos) {
-        return pos.x + this.renderSize / 2 > 0 &&
-            pos.x - this.renderSize / 2 < canvas.width &&
-            pos.y + this.renderSize / 2 > 0 &&
-            pos.y - this.renderSize / 2 < canvas.height;
+        const halfSize = this.renderSize / 2;
+        return pos.x + halfSize > 0 &&
+            pos.x - halfSize < canvas.width &&
+            pos.y + halfSize > 0 &&
+            pos.y - halfSize < canvas.height;
     }
 
     calculateRenderSize() {

@@ -1,3 +1,4 @@
+import { heroField } from './hero-field.js';
 import { Vector, vectorPool, toroidalDistance } from './vector.js';
 import { drawGridVisualization, drawNeighborhoodVisualization } from './spatial-grid.js';
 import {
@@ -139,6 +140,26 @@ export class Renderer {
         // Anything unreported is treated as the 8-bit fallback, which is the safe
         // assumption for the trail fade below.
         this.hasFloatBuffer = ctx.getContextAttributes?.().colorType === 'float16';
+        this.drawOrder = [];
+        // The disk gets two crisp surfaces around the pig. Free boids keep
+        // using their original canvas and trails behind the page.
+        const pigCanvas = document.getElementById('pigCanvas');
+        if (pigCanvas) {
+            this.frontCanvas = document.createElement('canvas');
+            this.frontCanvas.id = 'boidFrontCanvas';
+            this.frontCanvas.setAttribute('aria-hidden', 'true');
+            this.frontCanvas.style.display = 'none';
+            this.frontCtx = this.frontCanvas.getContext('2d', { colorType: 'float16' });
+            if (this.frontCtx) {
+                this.orbitBackCanvas = document.createElement('canvas');
+                this.orbitBackCanvas.id = 'boidOrbitBackCanvas';
+                this.orbitBackCanvas.setAttribute('aria-hidden', 'true');
+                this.orbitBackCanvas.style.display = 'none';
+                this.orbitBackCtx = this.orbitBackCanvas.getContext('2d');
+                pigCanvas.before(this.orbitBackCanvas);
+                pigCanvas.after(this.frontCanvas);
+            }
+        }
     }
 
     /**
@@ -165,17 +186,40 @@ export class Renderer {
      * The sweep runs straight after the fade, before anything is drawn on top.
      */
     drawBackground(timeScale = 1) {
-        this.trailTracker.matchCanvas(this.canvas.width, this.canvas.height);
+        this.fadeSurface(this.canvas, this.ctx, this.trailTracker, timeScale, this.hasFloatBuffer);
+        if (this.frontCtx && this.orbitBackCtx) {
+            for (const [canvas, ctx] of [[this.frontCanvas, this.frontCtx], [this.orbitBackCanvas, this.orbitBackCtx]]) {
+                if (canvas.width !== this.canvas.width) canvas.width = this.canvas.width;
+                if (canvas.height !== this.canvas.height) canvas.height = this.canvas.height;
+                canvas.style.display = heroField.available ? 'block' : 'none';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    }
 
-        const exponent = this.hasFloatBuffer ? timeScale : Math.max(1, timeScale);
+    fadeSurface(canvas, ctx, tracker, timeScale, hasFloatBuffer) {
+        tracker.matchCanvas(canvas.width, canvas.height);
+
+        const exponent = hasFloatBuffer ? timeScale : Math.max(1, timeScale);
         const fade = 1 - Math.pow(1 - TRAIL_FADE_ALPHA, exponent);
-        this.ctx.globalCompositeOperation = 'destination-out';
-        this.ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
 
-        this.trailTracker.advance(fade);
-        this.trailTracker.sweep(this.ctx);
+        tracker.advance(fade);
+        tracker.sweep(ctx);
+    }
+
+    drawFlock(flock, currentTime) {
+        if (!heroField.available) {
+            for (const boid of flock) boid.draw(currentTime);
+            return;
+        }
+        this.drawOrder.length = 0;
+        for (const boid of flock) this.drawOrder.push(boid);
+        this.drawOrder.sort((a, b) => (a.orbit?.point.depth ?? 0) - (b.orbit?.point.depth ?? 0));
+        for (const boid of this.drawOrder) boid.draw(currentTime);
     }
 
     /**
@@ -268,14 +312,35 @@ export class Renderer {
         // The convergence is a per-frame lerp; compound it so the flock reaches the
         // easter egg at the same moment the time-based progress does, on any display.
         const converge = 1 - Math.pow(0.9, timeScale);
-        const targetX = this.canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-        const targetY = this.canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+        const targetX = heroField.available ? heroField.x : this.canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+        const targetY = heroField.available ? heroField.y : this.canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         const targetPosForEnding = vectorPool.get(targetX, targetY);
 
+        if (this.homecomingStart !== endStartTime) {
+            this.homecomingStart = endStartTime;
+            this.homecomingOrigins = new WeakMap();
+        }
+        const homecoming = heroField.available;
+        const gather = endProgress * endProgress * (3 - 2 * endProgress);
+        const curl = Math.sin(endProgress * Math.PI) * 0.7;
+        const cos = Math.cos(curl);
+        const sin = Math.sin(curl);
+
         for (let boid of flock) {
-            // Lerp position towards the target
-            boid.position.x += (targetPosForEnding.x - boid.position.x) * converge;
-            boid.position.y += (targetPosForEnding.y - boid.position.y) * converge;
+            if (homecoming) {
+                // Use elapsed time rather than exponential pursuit, so the
+                // return remains visible for the full second as the head grows.
+                let origin = this.homecomingOrigins.get(boid);
+                if (!origin) {
+                    origin = { x: boid.position.x - targetX, y: boid.position.y - targetY };
+                    this.homecomingOrigins.set(boid, origin);
+                }
+                boid.position.x = targetX + (origin.x * cos - origin.y * sin) * (1 - gather);
+                boid.position.y = targetY + (origin.x * sin + origin.y * cos) * (1 - gather);
+            } else {
+                boid.position.x += (targetPosForEnding.x - boid.position.x) * converge;
+                boid.position.y += (targetPosForEnding.y - boid.position.y) * converge;
+            }
 
             // Shrink boids as they approach the end
             boid.size = (BOID_SIZE_BASE + boid.depth * BOID_SIZE_VARIATION) * (1 - endProgress);
@@ -284,8 +349,9 @@ export class Renderer {
                 boid.position.y = targetPosForEnding.y;
             }
             boid.renderSize = boid.calculateRenderSize();
-            boid.draw(currentTime);
+            boid.orbit = null;
         }
+        this.drawFlock(flock, currentTime);
         vectorPool.release(targetPosForEnding);
 
         return endProgress;
@@ -297,5 +363,14 @@ export class Renderer {
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.trailTracker.reset();
+        this.drawOrder.length = 0;
+        if (this.frontCtx) {
+            this.frontCtx.clearRect(0, 0, this.frontCanvas.width, this.frontCanvas.height);
+            this.frontCanvas.style.display = 'none';
+            if (this.orbitBackCtx) {
+                this.orbitBackCtx.clearRect(0, 0, this.orbitBackCanvas.width, this.orbitBackCanvas.height);
+                this.orbitBackCanvas.style.display = 'none';
+            }
+        }
     }
 }

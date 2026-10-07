@@ -14,6 +14,9 @@
     <link rel="apple-touch-icon" href="./assets/images/favicon-192x192.png">
     <link rel="preload" href="./assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./assets/models/slypork-pig.glb" as="fetch" crossorigin>
+    <link rel="preload" href="./assets/models/forest.exr" as="fetch" crossorigin>
+    <link rel="modulepreload" href="./assets/js/vendor/three-pig.js">
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo_raised.svg" type="image/svg+xml">
     <link href="./assets/css/output.css" rel="stylesheet">
@@ -31,56 +34,33 @@
         <input type="range" id="speedSlider" min="0" max="200" value="100">
         <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
     </div>
-    <main id="container" class="flex min-h-full px-2 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced has-footer">
-        <header>
-            <nav id="site-nav" class="text-2xl flex justify-center mt-[10vh] md:mt-0 nav-active group">
-                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="true"
-                    class="hidden show-hamburger:block" style="transform: translate(-8px, 12px);">&#9776;</button>
-                <ul id="navLinks" class="inline-flex flex-col items-center md:items-start min-w-0 md:min-w-36">
-                    <li class="group-[.nav-active]:pb-4 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
-                        <a href=".." id="homeLink" class="p-1 block">
-                            <img src="../assets/images/slypork_logo.svg" alt="Home" width="80" height="80"
-                                class="w-[80px] home-logo">
-                        </a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./plugins/" id="pluginsLink">
-                            <span class="nav-link-text">Plugins</span></a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./music/" id="musicLink">
-                            <span class="nav-link-text">Music</span></a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./mastering/" id="masteringLink">
-                            <span class="nav-link-text">Mastering</span></a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./software/" id="softwareLink">
-                            <span class="nav-link-text">Software</span></a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./about/" id="aboutLink">
-                            <span class="nav-link-text">About</span></a>
-                    </li>
-                    <li class="hidden show-nav:group-[.nav-active]:block md:block py-1 md:p-3">
-                        <a href="./contact/" id="contactLink">
-                            <span class="nav-link-text">Contact</span></a>
-                    </li>
-                </ul>
-            </nav>
+    <main id="container" class="home-page mx-auto">
+        <header class="home-header">
+            <div id="footer" class="home-wordmark">slypork.net</div>
         </header>
 
-        <section id="content" class="flex-1 p-5 flex flex-col">
-            <!-- Potential Content Here -->
-        </section>
+        <section id="content" class="home-hero" aria-label="Slypork">
+            <button id="pigStage" class="pig-stage" type="button" aria-label="Show navigation"
+                aria-controls="site-nav" aria-expanded="false" disabled>
+                <canvas id="pigCanvas" aria-hidden="true"></canvas>
+                <span class="pig-hint" aria-hidden="true">Explore <span>↗</span></span>
+            </button>
 
-        <footer class="p-2 md:p-0 text-center text-3xl">
-            <div class="p-1 md:p-3 inline-flex -translate-y-2 md:-translate-y-0" id="footer">slypork.net</div>
-        </footer>
+            <nav id="site-nav" class="home-nav" aria-label="Main navigation">
+                <ul id="navLinks">
+                    <li><a href="./plugins/" id="pluginsLink"><span class="nav-link-text">Plugins</span></a></li>
+                    <li><a href="./music/" id="musicLink"><span class="nav-link-text">Music</span></a></li>
+                    <li><a href="./mastering/" id="masteringLink"><span class="nav-link-text">Mastering</span></a></li>
+                    <li><a href="./software/" id="softwareLink"><span class="nav-link-text">Software</span></a></li>
+                    <li><a href="./about/" id="aboutLink"><span class="nav-link-text">About</span></a></li>
+                    <li><a href="./contact/" id="contactLink"><span class="nav-link-text">Contact</span></a></li>
+                </ul>
+            </nav>
+        </section>
     </main>
     <script src="./assets/js/script.js"></script>
     <script src="./assets/js/boids/simulation.js" type="module"></script>
+    <script src="./assets/js/pig.js" type="module"></script>
     <div class="easter-egg" id="easterEgg"></div>
     <script src="./assets/js/boids/easter-egg.js" type="module"></script>
 </body>
