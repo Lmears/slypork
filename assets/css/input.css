@@ -214,7 +214,7 @@ h1 {
 
 @media (prefers-color-scheme: dark) and (max-width: 767.98px) {
     .pinned-nav::before {
-        background-color: rgb(32, 33, 31);
+        background-color: rgb(26, 27, 25);
         border-bottom-color: rgba(230, 231, 227, calc(0.5 * var(--nav-border-opacity, 0)));
     }
 }
@@ -830,7 +830,7 @@ input[type="checkbox"]:disabled {
 
 @media (prefers-color-scheme: dark) {
     html {
-        background-color: rgb(32, 33, 31);
+        background-color: rgb(26, 27, 25);
         color: rgb(230, 231, 227);
     }
 
