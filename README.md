@@ -14,7 +14,7 @@ For live CSS rebuilding, run `npm run watch:css` in a second terminal while the
 preview server runs. HTML text and plain JavaScript edits need no npm build.
 
 The homepage renderer is `assets/js/pig.js`; `npm run build:three` regenerates
-its committed Three.js bundle after a dependency update. The pig uses the full
+its committed Three.js bundle after a dependency update. At full quality the pig uses the full
 Blender-exported geometry and normals, separate PBR materials, and Blender's
 forest HDR environment for reflections, rotated so both lenses catch the canopy
 and gaps of sky. Lens materials and normals are used as
@@ -37,6 +37,10 @@ To update the model, export `slypork_pig.glb` from Blender, then run:
 
 This writes `assets/models/slypork-pig.glb` while preserving the export's geometry.
 It also restores the frame stud's Blender Mirror modifier if the export omitted it.
+Then run `npm run build:pig-lods` to regenerate the two optional detail levels.
+These are generated offline using meshoptimizer, preserving material boundaries,
+the original surviving vertices' normals and baked colours, and the small studs.
+Commit both generated GLBs alongside the original whenever the model changes.
 For an export containing an overlapping reference copy, append
 `--exclude-node Mesh_0.002` to omit that copy and its unused textures.
 The source Blender project and GLB are never modified. Commit the output along
@@ -54,12 +58,25 @@ turns and rolls around the screen's axes. It carries its momentum into the
 flock release before settling into miniature flight. Closing the flock resets
 the reaction. Reduced motion keeps the stepped glance without
 the tumble. While the flock is active,
-hovering the egg leaves the miniature on its flight path. A viewport-sized,
-pointer-transparent canvas lets the pig leave its stage without changing the
+hovering the egg leaves the miniature on its flight path. A cropped,
+pointer-transparent canvas follows the pig outside its stage without changing the
 layout. `hero-field.js` shares
 the screen-space position with the simulation; other pages keep the original
 corner spawn and exit. Reduced motion uses a stationary miniature, and the 3D
 animation pauses for offscreen content and hidden tabs.
+
+`pig-quality.js` starts at the original full geometry and up-to-2x pixel density.
+Sustained frame times above 21 ms reduce pixel density and then request lighter
+models (about 73k / 40k rendered triangles, versus 229k). Materials, lighting,
+antialiasing and HDR reflections remain enabled at every tier. Healthy frame
+times below 18 ms trigger gradual recovery after eight seconds; failed recovery
+attempts back off to avoid frequent quality changes. Loading and visibility
+changes reset the sampling window. No device-name guesses or animation frame
+cap are used. On lower tiers the blurred CSS backdrop updates at 15 Hz while
+the model and lights continue animating every frame. Canvas bounds follow the
+projected model, with allocation slack to avoid constant buffer resizing.
+Run `node --test scripts/check-pig-performance.mjs` to check adaptive quality
+and verify that the generated models retain the source vertex attributes.
 
 GitHub Pages publishes `master` directly with Jekyll; `_config.yml` excludes
 development files and the archived RSVP route. Keep `.nojekyll` absent.

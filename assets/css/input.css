@@ -386,8 +386,8 @@ h1 {
     transition: opacity 0.5s ease;
 }
 
-/* The layout and hit area stay on the stage; the transparent render surface
-   lets its miniature companion fly out to the navigation and hidden egg. */
+/* The layout and hit area stay on the stage. The renderer sizes and moves this
+   transparent surface around the pig, including its flights to navigation. */
 .pig-stage canvas {
     position: fixed;
     inset: 0;
