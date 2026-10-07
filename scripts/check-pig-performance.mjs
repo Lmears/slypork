@@ -25,6 +25,22 @@ test('sustained 30 FPS reduces work and sustained recovery restores full quality
     assert.equal(quality.level, 0);
 });
 
+test('touch devices start with low geometry at 1x and retain the tier across resets', () => {
+    const quality = new PigQuality({ coarsePointer: true });
+    assert.deepEqual(PIG_QUALITY[quality.level], { pixelRatio: 1, model: 'low' });
+    simulate(quality, 1000 / 60, 4000);
+    quality.reset();
+    assert.equal(quality.level, 3);
+});
+
+test('touch devices can reduce work further under pressure and recover to full quality', () => {
+    const quality = new PigQuality({ coarsePointer: true });
+    const time = simulate(quality, 1000 / 30, 4000);
+    assert.equal(quality.level, PIG_QUALITY.length - 1);
+    simulate(quality, 1000 / 60, 50000, time);
+    assert.equal(quality.level, 0);
+});
+
 test('a single hitch, tab suspension and a restart do not reduce quality', () => {
     const quality = new PigQuality();
     let time = simulate(quality, 1000 / 60, 4000);

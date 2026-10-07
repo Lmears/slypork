@@ -1,5 +1,5 @@
 // Respond to sustained frame pressure, including work elsewhere on the page.
-// Full fidelity is always the starting point; no device/UA guesses or FPS cap.
+// Touch devices start conservatively; sustained headroom can restore full fidelity.
 export const PIG_QUALITY = [
     { pixelRatio: 2, model: 'full' },
     { pixelRatio: 1.5, model: 'full' },
@@ -17,6 +17,10 @@ export class PigQuality {
     healthy = 0;
     recoveryDelay = 8000;
     probing = false;
+
+    constructor({ coarsePointer = false } = {}) {
+        this.level = coarsePointer ? 3 : 0;
+    }
 
     reset() {
         this.lastTime = 0;

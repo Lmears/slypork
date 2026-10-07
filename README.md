@@ -65,14 +65,18 @@ the screen-space position with the simulation; other pages keep the original
 corner spawn and exit. Reduced motion uses a stationary miniature, and the 3D
 animation pauses for offscreen content and hidden tabs.
 
-`pig-quality.js` starts at the original full geometry and up-to-2x pixel density.
+`pig-quality.js` starts touch devices (a coarse primary pointer) with the low
+model at up-to-1x pixel density, including on a fresh load. Other devices start
+at the original full geometry and up-to-2x pixel density. The homepage preloads
+only the initial model for its pointer type.
 Sustained frame times above 21 ms reduce pixel density and then request lighter
 models (about 73k / 40k rendered triangles, versus 229k). Materials, lighting,
 antialiasing and HDR reflections remain enabled at every tier. Healthy frame
 times below 18 ms trigger gradual recovery after eight seconds; failed recovery
 attempts back off to avoid frequent quality changes. Loading and visibility
-changes reset the sampling window. No device-name guesses or animation frame
-cap are used. On lower tiers the blurred CSS backdrop updates at 15 Hz while
+changes reset the sampling window without changing the current tier. No
+device-name guesses or animation frame cap are used. On lower tiers the blurred
+CSS backdrop updates at 15 Hz while
 the model and lights continue animating every frame. Canvas bounds follow the
 projected model, with allocation slack to avoid constant buffer resizing.
 Run `node --test scripts/check-pig-performance.mjs` to check adaptive quality

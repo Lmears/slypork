@@ -9,7 +9,10 @@ import { END_ANIMATION_DURATION } from './boids/config.js';
 import { heroField } from './boids/hero-field.js';
 import { PigQuality, PIG_QUALITY } from './pig-quality.js';
 
-const MODEL_URL = new URL('../models/slypork-pig.glb', import.meta.url).href;
+function modelURL(name) {
+    const suffix = name === 'full' ? '' : `-${name}`;
+    return new URL(`../models/slypork-pig${suffix}.glb`, import.meta.url).href;
+}
 const ENVIRONMENT_URL = new URL('../models/forest.exr', import.meta.url).href;
 const REST_YAW = -0.4;
 const REST_PITCH = 0.08;
@@ -71,7 +74,8 @@ function setupNavigation(stage) {
 async function mountPig(stage) {
     const canvas = stage.querySelector('canvas');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-    const quality = new PigQuality();
+    const quality = new PigQuality({ coarsePointer: matchMedia('(pointer: coarse)').matches });
+    const initialModel = PIG_QUALITY[quality.level].model;
     const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = SRGBColorSpace;
@@ -131,7 +135,7 @@ async function mountPig(stage) {
     let centre;
     try {
         const [gltf, panorama] = await Promise.all([
-            new GLTFLoader().loadAsync(MODEL_URL),
+            new GLTFLoader().loadAsync(modelURL(initialModel)),
             new EXRLoader().loadAsync(ENVIRONMENT_URL),
         ]);
         model = gltf.scene;
@@ -159,7 +163,7 @@ async function mountPig(stage) {
         root.traverse(object => { object.updateMatrix(); object.matrixAutoUpdate = false; });
     }
     freezeModel(model);
-    const models = new Map([['full', model]]);
+    const models = new Map([[initialModel, model]]);
     const pendingModels = new Set();
     function selectModel() {
         const name = PIG_QUALITY[quality.level].model;
@@ -169,7 +173,7 @@ async function mountPig(stage) {
         } else if (!pendingModels.has(name)) {
             pendingModels.add(name);
             // Simplification happens offline, never on the animation thread.
-            new GLTFLoader().loadAsync(new URL(`../models/slypork-pig-${name}.glb`, import.meta.url).href)
+            new GLTFLoader().loadAsync(modelURL(name))
                 .then(gltf => {
                     const root = gltf.scene;
                     root.position.sub(centre);
