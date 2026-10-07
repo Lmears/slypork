@@ -262,6 +262,10 @@ async function mountPig(stage) {
         pivot.position.x += burst.x * viewWidth;
         pivot.position.y += burst.y * viewHeight;
         const inspect = attention.mix * amount;
+        // Keep the bowed pig gently afloat, blending the bob with link attention.
+        if (!reducedMotion.matches) {
+            pivot.position.y += Math.sin(elapsed * Math.PI * 2 / 4) * 4 / height * viewHeight * inspect;
+        }
         const secret = attention.secret * (1 - amount);
         let pitch = pose.pitch + Math.sin(orbit * 2) * 0.15 * amount;
         let yaw = pose.yaw + Math.cos(orbit) * 0.5 * amount;
