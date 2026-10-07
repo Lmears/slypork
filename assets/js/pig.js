@@ -210,7 +210,8 @@ async function mountPig(stage) {
     const navLinks = document.getElementById('navLinks');
     const egg = document.getElementById('easterEgg');
     const attention = {
-        link: null, focusedLink: null, egg: false, x: 0, y: 0, mix: 0, secret: 0,
+        link: null, pressedLink: null, selectedLink: null, focusedLink: null,
+        egg: false, x: 0, y: 0, mix: 0, secret: 0,
         glance: 0, yaw: REST_YAW, pitch: REST_PITCH,
     };
     const discovery = { count: 0, nodElapsed: SECRET_NOD_DURATION };
@@ -221,7 +222,7 @@ async function mountPig(stage) {
     function attentionTarget() {
         if (!nav.classList.contains('is-open')) return null;
         const focused = attention.focusedLink?.matches(':focus-visible') ? attention.focusedLink : null;
-        return attention.link || focused;
+        return attention.selectedLink || attention.pressedLink || attention.link || focused;
     }
     let hovered = false;
     const spin = { angle: 0, from: 0, to: 0, elapsed: SPIN_DURATION, velocity: 0, landing: null };
@@ -619,6 +620,7 @@ async function mountPig(stage) {
     }
 
     function trackPointer(event) {
+        if (event.pointerType !== 'mouse' && !event.buttons) return;
         pointer.x = event.clientX;
         pointer.y = event.clientY;
         pointer.active = true;
@@ -637,6 +639,7 @@ async function mountPig(stage) {
         } else if (!discovery.count) resetBurst();
         updateAttention();
     });
+    let touchLink = null;
     for (const link of nav.querySelectorAll('a')) {
         link.addEventListener('pointerenter', event => {
             if (event.pointerType === 'touch') return;
@@ -651,6 +654,14 @@ async function mountPig(stage) {
         });
         link.addEventListener('focus', () => { attention.focusedLink = link; updateAttention(); });
         link.addEventListener('blur', () => { attention.focusedLink = null; updateAttention(); });
+        link.addEventListener('click', event => {
+            // Older browsers expose touch clicks as MouseEvents. Remember the
+            // pressed link as well, and keep watching it while navigation loads.
+            if (event.pointerType !== 'touch' && touchLink !== link) return;
+            attention.selectedLink = link;
+            touchLink = null;
+            updateAttention();
+        });
     }
     egg?.addEventListener('pointerenter', event => {
         if (event.pointerType === 'touch') return;
@@ -660,6 +671,7 @@ async function mountPig(stage) {
     egg?.addEventListener('pointerleave', () => { attention.egg = false; updateAttention(); });
     function clearAttention() {
         attention.link = null;
+        attention.pressedLink = null;
         attention.focusedLink = null;
         attention.egg = false;
         updateAttention();
@@ -667,10 +679,21 @@ async function mountPig(stage) {
     stage.addEventListener('pointerenter', event => { hovered = event.pointerType === 'mouse'; });
     stage.addEventListener('pointerleave', () => { hovered = false; });
     window.addEventListener('pointermove', trackPointer, { passive: true });
-    window.addEventListener('pointerdown', trackPointer, { passive: true });
+    window.addEventListener('pointerdown', event => {
+        touchLink = event.pointerType === 'touch' ? event.target.closest?.('#site-nav a') : null;
+        attention.selectedLink = null;
+        attention.pressedLink = touchLink;
+        trackPointer(event);
+        updateAttention();
+    }, { passive: true });
     for (const type of ['pointerup', 'pointercancel']) {
         window.addEventListener(type, event => {
-            if (event.pointerType !== 'mouse') pointer.active = false;
+            if (event.pointerType !== 'mouse') {
+                pointer.active = false;
+                attention.pressedLink = null;
+                if (event.type === 'pointercancel') touchLink = null;
+                updateAttention();
+            }
         });
     }
     document.addEventListener('pointerout', event => {
@@ -679,7 +702,19 @@ async function mountPig(stage) {
     window.addEventListener('blur', () => { pointer.active = false; clearAttention(); });
     reducedMotion.addEventListener('change', sync);
     document.addEventListener('visibilitychange', sync);
-    window.addEventListener('pageshow', sync);
+    window.addEventListener('pageshow', () => {
+        attention.selectedLink = null;
+        touchLink = null;
+        pointer.active = false;
+        clearAttention();
+        sync();
+    });
+    document.body.addEventListener('layoutChanged', () => {
+        if (!nav.classList.contains('is-open')) {
+            attention.selectedLink = null;
+            clearAttention();
+        }
+    });
     document.body.addEventListener('scroll', () => { if (reducedMotion.matches) draw(); }, { passive: true });
     window.addEventListener('pagehide', () => cancelAnimationFrame(frame));
     new ResizeObserver(resize).observe(stage);

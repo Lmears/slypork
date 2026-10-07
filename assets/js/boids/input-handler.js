@@ -78,6 +78,9 @@ export class InputHandler {
 
     // Touch event handlers
     touchStartHandler(event) {
+        // Listeners stay installed between runs; let normal page taps through.
+        if (!this.deps.isRunning()) return;
+
         const experimentalMenu = document.getElementById('experimentalMenu');
         const easterEgg = document.getElementById('easterEgg');
         const navLinks = document.getElementById('navLinks');
@@ -129,7 +132,7 @@ export class InputHandler {
     }
 
     touchMoveHandler(event) {
-        if (this.deps.isEnding() || this.boidsIgnoreTouch) {
+        if (!this.deps.isRunning() || this.deps.isEnding() || this.boidsIgnoreTouch) {
             this.mouseInfluence = false;
             return;
         }
