@@ -179,6 +179,10 @@
 .kerby-back { display: inline-block; margin-bottom: 1.5rem; font-size: .85rem; color: var(--kb-muted); }
 .kerby-back:hover { text-decoration: underline; }
 .kerby-doc-meta { font-size: .75rem; color: var(--kb-muted); }
+.kerby-changelog { padding-bottom: 1rem; }
+@media (min-width: 768px) {
+    .kerby-changelog { padding-bottom: 2rem; }
+}
 .kerby-guide-list { display: grid; border-top: .5px solid var(--kb-line); border-bottom: .5px solid var(--kb-line); }
 .kerby-guide-list a { display: grid; gap: .35rem; padding: 1.25rem 0; }
 .kerby-guide-list a + a { border-top: .5px solid var(--kb-line); }
