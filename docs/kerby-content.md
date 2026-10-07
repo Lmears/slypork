@@ -72,7 +72,9 @@ simplifying or redrawing the diagram.
   contextual link from the Overview if it helps a first-time visitor.
 - Every KerBy page carries Open Graph and `twitter:card` tags so links shared in Discord,
   Instagram and video descriptions show a preview. `og:description` repeats the page's meta
-  description; change both together. A new page needs its own block with its own `og:url`.
+  description; change both together. Describe audible results in preview text without
+  assuming readers know interface labels such as Rate. A new page needs its own block
+  with its own `og:url`.
 - The KerBy pages' CSP allows `media-src 'self'` for self-hosted audio and video, and
   `https://www.youtube-nocookie.com` in `frame-src` for embedded videos. Use the nocookie
   domain for YouTube embeds. A plain link to Gumroad needs no CSP change; Gumroad's overlay
@@ -93,9 +95,11 @@ rules and `link-underline` hover offset (3px to 6px). Keep the KerBy font, pink 
 Only the current local navigation destination is underlined. The shared divider
 position and colour and the text-link hover behavior still belong to the site.
 
-Lead with the instrument's playable relationship between kick and bass. Rate is the
-main expression control and the only knob visible on every tab: a steady pulse can
-become a brief stutter or rhythmic variation. Explain Live and MIDI-clip Draw mode,
+Lead with the instrument's playable relationship between kick and bass. In Live mode,
+KerBy divides a held MIDI note or legato phrase into repeating kick and bass pulses.
+Rate controls how often each voice pulses; it is the main expression control and the
+only knob visible on every tab. Explain this core behaviour before examples such as
+stutters or rhythmic variations. Explain Live and MIDI-clip Draw mode,
 and synthesis and samples, without promising a particular genre or limiting either voice.
 The developer's four-to-the-floor starting point and the user testing that prompted
 Draw mode belong in Learn as personal context, not as the overview's main use case. Ducking alone is not the novelty.
