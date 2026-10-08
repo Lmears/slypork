@@ -69,6 +69,13 @@ simplifying or redrawing the diagram.
   previously observed for a pending-confirmation page, but treating every response
   below 500 as success also hides genuine rejections and rate limits. Follow
   [Buttondown's embed instructions](https://docs.buttondown.com/building-your-subscriber-base).
+- After accepted signup, Buttondown's newsletter setting `subscription_redirect_url`
+  must point to `https://slypork.net/kerby/check-inbox/`. Publish that static page before
+  enabling the redirect. It explains email confirmation without claiming activation,
+  works without JavaScript, and is excluded from search indexing. Keep
+  `subscription_confirmation_redirect_url` separate: that is for the later email click.
+  The Overview's `form-action` also permits `'self'` so Chromium allows the return redirect.
+  See [Buttondown's redirect settings](https://docs.buttondown.com/api-newsletters-update).
 - New nested pages use root-relative assets and navigation. Shared logo hover and boid
   image loading also use root-relative paths so they work at any route depth.
 - Keep the version markers and signup on `/kerby/`, and the changelog container on

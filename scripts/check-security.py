@@ -39,7 +39,11 @@ class Page(HTMLParser):
             for directive, expected in {
                 "default-src": ["'none'"], "script-src": ["'self'"],
                 "object-src": ["'none'"], "base-uri": ["'none'"],
-                "form-action": ["https://buttondown.com"],
+                # Chromium also checks the destination of form redirects. Only the
+                # KerBy signup page needs to return to our own confirmation instructions.
+                "form-action": (["'self'", "https://buttondown.com"]
+                                if self.path.relative_to(ROOT).as_posix() == "kerby/index.html"
+                                else ["https://buttondown.com"]),
             }.items():
                 self.check(self.policy.get(directive) == expected, f"unsafe {directive}")
             self.check("frame-ancestors" not in self.policy, "frame-ancestors needs an HTTP header")

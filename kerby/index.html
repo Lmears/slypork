@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; media-src 'self'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz https://www.youtube-nocookie.com; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; media-src 'self'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://app.accessquest.com https://app.mylifemyvoice.org.nz https://twistedfrequency.nz https://www.youtube-nocookie.com; base-uri 'none'; object-src 'none'; form-action 'self' https://buttondown.com">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>KerBy | Slypork</title>
@@ -208,9 +208,9 @@
             <section class="visual-container-bottom" id="kerbyDetail">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
 
-                    <!-- Posts to Buttondown's public embed endpoint; see assets/js/kerby.js for
-                         the inline-response upgrade. Without JS this still works, it just lands
-                         on Buttondown's own confirmation page instead.
+                    <!-- Native POST preserves Buttondown validation and CAPTCHA pages.
+                         The newsletter's subscription_redirect_url returns accepted signups to
+                         /kerby/check-inbox/, with or without JavaScript.
 
                          One list for the launch announcement and each version's changelog. It
                          used to double as beta sign-up; testers are now recruited directly, so
@@ -227,7 +227,7 @@
                             new version lands.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
-                            <input type="email" id="notifyEmail" name="email" required autocomplete="email"
+                            <input type="email" id="notifyEmail" name="email" required autocomplete="email" aria-describedby="notifyInstructions"
                                 placeholder="you@example.com" class="kerby-email">
                             <input type="hidden" name="embed" value="1">
                             <button type="submit" id="notifyButton"
@@ -235,7 +235,7 @@
                                 Send
                             </button>
                         </div>
-                        <p id="notifyStatus" class="text-base font-light pt-2" role="status" aria-live="polite"></p>
+                        <p id="notifyInstructions" class="text-base font-light pt-2 opacity-75">After signing up, check your inbox to confirm your subscription.</p>
                     </form>
                     <p class="text-base font-light pt-8 opacity-75">Runs on macOS 11 or later, Apple Silicon or
                         Intel, and 64-bit Windows 10 or later.
