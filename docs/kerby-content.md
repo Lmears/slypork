@@ -62,6 +62,13 @@ simplifying or redrawing the diagram.
   Existing utility styles still come from the committed Tailwind `output.css`.
 - `assets/js/kerby.js` owns signup, screenshot enlargement, the ducking illustration
   and reference search. New functions should return early on pages without their controls.
+- Signup uses a native HTML POST to Buttondown, including with JavaScript enabled.
+  Keep the hero button's synchronous email-field focus for mobile. Do not intercept
+  submission with `fetch`: Buttondown may return a validation or CAPTCHA page that
+  the visitor must see. Its embed endpoint is not a JSON success API; HTTP 400 was
+  previously observed for a pending-confirmation page, but treating every response
+  below 500 as success also hides genuine rejections and rate limits. Follow
+  [Buttondown's embed instructions](https://docs.buttondown.com/building-your-subscriber-base).
 - New nested pages use root-relative assets and navigation. Shared logo hover and boid
   image loading also use root-relative paths so they work at any route depth.
 - Keep the version markers and signup on `/kerby/`, and the changelog container on
