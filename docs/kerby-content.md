@@ -69,6 +69,9 @@ simplifying or redrawing the diagram.
   previously observed for a pending-confirmation page, but treating every response
   below 500 as success also hides genuine rejections and rate limits. Follow
   [Buttondown's embed instructions](https://docs.buttondown.com/building-your-subscriber-base).
+- Links to `/kerby/#notifyForm`, including the check-inbox page's retry link, scroll
+  to the form and focus its email field on arrival and history restoration. Mobile
+  browsers may require a fresh tap to open the keyboard after crossing pages.
 - After accepted signup, Buttondown's newsletter setting `subscription_redirect_url`
   must point to `https://slypork.net/kerby/check-inbox/`. Publish that static page before
   enabling the redirect. It explains email confirmation without claiming activation,

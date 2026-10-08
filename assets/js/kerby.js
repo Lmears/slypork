@@ -6,7 +6,8 @@
 //
 // The form posts to Buttondown's public embed endpoint, which needs no API key -
 // so nothing secret ends up in the page source. Without JS the form still submits
-// normally and Buttondown renders its own confirmation, validation or CAPTCHA page.
+// normally; Buttondown redirects accepted signups to our check-inbox page and
+// renders any validation or CAPTCHA page itself.
 // Keep that navigation even with JS: fetching the embed endpoint hides challenges
 // visitors may need to complete. A response below HTTP 500 does not mean success.
 // https://docs.buttondown.com/building-your-subscriber-base
@@ -18,6 +19,15 @@ function initNotifyForm() {
     var input = document.getElementById('notifyEmail');
     var cta = document.getElementById('kerbyNotifyCta');
 
+    function focusSignup() {
+        form.scrollIntoView({ block: 'start' });
+        input.focus({ preventScroll: true });
+    }
+
+    function focusLinkedSignup() {
+        if (location.hash === '#notifyForm') focusSignup();
+    }
+
     // The hero button is an anchor to this form, so without JS it still jumps there.
     // With JS it also puts the cursor in the field, so a visitor can tap the button and
     // start typing. The focus has to happen synchronously inside the click: iOS (and
@@ -25,14 +35,18 @@ function initNotifyForm() {
     // the keyboard for a focus() made during the user's own tap, and silently ignored
     // the old setTimeout one. So the scroll is done here too rather than left to the
     // browser, and preventScroll keeps focus() from making a jump of its own.
-    // The URL is left as it was: nothing reads the hash, and the bare /kerby/ is tidier.
+    // The hero action leaves the URL as it was.
     if (cta) cta.addEventListener('click', function (event) {
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
-        form.scrollIntoView({ block: 'start' });
-        input.focus({ preventScroll: true });
+        focusSignup();
     });
 
+    // Links from other pages (including "try again") should focus the same field.
+    // Mobile browsers may still require another tap to open the keyboard after navigation.
+    focusLinkedSignup();
+    window.addEventListener('hashchange', focusLinkedSignup);
+    window.addEventListener('pageshow', focusLinkedSignup);
 }
 
 if (document.readyState === 'loading') {
