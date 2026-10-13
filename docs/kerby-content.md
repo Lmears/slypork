@@ -14,8 +14,9 @@ competing top-level destination.
 
 ## Guides
 
-The first three guides cover a first pattern, balancing the duck, and layering a sampled
-attack. They are starting techniques, not claims of tested presets or ideal settings.
+The guides cover a first pattern, balancing the duck, layering a sampled attack, and
+ducking other tracks to KerBy's MIDI out in Live. They are starting techniques, not claims
+of tested presets or ideal settings.
 Keep each new guide about one audible result. Include a starting state, actions, what to
 listen for, and links to the relevant reference anchors. Specific controls are explained
 once in Reference; guides explain why to reach for them in this situation.
@@ -104,6 +105,19 @@ simplifying or redrawing the diagram.
 
 Validate nested links and assets, mobile layout, both colour schemes, keyboard navigation,
 search clearing/no-results/deep links, and no-JavaScript fallbacks when changing this area.
+
+## Say only what gets the reader there
+
+Every sentence must help the reader do the thing or understand the result. Test it by
+deleting it: if they can still follow the steps and know what they got, leave it out.
+Don't explain the options they won't pick, how a step works underneath, or what a
+screenshot already shows. Point at the right choice instead.
+
+Decided 2026-10-13, from the MIDI-out guide. A draft explained that Live's Pre FX and Post
+FX carry the notes you play, then that Post FX looks like output but isn't. Both were cut
+for "KerBy, the third option under Pre FX and Post FX": the highlighted screenshot does
+the rest, and readers still duck their mix. Likewise, where any tool of a kind will do,
+name the kind and give a few examples together; leading with one product reads as a promo.
 
 ## Voice and site consistency
 
