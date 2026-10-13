@@ -101,7 +101,7 @@
                         <p class="kerby-eyebrow">KerBy reference</p>
                         <h1 class="kerby-doc-title">Look something up.</h1>
                         <p class="kerby-lead">Controls, behaviour and the connections between them.</p>
-                        <p class="kerby-doc-meta">Checked against KerBy 0.9.0 · 24 September 2026</p>
+                        <p class="kerby-doc-meta">Checked against KerBy 0.10.2 · 13 October 2026</p>
                     </header>
                     <a class="kerby-reference-map" href="/kerby/reference/signal-flow/"><span
                             class="kerby-eyebrow">Signal flow</span><strong>Where does the sound go?
@@ -116,13 +116,15 @@
                     <nav class="kerby-topic-index" aria-label="Reference topics"><a href="#playing"
                             class="link-underline">Live &amp; Draw</a><a href="#timing" class="link-underline">Rate,
                             Length &amp; timing</a><a href="#home" class="link-underline">Return Home</a><a
-                            href="#pitch" class="link-underline">Key, Tune &amp; pitch</a><a href="#shapes"
+                            href="#pitch" class="link-underline">Key, Tune &amp; pitch</a><a href="#scale" class="link-underline">Scale
+                            lock</a><a href="#shapes"
                             class="link-underline">Wave &amp; the shape editor</a><a href="#samples"
                             class="link-underline">Wave samples</a><a href="#click" class="link-underline">The Click
                             layer</a><a href="#colour" class="link-underline">Tone, FM, Noise &amp; Crush</a><a
                             href="#duck-reverb" class="link-underline">Duck &amp; Reverb</a><a href="#steps"
                             class="link-underline">The bass step row</a><a href="#performance"
-                            class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a><a href="#matrix"
+                            class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a><a href="#controller"
+                            class="link-underline">PS5 controller</a><a href="#matrix"
                             class="link-underline">The Matrix</a><a href="#presets" class="link-underline">Presets &amp;
                             sessions</a><a href="#interface" class="link-underline">Window, scopes &amp; gestures</a>
                     </nav>
@@ -253,9 +255,11 @@
                                 <dt>Key</dt>
                                 <dd>In each <span class="kerby-ui">More</span> tab. MIDI follows played notes; a fixed
                                     note keeps that voice on one
-                                    pitch while you play the other.</dd>
+                                    pitch while you play the other. With a scale on, its menu greys out notes
+                                    outside the scale.</dd>
                                 <dt>Tune</dt>
-                                <dd>Transposes a voice in semitones.</dd>
+                                <dd>Transposes a voice in semitones. With a scale on, it steps through the scale,
+                                    counted from <span class="kerby-ui">Key</span> or the scale’s root.</dd>
                                 <dt>Pitch tab</dt>
                                 <dd>A drawn pitch sweep for each hit. <span class="kerby-ui">Amt</span> sets its depth;
                                     the tab’s box enables or
@@ -264,10 +268,46 @@
                                 <dd>The bass’s continuous pitch offset, available in <span class="kerby-ui">More</span>.
                                 </dd>
                                 <dt>Glide</dt>
-                                <dd>The bass’s slide time between notes.</dd>
+                                <dd>The bass’s slide time between notes, and between the step row’s pitches.</dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/first-pattern/" class="link-underline">Guide:
                                     keep the kick on one note</a></p>
+                        </section>
+                        <section id="scale" data-reference>
+                            <h2><a href="#scale" class="link-underline">Scale lock</a></h2>
+                            <p>The root and scale in the header, between the preset name and
+                                <span class="kerby-ui">Live</span>/<span class="kerby-ui">Draw</span>. One scale covers
+                                both voices. While it’s on, the note each pulse lands on is pulled to the nearest note in
+                                the scale; a note halfway between two goes down.</p>
+                            <dl>
+                                <dt>Root</dt>
+                                <dd>Click for a note menu, or drag or scroll to step it.</dd>
+                                <dt>Scale</dt>
+                                <dd>Minor, Major, Dorian, Phrygian, Harmonic minor, Phrygian dominant, Pentatonic minor
+                                    and major, Hirajoshi, Whole tone or Fifths. <span class="kerby-ui">Off</span>, at the
+                                    top of the menu, leaves every note as played.</dd>
+                                <dt>What snaps</dt>
+                                <dd>The played note or a fixed <span class="kerby-ui">Key</span>, plus
+                                    <span class="kerby-ui">Tune</span> and the step’s pitch, including routes into them.
+                                    <span class="kerby-ui">Glide</span> slides between notes in the scale.</dd>
+                                <dt>What stays smooth</dt>
+                                <dd>The <span class="kerby-ui">Pitch</span> tab’s sweep, <span
+                                        class="kerby-ui">Bend</span>, the pitch wheel and the Click layer’s
+                                    <span class="kerby-ui">Pitch</span>.</dd>
+                                <dt>Editing while locked</dt>
+                                <dd><span class="kerby-ui">Tune</span>, <span class="kerby-ui">Key</span> and step
+                                    pitches skip notes outside the scale, and their boxes show what plays. The stored
+                                    values don’t change: turn the scale off and everything plays as saved.</dd>
+                                <dt>The keyboard</dt>
+                                <dd>Shades the keys outside the scale and marks the root. A shaded key still plays, at
+                                    its nearest scale note.</dd>
+                                <dt>Presets</dt>
+                                <dd>A preset saved with a scale applies it only while yours is
+                                    <span class="kerby-ui">Off</span>. Once you’ve set one, browsing presets leaves it
+                                    alone.</dd>
+                            </dl>
+                            <p class="kerby-related"><a href="/kerby/learn/#scale" class="link-underline">Tour: move
+                                    the notes, stay in key</a></p>
                         </section>
                         <section id="shapes" data-reference>
                             <h2><a href="#shapes" class="link-underline">Wave &amp; the shape editor</a></h2>
@@ -280,8 +320,8 @@
                                     Square and Sidechain Duck. A fixed shape picked from the <span
                                         class="kerby-ui">Wave</span> tab’s shape menu moves
                                     it to that stop; route a macro or LFO to it on the <a href="#matrix"
-                                        class="link-underline">Matrix</a> page to sweep
-                                    between them. Editing a morphed shape makes it your drawing, unless a route is
+                                        class="link-underline">Matrix</a> page, or drop one on the
+                                    <span class="kerby-ui">Wave</span> plot, to sweep between them. Editing a morphed shape makes it your drawing, unless a route is
                                     holding
                                     it. A loaded sample ignores it.</dd>
                                 <dt>Amp</dt>
@@ -290,6 +330,11 @@
                                 <dd>A low-pass cutoff sweep over each hit. <span class="kerby-ui">Amt</span> sets the sweep’s depth. Bypassing the
                                     tab opens the filter. The kick’s has no <span class="kerby-ui">Reso</span> knob: its resonance rises as the cutoff
                                     comes down.</dd>
+                                <dt>Last hit</dt>
+                                <dd><span class="kerby-ui">Amp</span>, <span class="kerby-ui">Pitch</span> and
+                                    <span class="kerby-ui">Filter</span> draw the last hit’s waveform faintly behind the
+                                    curve. The button at the plot’s top right shows or hides it on all of that voice’s
+                                    tabs.</dd>
                                 <dt>Shape presets</dt>
                                 <dd>Right-click a shape or its tab to choose a starting curve.</dd>
                                 <dt>Points</dt>
@@ -436,12 +481,13 @@
                                 <dt>Drag sideways</dt>
                                 <dd>Paint a run of boxes on or off.</dd>
                                 <dt>Drag vertically</dt>
-                                <dd>Tune that step by up to 24 semitones either way. Turning the box off keeps its pitch
-                                    setting.</dd>
+                                <dd>Tune that step by up to 24 semitones either way; with a scale on, through its notes.
+                                    Turning the box off keeps its pitch setting.</dd>
                                 <dt>Drag a step’s right edge</dt>
-                                <dd>Stretch the step over the ones after it, making one longer note. Double-click the
-                                    edge to undo it, or right-click the row for <span class="kerby-ui">Reset step
-                                        lengths</span>.</dd>
+                                <dd>Stretch the step over the ones after it, making one longer note. Right-click the row
+                                    for <span class="kerby-ui">Reset step lengths</span>.</dd>
+                                <dt>Double-click</dt>
+                                <dd>Resets a step’s pitch and puts it back to one box.</dd>
                                 <dt>− and +</dt>
                                 <dd>At the row’s ends, shorten or lengthen the pattern a step at a time. Hold to repeat.
                                     A pattern shorter or longer than a bar repeats on its own cycle against the bar.
@@ -484,6 +530,43 @@
                                     href="/kerby/learn/duck-your-mix/" class="link-underline">Route MIDI out in
                                     Live</a></p>
                         </section>
+                        <section id="controller" data-reference>
+                            <h2><a href="#controller" class="link-underline">PS5 controller</a></h2>
+                            <p>On macOS, KerBy plays a PS5 controller in one fixed layout, with nothing to map. While
+                                one is connected, a controller button appears in the bottom bar: click it to see the
+                                layout, with the pad’s live state drawn over it. Other controllers get the same layout
+                                by button position; only the PS5 controller has been tested.</p>
+                            <dl>
+                                <dt>Sticks, up and down</dt>
+                                <dd>Left for the kick’s <span class="kerby-ui">Rate</span>, right for the bass’s.
+                                    Centre is home; push up for faster, pull down for slower.</dd>
+                                <dt>Sticks, left and right</dt>
+                                <dd>The left stick bends pitch, the right bends tempo.</dd>
+                                <dt>L2 and R2</dt>
+                                <dd>Kick and bass <span class="kerby-ui">Glitch</span>, from home up to 100%.</dd>
+                                <dt>R1</dt>
+                                <dd><span class="kerby-ui">Reverse</span>, while held.</dd>
+                                <dt>L1</dt>
+                                <dd>Makes a <span class="kerby-ui">Rate</span> a stick is holding its new home.</dd>
+                                <dt>Cross</dt>
+                                <dd>Starts or stops a note: the last one KerBy heard, or A0 before any.</dd>
+                                <dt>D-pad, Square and Circle</dt>
+                                <dd>D-pad left and right move the note a semitone, or to the next scale note with a
+                                    scale on; Square and Circle move it an octave. D-pad up and down move the bass’s
+                                    <span class="kerby-ui">Tune</span> a fifth.</dd>
+                                <dt>Triangle, held</dt>
+                                <dd>Smaller moves: sticks and triggers reach a fifth as far, and the D-pad steps the
+                                    bass in fourths.</dd>
+                                <dt>Right stick click</dt>
+                                <dd>Sends the bass’s <span class="kerby-ui">Tune</span> home.</dd>
+                                <dt>Touchpad click</dt>
+                                <dd><a href="#home" class="link-underline">Return Home</a>.</dd>
+                                <dt>Several instances</dt>
+                                <dd>The controller plays the KerBy you opened or clicked most recently.</dd>
+                            </dl>
+                            <p class="kerby-related"><a href="/kerby/learn/#performance" class="link-underline">Tour:
+                                    take the pattern somewhere else</a></p>
+                        </section>
                         <section id="matrix" data-reference>
                             <h2><a href="#matrix" class="link-underline">The Matrix</a></h2>
                             <p>The modulation page. Open it from the pair of icons in the footer, or press N. Up to
@@ -506,7 +589,9 @@
                                 <dd>Both voices’ drawn envelopes, velocity, and the pitch and tempo wheels.</dd>
                                 <dt>Making a route</dt>
                                 <dd>Drag a macro’s name or an LFO’s label onto a control, or right-click the control and
-                                    choose <span class="kerby-ui">Modulate with</span>. Destinations include the knobs,
+                                    choose <span class="kerby-ui">Modulate with</span>. Drop one on a
+                                    <span class="kerby-ui">Wave</span> or LFO plot to route it to that
+                                    <span class="kerby-ui">Shape</span>. Destinations include the knobs,
                                     <span class="kerby-ui">Length</span>, the Volume faders,
                                     <span class="kerby-ui">Reverse</span>, the wheels and the Matrix page’s own
                                     controls.
@@ -516,7 +601,8 @@
                                     route moves the knob; double-click to return it to its starting amount.</dd>
                                 <dt>Routes in a menu</dt>
                                 <dd>Right-click a routed control to see each route into it, with an amount you can
-                                    drag.</dd>
+                                    drag. <span class="kerby-ui">Bypass</span> switches a route off without removing
+                                    it.</dd>
                                 <dt>Uni and Bi</dt>
                                 <dd>A Uni route moves the control one way from where it sits; a Bi route moves it both
                                     ways around it.</dd>
@@ -534,7 +620,9 @@
                                 brings its homes with it; one saved
                                 without them makes its own values home.
                             </p>
-                            <p>Session state also remembers the mode of play. Save a DAW project when you want the sound
+                            <p>A preset saved with a scale applies it only while your
+                                <a href="#scale" class="link-underline">scale</a> is <span class="kerby-ui">Off</span>.</p>
+                            <p>Session state also remembers the mode of play and the scale. Save a DAW project when you want the sound
                                 and the way you are playing it back together.</p>
                         </section>
                         <section id="interface" data-reference>

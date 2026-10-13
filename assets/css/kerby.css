@@ -110,7 +110,7 @@
 .kerby-play-modes h3 { margin-bottom: .6rem; font-size: .95rem; font-weight: 500; }
 .kerby-mode-label { display: inline-block; margin-right: .4rem; padding: .1rem .45rem; border: 1px solid var(--kb-accent-line); border-radius: .2rem; color: var(--kb-ink); font-size: .75rem; text-transform: uppercase; }
 .kerby-aside { margin-top: 1.2rem; color: var(--kb-muted); font-size: .92rem; }
-.kerby-sound p + p:not(.kerby-aside) { margin-top: .9rem; }
+.kerby-section p + p:not(.kerby-aside):not(.kerby-intro) { margin-top: .9rem; }
 .kerby-duck { margin-top: 1.6rem; padding: .75rem 1rem 1rem; border: 1px solid var(--kb-accent-line); border-radius: .6rem; background: var(--kb-panel); }
 .kerby-duck svg { display: block; width: 100%; height: auto; overflow: visible; }
 .kerby-diagram-grid { stroke: var(--kb-accent-line); fill: none; }
