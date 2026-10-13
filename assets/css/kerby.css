@@ -205,6 +205,9 @@
 .kerby-explainer { margin: 1rem 0; }
 .kerby-explainer svg { display: block; width: 100%; height: auto; }
 .kerby-explainer figcaption { margin-top: .6rem; color: var(--kb-muted); font-size: .8rem; line-height: 1.5; }
+.kerby-shot { margin: 1.1rem 0; }
+.kerby-shot img { display: block; max-width: 100%; height: auto; border: 1px solid var(--kb-accent-line); border-radius: .3rem; }
+.kerby-shot figcaption { margin-top: .5rem; color: var(--kb-muted); font-size: .8rem; line-height: 1.5; }
 .kerby-related { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; padding-top: .5rem; font-size: .9rem; color: var(--kb-ink); }
 .kerby-standfirst { font-size: 1.2rem; line-height: 1.5; }
 .kerby-recipe { list-style: decimal; padding-left: 1.5rem; }
