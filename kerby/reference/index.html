@@ -8,8 +8,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>Reference | KerBy | Slypork</title>
-    <meta name="description"
-        content="Explore KerBy’s controls, behaviour and how its parts work together.">
+    <meta name="description" content="Explore KerBy’s controls, behaviour and how its parts work together.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Slypork">
     <meta property="og:title" content="Reference | KerBy">
@@ -99,8 +98,8 @@
                 <div class="kerby-page kerby-doc">
                     <header class="kerby-doc-header">
                         <p class="kerby-eyebrow">KerBy reference</p>
-                        <h1 class="kerby-doc-title">Look something up.</h1>
-                        <p class="kerby-lead">Controls, behaviour and the connections between them.</p>
+                        <h1 class="kerby-doc-title">Find a control.</h1>
+                        <p class="kerby-lead">Search by name, or open a topic below.</p>
                         <p class="kerby-doc-meta">Checked against KerBy 0.10.2 · 13 October 2026</p>
                     </header>
                     <a class="kerby-reference-map" href="/kerby/reference/signal-flow/"><span
@@ -116,16 +115,17 @@
                     <nav class="kerby-topic-index" aria-label="Reference topics"><a href="#playing"
                             class="link-underline">Live &amp; Draw</a><a href="#timing" class="link-underline">Rate,
                             Length &amp; timing</a><a href="#home" class="link-underline">Return Home</a><a
-                            href="#pitch" class="link-underline">Key, Tune &amp; pitch</a><a href="#scale" class="link-underline">Scale
-                            lock</a><a href="#shapes"
-                            class="link-underline">Wave &amp; the shape editor</a><a href="#samples"
-                            class="link-underline">Wave samples</a><a href="#click" class="link-underline">The Click
+                            href="#pitch" class="link-underline">Key, Tune &amp; pitch</a><a href="#scale"
+                            class="link-underline">Scale
+                            lock</a><a href="#shapes" class="link-underline">Wave &amp; the shape editor</a><a
+                            href="#samples" class="link-underline">Wave samples</a><a href="#click"
+                            class="link-underline">The Click
                             layer</a><a href="#colour" class="link-underline">Tone, FM, Noise &amp; Crush</a><a
                             href="#duck-reverb" class="link-underline">Duck &amp; Reverb</a><a href="#steps"
                             class="link-underline">The bass step row</a><a href="#performance"
                             class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a><a href="#controller"
-                            class="link-underline">PS5 controller</a><a href="#matrix"
-                            class="link-underline">The Matrix</a><a href="#presets" class="link-underline">Presets &amp;
+                            class="link-underline">PS5 controller</a><a href="#matrix" class="link-underline">The
+                            Matrix</a><a href="#presets" class="link-underline">Presets &amp;
                             sessions</a><a href="#interface" class="link-underline">Window, scopes &amp; gestures</a>
                     </nav>
                     <div class="kerby-prose kerby-reference-entries" id="kerbyReferenceEntries">
@@ -147,7 +147,8 @@
                                     restore those defaults.</dd>
                             </dl>
                             <p>Note length matters. For repeated bass pulses between kicks, hold the note or play legato
-                                with the bass <span class="kerby-ui">Rate</span> on. With one pulse per note, a short note
+                                with the bass <span class="kerby-ui">Rate</span> on. With one pulse per note, a short
+                                note
                                 can end while the bass is still ducked, before it’s heard.</p>
                             <p>The header’s <span class="kerby-ui">Draw</span> mode is separate from the shape editor’s
                                 drawing tool, toggled with B.
@@ -169,9 +170,11 @@
                                         class="kerby-ui">Rate</span> value still sets where
                                     <span class="kerby-ui">Quantize</span> places it. Turning it back on
                                     while a note is held brings the
-                                    pulses back.</dd>
+                                    pulses back.
+                                </dd>
                                 <dt>Triplet</dt>
-                                <dd>In the <span class="kerby-ui">Rate</span> knob’s right-click menu, switches the dotted choices to triplets.
+                                <dd>In the <span class="kerby-ui">Rate</span> knob’s right-click menu, switches the
+                                    dotted choices to triplets.
                                     Straight divisions stay the same.</dd>
                                 <dt>Length</dt>
                                 <dd>How much of a bar a pulse lasts, independently of
@@ -189,10 +192,13 @@
                                 <dt>Restart on Kick</dt>
                                 <dd>In the bass <span class="kerby-ui">Rate</span> knob’s right-click menu. The bass
                                     starts its pattern again at each kick. When the rates divide evenly, this changes
-                                    nothing. With a dotted, triplet or Free rate, switching it off lets the bass run across
-                                    the kick as a polyrhythm. With a bass <span class="kerby-ui">Rate</span> slower than the
+                                    nothing. With a dotted, triplet or Free rate, switching it off lets the bass run
+                                    across
+                                    the kick as a polyrhythm. With a bass <span class="kerby-ui">Rate</span> slower than
+                                    the
                                     kick’s, leaving it on makes the bass play with every kick. Separate from
-                                    <span class="kerby-ui">K</span>, which controls the first launch.</dd>
+                                    <span class="kerby-ui">K</span>, which controls the first launch.
+                                </dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/#rhythm" class="link-underline">Tour: a note
                                     becomes a rhythm</a></p>
@@ -226,7 +232,8 @@
                                     it where it is when you return. The sound knobs stay put until you tick theirs.
                                 </dd>
                                 <dt>Double-click</dt>
-                                <dd>Sends a knob to its home, even with its <span class="kerby-ui">Goes home</span> unticked.</dd>
+                                <dd>Sends a knob to its home, even with its <span class="kerby-ui">Goes home</span>
+                                    unticked.</dd>
                                 <dt>Bend wheels</dt>
                                 <dd>Always return to centre. Their home can’t be moved.</dd>
                                 <dt>On a controller</dt>
@@ -277,23 +284,28 @@
                             <h2><a href="#scale" class="link-underline">Scale lock</a></h2>
                             <p>The root and scale in the header, between the preset name and
                                 <span class="kerby-ui">Live</span>/<span class="kerby-ui">Draw</span>. One scale covers
-                                both voices. While it’s on, the note each pulse lands on is pulled to the nearest note in
-                                the scale; a note halfway between two goes down.</p>
+                                both voices. While it’s on, the note each pulse lands on is pulled to the nearest note
+                                in
+                                the scale; a note halfway between two goes down.
+                            </p>
                             <dl>
                                 <dt>Root</dt>
                                 <dd>Click for a note menu, or drag or scroll to step it.</dd>
                                 <dt>Scale</dt>
                                 <dd>Minor, Major, Dorian, Phrygian, Harmonic minor, Phrygian dominant, Pentatonic minor
-                                    and major, Hirajoshi, Whole tone or Fifths. <span class="kerby-ui">Off</span>, at the
+                                    and major, Hirajoshi, Whole tone or Fifths. <span class="kerby-ui">Off</span>, at
+                                    the
                                     top of the menu, leaves every note as played.</dd>
                                 <dt>What snaps</dt>
                                 <dd>The played note or a fixed <span class="kerby-ui">Key</span>, plus
                                     <span class="kerby-ui">Tune</span> and the step’s pitch, including routes into them.
-                                    <span class="kerby-ui">Glide</span> slides between notes in the scale.</dd>
+                                    <span class="kerby-ui">Glide</span> slides between notes in the scale.
+                                </dd>
                                 <dt>What stays smooth</dt>
                                 <dd>The <span class="kerby-ui">Pitch</span> tab’s sweep, <span
                                         class="kerby-ui">Bend</span>, the pitch wheel and the Click layer’s
-                                    <span class="kerby-ui">Pitch</span>.</dd>
+                                    <span class="kerby-ui">Pitch</span>.
+                                </dd>
                                 <dt>Editing while locked</dt>
                                 <dd><span class="kerby-ui">Tune</span>, <span class="kerby-ui">Key</span> and step
                                     pitches skip notes outside the scale, and their boxes show what plays. The stored
@@ -304,7 +316,8 @@
                                 <dt>Presets</dt>
                                 <dd>A preset saved with a scale applies it only while yours is
                                     <span class="kerby-ui">Off</span>. Once you’ve set one, browsing presets leaves it
-                                    alone.</dd>
+                                    alone.
+                                </dd>
                             </dl>
                             <p class="kerby-related"><a href="/kerby/learn/#scale" class="link-underline">Tour: move
                                     the notes, stay in key</a></p>
@@ -320,20 +333,25 @@
                                         class="kerby-ui">Wave</span> tab’s shape menu moves
                                     it to that stop; route a macro or LFO to it on the <a href="#matrix"
                                         class="link-underline">Matrix</a> page, or drop one on the
-                                    <span class="kerby-ui">Wave</span> plot, to sweep between them. Editing a morphed shape makes it your drawing, unless a route is
+                                    <span class="kerby-ui">Wave</span> plot, to sweep between them. Editing a morphed
+                                    shape makes it your drawing, unless a route is
                                     holding
-                                    it. A loaded sample ignores it.</dd>
+                                    it. A loaded sample ignores it.
+                                </dd>
                                 <dt>Amp</dt>
                                 <dd>The level over the duration of a hit.</dd>
                                 <dt>Filter</dt>
-                                <dd>A low-pass cutoff sweep over each hit. <span class="kerby-ui">Amt</span> sets the sweep’s depth. Bypassing the
-                                    tab opens the filter. The kick’s has no <span class="kerby-ui">Reso</span> knob: its resonance rises as the cutoff
+                                <dd>A low-pass cutoff sweep over each hit. <span class="kerby-ui">Amt</span> sets the
+                                    sweep’s depth. Bypassing the
+                                    tab opens the filter. The kick’s has no <span class="kerby-ui">Reso</span> knob: its
+                                    resonance rises as the cutoff
                                     comes down.</dd>
                                 <dt>Last hit</dt>
                                 <dd><span class="kerby-ui">Amp</span>, <span class="kerby-ui">Pitch</span> and
                                     <span class="kerby-ui">Filter</span> draw the last hit’s waveform faintly behind the
                                     curve. The button at the plot’s top right shows or hides it on all of that voice’s
-                                    tabs.</dd>
+                                    tabs.
+                                </dd>
                                 <dt>Shape presets</dt>
                                 <dd>Right-click a shape or its tab to choose a starting curve.</dd>
                                 <dt>Points</dt>
@@ -346,9 +364,11 @@
                             </dl>
                             <p>A shaded stretch at the end of a shape is the part the pattern never reaches: each
                                 pulse ends, or the next one arrives, before the envelope gets there. Change
-                                <span class="kerby-ui">Rate</span> or <span class="kerby-ui">Length</span> and it moves. The <span class="kerby-ui">Click</span> envelope uses its
+                                <span class="kerby-ui">Rate</span> or <span class="kerby-ui">Length</span> and it moves.
+                                The <span class="kerby-ui">Click</span> envelope uses its
                                 sample’s timeline, and <span class="kerby-ui">Duck</span>
-                                uses its own <span class="kerby-ui">Rate</span>.</p>
+                                uses its own <span class="kerby-ui">Rate</span>.
+                            </p>
                             <p class="kerby-related"><a href="/kerby/learn/#shapes" class="link-underline">Tour: shapes
                                     and sound</a></p>
                         </section>
@@ -455,7 +475,8 @@
                                 <dd>The kick’s reverb send, in <span class="kerby-ui">More</span>. The wet tail follows
                                     the bass’s ducking gain.</dd>
                                 <dt>Reverb LP and Size</dt>
-                                <dd><span class="kerby-ui">LP</span> filters the wet signal’s high end, low enough to leave only the rumble; <span class="kerby-ui">Size</span>
+                                <dd><span class="kerby-ui">LP</span> filters the wet signal’s high end, low enough to
+                                    leave only the rumble; <span class="kerby-ui">Size</span>
                                     controls the room’s decay, down to a tight, short room below 25%.</dd>
                             </dl>
                             <p>The dry kick stays outside the duck.</p>
@@ -489,7 +510,8 @@
                                 <dt>Folded corner</dt>
                                 <dd>The steps under this box disagree, because they were set at a faster
                                     <span class="kerby-ui">Rate</span>: some are off or tuned differently. Rest the
-                                    pointer on it to see each one.</dd>
+                                    pointer on it to see each one.
+                                </dd>
                                 <dt>Free rate mode</dt>
                                 <dd>The bar-based step row is inactive when the bass uses a free-running Hz rate.</dd>
                             </dl>
@@ -501,8 +523,10 @@
                             </h2>
                             <dl>
                                 <dt>Glitch</dt>
-                                <dd>On each voice’s <span class="kerby-ui">More</span> tab. Rolls and dropouts inside each
-                                    pulse, in time with the beat: an occasional 1/16 roll at low settings, fast rolls that
+                                <dd>On each voice’s <span class="kerby-ui">More</span> tab. Rolls and dropouts inside
+                                    each
+                                    pulse, in time with the beat: an occasional 1/16 roll at low settings, fast rolls
+                                    that
                                     change speed at the top. A kick roll that repeats the hit ducks the bass and sends
                                     MIDI out like a pulse.</dd>
                                 <dt>Pitch wheel</dt>
@@ -546,7 +570,8 @@
                                 <dt>D-pad, Square and Circle</dt>
                                 <dd>D-pad left and right move the note a semitone, or to the next scale note with a
                                     scale on; Square and Circle move it an octave. D-pad up and down move the bass’s
-                                    <span class="kerby-ui">Tune</span> a fifth.</dd>
+                                    <span class="kerby-ui">Tune</span> a fifth.
+                                </dd>
                                 <dt>Triangle, held</dt>
                                 <dd>Smaller moves: sticks and triggers reach a fifth as far, and the D-pad steps the
                                     bass in fourths.</dd>
@@ -614,7 +639,8 @@
                                 without them makes its own values home.
                             </p>
                             <p>A preset saved with a scale applies it only while your
-                                <a href="#scale" class="link-underline">scale</a> is <span class="kerby-ui">Off</span>.</p>
+                                <a href="#scale" class="link-underline">scale</a> is <span class="kerby-ui">Off</span>.
+                            </p>
                             <p>Session state also remembers the mode of play and the scale.</p>
                         </section>
                         <section id="interface" data-reference>

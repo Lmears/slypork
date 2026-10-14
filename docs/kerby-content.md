@@ -51,7 +51,7 @@ Primary sources in the sibling KerBy repository:
 The signal map distinguishes audio (solid) from control (dashed). FM acts at the source
 read; it is not an insert after the combined kick. Tone acts separately before the main
 and Click envelopes. Crush processes their sum. The Click HP follows its envelope. The
-dry kick stays outside the duck, while bass and wet reverb share it. Reverse and voice
+duck affects the bass and kick reverb. Reverse and voice
 meters/scopes precede the final sum and output clipper. Preserve these distinctions when
 simplifying or redrawing the diagram.
 

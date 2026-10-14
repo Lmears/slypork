@@ -8,8 +8,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>Signal flow | KerBy | Slypork</title>
-    <meta name="description"
-        content="Explore KerBy’s signal flow and how its sound-shaping stages connect.">
+    <meta name="description" content="Explore KerBy’s signal flow and how its sound-shaping stages connect.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Slypork">
     <meta property="og:title" content="Signal flow | KerBy">
@@ -100,15 +99,10 @@
                     <header class="kerby-doc-header"><a class="link-underline kerby-back" href="/kerby/reference/">←
                             Reference</a>
                         <p class="kerby-eyebrow">Signal flow</p>
-                        <h1 class="kerby-doc-title">Follow the sound.</h1>
-                        <p class="kerby-lead">From the two sources to the space between them.</p>
+                        <h1 class="kerby-doc-title">Follow the signal.</h1>
                         <p class="kerby-doc-meta">Checked against KerBy 0.10.2 · 13 October 2026</p>
                     </header>
                     <article class="kerby-prose">
-                        <p>The kick and bass are generated separately. The kick also feeds a reverb, and its pulses
-                            restart the ducking curve that controls both the bass and the reverb tail.</p>
-                        <p class="kerby-map-hint">Select a box to read more. On a narrow screen, scroll the map
-                            sideways.</p>
                         <figure class="kerby-signal-map">
                             <div class="kerby-map-scroll" tabindex="0" role="region"
                                 aria-label="Signal-flow diagram, horizontally scrollable">
@@ -196,9 +190,6 @@
                         </figure>
                         <section id="kick">
                             <h2>Inside the kick</h2>
-                            <p>The main source and the <span class="kerby-ui">Click</span> layer have separate
-                                envelopes. They join before <span class="kerby-ui">Crush</span> and the kick’s volume
-                                control.</p>
                             <div class="kerby-flow-branches">
                                 <div>
                                     <h3>Main source</h3>
@@ -232,7 +223,6 @@
                                             dry kick and reverb send</span></li>
                                 </ol>
                             </div>
-                            <p><span class="kerby-ui">Tone</span> uses the same setting on both branches.</p>
                         </section>
                         <section id="bass">
                             <h2>Inside the bass</h2>
@@ -251,7 +241,6 @@
                                             lows and meters / scopes</span></li>
                                 </ol>
                             </div>
-                            <p>Turning off the <span class="kerby-ui">Filter</span> tab opens the cutoff.</p>
                         </section>
                         <section id="mix">
                             <h2>Where the voices meet</h2>
@@ -260,9 +249,8 @@
                                 <dd>The kick’s output feeds the send. Reverb and its <span class="kerby-ui">LP</span>
                                     filter come before ducking. The ducked tail rejoins the dry kick.</dd>
                                 <dt>Duck</dt>
-                                <dd>Kick pulses restart the curve. The resulting gain, including <span
-                                        class="kerby-ui">Duck Amt</span> and bypass, multiplies the bass and the wet
-                                    reverb. It does not multiply the dry kick.</dd>
+                                <dd>Kick pulses restart the curve. The resulting modulation affects the bass and the
+                                    kick reverb.</dd>
                                 <dt>Reverse</dt>
                                 <dd>Works on each voice’s finished audio, after ducking and reverb. A reversed kick
                                     therefore includes its reverb tail.</dd>
@@ -278,8 +266,8 @@
                                     voice’s meter can show a peak above 0 dB even though the final output is bounded.
                                 </dd>
                             </dl>
-                            <p>The <a href="/kerby/reference/#timing"
-                                    class="link-underline">pulse clock and launch settings</a> decide when a voice
+                            <p>The <a href="/kerby/reference/#timing" class="link-underline">pulse clock and launch
+                                    settings</a> decide when a voice
                                 starts; the <a href="/kerby/reference/#steps" class="link-underline">bass step row</a>
                                 decides which pulses play. They are controls on the path, rather than effects inserted
                                 into it.</p>
