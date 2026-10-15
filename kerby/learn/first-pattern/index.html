@@ -103,70 +103,95 @@
                         <h1 class="kerby-doc-title">Your first kick &amp; bass pattern</h1>
                     </header>
                     <article class="kerby-prose">
-                        <p class="kerby-standfirst">A starting point you can play with one held note.</p>
+                        <p class="kerby-standfirst">Hold one note and KerBy plays both voices.</p>
                         <ol class="kerby-recipe">
                             <li>
-                                <h2>Get the two voices running.</h2>
-                                <p>Load KerBy on a MIDI track, start from Init, and choose <span class="kerby-ui">Live</span> in the header. Hold a
-                                    note on your keyboard or draw one long note in a MIDI clip. Init already has the
-                                    kick <span class="kerby-ui">Rate</span> at 1/4 and the bass <span class="kerby-ui">Rate</span> at 1/16.</p>
-                                <p>In 4/4, that gives you a kick on each beat and four bass pulses per beat (or three if
-                                    we're ducking the first one). With
-                                    quantization on, a note will wait for the next grid point before it starts.</p>
+                                <h2>Hold a note in Live.</h2>
+                                <p>Load KerBy on a MIDI track, start from Init and choose <span
+                                        class="kerby-ui">Live</span>. Hold a note, or draw one long note in a clip.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-header-live-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-header-live-light.webp"
+                                            width="336" height="35" alt="KerBy’s header, with Live selected and
+                                            highlighted beside Draw.">
+                                    </picture>
+                                </figure>
+                                <p>Init’s kick <span class="kerby-ui">Rate</span> is 1/4 and the bass’s is 1/16: a kick
+                                    on every beat, with the bass filling the gaps.</p>
+                            </li>
+                            <li>
+                                <h2>Turn Rate, then come home.</h2>
+                                <p>Near the end of a phrase, turn the kick’s <span class="kerby-ui">Rate</span> faster
+                                    for a stutter. Press the home button to bring both rates back, on the beat.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-bottom-bar-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-bottom-bar-light.webp"
+                                            width="175" height="32" alt="The right end of KerBy’s bottom bar, with
+                                            the home button filled in as if pressed.">
+                                    </picture>
+                                </figure>
+                                <p>Map <span class="kerby-ui">Return Home</span> to a controller button in your DAW.</p>
+                            </li>
+                            <li>
+                                <h2>Set how long each hit lasts.</h2>
+                                <p>Start the bass’s <span class="kerby-ui">Length</span> short, then raise it until the
+                                    gaps fill.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-bass-length-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-bass-length-light.webp"
+                                            width="510" height="257" loading="lazy" alt="The bass’s Amp tab, with
+                                            Length highlighted below the volume curve at 6.25%.">
+                                    </picture>
+                                </figure>
                             </li>
                             <li>
                                 <h2>Keep the kick on one note.</h2>
-                                <p>If you want to play a bassline while the kick stays in tune, open the kick’s <span class="kerby-ui">More</span> tab
-                                    and set <span class="kerby-ui">Key</span> to the note you want. Leave the bass’s <span class="kerby-ui">Key</span> on MIDI. Play overlapping
-                                    notes (legato) and listen to the bass move beneath the kick while the pulse
-                                    continues.</p>
+                                <p>To play a bassline under a steady kick, set <span class="kerby-ui">Key</span> on the
+                                    kick’s <span class="kerby-ui">More</span> tab. Leave the bass’s on MIDI and play
+                                    legato.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-kick-key-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-kick-key-light.webp"
+                                            width="510" height="257" loading="lazy" alt="The kick’s More tab, with
+                                            Key highlighted, reading MIDI.">
+                                    </picture>
+                                </figure>
                             </li>
                             <li>
-                                <h2>Decide how long each hit lasts.</h2>
-                                <p>Adjust <span class="kerby-ui">Length</span> below the shape editor. <span class="kerby-ui">Rate</span> is the spacing between hits; <span class="kerby-ui">Length</span> is
-                                    the duration of a hit. Try a short bass hit first, then lengthen it until the gap
-                                    between pulses starts to fill.</p>
-                                <p>If the next pulse arrives before a curve finishes, you will hear only the part it
-                                    reaches. Slowing <span class="kerby-ui">Rate</span> is a useful way to hear the rest.</p>
+                                <h2>Leave a few gaps.</h2>
+                                <p>Open the step row from the bottom bar. Tap a box for a gap, drag one up a few semitones,
+                                    or drag a step’s right edge to make a longer note.</p>
+                                <figure class="kerby-shot kerby-step-toggle">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-step-toggle-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-step-toggle-light.webp"
+                                            width="350" height="64" loading="lazy" alt="The right end of KerBy’s bottom
+                                            bar, with the bass step row button active and the other icons dimmed.">
+                                    </picture>
+                                </figure>
                             </li>
                             <li>
-                                <h2>Play with Rate, then come home.</h2>
-                                <p>Let the quarter-note kick run for a phrase. Near the end, turn its <span class="kerby-ui">Rate</span> to a faster
-                                    division for a short stutter. Try the same with the bass. <span class="kerby-ui">Rate</span> stays visible on
-                                    every tab so you can keep playing the rhythm while shaping the sound.</p>
-                                <p>Now press the home button at the right of the bottom bar, beside the step row and
-                                    keyboard buttons. Both rates go back to
-                                    where Init set them, 1/4 and 1/16, and both bend wheels return to centre.</p>
-                            </li>
-                            <li>
-                                <h2>Put home on a button.</h2>
-                                <p>Use your DAW’s MIDI mapping to assign <span class="kerby-ui">Return Home</span> to a button on your controller,
-                                    mapped straight to the parameter.</p>
-                                <p>To come home somewhere else, set a <span class="kerby-ui">Rate</span> where you want it, right-click the knob and
-                                    choose <span class="kerby-ui">Set as home</span>. Untick <span class="kerby-ui">Goes home</span> in the same menu to leave that voice out, so
-                                    the bass can keep stuttering while the kick returns.</p>
-                            </li>
-                            <li>
-                                <h2>Put a little variation in the bass.</h2>
-                                <p>Show the bass step row from the bottom bar. Tap a box to leave a gap. Drag one of the
-                                    remaining boxes up to +7 semitones, then play the pattern again.</p>
-                                <p>Drag a step’s right edge over the steps after it to stretch it into one longer
-                                    note.</p>
-                            </li>
-                            <li>
-                                <h2>Try a MIDI clip in Draw mode.</h2>
-                                <p>Switch to <span class="kerby-ui">Draw</span> and replace the long note with a rhythm in the piano roll. Each note
-                                    triggers both kick and bass together. <span class="kerby-ui">Draw</span> turns off both <span class="kerby-ui">Rate</span> divisions, so each note starts one pulse in each
-                                    voice.</p>
-                                <p>Keep the notes long enough for the bass to reach past the initial duck.</p>
+                                <h2>Or write it in Draw.</h2>
+                                <p>Switch to <span class="kerby-ui">Draw</span> and write a rhythm in a clip. Each note
+                                    plays one kick and one bass hit, so make it long enough for the bass to come back
+                                    after the kick.</p>
                             </li>
                         </ol>
                         <aside class="kerby-callout">
                             <h2>If the bass seems to vanish</h2>
-                            <p>Check its level, the step row, and the <span class="kerby-ui">Duck</span> tab. If a bass hit starts with the kick, it
-                                can finish before a slow ducking curve lets it through. Keep the
-                                MIDI note held and listen for later hits after the duck recovers. Check MIDI note
-                                duration as well as bass <span class="kerby-ui">Length</span> and the <span class="kerby-ui">Duck</span> curve.</p>
+                            <p>Usually it’s under the duck. A bass hit that starts with the kick can end before the duck lets it
+                                through: hold the note longer, lengthen the bass, or <a
+                                    href="/kerby/learn/shape-the-duck/" class="link-underline">bring the duck up
+                                    sooner</a>.</p>
                         </aside>
                         <p class="kerby-related"><a href="/kerby/reference/#playing" class="link-underline">Live and
                                 Draw reference</a><a href="/kerby/reference/#timing" class="link-underline">Rate, Length

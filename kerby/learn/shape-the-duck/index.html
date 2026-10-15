@@ -101,81 +101,64 @@
                         <h1 class="kerby-doc-title">Find the space between the hits</h1>
                     </header>
                     <article class="kerby-prose">
-                        <p class="kerby-standfirst">The kick’s tail, the bass hit and the ducking curve all occupy the
-                            same time. Work on them together.</p>
+                        <p class="kerby-standfirst">The kick’s tail, the bass and the duck share the same moment. Shape
+                            them together, with both voices playing.</p>
                         <ol class="kerby-recipe">
                             <li>
-                                <h2>Make a simple loop.</h2>
-                                <p>Use a quarter-note kick and a repeating bass, as in <a
-                                        href="/kerby/learn/first-pattern/" class="link-underline">the first-pattern
-                                        guide</a>. Start with <span class="kerby-ui">Duck</span> enabled (the default). Listen to both voices together
-                                    throughout.</p>
+                                <h2>Get a loop going.</h2>
+                                <p>Hold a note on Init, as in <a href="/kerby/learn/first-pattern/"
+                                        class="link-underline">your first pattern</a>. Ducking is already on.</p>
                             </li>
                             <li>
-                                <h2>Find the end of the kick.</h2>
-                                <p>With the bass playing, adjust the kick’s <span class="kerby-ui">Amp</span> curve and <span class="kerby-ui">Length</span>. Listen to how its body
-                                    leads into the bass: a shorter kick leaves a different space from a long one. Solo
-                                    briefly if you need to hear a detail, then check it with the bass again.</p>
+                                <h2>Decide where the kick ends.</h2>
+                                <p>On the kick’s <span class="kerby-ui">Amp</span> tab, shorten the curve’s tail or its
+                                    <span class="kerby-ui">Length</span>. A shorter kick leaves the bass more room.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-kick-amp-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-kick-amp-light.webp"
+                                            width="510" height="257" alt="The kick’s Amp tab: a volume curve that
+                                            decays to silence across the plot, over the last hit’s waveform, with
+                                            Length at the bottom right.">
+                                    </picture>
+                                    <figcaption>The faint waveform is the last hit.</figcaption>
+                                </figure>
                             </li>
                             <li>
-                                <h2>Dial it in.</h2>
-                                <p>Open the bass’s <span class="kerby-ui">Duck</span> tab. It is already making room for the kick; now adjust how that
-                                    return feels. Try a curve that begins low and rises to full level, with <span class="kerby-ui">Amt</span> at 100%.
-                                    With a 1/4 kick, try a <span class="kerby-ui">Duck Rate</span> of 1/4 so the curve has one beat to finish.</p>
-                                <p>Move the rise earlier for a quick return; move it later for more space around the
-                                    kick. Then bend the segment to change how the return feels. Get a pumping groove by
-                                    fading the duck envelope back down towards the end.</p>
-                                <p>For a softer return, raise <span class="kerby-ui">Smooth</span> beside <span class="kerby-ui">Duck Rate</span>.</p>
+                                <h2>Draw how the bass comes back.</h2>
+                                <p>Open the bass’s <span class="kerby-ui">Duck</span> tab. The curve is the bass’s volume
+                                    after each kick.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-bass-duck-dark.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-bass-duck-light.webp"
+                                            width="510" height="257" loading="lazy" alt="The bass’s Duck tab: the
+                                            Duck knob at 100%, and a curve that stays at silence briefly, rises
+                                            steeply, peaks halfway and eases down. Below it, Duck Rate at 1/4 and
+                                            Smooth at 0%.">
+                                    </picture>
+                                    <figcaption>Init’s curve: silent under the kick, full by the middle of the
+                                        beat.</figcaption>
+                                </figure>
+                                <p>Move the rise earlier for a tight bass, later for more space. Bend a line to change
+                                    how it returns, or pull the end down for a pump.</p>
+                                <p>The <span class="kerby-ui">Duck</span> knob sets the depth; lower it to keep some bass
+                                    under the kick.</p>
                             </li>
-                        </ol>
-                        <figure class="kerby-duck">
-                            <svg id="kerbyDuckGraphic" viewBox="0 0 640 200" role="img"
-                                aria-labelledby="kerbyDuckTitle kerbyDuckDesc">
-                                <title id="kerbyDuckTitle">How the bass makes room for the kick</title>
-                                <desc id="kerbyDuckDesc">Two kick hits above a bass volume curve. The bass drops at each
-                                    hit and gradually returns.</desc>
-                                <g class="kerby-diagram-grid">
-                                    <path d="M104 24V176 M228 24V176 M352 24V176 M476 24V176 M600 24V176" />
-                                    <path d="M104 66H600 M104 176H600" />
-                                </g>
-                                <g class="kerby-diagram-label"><text x="16" y="53">Kick</text><text x="16"
-                                        y="122">Bass</text></g>
-                                <path class="kerby-kick-shape"
-                                    d="M104 66V28 Q110 30 116 49 T150 66Z M352 66V28 Q358 30 364 49 T398 66Z" />
-                                <path id="kerbyBassFill" class="kerby-bass-fill"
-                                    d="M104 176 C132 176 137 102 248 102 L352 102 L352 176 C380 176 385 102 496 102 L600 102 L600 176Z" />
-                                <path id="kerbyBassCurve" class="kerby-bass-curve"
-                                    d="M104 176 C132 176 137 102 248 102 L352 102 L352 176 C380 176 385 102 496 102 L600 102" />
-                            </svg>
-                            <div class="kerby-duck-control" hidden>
-                                <label for="kerbyRecovery">Bass comes back</label>
-                                <span>Tight</span>
-                                <input id="kerbyRecovery" type="range" min="25" max="95" value="58"
-                                    aria-describedby="kerbyDuckCaption">
-                                <span>Slow</span>
-                            </div>
-                            <figcaption id="kerbyDuckCaption">An illustration of ducking. In KerBy, you draw the whole
-                                curve.</figcaption>
-                        </figure>
-                        <ol class="kerby-recipe" start="4">
                             <li>
-                                <h2>Check the bass’s own length.</h2>
-                                <p>Listen to which bass hits fall inside the duck and which fall after it. If kick and
-                                    bass trigger together at the same rate, a short bass hit can end before the duck
-                                    lets it through. In that case, check that the MIDI note is held long enough as well
-                                    as trying a longer bass <span class="kerby-ui">Length</span> or an earlier return. With a faster bass rate and a
-                                    held or legato MIDI note, later hits can sound after the duck has recovered; listen
-                                    to their balance against the first hit.</p>
-                                <p>Lower <span class="kerby-ui">Duck Amt</span> if you want some bass to remain under the kick.</p>
+                                <h2>Check the first bass hit.</h2>
+                                <p>A bass hit that starts with the kick can end before the duck lets it through.
+                                    Lengthen the bass or move the rise earlier. Later hits in a held note land after the
+                                    duck has recovered.</p>
                             </li>
-
                         </ol>
                         <aside class="kerby-callout">
-                            <h2>A different direction: kick rumble</h2>
-                            <p>For a cavernous techno rumble, mute
-                                the bass and try the kick’s <span class="kerby-ui">Reverb Amt</span> in <span class="kerby-ui">More</span>, with <span class="kerby-ui">Size</span> up and <span class="kerby-ui">LP</span> down. The low tail
-                                follows the same <span class="kerby-ui">Duck</span> curve. Treat it as an alternative to the bass to begin with;
-                                combine the two when you have a reason to want both.</p>
+                            <h2>Or swap the bass for rumble</h2>
+                            <p>Mute the bass. On the kick’s <span class="kerby-ui">More</span> tab, turn up <span
+                                    class="kerby-ui">Reverb Amt</span> with <span class="kerby-ui">Size</span> up and
+                                <span class="kerby-ui">LP</span> down. The tail follows the same duck curve.</p>
                         </aside>
                         <p class="kerby-related"><a href="/kerby/reference/#duck-reverb" class="link-underline">Duck and
                                 Reverb reference</a><a href="/kerby/reference/signal-flow/#mix"

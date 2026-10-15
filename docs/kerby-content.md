@@ -61,8 +61,8 @@ simplifying or redrawing the diagram.
   every page. Update all copies when changing its destinations.
 - `assets/css/kerby.css` is served directly and owns the product area's styles.
   Existing utility styles still come from the committed Tailwind `output.css`.
-- `assets/js/kerby.js` owns signup, screenshot enlargement, the ducking illustration
-  and reference search. New functions should return early on pages without their controls.
+- `assets/js/kerby.js` owns signup, changelog loading and reference search.
+  New functions should return early on pages without their controls.
 - Signup uses a native HTML POST to Buttondown, including with JavaScript enabled.
   Keep the hero button's synchronous email-field focus for mobile. Do not intercept
   submission with `fetch`: Buttondown may return a validation or CAPTCHA page that
@@ -80,6 +80,39 @@ simplifying or redrawing the diagram.
   `subscription_confirmation_redirect_url` separate: that is for the later email click.
   The Overview's `form-action` also permits `'self'` so Chromium allows the return redirect.
   See [Buttondown's redirect settings](https://docs.buttondown.com/api-newsletters-update).
+- Reference's PS5 controller screenshots (`kerby-controller-{light,dark}.webp`) are lossless
+  2x snapshots of KerBy's actual controller dialog, opened through the bottom bar's
+  `onGamepadClicked` callback and captured with JUCE's `createComponentSnapshot`.
+  Both use the editor's theme toggle and an idle controller state; include the full window.
+- Learn's KerBy interface crops (`assets/images/software/kerby-learn/kerby-*-{light,dark}.webp`)
+  come from the plugin's offscreen screenshot mode: `KERBY_SCREENSHOT_DIR=<dir>` plus
+  `KERBY_SCREENSHOT_TAB=<Amp|Duck|Click|More>`, `KERBY_SCREENSHOT_PAGE=matrix`, or
+  `KERBY_RENDER_SAMPLE=KICK_CLICK_SAMPLE=<wav>` (the Click crop uses the promo click), and
+  `KERBY_RENDER_PARAMS=<ID>=<value>,...` in display units (the Glitch crop is the More tab with
+  `KICK_GLITCH=50`, where the scope shows three clear rolls; higher values blur them), cropped
+  at 2x. Row crops are lossy WebP at quality 90, method 6; tab crops are lossless. The tab name must match the button text exactly; an unknown name silently leaves Amp.
+  In the 1800×1228 capture, a kick row's tab crop is (20, 105)–(1040, 618) and the bass row's
+  sits 524px lower. On the Overview, Learn tour and Reference, tab crops fill the column
+  rather than serving at half size, which would leave dead space on their right. Header and
+  bottom-bar strips serve at half size.
+  The Learn tour's Duck and Glitch figures include the voice's scope on desktop and use
+  tab-only crops at 767px and below. The Duck row comes from Init's held-bar capture,
+  cropped at (20, 628)–(1780, 1142), showing the ducked bass.
+  Screenshot mode hides the step row, so it has no crop.
+- Overview's `kerby-mode-{live,draw}-{light,dark}.webp` crops show the actual Live/Draw
+  selector at (1064, 26)–(1284, 96), served at half size with CSS clipping away the
+  surrounding panel background. Live comes from the main
+  interface capture; Draw uses screenshot mode with
+  `KERBY_RENDER_PARAMS=PLAY_MODE=1,QUANTIZE=0,KICK_RATE_ON=0,BASS_RATE_ON=0`.
+- Highlighted crops (`header-live`, `header-scale`, `bottom-bar`, `bass-length`, `kick-key`)
+  leave the control untouched and fade everything else to 30% of its contrast against the
+  panel background.
+- Reference and the first-pattern guide share `kerby-step-toggle-{light,dark}.webp`:
+  lossless 2x snapshots of the actual bottom bar with `setStepRowToggleState(true)`.
+  Crop (1428, 0)–(1778, 64) from the bar's 1800×68 snapshot, composite 10px lower over the
+  theme's interface background to centre the icons with 14px above and below, and fade
+  to 30% contrast except the step button at x=166–222.
+  Serve at 175px wide so the active, filled button stays at native interface size.
 - New nested pages use root-relative assets and navigation. Shared logo hover and boid
   image loading also use root-relative paths so they work at any route depth.
 - Keep the version markers and signup on `/kerby/`, and the changelog container on
@@ -164,8 +197,9 @@ whole-row cards free of permanent underlines; diagonal arrows are for external
 destinations, not internal navigation. Ordinary underlined text links retain the
 site's hover offset behavior.
 
-Reserve neutral rules for page/section dividers. The interface snapshot border and
-ducking illustration's border, grid and slider track use the pink accent-line colour.
+Reserve neutral rules for page/section dividers. Interface snapshot borders use the
+pink accent-line colour. The duck sections use the existing light/dark bass Duck tab
+snapshots, with no interactive illustration or recovery slider.
 The signal-flow card, search input, signal-map frame/caption rule and individual
 processing boxes use that same pink border; they are not page dividers.
 The newsletter and hero actions share `kerby-button`; newsletter inputs use the same

@@ -106,8 +106,8 @@
                         <ol class="kerby-recipe">
                             <li>
                                 <h2>Load the VST3.</h2>
-                                <p>In Live, only the VST3 version of KerBy sends MIDI out; the AU can’t. Put it on its
-                                    own MIDI track and get a pattern playing.</p>
+                                <p>In Live, only KerBy’s VST3 sends MIDI out. Put it on its own MIDI track and get a
+                                    pattern playing.</p>
                             </li>
                             <li>
                                 <h2>Make a MIDI track that listens to KerBy.</h2>
@@ -119,10 +119,9 @@
                                     <img src="/assets/images/software/kerby-learn/live-midi-from.png" width="182"
                                         height="190" alt="Live’s MIDI From menus: the KerBy track above, and the
                                         second menu open on Pre FX, Post FX and KerBy.">
-                                    <figcaption>This one is the kick’s pulse: a note on every hit.</figcaption>
                                 </figure>
                                 <p>Set the track’s <span class="kerby-ui">Monitor</span> to <span
-                                        class="kerby-ui">In</span>, so the notes pass through without arming it.</p>
+                                        class="kerby-ui">In</span>.</p>
                                 <figure class="kerby-shot">
                                     <img src="/assets/images/software/kerby-learn/live-monitor-in.png" width="156"
                                         height="58" alt="Live’s Monitor switch set to In.">
@@ -130,8 +129,7 @@
                             </li>
                             <li>
                                 <h2>Put a MIDI-triggered ducker on the group.</h2>
-                                <p>On the group you want to duck, add any ducking plugin that a MIDI note can
-                                    trigger, such as ShaperBox, LFOTool or Devious Machines’ Duck. Switch its trigger
+                                <p>Any will do, such as ShaperBox, LFOTool or Devious Machines’ Duck. Switch its trigger
                                     to MIDI, then draw a volume shape that dips at the start and rises back.</p>
                                 <figure class="kerby-shot">
                                     <img src="/assets/images/software/kerby-learn/shaperbox-midi-trigger.png"
@@ -147,11 +145,9 @@
                                     <img src="/assets/images/software/kerby-learn/live-midi-to.png" width="186"
                                         height="92" alt="Live’s MIDI To menus: Duck Group above, 1-ShaperBox 3
                                         below.">
-                                    <figcaption>The group, then the device on it.</figcaption>
                                 </figure>
-                                <p>Press play. The group now ducks on every kick, and follows KerBy as it moves:
-                                    change the kick’s <span class="kerby-ui">Rate</span> or turn up <span
-                                        class="kerby-ui">Glitch</span>, and the duck goes with it.</p>
+                                <p>Press play. The group ducks on every kick, even as you change the kick’s <span
+                                        class="kerby-ui">Rate</span> or turn up <span class="kerby-ui">Glitch</span>.</p>
                             </li>
                         </ol>
                         <aside class="kerby-callout">

@@ -55,29 +55,6 @@ if (document.readyState === 'loading') {
     initNotifyForm();
 }
 
-function initKerbyOverview() {
-    var recovery = document.getElementById('kerbyRecovery');
-    if (recovery) {
-        var curve = document.getElementById('kerbyBassCurve');
-        var fill = document.getElementById('kerbyBassFill');
-        function drawDuck() {
-            var length = 248 * Number(recovery.value) / 100;
-            var path = [104, 352].map(function (start, index) {
-                return (index ? ' L' : 'M') + start + ' 176 C' +
-                    (start + length * 0.2) + ' 176 ' + (start + length * 0.23) +
-                    ' 102 ' + (start + length) + ' 102 L' + (start + 248) + ' 102';
-            }).join('');
-            curve.setAttribute('d', path);
-            fill.setAttribute('d', path + ' L600 176Z');
-            recovery.setAttribute('aria-valuetext', recovery.value < 45 ? 'Quick return' :
-                recovery.value > 75 ? 'Slow return' : 'Gradual return');
-        }
-        recovery.closest('.kerby-duck-control').hidden = false;
-        recovery.addEventListener('input', drawDuck);
-        drawDuck();
-    }
-}
-
 function initKerbyReference() {
     var input = document.getElementById('kerbyReferenceSearch');
     if (!input) return;
@@ -154,11 +131,9 @@ function initKerbyChangelog() {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initKerbyOverview);
     document.addEventListener('DOMContentLoaded', initKerbyReference);
     document.addEventListener('DOMContentLoaded', initKerbyChangelog);
 } else {
-    initKerbyOverview();
     initKerbyReference();
     initKerbyChangelog();
 }

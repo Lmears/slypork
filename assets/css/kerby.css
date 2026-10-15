@@ -1,5 +1,6 @@
 /* KerBy overview, guides and reference. Served directly, like the page's JavaScript. */
 .kerby-content { min-width: 0; }
+.kerby-page { --kb-image-radius: 8px; /* KerbyLookAndFeel::panelCornerRadius, used by the scopes. */ }
 .kerby-page, .kerby-signup {
     --kb-ink: #91344e;
     --kb-accent: #ff6f91;
@@ -94,40 +95,24 @@
 .kerby-availability span:last-child { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
 .kerby-section .kerby-preview { margin-top: 1.6rem; }
-.kerby-preview a { display: block; border-radius: .6rem; }
+.kerby-preview a { display: block; border-radius: var(--kb-image-radius); }
 .kerby-preview img {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid var(--kb-accent-line);
-    border-radius: .6rem;
+    border-radius: var(--kb-image-radius);
 }
 .kerby-preview figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .3rem 1rem; padding-top: .7rem; color: var(--kb-muted); font-size: .75rem; }
 .kerby-section { padding: 2.7rem 0; border-bottom: .5px solid var(--kb-line); }
 .kerby-section h2 { margin: .45rem 0 1rem; font-size: clamp(1.5rem, 3vw, 1.9rem); font-weight: 300; line-height: 1.25; letter-spacing: -.02em; }
 .kerby-section p:not(.kerby-eyebrow):not(.kerby-aside) { max-width: 39rem; font-size: 1.0625rem; }
 .kerby-play-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1.5rem 0; }
-.kerby-play-modes h3 { margin-bottom: .6rem; font-size: .95rem; font-weight: 500; }
-.kerby-mode-label { display: inline-block; margin-right: .4rem; padding: .1rem .45rem; border: 1px solid var(--kb-accent-line); border-radius: .2rem; color: var(--kb-ink); font-size: .75rem; text-transform: uppercase; }
+.kerby-play-modes h3 { display: flex; align-items: center; gap: .65rem; margin-bottom: .6rem; font-size: .95rem; font-weight: 500; }
+.kerby-mode-selector { flex: 0 0 110px; }
+.kerby-mode-selector img { display: block; width: 110px; height: auto; clip-path: inset(5px 5px 6px 6px round 6px); }
 .kerby-aside { margin-top: 1.2rem; color: var(--kb-muted); font-size: .92rem; }
 .kerby-section p + p:not(.kerby-aside):not(.kerby-intro) { margin-top: .9rem; }
-.kerby-duck { margin-top: 1.6rem; padding: .75rem 1rem 1rem; border: 1px solid var(--kb-accent-line); border-radius: .6rem; background: var(--kb-panel); }
-.kerby-duck svg { display: block; width: 100%; height: auto; overflow: visible; }
-.kerby-diagram-grid { stroke: var(--kb-accent-line); fill: none; }
-.kerby-diagram-label { fill: var(--kb-ink); font-size: 16px; font-weight: 500; }
-.kerby-kick-shape { fill: var(--kb-ink); }
-.kerby-bass-fill { fill: var(--kb-accent); fill-opacity: .2; }
-.kerby-bass-curve { fill: none; stroke: var(--kb-ink); stroke-width: 2.5; stroke-linejoin: round; }
-.kerby-duck-control { display: flex; align-items: center; gap: .8rem; color: var(--kb-ink); font-size: .8rem; }
-.kerby-duck-control[hidden] { display: none; }
-.kerby-duck-control label { margin-right: auto; font-weight: 500; }
-.kerby-duck-control input { width: 35%; height: 2rem; min-width: 4rem; margin: 0; filter: none; accent-color: var(--kb-ink); cursor: ew-resize; }
-.kerby-duck-control input:hover { filter: none; }
-.kerby-duck-control input::-webkit-slider-thumb { background: var(--kb-ink); box-shadow: none; }
-.kerby-duck-control input::-webkit-slider-runnable-track { background: var(--kb-accent-line); }
-.kerby-duck-control input::-moz-range-thumb { background: var(--kb-ink); box-shadow: none; }
-.kerby-duck-control input::-moz-range-track { background: var(--kb-accent-line); }
-.kerby-duck figcaption { margin-top: .6rem; color: var(--kb-muted); font-size: .75rem; }
 .kerby-page :is(a, input):focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 5px; }
 @media (max-width: 767px) {
     .kerby-page { margin: 0 .5rem; }
@@ -135,15 +120,13 @@
 }
 @media (max-width: 540px) {
     .kerby-play-modes { grid-template-columns: 1fr; gap: 1.3rem; }
-    .kerby-duck { padding: .5rem .65rem .75rem; }
-    .kerby-duck-control { gap: .5rem; flex-wrap: wrap; }
-    .kerby-duck-control label { flex-basis: 100%; }
-    .kerby-duck-control input { flex: 1; }
+    .kerby-guide-list img { width: 6.5rem; }
     .kerby-section { padding: 2.1rem 0; }
 }
 @media (prefers-color-scheme: dark) {
     .kerby-header { --kb-ink: #ffc2d1; }
     .kerby-page, .kerby-signup { --kb-ink: #ffc2d1; --kb-accent: #ff7d9c; --kb-accent-line: #63434f; --kb-panel: #2b2226; --kb-line: rgba(230, 231, 227, .5); --kb-muted: #bbb2b5; }
+    .kerby-fig { --kerby-home-icon: var(--kerby-accent); }
 }
 
 /* Any on-screen label quoted in running text - a knob, tab, button, switch or menu
@@ -184,16 +167,19 @@
     .kerby-changelog { padding-bottom: 2rem; }
 }
 .kerby-guide-list { display: grid; border-top: .5px solid var(--kb-line); border-bottom: .5px solid var(--kb-line); }
-.kerby-guide-list a { display: grid; gap: .35rem; padding: 1.25rem 0; }
+.kerby-guide-list a { display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; row-gap: .35rem; align-content: center; padding: 1.25rem 0; }
+.kerby-guide-list a > :not(picture) { grid-column: 1; }
+.kerby-guide-list picture { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+.kerby-guide-list img { display: block; width: 10rem; height: auto; border: 1px solid var(--kb-accent-line); border-radius: var(--kb-image-radius); }
 .kerby-guide-list a + a { border-top: .5px solid var(--kb-line); }
 .kerby-guide-list a > span:first-child { color: var(--kb-ink); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 500; }
 .kerby-guide-list strong { font-weight: 500; font-size: 1.2rem; }
-.kerby-guide-list a > span:last-child { color: var(--kb-muted); font-size: .9rem; }
+.kerby-guide-list a > span:last-of-type { color: var(--kb-muted); font-size: .9rem; }
 .kerby-guide-list a:hover strong { color: var(--kb-ink); text-decoration: underline; text-underline-offset: 4px; }
 .kerby-prose { font-size: 1.0625rem; }
 .kerby-prose p { margin: .85rem 0; }
 .kerby-prose h2 { margin: 0 0 1.1rem; font-size: 1.65rem; line-height: 1.25; font-weight: 300; letter-spacing: normal; }
-.kerby-prose h3 { font-size: 1.05rem; font-weight: 500; margin: 1rem 0; }
+.kerby-prose h3 { font-size: 1.05rem; font-weight: 500; margin: 1.8rem 0 .5rem; }
 .kerby-prose strong { font-weight: 500; }
 .kerby-prose section { padding: 2.3rem 0; border-bottom: .5px solid var(--kb-line); }
 .kerby-doc :is(section[id], article[id], h2[id]) { scroll-margin-top: 5rem; }
@@ -206,8 +192,15 @@
 .kerby-explainer svg { display: block; width: 100%; height: auto; }
 .kerby-explainer figcaption { margin-top: .6rem; color: var(--kb-muted); font-size: .8rem; line-height: 1.5; }
 .kerby-shot { margin: 1.1rem 0; }
-.kerby-shot img { display: block; max-width: 100%; height: auto; border: 1px solid var(--kb-accent-line); border-radius: .3rem; }
+.kerby-shot img { display: block; max-width: 100%; height: auto; border: 1px solid var(--kb-accent-line); border-radius: var(--kb-image-radius); }
+/* Header captures have two extra source pixels below the controls at 2x. */
+.kerby-shot img[src*="/kerby-header-"] { padding-top: 1px; background: var(--kb-panel); }
 .kerby-shot figcaption { margin-top: .5rem; color: var(--kb-muted); font-size: .8rem; line-height: 1.5; }
+.kerby-shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+/* Serve the highlighted 2x footer capture at its native interface size. */
+.kerby-step-toggle img {
+    width: 175px;
+}
 .kerby-related { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; padding-top: .5rem; font-size: .9rem; color: var(--kb-ink); }
 .kerby-standfirst { font-size: 1.2rem; line-height: 1.5; }
 .kerby-recipe { list-style: decimal; padding-left: 1.5rem; }
