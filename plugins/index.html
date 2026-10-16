@@ -16,10 +16,12 @@
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo.svg" type="image/svg+xml">
     <link rel="preload" fetchpriority="high" as="image" href="../assets/images/slypork_logo_raised.svg"
         type="image/svg+xml">
     <link href="../assets/css/output.css" rel="stylesheet">
+    <link href="../assets/css/kerby.css" rel="stylesheet">
 </head>
 
 <body class="text-neutral-900 dark:text-neutral-100">
@@ -79,41 +81,40 @@
             <h1 class="text-3xl md:text-5xl leading-tight px-2 md:px-4 pb-8 pt-10 md:pb-12 md:pt-7">
                 <span id="pageTitle" class="inline-block">Plugins</span>
             </h1>
-            <article id="blurb">
-                <div class="visual-container" id="visualContainer">
-                    <div class="mx-2 md:mx-4 my-4 md:my-8">
-                        <p class="text-lg font-light">
-                            I build audio plugins for producers, shaped by years of making and mastering music.
-                            <br><br>
-                        </p>
-                        <h2 class="text-xl">Connect with me:</h2>
-                        <p class="text-lg font-light ml-4">
-                            Email:
-                            <a data-email="dev" target="_blank" rel="noopener noreferrer" class="link-underline">dev
-                                [at] slypork [dot] net
-                            </a>
-                        </p>
+            <article id="softwareContainer" class="visual-container" aria-labelledby="kerbyName">
+                <div class="kerby-page plugins-kerby">
+                    <p class="kerby-eyebrow">Instrument plugin</p>
+                    <h2 id="kerbyName" class="font-kerby"><a href="../kerby/">KerBy</a></h2>
+                    <p class="kerby-lead">Kick and bass,<br>built for playing.</p>
+                    <p class="kerby-intro">Hold a note to get a pattern going, then draw your own sounds or bring in
+                        samples.</p>
+                    <div class="kerby-actions">
+                        <a class="kerby-button" href="../kerby/">Explore KerBy</a>
                     </div>
+                    <p class="kerby-availability">Coming soon · macOS and Windows</p>
+                    <a href="../kerby/" class="plugins-kerby-shot group">
+                        <img src="../assets/images/software/KerBy_lightmode.png" width="1800" height="1228"
+                            alt="KerBy: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
+                            class="dark:hidden transition-opacity duration-200 group-hover:opacity-80">
+                        <img src="../assets/images/software/KerBy_darkmode.png" width="1800" height="1228"
+                            alt="KerBy in its dark theme: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
+                            class="hidden dark:block transition-opacity duration-200 group-hover:opacity-80">
+                    </a>
                 </div>
             </article>
-            <section class="visual-container-bottom" id="softwareContainer">
+            <section class="visual-container-bottom" id="visualContainer">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
-                    <div>
-                        <div class="my-4 text-xl">
-                            <h2><a href="../kerby/" class="subtle-underline">KerBy</a>:</h2>
-                            <p class="ml-4 text-lg font-light">
-                                A kick and bass instrument built for playing. macOS and Windows. Coming soon.
-                            </p>
-                        </div>
-                        <a href="../kerby/" class="cursor-pointer group">
-                            <img src="../assets/images/software/KerBy_lightmode.png" width="1800" height="1228"
-                                alt="KerBy: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
-                                class="dark:hidden w-full rounded-xl border border-kerbyPink transition-opacity duration-200 group-hover:opacity-80">
-                            <img src="../assets/images/software/KerBy_darkmode.png" width="1800" height="1228"
-                                alt="KerBy in its dark theme: kick above bass, with separate rates, drawn waveforms and scopes. Live and Draw modes sit at the top; sound-shaping tabs sit above each waveform."
-                                class="hidden dark:block w-full rounded-xl border border-kerbyDarkAccent transition-opacity duration-200 group-hover:opacity-80">
+                    <p class="text-lg font-light">
+                        I build audio plugins for producers, shaped by years of making and mastering music.
+                        <br><br>
+                    </p>
+                    <h2 class="text-xl">Connect with me:</h2>
+                    <p class="text-lg font-light ml-4">
+                        Email:
+                        <a data-email="dev" target="_blank" rel="noopener noreferrer" class="link-underline">dev
+                            [at] slypork [dot] net
                         </a>
-                    </div>
+                    </p>
                 </div>
             </section>
         </section>

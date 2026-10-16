@@ -17,7 +17,7 @@
         content="KerBy is a kick and bass instrument. Hold a MIDI note to create repeating pulses, then turn a knob to control their rate. Play live or write MIDI patterns, with synthesis or samples. macOS and Windows. Coming soon.">
     <meta property="og:url" content="https://slypork.net/kerby/">
     <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
-    <meta property="og:image:width" content="1620">
+    <meta property="og:image:width" content="1800">
     <meta property="og:image:height" content="1228">
     <meta property="og:image:alt" content="KerBy: kick above bass, with separate rates, drawn waveforms and scopes.">
     <meta name="twitter:card" content="summary_large_image">
@@ -99,11 +99,11 @@
             <div class="visual-container kerby-frame">
                 <div class="kerby-page">
                     <header class="kerby-hero">
-                        <p class="kerby-eyebrow">A kick &amp; bass instrument</p>
+                        <p class="kerby-eyebrow">Instrument plugin</p>
                         <h1 id="kerbyTitle" class="font-kerby">KerBy</h1>
-                        <p class="kerby-lead">Kick and bass,<br>reimagined.</p>
+                        <p class="kerby-lead">Kick and bass,<br>built for playing.</p>
                         <p class="kerby-intro">Hold a note to get a pattern going, or write each hit in your DAW.
-                            Draw your own sounds, bring in samples, and shape how the kick and bass work together.</p>
+                            Draw your own sounds, bring in samples, and shape how the two voices fit together.</p>
                         <div class="kerby-actions">
                             <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
                         </div>
@@ -112,7 +112,8 @@
                              on this page: the release's sed would match the comment. -->
                         <p class="kerby-availability">Coming soon · <a href="/kerby/whats-new/" class="link-underline"
                                 title="What's new" data-kerby-version>v0.10.2</a>
-                            <span>macOS 11+ · AU / VST3 / Standalone &nbsp; Windows 10+ · VST3</span>
+                            <span>macOS 11+ · AU / VST3 / Standalone</span>
+                            <span>Windows 10+ · VST3</span>
                         </p>
                     </header>
 
@@ -200,27 +201,29 @@
 
                     <section class="kerby-section" aria-labelledby="kerby-duck-heading">
                         <p class="kerby-eyebrow">Bring them together</p>
-                        <h2 id="kerby-duck-heading">Shape the kick and bass together.</h2>
-                        <figure class="kerby-shot">
-                            <picture>
-                                <source media="(prefers-color-scheme: dark)"
-                                    srcset="/assets/images/software/kerby-learn/kerby-bass-duck-dark.webp">
-                                <img src="/assets/images/software/kerby-learn/kerby-bass-duck-light.webp" width="1020"
-                                    height="514" loading="lazy" alt="The bass’s Duck tab: a curve that holds the bass
-                                    silent under the kick, then rises steeply and eases down.">
-                            </picture>
-                            <figcaption>Draw a ducking curve to make room for the kick.</figcaption>
+                        <h2 id="kerby-duck-heading">Sidechain, built in.</h2>
+                        <figure class="kerby-preview">
+                            <a class="modal-trigger" href="../assets/images/software/KerBy_duck_lightmode.png"
+                                aria-label="Enlarge the kick and bass shapes">
+                                <picture>
+                                    <source media="(prefers-color-scheme: dark)"
+                                        srcset="../assets/images/software/KerBy_duck_darkmode.png">
+                                    <img src="../assets/images/software/KerBy_duck_lightmode.png" width="1800"
+                                        height="1228" loading="lazy"
+                                        alt="KerBy with the kick’s Amp tab above the bass’s Duck tab: the kick decays while the duck curve holds the bass silent under it, then rises steeply and eases down. Each voice’s scope shows the result.">
+                                </picture>
+                            </a>
+                            <figcaption><span>The kick’s decay above the bass’s duck, each with its scope.</span>
+                            </figcaption>
                         </figure>
-                        <p class="kerby-intro">The voices are called Kick and Bass, but the sounds and patterns can go
-                            well beyond either.
-                        </p>
+                        <p>The bass ducks under every kick, so the two never fight over the low end.</p>
+                        <p class="kerby-aside">KerBy also sends a MIDI note on every kick, ready to duck the rest of
+                            your mix.</p>
                     </section>
 
                     <section class="kerby-section" aria-labelledby="kerby-matrix-heading">
                         <p class="kerby-eyebrow">Make it move</p>
                         <h2 id="kerby-matrix-heading">Macros, LFOs and your own shapes.</h2>
-                        <p>One macro can reshape the kick and bass together. Lock both voices to a scale, then route a
-                            random LFO to the bass’s Tune for a bassline that stays in key.</p>
                         <figure class="kerby-preview">
                             <a class="modal-trigger" href="../assets/images/software/KerBy_matrix_lightmode.png"
                                 aria-label="Enlarge the Matrix page">
@@ -235,6 +238,10 @@
                             <figcaption><span>One LFO morphs another, which morphs the bass’s waveform.</span>
                             </figcaption>
                         </figure>
+                        <p>One macro can reshape the kick and bass together. Lock both voices to a scale, then route a
+                            random LFO to the bass’s Tune for a bassline that stays in key.</p>
+                        <p>The voices are called Kick and Bass, but the sounds and patterns can go well beyond
+                            either.</p>
                     </section>
                     <aside class="kerby-next" aria-label="Explore KerBy">
                         <a href="/kerby/learn/"><span class="kerby-eyebrow">Learn</span><strong>Get to know the
