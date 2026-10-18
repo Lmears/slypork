@@ -10,7 +10,7 @@
     "build:pig-lods": "node scripts/build-pig-lods.mjs",
     "build:three": "node scripts/build-three.mjs",
     "build:css": "tailwindcss -i assets/css/input.css -o assets/css/output.css --minify",
-    "watch:css": "tailwindcss -i assets/css/input.css -o assets/css/output.css --minify --watch",
+    "watch:css": "node scripts/watch-css.mjs",
     "check:security": "python3 scripts/check-security.py",
     "start": "python3 -m http.server 8080 --bind 127.0.0.1"
   }
