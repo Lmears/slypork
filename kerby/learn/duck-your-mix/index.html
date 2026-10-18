@@ -102,7 +102,7 @@
                     </header>
                     <article class="kerby-prose">
                         <p class="kerby-standfirst">KerBy sends a MIDI note every time the kick hits. Route it to a
-                            ducking plugin on a group, and pads, drums or a whole bus pump with the kick.</p>
+                            ducking plugin such as DucKy on a group, and pads, drums or a whole bus pump with the kick.</p>
                         <ol class="kerby-recipe">
                             <li>
                                 <h2>Load the VST3.</h2>
@@ -128,14 +128,20 @@
                                 </figure>
                             </li>
                             <li>
-                                <h2>Put a MIDI-triggered ducker on the group.</h2>
-                                <p>Any will do, such as ShaperBox, LFOTool or Devious Machines’ Duck. Switch its trigger
-                                    to MIDI, then draw a volume shape that dips at the start and rises back.</p>
+                                <h2>Put DucKy on the group.</h2>
+                                <p>Load <a href="/ducky/" class="link-underline">DucKy</a>, free, on the group and
+                                    choose <span class="kerby-ui">MIDI</span>.</p>
                                 <figure class="kerby-shot">
-                                    <img src="/assets/images/software/kerby-learn/shaperbox-midi-trigger.png"
-                                        width="288" height="64" alt="ShaperBox’s trigger switch, set to MIDI.">
-                                    <figcaption>The trigger switch in ShaperBox.</figcaption>
+                                    <picture>
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/ducky/ducky-header-midi-dark.webp">
+                                        <img src="/assets/images/software/ducky/ducky-header-midi-light.webp"
+                                            width="270" height="35" alt="DucKy’s header, with MIDI selected and
+                                            highlighted beside Tempo.">
+                                    </picture>
                                 </figure>
+                                <p>Any MIDI-triggered ducker works too, such as ShaperBox, LFOTool or Devious Machines’
+                                    Duck: switch its trigger to MIDI.</p>
                             </li>
                             <li>
                                 <h2>Send the notes to it.</h2>

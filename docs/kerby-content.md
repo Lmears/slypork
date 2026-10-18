@@ -89,6 +89,12 @@ simplifying or redrawing the diagram.
   check a UI change, run `python3 scripts/site-images.py` there with `KERBY_SITE_ROOT` set to
   this repo. A new KerBy image gets a recipe in that script rather than a one-off crop.
   The third-party screenshots (`live-*`, `shaperbox-*`, `thumb-midi`) are made by hand.
+- DucKy (`/ducky/`) is one page in KerBy's layout, recoloured by the `.ducky` class in
+  `kerby.css`. Its full captures (`DucKy_*mode.png`) are the 2x screenshots DucKy's
+  `ducky_editor_tests` writes to `build-dev/screenshots/`; `ducky/ducky-header-midi-*` is cropped
+  from them with KerBy's highlight recipe, and `ducky/ducky-mode-*` crops the Tempo/MIDI pill as
+  KerBy's Live/Draw selector is cropped (the Tempo pair needs a capture with Trigger on Tempo,
+  which the test doesn't write). There's no site-images recipe for DucKy yet.
 - Captures run from a fresh install's state on Init with the scale on A Minor; the step row and
   keyboard are hidden, and the scopes show one held bar. The Click crop uses the promo click,
   the sampled Wave crop the bass source sample (both in the script's samples folder), and the

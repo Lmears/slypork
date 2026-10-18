@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; media-src 'self'; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://buttondown.com; frame-src https://bandcamp.com https://w.soundcloud.com https://open.spotify.com https://calendar.google.com https://forms.gle https://docs.google.com https://www.youtube-nocookie.com; base-uri 'none'; object-src 'none'; form-action https://buttondown.com">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="viewport" content="width=device-width">
+    <title>DucKy | Slypork</title>
+    <meta name="description"
+        content="DucKy is a free ducking effect. It dips the volume of any track on the beat, or on every MIDI note you send it, with a shape you draw. macOS and Windows. Coming soon.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Slypork">
+    <meta property="og:title" content="DucKy: a free ducking effect">
+    <meta property="og:description"
+        content="DucKy is a free ducking effect. It dips the volume of any track on the beat, or on every MIDI note you send it, with a shape you draw. macOS and Windows. Coming soon.">
+    <meta property="og:url" content="https://slypork.net/ducky/">
+    <meta property="og:image" content="https://slypork.net/assets/images/software/DucKy_lightmode.png">
+    <meta property="og:image:width" content="1440">
+    <meta property="og:image:height" content="860">
+    <meta property="og:image:alt" content="DucKy: a drawn duck shape on a large plot, with a Depth knob beside it.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/assets/images/favicon-192x192.png">
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-300.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/roboto-v48-latin-200.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/assets/fonts/kiwi-soda.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo.svg" type="image/svg+xml">
+    <link rel="preload" fetchpriority="high" as="image" href="/assets/images/slypork_logo_raised.svg"
+        type="image/svg+xml">
+    <link href="/assets/css/output.css" rel="stylesheet">
+    <link href="/assets/css/kerby.css" rel="stylesheet">
+</head>
+
+<body class="text-neutral-900 dark:text-neutral-100">
+    <canvas id="boidCanvas"></canvas>
+    <div id="controls">
+        <button id="godModeButton" class="mr-2 hidden md:block">
+            <svg
+                class="w-4 h-4 fill-current text-background hover:text-backgroundHovered transition transform hover:scale-110">
+                <use href="/assets/images/icons.svg#sliders"></use>
+            </svg>
+        </button>
+        <input type="range" id="speedSlider" min="0" max="200" value="100">
+        <span id="speedValue" class="ml-2 text-background text-right w-10">100%</span>
+    </div>
+    <main id="container" class="flex px-4 pb-12 pt-8 md:px-12 md:pt-12 mx-auto nav-balanced">
+        <header class="pinned-nav">
+            <nav id="site-nav" class="flex flex-row justify-center sm:flex-col text-2xl group">
+                <button id="hamburger-menu" aria-label="Menu" aria-controls="site-nav" aria-expanded="false"
+                    class="py-3 px-2 sm:hidden">&#9776;</button>
+                <ul id="navLinks"
+                    class="inline-flex flex-col sm:flex-row md:flex md:flex-col md:items-start min-h-[60.75px] items-center justify-between min-w-0 md:min-w-36">
+                    <li
+                        class="group-[.nav-active]:pb-4 sm:group-[.nav-active]:pb-0 md:group-[.nav-active]:pb-9 md:px-3 md:pt-3 md:pb-9">
+                        <a href="/" id="homeLink" class="p-1 block">
+                            <img src="/assets/images/slypork_logo.svg" alt="Home"
+                                class="w-[64px] sm:w-[48px] md:w-[80px] aspect-[80/65.94] home-logo">
+                        </a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/plugins/" class="selected" id="pluginsLink">
+                            <span class="nav-link-text">Plugins</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/music/" id="musicLink">
+                            <span class="nav-link-text">Music</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/mastering/" id="masteringLink">
+                            <span class="nav-link-text">Mastering</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/software/" id="softwareLink">
+                            <span class="nav-link-text">Software</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/about/" id="aboutLink">
+                            <span class="nav-link-text">About</span></a>
+                    </li>
+                    <li class="hidden group-[.nav-active]:block sm:block p-0 md:p-3">
+                        <a href="/contact/" id="contactLink">
+                            <span class="nav-link-text">Contact</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section id="content" class="kerby-content ducky flex-1 md:px-4 flex flex-col">
+            <div class="kerby-header">
+                <span class="kerby-brand font-kerby">DucKy</span>
+            </div>
+            <div class="visual-container kerby-frame">
+                <div class="kerby-page">
+                    <header class="kerby-hero">
+                        <p class="kerby-eyebrow">Effect plugin · Free</p>
+                        <h1 class="font-kerby">DucKy</h1>
+                        <p class="kerby-lead">KerBy’s duck,<br>on anything.</p>
+                        <p class="kerby-intro">Put it on any track or group and it dips the volume on the beat, or on
+                            every MIDI note you send it. Draw the shape of the dip and set how deep it goes.</p>
+                        <p class="kerby-availability">Free · coming soon, alongside <a href="/kerby/"
+                                class="link-underline">KerBy</a>
+                            <span>macOS 11+ · AU / VST3</span>
+                            <span>Windows 10+ · VST3</span>
+                        </p>
+                    </header>
+
+                    <figure class="kerby-preview">
+                        <a class="modal-trigger" href="/assets/images/software/DucKy_lightmode.png"
+                            aria-label="Enlarge the DucKy interface">
+                            <picture>
+                                <source media="(prefers-color-scheme: dark)"
+                                    srcset="/assets/images/software/DucKy_darkmode.png">
+                                <img src="/assets/images/software/DucKy_lightmode.png" width="1440" height="860"
+                                    fetchpriority="high"
+                                    alt="DucKy: a drawn duck shape fills the plot, with the Depth knob beside it, Tempo and MIDI at the top, and Duck Rate and Smooth along the plot’s bottom edge.">
+                            </picture>
+                        </a>
+                        <figcaption><span>Click to take a closer look <span aria-hidden="true">↑</span></span>
+                        </figcaption>
+                    </figure>
+
+                    <section class="kerby-section" aria-labelledby="ducky-trigger-heading">
+                        <p class="kerby-eyebrow">Trigger it</p>
+                        <h2 id="ducky-trigger-heading">On the beat, or on every note.</h2>
+                        <div class="kerby-play-modes">
+                            <div>
+                                <h3>
+                                    <picture class="kerby-mode-selector">
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/ducky/ducky-mode-tempo-dark.webp">
+                                        <img src="/assets/images/software/ducky/ducky-mode-tempo-light.webp"
+                                            width="244" height="70" loading="lazy"
+                                            alt="Tempo and MIDI, with Tempo selected.">
+                                    </picture>
+                                    Follow the tempo
+                                </h3>
+                                <p>Ducks at the <span class="kerby-ui">Duck Rate</span>, from 1/1 to 1/16, in time
+                                    with your DAW.</p>
+                            </div>
+                            <div>
+                                <h3>
+                                    <picture class="kerby-mode-selector">
+                                        <source media="(prefers-color-scheme: dark)"
+                                            srcset="/assets/images/software/ducky/ducky-mode-midi-dark.webp">
+                                        <img src="/assets/images/software/ducky/ducky-mode-midi-light.webp"
+                                            width="244" height="70" loading="lazy"
+                                            alt="Tempo and MIDI, with MIDI selected.">
+                                    </picture>
+                                    Follow the notes
+                                </h3>
+                                <p>Ducks on every note you send it, on any channel or pitch, even with the transport
+                                    stopped.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="kerby-section" aria-labelledby="ducky-shape-heading">
+                        <p class="kerby-eyebrow">Shape it</p>
+                        <h2 id="ducky-shape-heading">Draw the duck.</h2>
+                        <p>Start from Pump, Hold then rise or Soft recovery, or draw your own in the same editor as
+                            KerBy’s Duck tab. <span class="kerby-ui">Depth</span> sets how far it dips, and <span
+                                class="kerby-ui">Smooth</span> rounds off the curve.</p>
+                        <p class="kerby-aside">Save your shapes as presets, as in KerBy.</p>
+                    </section>
+
+                    <section class="kerby-section" aria-labelledby="ducky-kerby-heading">
+                        <p class="kerby-eyebrow">Pair it with KerBy</p>
+                        <h2 id="ducky-kerby-heading">Duck your mix to the kick.</h2>
+                        <p>KerBy sends a MIDI note on every kick. Send it to DucKy on a group, and the group pumps with
+                            the kick, even as you change its <span class="kerby-ui">Rate</span> or turn up <span
+                                class="kerby-ui">Glitch</span>.</p>
+                        <p class="kerby-aside"><a href="/kerby/learn/duck-your-mix/" class="link-underline">Set it up
+                                in Ableton Live</a></p>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/boids/simulation.js" type="module"></script>
+    <div class="easter-egg" id="easterEgg"></div>
+    <script src="/assets/js/boids/easter-egg.js" type="module"></script>
+</body>
+
+</html>
