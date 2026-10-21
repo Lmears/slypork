@@ -91,7 +91,8 @@ simplifying or redrawing the diagram.
   this repo. A new KerBy image gets a recipe in that script rather than a one-off crop.
   The third-party screenshots (`live-*`, `shaperbox-*`, `thumb-midi`) are made by hand.
 - DucKy (`/ducky/`) is one page in KerBy's layout, recoloured by the `.ducky` class in
-  `kerby.css`. Its full captures (`DucKy_*mode.png`) are the 2x screenshots DucKy's
+  `kerby.css`. Its full captures (`DucKy_*mode.png`) are the KerBy-trigger pair
+  (`DucKy_editor_kerby*.png`, KerBy being what sets DucKy apart) of the 2x screenshots DucKy's
   `ducky_editor_tests` writes to `build-dev/screenshots/` (`DucKy_editor*.png`, one per trigger,
   with a KerBy running so its cell is solid); `ducky/ducky-header-kerby-*` is cropped from the
   KerBy one with KerBy's highlight recipe (the preset button and logo faded), and

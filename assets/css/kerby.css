@@ -112,6 +112,7 @@
 .kerby-mode-selector { flex: 0 0 110px; }
 .kerby-mode-selector img { display: block; width: 110px; height: auto; clip-path: inset(5px 5px 6px 6px round 6px); }
 .kerby-aside { margin-top: 1.2rem; color: var(--kb-muted); font-size: .92rem; }
+.kerby-play-modes .kerby-aside { margin-top: .4rem; }
 .kerby-section p + p:not(.kerby-aside):not(.kerby-intro) { margin-top: .9rem; }
 .kerby-page :is(a, input):focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 5px; }
 @media (max-width: 767px) {
