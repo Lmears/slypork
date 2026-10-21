@@ -7,11 +7,11 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>Duck the rest of your mix to the kick | KerBy | Slypork</title>
-    <meta name="description" content="Route KerBy’s MIDI out in Ableton Live so a group ducks on every kick.">
+    <meta name="description" content="Duck any track or group to KerBy’s kick with DucKy. No MIDI routing needed.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Slypork">
     <meta property="og:title" content="Duck the rest of your mix to the kick | KerBy">
-    <meta property="og:description" content="Route KerBy’s MIDI out in Ableton Live so a group ducks on every kick.">
+    <meta property="og:description" content="Duck any track or group to KerBy’s kick with DucKy. No MIDI routing needed.">
     <meta property="og:url" content="https://slypork.net/kerby/learn/duck-your-mix/">
     <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
     <meta property="og:image:width" content="1800">
@@ -101,65 +101,58 @@
                         <h1 class="kerby-doc-title">Duck the rest of your mix to the kick</h1>
                     </header>
                     <article class="kerby-prose">
-                        <p class="kerby-standfirst">KerBy sends a MIDI note every time the kick hits. Route it to a
-                            ducking plugin such as DucKy on a group, and pads, drums or a whole bus pump with the kick.</p>
+                        <p class="kerby-standfirst">Duck any track or group to KerBy’s kick: put DucKy on it and set it
+                            to follow KerBy. No MIDI routing needed.</p>
                         <ol class="kerby-recipe">
                             <li>
-                                <h2>Load the VST3.</h2>
-                                <p>In Live, only KerBy’s VST3 sends MIDI out. Put it on its own MIDI track and get a
-                                    pattern playing.</p>
-                            </li>
-                            <li>
-                                <h2>Make a MIDI track that listens to KerBy.</h2>
-                                <p>Add an empty MIDI track. In its <span class="kerby-ui">MIDI From</span>, choose
-                                    KerBy’s track in the top menu, then <span class="kerby-ui">KerBy</span> in the
-                                    menu below it, the third option under <span class="kerby-ui">Pre FX</span> and
-                                    <span class="kerby-ui">Post FX</span>.</p>
-                                <figure class="kerby-shot">
-                                    <img src="/assets/images/software/kerby-learn/live-midi-from.png" width="182"
-                                        height="190" alt="Live’s MIDI From menus: the KerBy track above, and the
-                                        second menu open on Pre FX, Post FX and KerBy.">
-                                </figure>
-                                <p>Set the track’s <span class="kerby-ui">Monitor</span> to <span
-                                        class="kerby-ui">In</span>.</p>
-                                <figure class="kerby-shot">
-                                    <img src="/assets/images/software/kerby-learn/live-monitor-in.png" width="156"
-                                        height="58" alt="Live’s Monitor switch set to In.">
-                                </figure>
-                            </li>
-                            <li>
-                                <h2>Put DucKy on the group.</h2>
-                                <p>Load <a href="/ducky/" class="link-underline">DucKy</a>, free, on the group and
-                                    choose <span class="kerby-ui">MIDI</span>.</p>
+                                <h2>Put DucKy on what you want to duck.</h2>
+                                <p>Load <a href="/ducky/" class="link-underline">DucKy</a>, free, on a track or
+                                    group and choose <span class="kerby-ui">KerBy</span>.</p>
                                 <figure class="kerby-shot">
                                     <picture>
                                         <source media="(prefers-color-scheme: dark)"
-                                            srcset="/assets/images/software/ducky/ducky-header-midi-dark.webp">
-                                        <img src="/assets/images/software/ducky/ducky-header-midi-light.webp"
-                                            width="270" height="35" alt="DucKy’s header, with MIDI selected and
-                                            highlighted beside Tempo.">
+                                            srcset="/assets/images/software/ducky/ducky-header-kerby-dark.webp">
+                                        <img src="/assets/images/software/ducky/ducky-header-kerby-light.webp"
+                                            width="320" height="35" alt="DucKy’s header, with KerBy selected and
+                                            highlighted beside Tempo and MIDI.">
                                     </picture>
                                 </figure>
-                                <p>Any MIDI-triggered ducker works too, such as ShaperBox, LFOTool or Devious Machines’
-                                    Duck: switch its trigger to MIDI.</p>
                             </li>
                             <li>
-                                <h2>Send the notes to it.</h2>
-                                <p>Back on the new MIDI track, set <span class="kerby-ui">MIDI To</span> to the group,
-                                    and the menu below it to the ducking plugin on that group.</p>
-                                <figure class="kerby-shot">
-                                    <img src="/assets/images/software/kerby-learn/live-midi-to.png" width="186"
-                                        height="92" alt="Live’s MIDI To menus: Duck Group above, 1-ShaperBox 3
-                                        below.">
-                                </figure>
-                                <p>Press play. The group ducks on every kick, even as you change the kick’s <span
-                                        class="kerby-ui">Rate</span> or turn up <span class="kerby-ui">Glitch</span>.</p>
+                                <h2>Play KerBy.</h2>
+                                <p>That’s it: play a pattern on KerBy, and DucKy ducks on every kick, even as you
+                                    change the kick’s <span class="kerby-ui">Rate</span> or turn up <span
+                                        class="kerby-ui">Glitch</span>.</p>
+                                <p>With more than one KerBy, right-click <span class="kerby-ui">KerBy</span> in DucKy
+                                    and choose one by its track. The one you’re playing says <span
+                                        class="kerby-ui">playing</span>.</p>
                             </li>
                         </ol>
                         <aside class="kerby-callout">
                             <h2>Mute the kick, lose the duck</h2>
-                            <p>A muted kick sends no notes, so the group stops ducking too. To keep the pump without
-                                hearing the kick, turn the kick down on its track instead.</p>
+                            <p>A muted kick doesn’t duck anything either. To keep the pump without hearing the kick,
+                                turn the kick down on its track instead.</p>
+                        </aside>
+                        <aside class="kerby-callout">
+                            <h2>Using another ducker</h2>
+                            <p>Any MIDI-triggered ducker works from KerBy’s MIDI out, such as ShaperBox, LFOTool or
+                                Devious Machines’ Duck. In Live, use KerBy’s VST3: Live only takes MIDI out from the VST3. Add
+                                an empty MIDI track and set its <span class="kerby-ui">MIDI From</span> to KerBy’s track, then <span
+                                    class="kerby-ui">KerBy</span> in the menu below, the third option under <span
+                                    class="kerby-ui">Pre FX</span> and <span class="kerby-ui">Post FX</span>.</p>
+                            <figure class="kerby-shot">
+                                <img src="/assets/images/software/kerby-learn/live-midi-from.png" width="182"
+                                    height="190" alt="Live’s MIDI From menus: the KerBy track above, and the
+                                    second menu open on Pre FX, Post FX and KerBy.">
+                            </figure>
+                            <p>Set its <span class="kerby-ui">Monitor</span> to <span class="kerby-ui">In</span>, and
+                                its <span class="kerby-ui">MIDI To</span> to the ducker’s track, then the ducker in the menu
+                                below. Switch the ducker’s trigger to MIDI.</p>
+                            <figure class="kerby-shot">
+                                <img src="/assets/images/software/kerby-learn/live-midi-to.png" width="186"
+                                    height="92" alt="Live’s MIDI To menus: Duck Group above, 1-ShaperBox 3
+                                    below.">
+                            </figure>
                         </aside>
                         <p class="kerby-related"><a href="/kerby/reference/#performance" class="link-underline">MIDI out
                                 reference</a><a href="/kerby/learn/shape-the-duck/" class="link-underline">Shape

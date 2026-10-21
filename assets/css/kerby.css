@@ -303,8 +303,8 @@
     }
 }
 /* DucKy's Tempo/MIDI pill is wider than KerBy's Live/Draw. */
-.ducky .kerby-mode-selector { flex-basis: 122px; }
-.ducky .kerby-mode-selector img { width: 122px; clip-path: inset(5px 5.5px 6px 6px round 6px); }
+.ducky .kerby-mode-selector { flex-basis: 171px; }
+.ducky .kerby-mode-selector img { width: 171px; clip-path: inset(5px 5.5px 6px 6px round 6px); }
 /* DucKy's page ends on a section, which the frame's own rule already closes. */
 .ducky .kerby-section:last-child { border-bottom: 0; }
 

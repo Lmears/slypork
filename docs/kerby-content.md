@@ -15,7 +15,8 @@ competing top-level destination.
 ## Guides
 
 The guides cover a first pattern, balancing the duck, layering a sampled attack, and
-ducking other tracks to KerBy's MIDI out in Live. They are starting techniques, not claims
+ducking other tracks to the kick with DucKy following KerBy (KerBy's MIDI out, for other
+duckers, is a callout there). They are starting techniques, not claims
 of tested presets or ideal settings.
 Keep each new guide about one audible result. Include a starting state, actions, what to
 listen for, and links to the relevant reference anchors. Specific controls are explained
@@ -91,10 +92,11 @@ simplifying or redrawing the diagram.
   The third-party screenshots (`live-*`, `shaperbox-*`, `thumb-midi`) are made by hand.
 - DucKy (`/ducky/`) is one page in KerBy's layout, recoloured by the `.ducky` class in
   `kerby.css`. Its full captures (`DucKy_*mode.png`) are the 2x screenshots DucKy's
-  `ducky_editor_tests` writes to `build-dev/screenshots/`; `ducky/ducky-header-midi-*` is cropped
-  from them with KerBy's highlight recipe, and `ducky/ducky-mode-*` crops the Tempo/MIDI pill as
-  KerBy's Live/Draw selector is cropped (the Tempo pair needs a capture with Trigger on Tempo,
-  which the test doesn't write). There's no site-images recipe for DucKy yet.
+  `ducky_editor_tests` writes to `build-dev/screenshots/` (`DucKy_editor*.png`, one per trigger,
+  with a KerBy running so its cell is solid); `ducky/ducky-header-kerby-*` is cropped from the
+  KerBy one with KerBy's highlight recipe (the preset button and logo faded), and
+  `ducky/ducky-mode-*` crops the Tempo/MIDI/KerBy pill from each as KerBy's Live/Draw selector is
+  cropped. There's no site-images recipe for DucKy yet.
 - Captures run from a fresh install's state on Init with the scale on A Minor; the step row and
   keyboard are hidden, and the scopes show one held bar. The Click crop uses the promo click,
   the sampled Wave crop the bass source sample (both in the script's samples folder), and the
