@@ -25,7 +25,7 @@
     padding: 1.75rem 1rem .8rem;
 }
 .kerby-brand { font-size: 2rem; line-height: 1; white-space: nowrap; }
-.kerby-header .kerby-nav { padding: 0; font-weight: 300; }
+.kerby-header .kerby-nav { padding: 0; margin-block: -.5rem; font-weight: 300; }
 .kerby-header :is(a):focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 .kerby-header .kerby-nav a:not([aria-current]):hover { opacity: .7; }
 @media (max-width: 767px) {
