@@ -51,6 +51,14 @@ package still emits an upstream deprecation warning; npm audit reports no known
 vulnerabilities in the selected version. No forced major-version overrides were
 added to suppress the warning.
 
+Update, 22 October 2026: new advisories in Tailwind 3's build tools (`braces`,
+which has no fixed version, `postcss-selector-parser` and `source-map-js`) failed
+npm audit from 3 October. The site moved to Tailwind 4, run as its PostCSS plugin
+with autoprefixer and cssnano (`scripts/build-css.mjs`); its CLI was avoided
+because its file watcher depends on `braces`. The build reproduces Tailwind 3's
+output, checked element by element in Chrome. npm audit reports no known
+vulnerabilities.
+
 Use Python's localhost server directly to preview without npm. For CSS changes,
 use the commands in README.md. The server intentionally does not apply Jekyll
 exclusions; it must not be exposed through a public tunnel.

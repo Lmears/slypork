@@ -3,7 +3,7 @@
 # that would bypass these exclusions. New files are public unless excluded.
 exclude:
   - README.md
-  - CLAUDE.md
+  - AGENTS.md
   - SECURITY.md
   - docs
   - scripts
@@ -15,6 +15,8 @@ exclude:
   - vendor
   - rsvp-disabled
   - assets/css/input.css
+  - assets/css/tailwind3-base.css
+  - assets/css/tailwind3-utilities.css
   - .env
   - .env.*
   - .cloudflared
