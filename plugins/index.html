@@ -120,9 +120,9 @@
                         </div>
                     </a>
                 </div>
-                <!-- OrBy has no page yet, so its card isn't a link; its call to action is KerBy's
-                     newsletter signup. Hidden until KerBy is out (Companion's plan says when):
-                     remove the hidden attribute to show it. -->
+                <!-- OrBy has no page yet, so its card isn't a link; it carries its own signup to
+                     the one Slypork list (the same Buttondown form as /kerby/'s). Hidden until
+                     KerBy is out (Companion's plan says when): remove the hidden attribute to show it. -->
                 <div class="kerby-page plugins-kerby orby" hidden>
                     <div class="plugins-kerby-card">
                         <div class="plugins-kerby-shot">
@@ -136,10 +136,19 @@
                         <div class="plugins-kerby-text">
                             <p class="kerby-eyebrow">Instrument plugin</p>
                             <h2 class="font-kerby">OrBy</h2>
-                            <p class="plugins-kerby-tagline">An orrery that plays itself.</p>
+                            <p class="plugins-kerby-tagline">Euclidean grains on a cymatic plate.</p>
                             <p class="kerby-availability">Coming soon · macOS and Windows</p>
-                            <p class="plugins-kerby-cta"><a href="../kerby/#notifyForm">Get updates <span
-                                        aria-hidden="true">→</span></a></p>
+                            <form class="kerby-signup plugins-kerby-signup"
+                                action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
+                                <label for="orbyEmail" class="plugins-kerby-cta block">Get updates</label>
+                                <div class="flex flex-col sm:flex-row gap-3 pt-2 max-w-md">
+                                    <input type="email" id="orbyEmail" name="email" required autocomplete="email"
+                                        placeholder="you@example.com" class="kerby-email">
+                                    <input type="hidden" name="embed" value="1">
+                                    <button type="submit"
+                                        class="kerby-button flex items-center justify-center text-center">Send</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
