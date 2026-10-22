@@ -1,5 +1,133 @@
-@tailwind base;
-@tailwind components;
+/* Tailwind 4, built to give exactly what Tailwind 3 did. Its theme only supplies the scales the
+   utilities read; the base is Tailwind 3's own (tailwind3-base.css). Base and utilities stay
+   outside cascade layers, as in 3, so the hand-written rules below win and lose as they always
+   have. tailwind3-utilities.css, the @theme values and the @custom-variant below restore 3's
+   meaning where 4 changed it. scripts/build-css.mjs then prefixes and minifies as 3 did. */
+@import 'tailwindcss/theme.css';
+@import './tailwind3-base.css';
+@import './tailwind3-utilities.css';
+
+@config '../../tailwind.config.mjs';
+
+/* 3's colours, where this site uses 4's defaults (4's are oklch). */
+@theme {
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-700: #404040;
+  --color-neutral-900: #171717;
+}
+
+/* 3's hover applied on touch screens too; 4's only where the device can hover. */
+@custom-variant hover (&:hover);
+
+/* Tailwind 3's versions of these are in tailwind3-utilities.css. */
+@source not inline('!container');
+@source not inline('-translate-y-0.5');
+@source not inline('-translate-y-1/2');
+@source not inline('-translate-y-14');
+@source not inline('backdrop-blur-sm');
+@source not inline('bg-background');
+@source not inline('bg-black/60');
+@source not inline('bg-primary');
+@source not inline('bg-transparent');
+@source not inline('bg-white');
+@source not inline('blur');
+@source not inline('border');
+@source not inline('border-[#3B82F6]');
+@source not inline('border-[#4C4E50]');
+@source not inline('border-[#60A5FA]');
+@source not inline('border-[rgba(23,');
+@source not inline('border-b');
+@source not inline('border-b-2');
+@source not inline('border-b-[0.5px]');
+@source not inline('border-gray-300');
+@source not inline('border-heading');
+@source not inline('border-neutral-300');
+@source not inline('border-none');
+@source not inline('border-t-[0.5px]');
+@source not inline('container');
+@source not inline('dark:border-[rgba(230,');
+@source not inline('dark:border-neutral-700');
+@source not inline('drop-shadow');
+@source not inline('duration-150');
+@source not inline('duration-300');
+@source not inline('ease-in-out');
+@source not inline('ease-out');
+@source not inline('filter');
+@source not inline('focus:outline-none');
+@source not inline('group-[.nav-active]:block');
+@source not inline('group-[.nav-active]:pb-4');
+@source not inline('hover:scale-110');
+@source not inline('invert');
+@source not inline('leading-none');
+@source not inline('leading-tight');
+@source not inline('lg:w-1/3');
+@source not inline('lg:w-2/3');
+@source not inline('max-w-full');
+@source not inline('max-w-md');
+@source not inline('max-w-xs');
+@source not inline('md:-translate-y-16');
+@source not inline('md:bg-section');
+@source not inline('md:group-[.nav-active]:pb-9');
+@source not inline('md:min-w-36');
+@source not inline('md:rounded-bl-lg');
+@source not inline('md:rounded-bl-none');
+@source not inline('md:text-2xl');
+@source not inline('md:text-5xl');
+@source not inline('md:text-xl');
+@source not inline('md:w-1/3');
+@source not inline('md:w-2/3');
+@source not inline('md:w-[80px]');
+@source not inline('min-w-0');
+@source not inline('min-w-[276px]');
+@source not inline('outline');
+@source not inline('print:bg-section');
+@source not inline('print:border-none');
+@source not inline('print:rounded-none');
+@source not inline('print:w-1/3');
+@source not inline('print:w-2/3');
+@source not inline('ring');
+@source not inline('rounded-2xl');
+@source not inline('rounded-[32px]');
+@source not inline('rounded-bl-lg');
+@source not inline('rounded-br-lg');
+@source not inline('rounded-t-lg');
+@source not inline('rounded-xl');
+@source not inline('scale-100');
+@source not inline('scale-95');
+@source not inline('shadow');
+@source not inline('shadow-lg');
+@source not inline('sm:group-[.nav-active]:pb-0');
+@source not inline('sm:w-[48px]');
+@source not inline('space-y-0.5');
+@source not inline('space-y-1');
+@source not inline('space-y-1.5');
+@source not inline('space-y-2');
+@source not inline('space-y-6');
+@source not inline('text-2xl');
+@source not inline('text-3xl');
+@source not inline('text-base');
+@source not inline('text-lg');
+@source not inline('text-sm');
+@source not inline('text-xl');
+@source not inline('text-xs');
+@source not inline('transform');
+@source not inline('transition');
+@source not inline('transition-opacity');
+@source not inline('translate-y-0');
+@source not inline('translate-y-5');
+@source not inline('w-10');
+@source not inline('w-4');
+@source not inline('w-5');
+@source not inline('w-6');
+@source not inline('w-[64px]');
+@source not inline('w-full');
+
 @tailwind utilities;
 
 /* Main Styles */

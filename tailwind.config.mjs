@@ -43,12 +43,8 @@ export default {
         'sm': '642px', // Even though this is close to default sm: there may be more nav items in the future
         'md': '768px',
         'lg': '1024px',
-        'show-hamburger': { 'raw': '(max-width: 767.98px) and (min-height: 620px)' },
-        'show-nav': { 'raw': '(min-height: 620px)' },
         // /kerby/'s explanation rows sit text-beside-figure only once the viewport
-        // reaches #container's own max width; below that they stack. Named rather
-        // than a min-[1080px] arbitrary variant, which Tailwind refuses while any
-        // screen above is in object form.
+        // reaches #container's own max width; below that they stack.
         'fig-row': '1080px',
       },
     }
