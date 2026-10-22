@@ -97,7 +97,13 @@ simplifying or redrawing the diagram.
   with a KerBy running so its cell is solid); `ducky/ducky-header-kerby-*` is cropped from the
   KerBy one with KerBy's highlight recipe (the preset button and logo faded), and
   `ducky/ducky-mode-*` crops the Tempo/MIDI/KerBy pill from each as KerBy's Live/Draw selector is
-  cropped. There's no site-images recipe for DucKy yet.
+  cropped. There's no site-images recipe for DucKy yet. Its hero's "Get notified at launch" goes to
+  KerBy's signup form (one list, one launch day).
+- OrBy has no page yet, only a card on `/plugins/`, hidden until KerBy is out (Companion's plan
+  says when). The card isn't a link; its "Get updates" goes to KerBy's signup. `OrBy_*mode.webp`
+  are OrBy's First Light editor screenshots, from `ORBY_EDITOR_SHOTS=<dir>
+  build-dev/tests/orby_editor_tests` in slypork-plugins' `OrBy/`, scaled to 1800 px wide and
+  converted with `cwebp -q 88` (as PNGs they're over 1 MB).
 - Captures run from a fresh install's state on Init with the scale on A Minor; the step row and
   keyboard are hidden, and the scopes show one held bar. The Click crop uses the promo click,
   the sampled Wave crop the bass source sample (both in the script's samples folder), and the

@@ -317,6 +317,20 @@
 /* DucKy's page ends on a section, which the frame's own rule already closes. */
 .ducky .kerby-section:last-child { border-bottom: 0; }
 
+/* OrBy's card in its Lake inks: ink A, its text and grid mixes, and the paper (OrBy's Palette.h). */
+.kerby-page.orby {
+    --kb-ink: #1a447e;
+    --kb-accent: #235ba8;
+    --kb-accent-line: #b7c4d3;
+    --kb-panel: #f1ede4;
+    --kb-muted: #565a61;
+}
+@media (prefers-color-scheme: dark) {
+    .kerby-page.orby {
+        --kb-ink: #9ebef2; --kb-accent: #8db2f0; --kb-accent-line: #3c475c; --kb-panel: #1c1d22; --kb-muted: #b3b6bd;
+    }
+}
+
 /* Plugins landing page: one listing card per plugin, kept smaller than the overview's hero. */
 .plugins-kerby { padding: 1rem 0 2.5rem; }
 .plugins-kerby + .plugins-kerby { padding-top: 0; }
@@ -331,7 +345,7 @@
     text-decoration: none;
     transition: border-color .18s ease;
 }
-.plugins-kerby-card:hover { border-color: var(--kb-ink); }
+a.plugins-kerby-card:hover { border-color: var(--kb-ink); }
 .plugins-kerby-card:focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 4px; }
 .plugins-kerby-shot img {
     width: 100%;
@@ -349,11 +363,14 @@
 .plugins-kerby .kerby-availability { margin-top: .5rem; }
 .plugins-kerby-cta { margin-top: 1.2rem; color: var(--kb-ink); font-size: .95rem; font-weight: 500; }
 .plugins-kerby-cta span { display: inline-block; transition: transform .18s ease; }
-.plugins-kerby-card:hover .plugins-kerby-cta span { transform: translateX(4px); }
+a.plugins-kerby-card:hover .plugins-kerby-cta span, .plugins-kerby-cta a:hover span { transform: translateX(4px); }
+/* A card with no page (OrBy's) isn't a link; only its call to action is. */
+.plugins-kerby-cta a { color: inherit; text-decoration: none; }
+.plugins-kerby-cta a:focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 4px; }
 @media (max-width: 767px) {
     .plugins-kerby-card { grid-template-columns: 1fr; padding: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     .plugins-kerby-card, .plugins-kerby-cta span { transition: none; }
-    .plugins-kerby-card:hover .plugins-kerby-cta span { transform: none; }
+    a.plugins-kerby-card:hover .plugins-kerby-cta span, .plugins-kerby-cta a:hover span { transform: none; }
 }
