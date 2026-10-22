@@ -12,7 +12,17 @@ export const heroField = {
     anchor: null,
     travelling: false,
     ringAngle: -0.18,
+    clickable: false,
 };
+
+// The flying pig spins for clicks over its own body; controls beneath keep theirs.
+export function heroPigAt(x, y, target, slack = 0) {
+    if (!heroField.clickable || !heroField.available) return false;
+    if (target?.closest?.('a, button, input, select, textarea, label, iframe, #experimentalMenu, #controls')) {
+        return false;
+    }
+    return Math.hypot(x - heroField.x, y - heroField.y) <= heroField.radius + slack;
+}
 
 const RING_SQUASH = 0.18;
 const breakawayTime = lane => 0.14 + lane * 0.5;

@@ -6,7 +6,7 @@ import {
     SRGBColorSpace, AgXToneMapping, GLTFLoader, EXRLoader,
 } from './vendor/three-pig.js';
 import { END_ANIMATION_DURATION } from './boids/config.js';
-import { heroField } from './boids/hero-field.js';
+import { heroField, heroPigAt } from './boids/hero-field.js';
 import { PigQuality, PIG_QUALITY } from './pig-quality.js';
 
 function modelURL(name) {
@@ -20,6 +20,8 @@ const MAX_WIDTH = 900;
 const SPIN_TURN_DURATION = 0.5;
 const SPIN_SETTLE_DURATION = 0.19;
 const SPIN_DURATION = SPIN_TURN_DURATION + SPIN_SETTLE_DURATION;
+// Extra px around the flying pig for a fingertip to land a tap.
+const TOUCH_PIG_SLACK = 16;
 const SECRET_GLANCES = [0.18, 0.32, 0.46, 0.6];
 const SECRET_PITCH = 0.48;
 const POINTER_PITCH_RANGE = 0.1;
@@ -209,7 +211,7 @@ async function mountPig(stage) {
     };
     const projected = new Vector3();
     const projectedEdge = new Vector3();
-    const pointer = { x: 0, y: 0, active: false, movedAt: 0 };
+    const pointer = { x: 0, y: 0, active: false, movedAt: 0, target: null };
     const nav = document.getElementById('site-nav');
     const navLinks = document.getElementById('navLinks');
     const egg = document.getElementById('easterEgg');
@@ -229,6 +231,13 @@ async function mountPig(stage) {
         return attention.selectedLink || attention.pressedLink || attention.link || focused;
     }
     let hovered = false;
+    // The flying pig has no button under it, so it shows its own pointer.
+    let pointedAt = false;
+    function setPointedAt(value) {
+        if (value === pointedAt) return;
+        pointedAt = value;
+        document.documentElement.classList.toggle('pig-pointed', value);
+    }
     const spin = { angle: 0, from: 0, to: 0, elapsed: SPIN_DURATION, velocity: 0, landing: null };
     const pose = { yaw: REST_YAW, pitch: REST_PITCH, roll: 0, scale: 1 };
     const baseBounds = new Box3().setFromObject(pivot);
@@ -421,6 +430,7 @@ async function mountPig(stage) {
         heroField.y = renderTop + (1 - projected.y) * renderHeight / 2;
         heroField.radius = Math.abs(projectedEdge.x - projected.x) * renderWidth / 2;
         heroField.strength = amount;
+        heroField.clickable = flockActive && !reducedMotion.matches && !burst.phase;
         // Rock through horizontal, using the original tilt as either limit.
         heroField.ringAngle = flight.ringTilt * Math.cos(flight.ringPhase);
         heroField.anchor = target;
@@ -429,6 +439,7 @@ async function mountPig(stage) {
         heroField.travelling = remainingTravel > 10 || hopProgress < 1;
         heroField.available = heroField.x >= 0 && heroField.x <= innerWidth
             && heroField.y >= 0 && heroField.y <= innerHeight;
+        setPointedAt(flockActive && pointer.active && heroPigAt(pointer.x, pointer.y, pointer.target));
         glow.set('--flock-glow', String(1 - amount));
         // All layout reads are complete before changing the backdrop's styles.
         paintGlow();
@@ -516,7 +527,7 @@ async function mountPig(stage) {
         pose.yaw += (yaw - pose.yaw) * follow;
         pose.pitch += (pitch - pose.pitch) * follow;
         pose.roll += (roll - pose.roll) * follow;
-        pose.scale += ((hovered && !flockActive ? 1.035 : 1) - pose.scale) * follow;
+        pose.scale += (((flockActive ? pointedAt : hovered) ? 1.035 : 1) - pose.scale) * follow;
         key.position.x += (lightX - key.position.x) * follow;
         key.position.y += (lightY - key.position.y) * follow;
         positionRims(elapsed);
@@ -529,6 +540,7 @@ async function mountPig(stage) {
         frame = 0;
         lastTime = 0;
         quality.reset();
+        if (!canRender()) setPointedAt(false);
         if (reducedMotion.matches) {
             resetSpin();
             discovery.nodElapsed = SECRET_NOD_DURATION;
@@ -600,14 +612,17 @@ async function mountPig(stage) {
         burst.elapsed = 0;
     }
 
-    // setupNavigation runs first, so aria-expanded reflects this click's result.
-    stage.addEventListener('click', () => {
-        if (stage.getAttribute('aria-expanded') !== 'true' || reducedMotion.matches || burst.phase) return;
+    function startSpin() {
+        if (reducedMotion.matches || burst.phase) return;
         spin.from = spin.angle;
         spin.to += Math.PI * 2;
         spin.elapsed = 0;
         spin.landing = null;
         attention.glance = 0;
+    }
+    // setupNavigation runs first, so aria-expanded reflects this click's result.
+    stage.addEventListener('click', () => {
+        if (stage.getAttribute('aria-expanded') === 'true') startSpin();
     });
 
     function resize() {
@@ -629,6 +644,7 @@ async function mountPig(stage) {
         pointer.y = event.clientY;
         pointer.active = true;
         pointer.movedAt = performance.now();
+        pointer.target = event.target;
     }
     function updateAttention() {
         if (reducedMotion.matches) sync();
@@ -688,6 +704,10 @@ async function mountPig(stage) {
         attention.selectedLink = null;
         attention.pressedLink = touchLink;
         trackPointer(event);
+        const slack = event.pointerType === 'mouse' ? 0 : TOUCH_PIG_SLACK;
+        if (flockActive && event.button === 0 && heroPigAt(event.clientX, event.clientY, event.target, slack)) {
+            startSpin();
+        }
         updateAttention();
     }, { passive: true });
     for (const type of ['pointerup', 'pointercancel']) {

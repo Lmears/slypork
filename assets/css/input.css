@@ -531,6 +531,8 @@ h1 {
    receive pointer gestures across the stage's original, much larger area. */
 .pig-flocking { pointer-events: none; }
 .pig-flocking .pig-hint { opacity: 0; }
+/* pig.js sets this while the cursor is over the flying pig, which spins on click. */
+.pig-pointed, .pig-pointed * { cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
     .pig-stage, .pig-stage canvas { transition: none; }
