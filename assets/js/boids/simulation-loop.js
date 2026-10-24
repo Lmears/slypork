@@ -3,6 +3,7 @@ import { updateBoidRuntimeValues } from './boid.js';
 import { updateMenuValues } from './settings.js';
 import { applyObstacleAvoidanceForces } from './obstacle.js';
 import { TARGET_FPS, TIME_SCALE_MIN, TIME_SCALE_MAX, TIME_SCALE_SMOOTHING } from './config.js';
+import { flockQuality } from './flock-quality.js';
 
 /**
  * Encapsulates the simulation animation loop and frame-by-frame updates.
@@ -33,6 +34,8 @@ export class SimulationLoop {
      */
     animate() {
         const currentTime = performance.now();
+        // A new level's population reaches the flock through its responsive size.
+        if (flockQuality.sample(currentTime)) this.state.matchViewport();
         const timeScale = this.updateFrameTiming(currentTime);
         this.updateSpeedMultiplier(timeScale);
         this.renderFrame(currentTime, timeScale);

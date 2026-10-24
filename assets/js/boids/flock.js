@@ -1,19 +1,17 @@
 import { Boid } from './boid.js';
 import { Vector, vectorPool, toroidalDistance } from './vector.js';
+import { responsiveFlockSize } from './flock-quality.js';
 import {
-    FLOCK_DENSITY,
-    MIN_BOIDS,
-    MAX_BOIDS_PER_1000PX_WIDTH,
     MITOSIS_BOOST_STRENGTH,
     MAX_FLOCK_SIZE_HARD_CAP,
     BOID_DYING_DURATION,
 } from './config.js';
 
 export class Flock {
-    constructor(simParams, canvas, spatialGrid) {
+    constructor(simParams, view, spatialGrid) {
         this.boids = [];
         this.simParams = simParams;
-        this.canvas = canvas;
+        this.view = view;
         this.spatialGrid = spatialGrid;
     }
 
@@ -67,7 +65,7 @@ export class Flock {
                 const { distSq } = toroidalDistance(
                     candidate.position.x, candidate.position.y,
                     other.position.x, other.position.y,
-                    this.canvas.width, this.canvas.height
+                    this.view.width, this.view.height
                 );
 
                 if (distSq < radiusSq) {
@@ -159,15 +157,11 @@ export class Flock {
     }
 
     /**
-     * Calculates the desired flock size based on canvas area and density settings.
+     * Sets the flock size for the viewport and the current quality level.
      * @param {function} updateMenuValues - Function to update the UI menu.
      */
     updateResponsiveSize(updateMenuValues) {
-        const maxBoids = (this.canvas.width / 1000) * MAX_BOIDS_PER_1000PX_WIDTH;
-        let targetSize = this.canvas.width * this.canvas.height * FLOCK_DENSITY;
-        targetSize = Math.max(MIN_BOIDS, targetSize);
-        targetSize = Math.min(maxBoids, targetSize);
-        this.simParams.FLOCK_SIZE = Math.floor(targetSize);
+        this.simParams.FLOCK_SIZE = responsiveFlockSize(this.view.width, this.view.height);
         updateMenuValues({ FLOCK_SIZE: this.simParams.FLOCK_SIZE });
     }
 
@@ -198,11 +192,7 @@ export class Flock {
         this.clear();
 
         if (useResponsiveSize) {
-            const maxBoids = (this.canvas.width / 1000) * MAX_BOIDS_PER_1000PX_WIDTH;
-            let targetSize = this.canvas.width * this.canvas.height * FLOCK_DENSITY;
-            targetSize = Math.max(MIN_BOIDS, targetSize);
-            targetSize = Math.min(maxBoids, targetSize);
-            this.simParams.FLOCK_SIZE = Math.floor(targetSize);
+            this.simParams.FLOCK_SIZE = responsiveFlockSize(this.view.width, this.view.height);
         }
 
         for (let i = 0; i < this.simParams.FLOCK_SIZE; i++) {

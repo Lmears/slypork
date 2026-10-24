@@ -3,6 +3,7 @@ import { SimulationLoop } from './simulation-loop.js';
 import { initializeSystem, setupAppLifecycleListeners, resetSimulationParameters } from './initialization.js';
 import { updateSpatialGridParameters } from './spatial-grid.js';
 import { dispatchEvent } from './ui-utils.js';
+import { flockQuality } from './flock-quality.js';
 
 /**
  * Simulation Orchestrator
@@ -43,10 +44,12 @@ async function startSimulation() {
     }
 
     // Prepare systems and create flock
-    updateSpatialGridParameters(state.spatialGrid, state.canvas, () => state.calculateCurrentCellSize());
+    updateSpatialGridParameters(state.spatialGrid, state.view, () => state.calculateCurrentCellSize());
     state.flock.initialize(!state.userHasSetFlockSize);
 
     // Start animation loop
+    flockQuality.reset();
+    flockQuality.active = true;
     state.startRun();
     loop.start();
 
@@ -59,6 +62,7 @@ async function startSimulation() {
  */
 function stopSimulation() {
     loop.stop();
+    flockQuality.active = false;
     state.clearSimulation();
     resetSimulationParameters(state);
 

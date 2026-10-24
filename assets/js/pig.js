@@ -8,6 +8,7 @@ import {
 import { END_ANIMATION_DURATION } from './boids/config.js';
 import { heroField, heroPigAt } from './boids/hero-field.js';
 import { PigQuality, PIG_QUALITY } from './pig-quality.js';
+import { flockQuality } from './boids/flock-quality.js';
 
 function modelURL(name) {
     const suffix = name === 'full' ? '' : `-${name}`;
@@ -77,6 +78,7 @@ async function mountPig(stage) {
     const canvas = stage.querySelector('canvas');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const quality = new PigQuality({ coarsePointer: matchMedia('(pointer: coarse)').matches });
+    quality.shedsAfter(flockQuality);
     const initialModel = PIG_QUALITY[quality.level].model;
     const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setClearColor(0x000000, 0);
@@ -540,6 +542,7 @@ async function mountPig(stage) {
         frame = 0;
         lastTime = 0;
         quality.reset();
+        quality.active = canRender() && !reducedMotion.matches;
         if (!canRender()) setPointedAt(false);
         if (reducedMotion.matches) {
             resetSpin();

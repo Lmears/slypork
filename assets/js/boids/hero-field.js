@@ -1,4 +1,5 @@
-import { TARGET_FPS, FLOCK_DENSITY, MIN_BOIDS, MAX_BOIDS_PER_1000PX_WIDTH, DEFAULT_SIM_PARAMS } from './config.js';
+import { TARGET_FPS, DEFAULT_SIM_PARAMS } from './config.js';
+import { responsiveFlockSize } from './flock-quality.js';
 
 // Shared screen-space position of the homepage's 3D flock leader. Other pages
 // never publish a position and retain the corner egg's original behaviour.
@@ -56,9 +57,9 @@ export function updateHeroOrbits(flock, timeScale, speedMultiplier) {
     const active = heroField.available && heroField.active && heroField.strength > 0.08 && !heroField.travelling;
     breakawayCooldown = active ? Math.max(0, breakawayCooldown - dt) : 0;
     // Preserve the original density at the responsive default. The same disk
-    // fills more densely when the user increases the population.
-    const baseline = Math.max(MIN_BOIDS, Math.min(innerWidth * innerHeight * FLOCK_DENSITY,
-        innerWidth / 1000 * MAX_BOIDS_PER_1000PX_WIDTH));
+    // fills more densely when the user increases the population, and keeps its
+    // boids when a slow device thins the flock.
+    const baseline = responsiveFlockSize(innerWidth, innerHeight);
     let living = 0;
     for (const boid of flock) if (!boid.isDying) living++;
     const limit = Math.min(living, Math.max(1, Math.round((innerWidth < 600 ? 22 : 30) * living / baseline)));

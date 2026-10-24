@@ -31,10 +31,14 @@ import {
  * more fade has gone by. At that point the trail there is below half a step of
  * 8-bit alpha, so the clear can only take away what is already rounding error —
  * which is exactly the stain.
+ *
+ * The grid is in the canvas's own pixels, so cleared cells cover whole pixels;
+ * boids report their positions in CSS pixels.
  */
 class TrailRegionTracker {
-    constructor(cellSize) {
-        this.cellSize = cellSize;
+    constructor() {
+        this.cellSize = TRAIL_CELL_SIZE;
+        this.pixelRatio = 1;
         this.width = 0;
         this.height = 0;
         this.cols = 0;
@@ -47,14 +51,17 @@ class TrailRegionTracker {
     }
 
     /**
-     * Rebuilds the grid when the canvas dimensions change. Assigning canvas.width
-     * wipes the canvas, so the fresh cells correctly start out with no ink.
+     * Rebuilds the grid when the canvas changes. Renderer.resize wipes the canvas
+     * whenever it does, so the fresh cells correctly start out with no ink.
      */
-    matchCanvas(width, height) {
-        if (width === this.width && height === this.height) return;
+    matchCanvas(width, height, pixelRatio) {
+        if (width === this.width && height === this.height && pixelRatio === this.pixelRatio) return;
 
         this.width = width;
         this.height = height;
+        this.pixelRatio = pixelRatio;
+        // Cells keep their size on the page at any pixel ratio.
+        this.cellSize = Math.max(1, Math.round(TRAIL_CELL_SIZE * pixelRatio));
         this.cols = Math.max(1, Math.ceil(width / this.cellSize));
         this.rows = Math.max(1, Math.ceil(height / this.cellSize));
         this.paintedAt = new Float64Array(this.cols * this.rows);
@@ -77,7 +84,10 @@ class TrailRegionTracker {
     markPainted(x, y, halfExtent) {
         if (!this.cols) return;
 
-        const { cellSize, cols, rows } = this;
+        const { cellSize, cols, rows, pixelRatio } = this;
+        x *= pixelRatio;
+        y *= pixelRatio;
+        halfExtent *= pixelRatio;
         const firstCol = Math.floor((x - halfExtent) / cellSize);
         const firstRow = Math.floor((y - halfExtent) / cellSize);
         const colSpan = Math.min(cols, Math.floor((x + halfExtent) / cellSize) - firstCol + 1);
@@ -132,10 +142,11 @@ class TrailRegionTracker {
 }
 
 export class Renderer {
-    constructor(canvas, ctx) {
+    constructor(canvas, ctx, view) {
         this.canvas = canvas;
         this.ctx = ctx;
-        this.trailTracker = new TrailRegionTracker(TRAIL_CELL_SIZE);
+        this.view = view;
+        this.trailTracker = new TrailRegionTracker();
         // Whether the float16 buffer was actually granted (see initializeDOMReferences).
         // Anything unreported is treated as the 8-bit fallback, which is the safe
         // assumption for the trail fade below.
@@ -160,6 +171,37 @@ export class Renderer {
                 pigCanvas.after(this.frontCanvas);
             }
         }
+        this.surfaces = [[canvas, ctx]];
+        if (this.frontCtx && this.orbitBackCtx) {
+            this.surfaces.push([this.frontCanvas, this.frontCtx], [this.orbitBackCanvas, this.orbitBackCtx]);
+        }
+    }
+
+    /**
+     * Sizes every surface to the viewport. The simulation works in CSS pixels
+     * and each context's transform scales that up to its backing store.
+     *
+     * Assigning a dimension wipes a canvas, so it's only done for a real change;
+     * a resize that reported the same size would otherwise wipe the trails out
+     * from under the tracker's record of what it has painted.
+     */
+    resize(width, height, pixelRatio) {
+        const backingWidth = Math.round(width * pixelRatio);
+        const backingHeight = Math.round(height * pixelRatio);
+        const changed = pixelRatio !== this.view.pixelRatio
+            || backingWidth !== this.canvas.width || backingHeight !== this.canvas.height;
+        Object.assign(this.view, { width, height, pixelRatio });
+
+        for (const [canvas, ctx] of this.surfaces) {
+            if (changed) {
+                canvas.width = backingWidth;
+                canvas.height = backingHeight;
+            }
+            ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        }
+        this.canvas.style.width = `${width}px`;
+        this.canvas.style.height = `${height}px`;
+        this.trailTracker.matchCanvas(backingWidth, backingHeight, pixelRatio);
     }
 
     /**
@@ -189,8 +231,6 @@ export class Renderer {
         this.fadeSurface(this.canvas, this.ctx, this.trailTracker, timeScale, this.hasFloatBuffer);
         if (this.frontCtx && this.orbitBackCtx) {
             for (const [canvas, ctx] of [[this.frontCanvas, this.frontCtx], [this.orbitBackCanvas, this.orbitBackCtx]]) {
-                if (canvas.width !== this.canvas.width) canvas.width = this.canvas.width;
-                if (canvas.height !== this.canvas.height) canvas.height = this.canvas.height;
                 canvas.style.display = heroField.available ? 'block' : 'none';
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
@@ -198,10 +238,11 @@ export class Renderer {
     }
 
     fadeSurface(canvas, ctx, tracker, timeScale, hasFloatBuffer) {
-        tracker.matchCanvas(canvas.width, canvas.height);
-
         const exponent = hasFloatBuffer ? timeScale : Math.max(1, timeScale);
         const fade = 1 - Math.pow(1 - TRAIL_FADE_ALPHA, exponent);
+        ctx.save();
+        // In the canvas's own pixels, like the tracker's cells.
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.globalCompositeOperation = 'destination-out';
         ctx.fillStyle = `rgba(0, 0, 0, ${fade})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -209,6 +250,7 @@ export class Renderer {
 
         tracker.advance(fade);
         tracker.sweep(ctx);
+        ctx.restore();
     }
 
     drawFlock(flock, currentTime) {
@@ -235,7 +277,7 @@ export class Renderer {
      * Draws the spatial grid visualization for debugging.
      */
     drawGridDebug(spatialGrid) {
-        drawGridVisualization(spatialGrid, this.ctx, this.canvas);
+        drawGridVisualization(spatialGrid, this.ctx, this.view);
     }
 
     /**
@@ -255,8 +297,6 @@ export class Renderer {
         const minDist = 10;
         const maxDist = 150;
         const range = maxDist - minDist;
-        const halfWidth = this.canvas.width / 2;
-        const halfHeight = this.canvas.height / 2;
 
         // Use a Set to ensure each pair is drawn only once per frame.
         const drawnPairs = new Set();
@@ -280,7 +320,7 @@ export class Renderer {
                 const { dx, dy, distSq } = toroidalDistance(
                     boid.position.x, boid.position.y,
                     other.position.x, other.position.y,
-                    this.canvas.width, this.canvas.height
+                    this.view.width, this.view.height
                 );
 
                 const dist = Math.sqrt(distSq);
@@ -312,8 +352,8 @@ export class Renderer {
         // The convergence is a per-frame lerp; compound it so the flock reaches the
         // easter egg at the same moment the time-based progress does, on any display.
         const converge = 1 - Math.pow(0.9, timeScale);
-        const targetX = heroField.available ? heroField.x : this.canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-        const targetY = heroField.available ? heroField.y : this.canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+        const targetX = heroField.available ? heroField.x : this.view.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+        const targetY = heroField.available ? heroField.y : this.view.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
         const targetPosForEnding = vectorPool.get(targetX, targetY);
 
         if (this.homecomingStart !== endStartTime) {

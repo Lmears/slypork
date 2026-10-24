@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { PigQuality, PIG_QUALITY } from '../assets/js/pig-quality.js';
+import { FrameQuality } from '../assets/js/frame-quality.js';
 
 function simulate(controller, interval, duration, start = 1000) {
     for (let time = start; time < start + duration; time += interval) controller.sample(time);
@@ -61,6 +62,53 @@ test('failed recovery probes back off instead of switching every few seconds', (
     simulate(quality, 1000 / 30, 2600, time);
     assert.equal(quality.level, 1);
     assert.equal(quality.recoveryDelay, 16000);
+});
+
+function simulateBoth(first, second, interval, duration, start = 1000) {
+    for (let time = start; time < start + duration; time += interval) {
+        first.sample(time);
+        second.sample(time);
+    }
+    return start + duration;
+}
+
+test('the pig keeps full quality while an active flock can still shed load', () => {
+    const flock = new FrameQuality(5);
+    const pig = new PigQuality();
+    pig.shedsAfter(flock);
+    flock.active = pig.active = true;
+    simulateBoth(flock, pig, 1000 / 30, 9000);
+    assert.equal(pig.level, 0);
+    assert.ok(flock.level > 0);
+    simulateBoth(flock, pig, 1000 / 30, 30000, 10000);
+    assert.equal(flock.level, 4);
+    assert.ok(pig.level > 0);
+});
+
+test('a stopped flock leaves the pig to adapt on its own', () => {
+    const flock = new FrameQuality(5);
+    const pig = new PigQuality();
+    pig.shedsAfter(flock);
+    pig.active = true;
+    simulate(pig, 1000 / 30, 14000);
+    assert.equal(pig.level, PIG_QUALITY.length - 1);
+});
+
+test('the flock recovers only once the pig is back to its starting tier', () => {
+    const flock = new FrameQuality(5);
+    const pig = new PigQuality();
+    pig.shedsAfter(flock);
+    flock.active = pig.active = true;
+    let time = simulateBoth(flock, pig, 1000 / 30, 40000);
+    assert.ok(pig.level > 0 && flock.level === 4);
+    for (; pig.level > 0; time += 1000 / 60) {
+        flock.sample(time);
+        pig.sample(time);
+        assert.equal(flock.level, 4);
+    }
+    simulateBoth(flock, pig, 1000 / 60, 200000, time);
+    assert.equal(pig.level, 0);
+    assert.equal(flock.level, 0);
 });
 
 async function glb(name) {

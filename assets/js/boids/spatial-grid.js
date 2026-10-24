@@ -122,9 +122,9 @@ export class SpatialGrid {
  * Draws the spatial grid on the canvas for debugging purposes.
  * @param {SpatialGrid} gridInstance - The spatial grid to visualize.
  * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
- * @param {HTMLCanvasElement} canvas - The canvas element for dimensions.
+ * @param {Object} view - The simulation's dimensions.
  */
-export function drawGridVisualization(gridInstance, ctx, canvas) {
+export function drawGridVisualization(gridInstance, ctx, view) {
     if (!gridInstance) return;
     ctx.strokeStyle = 'rgba(128, 128, 128, 0.3)';
     ctx.lineWidth = 0.5;
@@ -132,13 +132,13 @@ export function drawGridVisualization(gridInstance, ctx, canvas) {
     for (let i = 0; i <= gridInstance.numCols; i++) {
         ctx.beginPath();
         ctx.moveTo(i * gridInstance.cellSize, 0);
-        ctx.lineTo(i * gridInstance.cellSize, canvas.height);
+        ctx.lineTo(i * gridInstance.cellSize, view.height);
         ctx.stroke();
     }
     for (let i = 0; i <= gridInstance.numRows; i++) {
         ctx.beginPath();
         ctx.moveTo(0, i * gridInstance.cellSize);
-        ctx.lineTo(canvas.width, i * gridInstance.cellSize);
+        ctx.lineTo(view.width, i * gridInstance.cellSize);
         ctx.stroke();
     }
 }
@@ -190,15 +190,15 @@ export function drawNeighborhoodVisualization(boid, gridInstance, ctx, cellSize)
  * Updates spatial grid cell size and dimensions.
  * Used when starting simulation or when parameters change.
  * @param {SpatialGrid} spatialGrid - The spatial grid instance to update
- * @param {Object} canvas - The canvas element
+ * @param {Object} view - The simulation's dimensions
  * @param {Function} calculateCellSize - Function that returns the new cell size
  */
-export function updateSpatialGridParameters(spatialGrid, canvas, calculateCellSize) {
+export function updateSpatialGridParameters(spatialGrid, view, calculateCellSize) {
     const newCellSize = calculateCellSize();
 
     if (spatialGrid) {
         spatialGrid.cellSize = newCellSize;
-        spatialGrid.resize(canvas.width, canvas.height);
+        spatialGrid.resize(view.width, view.height);
     }
 }
 

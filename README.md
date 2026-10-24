@@ -79,6 +79,12 @@ device-name guesses or animation frame cap are used. On lower tiers the blurred
 CSS backdrop updates at 15 Hz while
 the model and lights continue animating every frame. Canvas bounds follow the
 projected model, with allocation slack to avoid constant buffer resizing.
+The flock adapts the same way (`frame-quality.js` is shared), through
+`boids/flock-quality.js`: its canvases draw at up to 2x pixel density, and
+sustained pressure thins the flock and drops them towards 1x. It goes first: the
+pig gives up quality only once the flock is at its lowest level, and the flock
+recovers only once the pig is back to its starting tier. Thinning leaves the
+ring around the pig as it is.
 Run `node --test scripts/check-pig-performance.mjs` to check adaptive quality
 and verify that the generated models retain the source vertex attributes.
 

@@ -45,7 +45,7 @@ function neighborWeight(dist, radius) {
 
 // Module-level variables that the Boid class needs access to
 // These will be injected via setBoidDependencies()
-let canvas = null;
+let view = null;
 let ctx = null;
 let simParams = null;
 let speedMultiplier = 1;
@@ -53,6 +53,7 @@ let mouseInfluence = false;
 let boidsIgnoreMouse = false;
 let mouse = null;
 let boidImageBitmap = null;
+let denseBoidImageBitmap = null;
 let trailTracker = null;
 let frontCtx = null;
 let orbitBackCtx = null;
@@ -70,11 +71,12 @@ let rotationBlend = 0;
  * Must be called before creating any boids.
  */
 export function setBoidDependencies(dependencies) {
-    canvas = dependencies.canvas;
+    view = dependencies.view;
     ctx = dependencies.ctx;
     simParams = dependencies.simParams;
     mouse = dependencies.mouse;
     boidImageBitmap = dependencies.boidImageBitmap;
+    denseBoidImageBitmap = dependencies.denseBoidImageBitmap;
     trailTracker = dependencies.trailTracker;
     frontCtx = dependencies.frontCtx;
     orbitBackCtx = dependencies.orbitBackCtx;
@@ -123,8 +125,8 @@ export class Boid {
 
         } else {
             // Initial spawn logic (at the easter egg location)
-            const easterEggCenterX = canvas.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
-            const easterEggCenterY = canvas.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
+            const easterEggCenterX = view.width - EASTER_EGG_RIGHT - EASTER_EGG_WIDTH / 2;
+            const easterEggCenterY = view.height + EASTER_EGG_BOTTOM - EASTER_EGG_HEIGHT / 2 - 10;
 
             this.position = vectorPool.get(
                 easterEggCenterX + (Math.random() - 0.5) * EASTER_EGG_WIDTH * SPREAD_FACTOR,
@@ -189,10 +191,10 @@ export class Boid {
     }
 
     edges() {
-        if (this.position.x > canvas.width) this.position.x = 0;
-        else if (this.position.x < 0) this.position.x = canvas.width;
-        if (this.position.y > canvas.height) this.position.y = 0;
-        else if (this.position.y < 0) this.position.y = canvas.height;
+        if (this.position.x > view.width) this.position.x = 0;
+        else if (this.position.x < 0) this.position.x = view.width;
+        if (this.position.y > view.height) this.position.y = 0;
+        else if (this.position.y < 0) this.position.y = view.height;
     }
 
     calculateFlockingForces(localNeighbors, timeScale) {
@@ -239,7 +241,7 @@ export class Boid {
             const { dx: tdx, dy: tdy, distSq: dSq } = toroidalDistance(
                 this.position.x, this.position.y,
                 other.position.x, other.position.y,
-                canvas.width, canvas.height
+                view.width, view.height
             );
 
             if (dSq >= maxRadiusSq) continue;
@@ -547,8 +549,8 @@ export class Boid {
         const margin = this.renderSize;
 
         // If the boid is safely away from all edges, draw it just once.
-        if (this.position.x > margin && this.position.x < canvas.width - margin &&
-            this.position.y > margin && this.position.y < canvas.height - margin) {
+        if (this.position.x > margin && this.position.x < view.width - margin &&
+            this.position.y > margin && this.position.y < view.height - margin) {
 
             this.drawAt(this.position, currentTime);
 
@@ -565,13 +567,14 @@ export class Boid {
 
     calculateBufferPosition(offset) {
         return {
-            x: this.position.x + offset.dx * canvas.width,
-            y: this.position.y + offset.dy * canvas.height
+            x: this.position.x + offset.dx * view.width,
+            y: this.position.y + offset.dy * view.height
         };
     }
 
     drawAt(position, currentTime) {
-        if (!boidImageBitmap) return;
+        const sprite = view.pixelRatio > 1 ? denseBoidImageBitmap : boidImageBitmap;
+        if (!sprite) return;
         const orbit = heroField.available && frontCtx && orbitBackCtx ? this.orbit : null;
         const drawCtx = orbit ? (orbit.point.depth > 0 ? frontCtx : orbitBackCtx) : ctx;
         drawCtx.save();
@@ -628,22 +631,22 @@ export class Boid {
             ctx.globalAlpha = opacity * (1 - orbitBlend);
             ctx.translate(position.x, position.y);
             ctx.rotate(this.rotation + Math.PI / 2);
-            ctx.drawImage(boidImageBitmap, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
+            ctx.drawImage(sprite, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
             ctx.restore();
         }
         drawCtx.globalAlpha = opacity * (orbit ? orbitBlend : 1);
         drawCtx.translate(position.x, position.y);
         drawCtx.rotate(this.rotation + Math.PI / 2);
-        drawCtx.drawImage(boidImageBitmap, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
+        drawCtx.drawImage(sprite, -finalRenderSize / 2, -finalRenderSize / 2, finalRenderSize, finalRenderSize);
         drawCtx.restore();
     }
 
     isPositionVisible(pos) {
         const halfSize = this.renderSize / 2;
         return pos.x + halfSize > 0 &&
-            pos.x - halfSize < canvas.width &&
+            pos.x - halfSize < view.width &&
             pos.y + halfSize > 0 &&
-            pos.y - halfSize < canvas.height;
+            pos.y - halfSize < view.height;
     }
 
     calculateRenderSize() {

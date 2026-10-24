@@ -11,6 +11,7 @@ import {
 
 // Module-level dependencies (matches the pattern in boid.js)
 let canvas = null;
+let view = null;
 let simParams = null;
 
 /**
@@ -82,8 +83,8 @@ export class Obstacle {
 
         // Draw all 9 toroidal copies of the obstacle's influence area
         for (const offset of EDGE_BUFFER_POSITIONS) {
-            const offsetX = offset.dx * canvas.width;
-            const offsetY = offset.dy * canvas.height;
+            const offsetX = offset.dx * view.width;
+            const offsetY = offset.dy * view.height;
 
             const influenceBounds = {
                 left: this.paddedBounds.left - influenceRadius + offsetX,
@@ -126,6 +127,7 @@ export class Obstacle {
  */
 export function setObstacleDependencies(deps) {
     canvas = deps.canvas;
+    view = deps.view;
     simParams = deps.simParams;
 }
 
@@ -215,8 +217,8 @@ export function applyObstacleAvoidanceForces(obstacles, spatialGrid, timeScale) 
             const margin = simParams.OBSTACLE_RADIUS + boidRadius;
 
             const boidIsFarFromEdges =
-                boid.position.x > margin && boid.position.x < canvas.width - margin &&
-                boid.position.y > margin && boid.position.y < canvas.height - margin;
+                boid.position.x > margin && boid.position.x < view.width - margin &&
+                boid.position.y > margin && boid.position.y < view.height - margin;
 
             // If the boid is far from the edges, we only need to check the primary position (offset 0,0).
             // Otherwise, we check all 9 positions for a seamless wrap.
@@ -224,8 +226,8 @@ export function applyObstacleAvoidanceForces(obstacles, spatialGrid, timeScale) 
 
             // Check against all 9 toroidal images of the obstacle to find the most critical interaction.
             for (const offset of offsetsToCheck) {
-                const offsetX = offset.dx * canvas.width;
-                const offsetY = offset.dy * canvas.height;
+                const offsetX = offset.dx * view.width;
+                const offsetY = offset.dy * view.height;
                 const effectiveObsPadded = {
                     left: obstacle.paddedBounds.left + offsetX,
                     top: obstacle.paddedBounds.top + offsetY,

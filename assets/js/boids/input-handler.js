@@ -163,19 +163,8 @@ export class InputHandler {
 
     // Window event handlers
     resizeHandler() {
-        // Only assign when the size actually changed. Assigning at all wipes the
-        // canvas, and a resize that reports the same dimensions would wipe the
-        // trails out from under the renderer's record of what it has painted.
-        if (this.canvas.width !== window.innerWidth) {
-            this.canvas.width = window.innerWidth;
-        }
-        if (this.canvas.height !== window.innerHeight) {
-            this.canvas.height = window.innerHeight;
-        }
-
-        if (this.deps.spatialGrid) {
-            this.deps.spatialGrid.resize(this.canvas.width, this.canvas.height);
-        }
+        // Zooming changes devicePixelRatio, so this covers it too.
+        this.deps.matchViewport();
         this.deps.updateAllObstacles();
 
         // If simulation is running and in responsive mode, update the target flock size.

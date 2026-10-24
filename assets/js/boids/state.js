@@ -1,5 +1,6 @@
 import { vectorPool } from './vector.js';
 import { DEFAULT_SIM_PARAMS, DEPTH_INFLUENCE_RADIUS } from './config.js';
+import { flockPixelRatio } from './flock-quality.js';
 
 /**
  * SimulationState
@@ -21,6 +22,11 @@ export class SimulationState {
         this.spatialGrid = null;
         this.allObstacles = [];
         this.boidImageBitmap = null;
+        this.denseBoidImageBitmap = null;
+
+        // The simulation's space, in CSS pixels. The canvases' backing stores
+        // are pixelRatio times larger.
+        this.view = { width: 0, height: 0, pixelRatio: 1 };
 
         // UI References
         this.canvas = null;
@@ -74,6 +80,11 @@ export class SimulationState {
     resetSimParams() {
         Object.assign(this.simParams, DEFAULT_SIM_PARAMS);
         this.userHasSetFlockSize = false;
+    }
+
+    matchViewport() {
+        this.renderer.resize(window.innerWidth, window.innerHeight, flockPixelRatio());
+        this.spatialGrid?.resize(this.view.width, this.view.height);
     }
 
     calculateCurrentCellSize() {

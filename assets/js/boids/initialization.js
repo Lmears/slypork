@@ -67,7 +67,6 @@ export async function initializeSystem(state) {
 
     try {
         await loadAndPrepareImage(state);
-        initializeCanvas(state);
         initializeSimulationSystems(state);
         initializeDependencyInjection(state);
         initializeUI(state);
@@ -80,24 +79,16 @@ export async function initializeSystem(state) {
 }
 
 /**
- * Initializes canvas dimensions
- */
-function initializeCanvas(state) {
-    const { canvas } = state;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
-/**
  * Creates and initializes all simulation systems
  */
 function initializeSimulationSystems(state) {
-    const { canvas, ctx, simParams } = state;
+    const { canvas, ctx, simParams, view } = state;
 
-    state.spatialGrid = new SpatialGrid(canvas.width, canvas.height, state.calculateCurrentCellSize());
+    state.renderer = new Renderer(canvas, ctx, view);
+    state.matchViewport();
+    state.spatialGrid = new SpatialGrid(view.width, view.height, state.calculateCurrentCellSize());
     state.allObstacles = initializeObstacles();
-    state.flock = new Flock(simParams, canvas, state.spatialGrid);
-    state.renderer = new Renderer(canvas, ctx);
+    state.flock = new Flock(simParams, view, state.spatialGrid);
     state.inputHandler = createInputHandler(state);
 }
 
@@ -125,6 +116,7 @@ function createInputHandler(state) {
         debugGridMode: () => state.debugGridMode,
         updateAllObstacles: () => updateAllObstacles(allObstacles),
         updateMenuValues,
+        matchViewport: () => state.matchViewport(),
         setSpeedMultiplier: (value) => { state.speedMultiplier = value; },
         setDebugSelectedBoid: (boid) => { state.debugSelectedBoid = boid; }
     });
@@ -134,11 +126,11 @@ function createInputHandler(state) {
  * Initializes dependency injection for boids and obstacles
  */
 function initializeDependencyInjection(state) {
-    const { canvas, ctx, mouse, simParams, allObstacles, boidImageBitmap, renderer } = state;
+    const { canvas, view, ctx, mouse, simParams, allObstacles, boidImageBitmap, denseBoidImageBitmap, renderer } = state;
 
-    setObstacleDependencies({ canvas, simParams, obstacles: allObstacles });
+    setObstacleDependencies({ canvas, view, simParams, obstacles: allObstacles });
     setBoidDependencies({
-        canvas, ctx, simParams, mouse, boidImageBitmap,
+        view, ctx, simParams, mouse, boidImageBitmap, denseBoidImageBitmap,
         trailTracker: renderer.trailTracker,
         frontCtx: renderer.frontCtx,
         orbitBackCtx: renderer.orbitBackCtx
@@ -171,6 +163,12 @@ async function loadAndPrepareImage(state) {
     state.boidImageBitmap = await createImageBitmap(imageBlob, {
         resizeWidth: 64,
         resizeHeight: 64,
+        resizeQuality: 'high'
+    });
+    // The source's full size, for canvases above 1x.
+    state.denseBoidImageBitmap = await createImageBitmap(imageBlob, {
+        resizeWidth: 96,
+        resizeHeight: 96,
         resizeQuality: 'high'
     });
 }
