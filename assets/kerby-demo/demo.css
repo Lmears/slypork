@@ -71,22 +71,35 @@
 .kd-top { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .kd-presets { display: flex; flex: 1 1 12rem; gap: .3rem; min-width: 0; }
 .kd-preset-name {
+    display: block; /* a block, so a long name ends in an ellipsis rather than being cut */
     flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: calc(var(--kd-plate) - 2px);
+    text-align: center;
     cursor: default;
 }
 .kd-preset-name:hover { opacity: 1; }
-.kd-tempo { display: inline-flex; align-items: center; gap: .3rem; }
-.kd-tempo input {
-    width: 3rem;
+/* Tempo: one plate holding the number and its unit, as KerBy's value fields read ("Length 6.25%"). */
+.kd-tempo {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
     height: var(--kd-plate);
     border: 1px solid var(--kd-mid);
     border-radius: 5px;
+    padding: 0 .5rem 0 .3rem;
+}
+.kd-tempo span { opacity: .75; }
+.kd-tempo input {
+    width: 2.1rem;
+    height: 100%;
+    border: 0;
+    padding: 0;
     background: transparent;
-    text-align: center;
+    text-align: right;
     font-variant-numeric: tabular-nums;
     cursor: ns-resize;
     touch-action: none;
@@ -168,15 +181,22 @@
 .kd-status:empty { display: none; }
 .kd-unsupported :is(.kd-top, .kd-voice, .kd-bottom) { opacity: .4; pointer-events: none; }
 
-/* A phone: Play and tempo on the first line, the presets under them, and each voice's scope under
-   its knobs, full width. */
+/* A phone: the desktop layout, tightened - one line of transport and presets, and each voice one row
+   with its scope beside its knobs - so nothing leaves a gap. */
 @media (max-width: 34rem) {
-    .kd { padding: .6rem; }
-    .kd-tempo { order: 1; margin-left: auto; }
-    .kd-presets { order: 2; flex-basis: 100%; }
-    .kd-voice { grid-template-columns: auto 1fr 1fr; }
-    .kd-knob { justify-self: center; }
-    .kd-knob canvas { width: 3.4rem; height: 3.4rem; }
-    .kd-scope { grid-column: 1 / -1; height: 3.8rem; }
+    .kd { padding: .55rem; }
+    .kd-top { flex-wrap: nowrap; gap: .3rem; }
+    .kd-play { min-width: 0; padding: 0 .55rem; }
+    .kd-presets { flex: 1 1 auto; gap: .3rem; }
+    .kd-preset-prev, .kd-preset-next { min-width: 1.8rem; padding: 0; }
+    .kd-preset-name { padding: 0 .3rem; }
+    .kd-tempo { padding: 0 .4rem 0 .2rem; }
+    .kd-tempo span { font-size: .8em; }
+    .kd-voice { gap: .1rem .35rem; margin-top: .55rem; }
+    .kd-voice-name { font-size: 1rem; }
+    .kd-knob { width: 3.2rem; }
+    .kd-knob canvas { width: 2.8rem; height: 2.8rem; }
+    .kd-scope { height: 4.7rem; }
+    .kd-bottom { margin-top: .6rem; }
     .kd-keys { height: 3.4rem; }
 }

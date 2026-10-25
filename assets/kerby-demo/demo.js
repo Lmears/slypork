@@ -364,9 +364,9 @@ function initDemo(root) {
     const presetName = $('.kd-preset-name');
     const tempoInput = $('.kd-tempo input');
     const nameOf = index => (index < 0 ? 'Init' : presets[index].split('/').pop());
-    // What the demo calls a preset where the factory name only makes sense beside its siblings: the
-    // bank's Techno 1 is the demo's only techno.
-    const DISPLAY_NAME = { 'Techno 1': 'Techno' };
+    // What the demo calls a preset where the factory name only makes sense in the plugin: Init is
+    // the factory bank's Psy patch, and the bank's Techno 1 is the demo's only techno.
+    const DISPLAY_NAME = { 'Init': 'Psy', 'Techno 1': 'Techno' };
 
     function choosePreset(at) {
         if (!presetOrder.length) return;
