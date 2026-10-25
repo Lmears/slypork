@@ -55,6 +55,30 @@ if (document.readyState === 'loading') {
     initNotifyForm();
 }
 
+// The hero's "Play it here" is an anchor to the web demo, so without JS it jumps
+// there with the demo's top edge at the top of the window. With JS the demo lands
+// in the middle of the window instead, where the eye already is. A window too short
+// to hold all of it (a phone on its side) still gets the top edge, so Play stays
+// in view. Like the signup button, it leaves the URL as it was.
+function initDemoLink() {
+    var demo = document.getElementById('kerby-try');
+    if (!demo) return;
+    document.querySelectorAll('a[href="#kerby-try"]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            var fits = demo.getBoundingClientRect().height <= window.innerHeight;
+            demo.scrollIntoView({ block: fits ? 'center' : 'start' });
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDemoLink);
+} else {
+    initDemoLink();
+}
+
 function initKerbyReference() {
     var input = document.getElementById('kerbyReferenceSearch');
     if (!input) return;
