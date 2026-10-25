@@ -24,7 +24,7 @@ function initDemo(root) {
     }
 
     // Tempo for each preset (by name), for the genre it was made for; anything else plays at 128.
-    const PRESET_BPM = { 'DnB': 172, 'Dubstep': 140 };
+    const PRESET_BPM = { 'Init': 160, 'Kerb Stomper': 160, 'DnB': 172, 'Dubstep': 140, 'Donk': 160 };
     const DEFAULT_BPM = 128, MIN_BPM = 60, MAX_BPM = 300;
     // The keyboard's octave for each preset, as Live names them (C1 is MIDI 36, where most of the
     // factory presets are voiced); anything else starts at C1. Switching preset moves a held note
