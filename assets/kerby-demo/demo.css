@@ -1,0 +1,182 @@
+/* The playable KerBy on /kerby/ (demo.js), set as one of the page's plugin figures: KerBy's own
+   theme (KerbyLookAndFeel's light and dark palettes) at the scale the screenshots show it, in a
+   figure with the same 1px frame and small caption as theirs. Phones get bigger touch targets. */
+.kd {
+    --kd-bg: #fff0f5;
+    --kd-midline: #ffc2d1;
+    --kd-grid: #ffb3c6;
+    --kd-mid: #ff8fab;
+    --kd-strong: #ff6f91;
+    --kd-text: #ff4d6d;
+    --kd-kick: #ff4d6d;
+    --kd-bass: #e87dc4;
+    --kd-white-key: var(--kd-bg);   /* KerbyLookAndFeel's keyboard: white keys in the background, */
+    --kd-black-key: var(--kd-text); /* black keys in the text colour (dark mode swaps them) */
+    --kd-plate: 1.75rem;
+    border: 1px solid var(--kb-accent-line, var(--kd-grid));
+    border-radius: var(--kb-image-radius, 8px);
+    padding: .7rem .8rem .8rem;
+    background: var(--kd-bg);
+    color: var(--kd-text);
+    font-size: .8rem;
+    font-weight: 400;
+    line-height: 1.2;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+    .kd {
+        --kd-bg: #2b2226;
+        --kd-midline: #59414c;
+        --kd-grid: #6b4a58;
+        --kd-mid: #ff9fb8;
+        --kd-strong: #ff7d9c;
+        --kd-text: #ffc2d1;
+        --kd-kick: #ff5c82;
+        --kd-bass: #b24d90;
+        --kd-white-key: var(--kd-text);
+        --kd-black-key: var(--kd-midline);
+    }
+}
+@media (pointer: coarse) {
+    .kd { --kd-plate: 2.2rem; font-size: .85rem; }
+}
+.kd button, .kd input {
+    font: inherit;
+    color: inherit;
+}
+.kd :focus-visible { outline: 2px solid var(--kd-text); outline-offset: 2px; }
+
+/* Plates: KerBy's outlined, rounded buttons. Play is lit, as the plugin's LIVE is. */
+.kd-plate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    height: var(--kd-plate);
+    min-width: var(--kd-plate);
+    border: 1px solid var(--kd-mid);
+    border-radius: 5px;
+    padding: 0 .6rem;
+    background: transparent;
+    cursor: pointer;
+}
+.kd-plate:hover { opacity: .7; }
+.kd-play { min-width: 4.6rem; background: var(--kd-strong); border-color: var(--kd-strong); color: var(--kd-bg) !important; }
+.kd-play svg { width: .65rem; height: .65rem; fill: currentColor; }
+.kd-play .kd-stop-glyph, .kd-playing .kd-play .kd-play-glyph { display: none; }
+.kd-playing .kd-play .kd-stop-glyph { display: block; }
+
+.kd-top { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.kd-presets { display: flex; flex: 1 1 12rem; gap: .3rem; min-width: 0; }
+.kd-preset-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: default;
+}
+.kd-preset-name:hover { opacity: 1; }
+.kd-tempo { display: inline-flex; align-items: center; gap: .3rem; }
+.kd-tempo input {
+    width: 3rem;
+    height: var(--kd-plate);
+    border: 1px solid var(--kd-mid);
+    border-radius: 5px;
+    background: transparent;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    cursor: ns-resize;
+    touch-action: none;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.kd-tempo input:focus { cursor: text; }
+/* No spin buttons: the number drags, as KerBy's value fields do. */
+.kd-tempo input::-webkit-inner-spin-button,
+.kd-tempo input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* A voice: its name in the wordmark's face, set vertically as in the plugin, its two knobs, then
+   its scope - beside them where there's room, under them on a phone. */
+.kd-voice {
+    display: grid;
+    grid-template-columns: auto auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: .2rem .6rem;
+    margin-top: .7rem;
+}
+.kd-voice-name {
+    font-family: 'Kiwi Soda', sans-serif;
+    font-size: 1.15rem;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+.kd-knob {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .1rem;
+    width: 4rem;
+    touch-action: none;
+    cursor: ns-resize;
+}
+.kd-knob canvas { width: 3rem; height: 3rem; }
+.kd-knob:hover canvas, .kd-dragging canvas { opacity: .7; }
+.kd-knob-value { font-variant-numeric: tabular-nums; }
+.kd-scope {
+    width: 100%;
+    height: 4.8rem;
+    border: 1px solid var(--kd-grid);
+    border-radius: 6px;
+}
+
+.kd-bottom { display: flex; align-items: stretch; gap: .4rem; margin-top: .8rem; }
+.kd-home { height: auto; }
+.kd-home svg { width: 1.1rem; height: 1.1rem; }
+
+/* One octave and a C. Pressed: the note Play is holding. */
+.kd-keys {
+    position: relative;
+    display: flex;
+    flex: 1;
+    height: 2.8rem;
+    touch-action: none;
+}
+.kd-key {
+    flex: 1;
+    margin-right: -1px;
+    border: 1px solid var(--kd-grid);
+    border-radius: 0 0 4px 4px;
+    background: var(--kd-white-key);
+    cursor: pointer;
+}
+.kd-key-black {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: calc(var(--kd-key-at) * 100% / 8 - 100% / 32);
+    width: calc(100% / 16);
+    height: 60%;
+    background: var(--kd-black-key);
+    border-color: var(--kd-black-key);
+}
+.kd-key-on, .kd-key-black.kd-key-on { background: var(--kd-strong); border-color: var(--kd-strong); }
+
+.kd-status { margin-top: .5rem; font-weight: 300; }
+.kd-status:empty { display: none; }
+.kd-unsupported :is(.kd-top, .kd-voice, .kd-bottom) { opacity: .4; pointer-events: none; }
+
+/* A phone: Play and tempo on the first line, the presets under them, and each voice's scope under
+   its knobs, full width. */
+@media (max-width: 34rem) {
+    .kd { padding: .6rem; }
+    .kd-tempo { order: 1; margin-left: auto; }
+    .kd-presets { order: 2; flex-basis: 100%; }
+    .kd-voice { grid-template-columns: auto 1fr 1fr; }
+    .kd-knob { justify-self: center; }
+    .kd-knob canvas { width: 3.4rem; height: 3.4rem; }
+    .kd-scope { grid-column: 1 / -1; height: 3.8rem; }
+    .kd-keys { height: 3.4rem; }
+}

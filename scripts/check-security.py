@@ -36,14 +36,16 @@ class Page(HTMLParser):
                 words = part.split()
                 if words:
                     self.policy[words[0]] = words[1:]
+            kerby = self.path.relative_to(ROOT).as_posix() == "kerby/index.html"
             for directive, expected in {
-                "default-src": ["'none'"], "script-src": ["'self'"],
+                "default-src": ["'none'"],
+                # The KerBy page runs the instrument's engine as WebAssembly (assets/kerby-demo).
+                # 'wasm-unsafe-eval' lets it compile that and nothing else: JavaScript eval stays blocked.
+                "script-src": ["'self'", "'wasm-unsafe-eval'"] if kerby else ["'self'"],
                 "object-src": ["'none'"], "base-uri": ["'none'"],
                 # Chromium also checks the destination of form redirects. Only the
                 # KerBy signup page needs to return to our own confirmation instructions.
-                "form-action": (["'self'", "https://buttondown.com"]
-                                if self.path.relative_to(ROOT).as_posix() == "kerby/index.html"
-                                else ["https://buttondown.com"]),
+                "form-action": ["'self'", "https://buttondown.com"] if kerby else ["https://buttondown.com"],
             }.items():
                 self.check(self.policy.get(directive) == expected, f"unsafe {directive}")
             self.check("frame-ancestors" not in self.policy, "frame-ancestors needs an HTTP header")
