@@ -67,6 +67,11 @@
 .kd-play svg { width: .65rem; height: .65rem; fill: currentColor; }
 .kd-play .kd-stop-glyph, .kd-playing .kd-play .kd-play-glyph { display: none; }
 .kd-playing .kd-play .kd-stop-glyph { display: block; }
+/* Both words share one cell, so the button is always as wide as the wider and nothing beside it
+   moves when Play turns to Stop. */
+.kd-play-label { display: grid; }
+.kd-play-label > span { grid-area: 1 / 1; }
+.kd:not(.kd-playing) .kd-stop-word, .kd-playing .kd-play-word { visibility: hidden; }
 
 .kd-top { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .kd-presets { display: flex; flex: 1 1 12rem; gap: .3rem; min-width: 0; }

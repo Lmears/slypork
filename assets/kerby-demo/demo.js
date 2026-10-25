@@ -319,7 +319,6 @@ function initDemo(root) {
 
     function showPlaying() {
         playButton.setAttribute('aria-pressed', String(playing));
-        playButton.querySelector('.kd-play-label').textContent = playing ? 'Stop' : 'Play';
         root.classList.toggle('kd-playing', playing);
         showLatched();
     }
