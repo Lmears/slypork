@@ -62,7 +62,9 @@
     background: transparent;
     cursor: pointer;
 }
-.kd-plate:hover { opacity: .7; }
+/* Hover dims only where there's a pointer to hover with: a phone keeps the last thing tapped
+   "hovered", so Stop would stay dim after it's tapped. */
+@media (hover: hover) { .kd-plate:hover { opacity: .7; } }
 .kd-play { min-width: 4.6rem; background: var(--kd-strong); border-color: var(--kd-strong); color: var(--kd-bg) !important; }
 .kd-play svg { width: .65rem; height: .65rem; fill: currentColor; }
 .kd-play .kd-stop-glyph, .kd-playing .kd-play .kd-play-glyph { display: none; }
@@ -86,7 +88,7 @@
     text-align: center;
     cursor: default;
 }
-.kd-preset-name:hover { opacity: 1; }
+@media (hover: hover) { .kd-preset-name:hover { opacity: 1; } }
 /* Tempo: one plate holding the number and its unit, as KerBy's value fields read ("Length 6.25%"). */
 .kd-tempo {
     display: inline-flex;
@@ -141,7 +143,8 @@
     cursor: ns-resize;
 }
 .kd-knob canvas { width: 3rem; height: 3rem; }
-.kd-knob:hover canvas, .kd-dragging canvas { opacity: .7; }
+.kd-dragging canvas { opacity: .7; }
+@media (hover: hover) { .kd-knob:hover canvas { opacity: .7; } }
 .kd-knob-value { font-variant-numeric: tabular-nums; }
 .kd-scope {
     width: 100%;

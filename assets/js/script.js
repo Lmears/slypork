@@ -300,6 +300,17 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('pageshow', measure);
     // Dispatched by toggleNavMenu below, which changes the header's height.
     document.body.addEventListener('layoutChanged', measure);
+    // Dispatched by a page that has just scrolled something into view for the
+    // reader (kerby.js, arriving on the demo): the bar starts slid away, as if
+    // they had scrolled down to it, and only comes back when they scroll up.
+    // Taking the scroll position as read here means the scroll event still on
+    // its way sees no movement.
+    document.body.addEventListener('navTuck', function () {
+        if (menuOpen) return;
+        lastPinnedScroll = Math.max(0, getScrollTop() - stickTop);
+        offset = -navHeight;
+        update();
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', measure);

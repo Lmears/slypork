@@ -60,6 +60,15 @@ if (document.readyState === 'loading') {
 // in the middle of the window instead, where the eye already is. A window too short
 // to hold all of it (a phone on its side) still gets the top edge, so Play stays
 // in view. Like the signup button, it leaves the URL as it was.
+//
+// A link from elsewhere to /kerby/#kerby-try (the Instagram Story's sticker) lands
+// the same way, with the pinned nav tucked away (script.js's navTuck), so the demo
+// is all there is: the browser's own jump would leave the nav over its top row.
+function showDemo(demo) {
+    var fits = demo.getBoundingClientRect().height <= window.innerHeight;
+    demo.scrollIntoView({ block: fits ? 'center' : 'start' });
+}
+
 function initDemoLink() {
     var demo = document.getElementById('kerby-try');
     if (!demo) return;
@@ -67,10 +76,20 @@ function initDemoLink() {
         link.addEventListener('click', function (event) {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             event.preventDefault();
-            var fits = demo.getBoundingClientRect().height <= window.innerHeight;
-            demo.scrollIntoView({ block: fits ? 'center' : 'start' });
+            showDemo(demo);
         });
     });
+    if (location.hash !== '#kerby-try') return;
+    // After load, once the images and fonts above have settled and the nav has
+    // measured itself.
+    var arrive = function () {
+        requestAnimationFrame(function () {
+            showDemo(demo);
+            document.body.dispatchEvent(new CustomEvent('navTuck'));
+        });
+    };
+    if (document.readyState === 'complete') arrive();
+    else window.addEventListener('load', arrive, { once: true });
 }
 
 if (document.readyState === 'loading') {

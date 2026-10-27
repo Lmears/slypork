@@ -290,11 +290,22 @@ function initDemo(root) {
         button.addEventListener('pointerdown', event => {
             if (event.button !== 0) return;
             event.preventDefault();
-            button.setPointerCapture(event.pointerId); // its release comes here, wherever the finger goes
+            button.setPointerCapture(event.pointerId); // its moves and release come here, wherever the finger goes
+            fingers.set(`pointer ${event.pointerId}`, lowest + i);
             pressKey(lowest + i, `pointer ${event.pointerId}`);
         });
+        // A finger dragged along the keys plays each one it reaches, as KerBy's keyboard does.
+        button.addEventListener('pointermove', event => {
+            if (!button.hasPointerCapture(event.pointerId)) return;
+            const under = document.elementFromPoint(event.clientX, event.clientY)?.closest('.kd-key');
+            const j = keyButtons.indexOf(under);
+            if (j >= 0) slideKey(`pointer ${event.pointerId}`, lowest + j);
+        });
         for (const type of ['pointerup', 'pointercancel', 'lostpointercapture'])
-            button.addEventListener(type, event => releaseKey(`pointer ${event.pointerId}`));
+            button.addEventListener(type, event => {
+                fingers.delete(`pointer ${event.pointerId}`);
+                releaseKey(`pointer ${event.pointerId}`);
+            });
         // Enter or Space on a focused key holds it like a finger.
         button.addEventListener('keydown', event => {
             if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -380,6 +391,23 @@ function initDemo(root) {
         showLatched();
         if (!(await audioReady()) || held.get(by) !== note) return; // let go while the engine loaded
         send({ type: 'note-on', note, velocity: VELOCITY });
+    }
+
+    // The key under each finger on the keyboard, Play on or off, so a drag knows when it reaches
+    // another one.
+    const fingers = new Map();
+
+    /** A finger dragged onto another key: the held note moves there (the new note first, a legato change). */
+    function slideKey(by, note) {
+        if (fingers.get(by) === note) return;
+        fingers.set(by, note);
+        if (playing) return start(note);
+        const old = held.get(by);
+        if (old === undefined) return;
+        held.set(by, note);
+        send({ type: 'note-on', note, velocity: VELOCITY });
+        if (![...held.values()].includes(old)) send({ type: 'note-off', note: old });
+        showLatched();
     }
 
     function releaseKey(by) {
