@@ -19,6 +19,8 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.waiting = [];
         this.blocks = 0;
         this.scopeBlocksLeft = 0;
+        this.playing = false;
+        this.held = new Set();
         this.port.onmessage = event => (this.engine ? this.handle(event.data) : this.waiting.push(event.data));
         KerByEngine.create(options.processorOptions.wasm, sampleRate, BLOCK).then(engine => {
             this.engine = engine;
@@ -34,15 +36,30 @@ class KerByWorklet extends AudioWorkletProcessor {
         return { values, slots: { kick: this.engine.rateSlots('kick'), bass: this.engine.rateSlots('bass') } };
     }
 
+    settleScopes() {
+        if (this.playing || this.held.size) this.scopeBlocksLeft = Infinity;
+        else if (this.scopeBlocksLeft === Infinity) this.scopeBlocksLeft = Math.ceil(sampleRate / BLOCK);
+    }
+
     handle(message) {
         const engine = this.engine;
         switch (message.type) {
-            case 'note-on': engine.noteOn(message.note, message.velocity ?? 100); break;
-            case 'note-off': engine.noteOff(message.note); break;
+            // The scopes run while the transport does or a key is held (the keys play with it stopped),
+            // and a second after both stop, to let the last bar draw.
+            case 'note-on':
+                engine.noteOn(message.note, message.velocity ?? 100);
+                this.held.add(message.note);
+                this.scopeBlocksLeft = Infinity;
+                break;
+            case 'note-off':
+                engine.noteOff(message.note);
+                this.held.delete(message.note);
+                this.settleScopes();
+                break;
             case 'transport':
                 engine.setTransport(message.bpm, message.playing);
-                if (message.playing) this.scopeBlocksLeft = Infinity;
-                else this.scopeBlocksLeft = Math.ceil(sampleRate / BLOCK); // let the last bar draw
+                this.playing = message.playing;
+                this.settleScopes();
                 break;
             case 'set': engine.set(message.id, message.value); break;
             case 'preset':

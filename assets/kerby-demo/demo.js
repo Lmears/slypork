@@ -2,9 +2,10 @@
 // audio thread) behind a small interface in KerBy's own look - Play, the two voices' Rate and
 // Glitch knobs, the house button, a keyboard, presets and tempo.
 //
-// Play holds a note for you: the latched note keeps both voices pulsing, a key switches it, and
-// Stop lets go. That's KerBy's Live mode with a held note, which a phone can't otherwise do while
-// a thumb turns Rate.
+// The keys play as KerBy does with the DAW stopped: hold one and both voices pulse from that
+// moment until you let go, so taps play freely. Play starts the transport and holds G for you:
+// the latched note keeps both voices pulsing in time, a key switches it, and Stop lets go. That's
+// KerBy's Live mode with a held note, which a phone can't otherwise do while a thumb turns Rate.
 //
 // The engine loads as the demo nears the screen, so its knobs show the preset before anyone
 // touches them and Play starts at once. Built in the slypork-plugins repository (web/kerby-demo).
@@ -35,6 +36,7 @@ function initDemo(root) {
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
     let lowest = (DEFAULT_OCTAVE + 2) * 12;
     const VELOCITY = 100;
+    const PLAY_KEY = 7; // the note Play holds: G, above the keyboard's C
 
     let context = null, node = null, loading = null;
     let presets = [], presetOrder = [], presetAt = 0;
@@ -285,8 +287,23 @@ function initDemo(root) {
         button.className = black ? 'kd-key kd-key-black' : 'kd-key';
         button.setAttribute('aria-pressed', 'false');
         if (black) button.style.setProperty('--kd-key-at', String([0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6][i % 12] + 7 * Math.floor(i / 12)));
-        button.addEventListener('pointerdown', event => { event.preventDefault(); pressKey(lowest + i); });
-        button.addEventListener('click', event => { if (event.detail === 0) pressKey(lowest + i); }); // keyboard activation
+        button.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId); // its release comes here, wherever the finger goes
+            pressKey(lowest + i, `pointer ${event.pointerId}`);
+        });
+        for (const type of ['pointerup', 'pointercancel', 'lostpointercapture'])
+            button.addEventListener(type, event => releaseKey(`pointer ${event.pointerId}`));
+        // Enter or Space on a focused key holds it like a finger.
+        button.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            if (!event.repeat) pressKey(lowest + i, `focus ${i}`);
+        });
+        button.addEventListener('keyup', event => {
+            if (event.key === 'Enter' || event.key === ' ') releaseKey(`focus ${i}`);
+        });
         keysElement.append(button);
         keyButtons.push(button);
     }
@@ -296,10 +313,11 @@ function initDemo(root) {
     };
     labelKeys();
     const showLatched = () => {
+        const down = new Set(held.values());
         for (const [i, button] of keyButtons.entries()) {
-            const note = lowest + i;
-            button.classList.toggle('kd-key-on', note === latched);
-            button.setAttribute('aria-pressed', String(note === latched));
+            const on = lowest + i === latched || down.has(lowest + i);
+            button.classList.toggle('kd-key-on', on);
+            button.setAttribute('aria-pressed', String(on));
         }
     };
 
@@ -311,8 +329,10 @@ function initDemo(root) {
         const box = root.getBoundingClientRect();
         if (box.bottom < 0 || box.top > innerHeight) return; // only while the demo is on screen
         event.preventDefault();
-        pressKey(lowest + i);
+        pressKey(lowest + i, `key ${event.code}`);
     });
+    document.addEventListener('keyup', event => releaseKey(`key ${event.code}`));
+    window.addEventListener('blur', () => releaseAll()); // a key let go in another window never comes back up here
 
     // ---- Playing ----------------------------------------------------------------------------------
     const playButton = $('.kd-play');
@@ -323,9 +343,10 @@ function initDemo(root) {
         showLatched();
     }
 
-    async function start(note = latched ?? lowest) {
+    async function start(note = latched ?? lowest + PLAY_KEY) {
         if (!(await audioReady())) return;
         if (!playing) {
+            releaseAll(); // Play takes over from any key still held
             playing = true;
             send({ type: 'transport', bpm, playing: true });
         }
@@ -346,16 +367,42 @@ function initDemo(root) {
         showPlaying();
     }
 
-    function pressKey(note) {
+    // The keys held while Play is off, by what holds them (a pointer, a computer key or a focused
+    // key button), each to its note.
+    const held = new Map();
+
+    /** A key going down: while Play is on it switches the held note; otherwise it plays until it's let go. */
+    async function pressKey(note, by) {
         unlockAudio();
-        start(note);
+        if (playing) return start(note);
+        if (held.has(by)) return;
+        held.set(by, note);
+        showLatched();
+        if (!(await audioReady()) || held.get(by) !== note) return; // let go while the engine loaded
+        send({ type: 'note-on', note, velocity: VELOCITY });
+    }
+
+    function releaseKey(by) {
+        const note = held.get(by);
+        if (note === undefined) return;
+        held.delete(by);
+        if (![...held.values()].includes(note)) send({ type: 'note-off', note });
+        showLatched();
+    }
+
+    function releaseAll() {
+        for (const by of [...held.keys()]) releaseKey(by);
     }
 
     playButton.addEventListener('click', () => {
         unlockAudio();
         playing ? stop() : start();
     });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) return;
+        stop();
+        releaseAll();
+    });
 
     $('.kd-home').addEventListener('click', () => send({ type: 'home' }));
 
@@ -378,6 +425,11 @@ function initDemo(root) {
         if (shift) {
             lowest += shift;
             labelKeys();
+            for (const [by, note] of held) { // a held key moves with the keyboard, like the latched note
+                send({ type: 'note-on', note: note + shift, velocity: VELOCITY });
+                send({ type: 'note-off', note });
+                held.set(by, note + shift);
+            }
             if (latched !== null) start(latched + shift);
             else showLatched();
         }
