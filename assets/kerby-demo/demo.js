@@ -397,7 +397,9 @@ function initDemo(root) {
     // another one.
     const fingers = new Map();
 
-    /** A finger dragged onto another key: the held note moves there (the new note first, a legato change). */
+    /** A finger dragged onto another key. With Play off, the old note lets go before the new one
+        starts, as KerBy's keyboard does: with nothing else held, the new key starts a run of its own
+        and plays at once, where a legato change would wait for the next pulse. */
     function slideKey(by, note) {
         if (fingers.get(by) === note) return;
         fingers.set(by, note);
@@ -405,8 +407,8 @@ function initDemo(root) {
         const old = held.get(by);
         if (old === undefined) return;
         held.set(by, note);
-        send({ type: 'note-on', note, velocity: VELOCITY });
         if (![...held.values()].includes(old)) send({ type: 'note-off', note: old });
+        send({ type: 'note-on', note, velocity: VELOCITY });
         showLatched();
     }
 
