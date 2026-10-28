@@ -100,7 +100,7 @@
                         <p class="kerby-eyebrow">KerBy reference</p>
                         <h1 class="kerby-doc-title">Find a control.</h1>
                         <p class="kerby-lead">Search by name, or open a topic below.</p>
-                        <p class="kerby-doc-meta">Checked against KerBy 0.10.2 · 13 October 2026</p>
+                        <p class="kerby-doc-meta">Checked against KerBy 1.0.0 · 28 October 2026</p>
                     </header>
                     <a class="kerby-reference-map" href="/kerby/reference/signal-flow/"><span
                             class="kerby-eyebrow">Signal flow</span><strong>Where does the sound go?
@@ -169,7 +169,7 @@
                             <dl>
                                 <dt>Rate</dt>
                                 <dd>How often a held note retriggers. Right-click <span class="kerby-ui">Rate</span> for
-                                    its timing mode, <span class="kerby-ui">Triplet</span>
+                                    its timing mode, which divisions it offers
                                     and its home; synced divisions follow the DAW tempo, while Free runs from 0.1Hz to
                                     100Hz. Switching to Free starts at the division’s speed at the current tempo, so the
                                     rhythm carries on.</dd>
@@ -180,10 +180,13 @@
                                     while a note is held brings the
                                     pulses back.
                                 </dd>
-                                <dt>Triplet</dt>
-                                <dd>In the <span class="kerby-ui">Rate</span> knob’s right-click menu, switches the
-                                    dotted choices to triplets.
-                                    Straight divisions stay the same.</dd>
+                                <dt>Dotted, triplets or straight only</dt>
+                                <dd>In the <span class="kerby-ui">Rate</span> knob’s right-click menu: <span
+                                        class="kerby-ui">Straight + dotted</span>, <span
+                                        class="kerby-ui">Straight + triplets</span> or <span
+                                        class="kerby-ui">Straight only</span>, which sweeps 1/4, 1/8, 1/16 with nothing
+                                    between them. Automation, macros and routes on <span class="kerby-ui">Rate</span>
+                                    keep to the same divisions.</dd>
                                 <dt>Length</dt>
                                 <dd>How much of a bar a pulse lasts, independently of
                                     <span class="kerby-ui">Rate</span>. A new pulse can interrupt it.
@@ -263,8 +266,7 @@
                                     control out of <span class="kerby-ui">Return Home</span>, or put it back, without
                                     opening its menu.</dd>
                                 <dt>What stays put</dt>
-                                <dd><span class="kerby-ui">Rate</span> on/off, Sync or Free, <span
-                                        class="kerby-ui">Triplet</span>, the wheels’ ranges and any control whose
+                                <dd><span class="kerby-ui">Rate</span> on/off, Sync or Free, the divisions it offers, the wheels’ ranges and any control whose
                                     <span class="kerby-ui">Goes home</span> is unticked.
                                 </dd>
                             </dl>
@@ -331,7 +333,7 @@
                                 </dd>
                                 <dt>Editing while locked</dt>
                                 <dd><span class="kerby-ui">Tune</span>, <span class="kerby-ui">Key</span> and step
-                                    pitches skip notes outside the scale, and their boxes show what plays. The stored
+                                    pitches skip notes outside the scale. The stored
                                     values don’t change: turn the scale off and everything plays as saved.</dd>
                                 <dt>The keyboard</dt>
                                 <dd>Shades the keys outside the scale and marks the root. A shaded key still plays, at
@@ -677,7 +679,9 @@
                                 <dt>LFOs</dt>
                                 <dd>Up to four drawn modulators, added with <span class="kerby-ui">+</span>. Each has a
                                     rate, Sync or Free, and a
-                                    curve you draw in the same editor as the voices’ shapes, or a live random mode.</dd>
+                                    curve you draw in the same editor as the voices’ shapes, or a live random mode. Its
+                                    restart menu picks when it starts again: with the transport, on each note, on each
+                                    kick or bass step, or once per note.</dd>
                                 <dt>Shape</dt>
                                 <dd>Morphs an LFO from your drawing through Sine, Triangle, Ramp Up, Ramp Down, Square
                                     and Sidechain Duck, and is itself something a route can move. Each voice’s <a
@@ -704,7 +708,7 @@
                                 <dd>A Uni route moves the control one way from where it sits; a Bi route moves it both
                                     ways around it.</dd>
                                 <dt>Clear matrix</dt>
-                                <dd>Removes every route and resets the macros and LFOs. There is no undo.</dd>
+                                <dd>Removes every route and resets the macros and LFOs, after asking.</dd>
                             </dl>
                         </section>
                         <section id="presets" data-reference>
@@ -729,10 +733,10 @@
                                 <dd>Stretch the window to give the editors more room. Right-click empty space for
                                     interface scaling and <span class="kerby-ui">Reset window size</span>.</dd>
                                 <dt>Scopes</dt>
-                                <dd>Show the voices against KerBy’s musical bar. Merge them to see where kick and bass
-                                    overlap. With the transport stopped, a scope keeps the last bar its voice played.
-                                </dd>
-                                <dt>Drag a scope out</dt>
+                                <dd>Show the voices against KerBy’s musical bar. Merge them to see where kick and bass overlap: each keeps its own line, and
+                                    their mix is drawn bold wherever the overlap changes the sound. With the transport
+                                    stopped, a scope keeps the last bar its voice played.
+                                </dd>                                <dt>Drag a scope out</dt>
                                 <dd>Drag from a scope to drop what it shows into your DAW, or onto a <span
                                         class="kerby-ui">Wave</span> tab, as a WAV:
                                     a bar, or a quarter bar when zoomed. A voice’s scope gives that voice; the merged
