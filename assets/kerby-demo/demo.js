@@ -279,6 +279,7 @@ function initDemo(root) {
     // are the white keys and W E T Y U the black ones, as in Live.
     const keysElement = $('.kd-keys');
     const COMPUTER_KEYS = 'awsedftgyhujk';
+    const HOME_KEY = 'i';
     const keyButtons = [];
     for (let i = 0; i <= 12; i++) {
         const black = [1, 3, 6, 8, 10].includes(i % 12);
@@ -435,6 +436,18 @@ function initDemo(root) {
     });
 
     $('.kd-home').addEventListener('click', () => send({ type: 'home' }));
+    // KerBy's own Return Home key (KerByAudioProcessorEditor::kReturnHomeKey in the plugin), so the
+    // demo teaches the real gesture: one hand on a Rate, the other sending it home. Clear of the
+    // note keys and of Live's own; a held key's repeats would only go home again, so they're dropped.
+    document.addEventListener('keydown', event => {
+        if (event.repeat || event.metaKey || event.ctrlKey || event.altKey || !node) return;
+        if (event.key.toLowerCase() !== HOME_KEY) return;
+        if (event.target.closest('input, textarea, select, [contenteditable]')) return;
+        const box = root.getBoundingClientRect();
+        if (box.bottom < 0 || box.top > innerHeight) return; // only while the demo is on screen
+        event.preventDefault();
+        send({ type: 'home' });
+    });
 
     // ---- Presets and tempo ------------------------------------------------------------------------
     const presetName = $('.kd-preset-name');
