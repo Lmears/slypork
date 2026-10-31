@@ -9,6 +9,13 @@ function setupEasterEgg() {
     let transitioning = false;
     let currentScale = 1; // Logical current scale
     let isAnimating = false; // Main animation lock
+    let restlessTimer = null;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    function stopRestless() {
+        clearTimeout(restlessTimer);
+        restlessTimer = null;
+    }
 
     function notifyProgress(count) {
         document.body.dispatchEvent(new CustomEvent('easterEggProgress', { detail: { count } }));
@@ -24,6 +31,7 @@ function setupEasterEgg() {
 
     function resetEasterEggState() {
         console.log("Resetting Easter Egg state to default.");
+        stopRestless();
         tapCount = 0;
         currentScale = 1;
         canIncrement = true;
@@ -110,6 +118,7 @@ function setupEasterEgg() {
                             });
                         } else {
                             canIncrement = true;
+                            startRestless();
                         }
                         activeTransformState.y = 0;
 
@@ -159,16 +168,13 @@ function setupEasterEgg() {
             requestAnimationFrame(scaleStep);
         }
 
-        function animateWiggle(onCompleteCallback) {
+        function animateWiggle(onCompleteCallback, { duration = 450, amplitude = 1, rotateAmplitude = 3 } = {}) {
             if (animateWiggle.isRunning) return;
             animateWiggle.isRunning = true;
 
             const startTime = performance.now();
-            const duration = 450;
             const numWiggles = 4;
             const wiggleFrequency = (2 * Math.PI * numWiggles) / duration;
-            const amplitude = 1;
-            const rotateAmplitude = 3;
 
             function wiggleStep(currentTime) {
                 const elapsed = currentTime - startTime;
@@ -199,6 +205,22 @@ function setupEasterEgg() {
             requestAnimationFrame(wiggleStep);
         }
         animateWiggle.isRunning = false;
+
+        // Between the first and third click, the pig fidgets now and then, so a
+        // single click doesn't look like the whole trick. It fidgets less the
+        // longer it's left, settling at an occasional reminder.
+        function startRestless() {
+            stopRestless();
+            if (reducedMotion.matches || tapCount < 1 || tapCount > 2) return;
+            let gap = 4000;
+            restlessTimer = setTimeout(function fidget() {
+                if (!isAnimating && !transitioning) {
+                    animateWiggle(null, { duration: 600, amplitude: 1.5, rotateAmplitude: 7 });
+                }
+                restlessTimer = setTimeout(fidget, gap * (0.8 + Math.random() * 0.4));
+                gap = Math.min(gap * 1.4, 25000);
+            }, 2500);
+        }
 
 
         function animateGrowAndShrink(onCompleteCallback) {
@@ -262,6 +284,7 @@ function setupEasterEgg() {
         easterEgg.addEventListener('click', () => {
             // No change needed for this initial section.
             if (!canIncrement || transitioning) return;
+            stopRestless();
             canIncrement = false;
             tapCount++;
             activeTransformState.scale = currentScale;
