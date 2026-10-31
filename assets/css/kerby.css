@@ -159,6 +159,20 @@
     -webkit-box-decoration-break: clone;
 }
 
+/* A computer-keyboard key ("press I"): a keycap, so it can't pass for a control name or a word. */
+kbd {
+    display: inline-block;
+    min-width: 1.5em;
+    font: inherit;
+    line-height: 1.3;
+    text-align: center;
+    padding: 0 .3em;
+    border: 1px solid var(--kb-accent-line);
+    border-bottom-width: 2px;
+    border-radius: .3em;
+    white-space: nowrap;
+}
+
 /* The same compact brand/navigation row precedes the divider on every KerBy page. */
 .kerby-nav { display: flex; align-items: center; justify-content: flex-start; gap: 1rem; padding: 1rem 0 0; font-size: .9rem; }
 .kerby-nav > div { display: flex; gap: 1.2rem; }
