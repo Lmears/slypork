@@ -71,7 +71,7 @@ class Page(HTMLParser):
 
 
 pages = sorted(p for p in ROOT.rglob("index.html") if not any(
-    part in {"node_modules", ".git", "_site", "vendor"} for part in p.relative_to(ROOT).parts
+    part in {"node_modules", ".git", "_site", "vendor", ".claude"} for part in p.relative_to(ROOT).parts
 ))
 for path in pages:
     parser = Page(path)
