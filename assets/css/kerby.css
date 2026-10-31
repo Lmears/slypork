@@ -33,15 +33,19 @@
     .kerby-brand { font-size: 1.7rem; }
 }
 .kerby-hero { padding: 2.6rem 0 2.5rem; }
-.kerby-hero h1 {
+.kerby-hero h1 { min-width: 0; margin: .8rem 0 1.2rem; }
+.kerby-hero h1:not(.kerby-title), .kerby-title > .font-kerby {
     width: fit-content;
-    min-width: 0;
-    margin: .8rem 0 1.2rem;
     color: var(--kb-ink);
     font-size: clamp(4.5rem, 9vw, 6.5rem);
     font-weight: 500;
     line-height: 1;
 }
+/* KerBy's h1 holds the wordmark and the lead, so the heading reads as its name, "KerBy — Kick
+   and bass". The dash between them is for screen readers and search, not shown. */
+.kerby-title > :is(.font-kerby, .kerby-lead) { display: block; }
+.kerby-title > .font-kerby { margin-bottom: 1.2rem; }
+.kerby-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .kerby-eyebrow {
     color: var(--kb-ink);
     font-size: .75rem;

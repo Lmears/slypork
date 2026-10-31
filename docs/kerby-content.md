@@ -132,6 +132,10 @@ simplifying or redrawing the diagram.
   description; change both together. Describe audible results in preview text without
   assuming readers know interface labels such as Rate. A new page needs its own block
   with its own `og:url`.
+- KerBy's public name is `KerBy — Kick & Bass` (the author's choice, 28 Oct 2026), so search
+  doesn't read it as Kirby. It's the Overview's `<title>` (`KerBy — Kick & Bass | Slypork`) and
+  `og:title`, and its h1 holds the wordmark and the lead so the heading says the same. The other
+  pages keep `<Page> | KerBy | Slypork`.
 - The KerBy pages' CSP allows `media-src 'self'` for self-hosted audio and video, and
   `https://www.youtube-nocookie.com` in `frame-src` for embedded videos. Use the nocookie
   domain for YouTube embeds. A plain link to Gumroad needs no CSP change; Gumroad's overlay
