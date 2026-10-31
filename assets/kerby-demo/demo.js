@@ -429,11 +429,14 @@ function initDemo(root) {
         unlockAudio();
         playing ? stop() : start();
     });
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) return;
+    function silence() {
         stop();
         releaseAll();
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) silence();
     });
+    document.body.addEventListener('kerbyTourOpened', silence);
 
     $('.kd-home').addEventListener('click', () => send({ type: 'home' }));
     // KerBy's own Return Home key (KerByAudioProcessorEditor::kReturnHomeKey in the plugin), so the

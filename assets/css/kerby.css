@@ -91,6 +91,18 @@
 }
 .kerby-button:hover { transform: translateY(-2px); box-shadow: 0 4px 0 var(--kb-accent-line); }
 .kerby-text-link { font-size: 1rem; }
+.kerby-tour-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-top: 1rem; color: var(--kb-muted); font-size: .78rem; }
+.kerby-button-quiet { gap: .6rem; background: transparent; color: var(--kb-ink); }
+.kerby-play-mark { width: .6em; height: .7em; background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+#kerbyTour video {
+    width: min(95vw, calc(92vh * 16 / 9));
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    background: #2b2226;
+}
+@media (max-width: 767px) {
+    #kerbyTour video { width: min(95vw, calc(92vh * 9 / 16)); aspect-ratio: 9 / 16; }
+}
 .kerby-availability { margin-top: 1.1rem; color: var(--kb-muted); font-size: .78rem; }
 .kerby-availability > span { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
@@ -104,6 +116,7 @@
     border-radius: var(--kb-image-radius);
 }
 .kerby-preview figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .3rem 1rem; padding-top: .7rem; color: var(--kb-muted); font-size: .75rem; }
+.kerby-preview figcaption a { padding: .35rem 0; margin: -.35rem 0; color: var(--kb-ink); }
 .kerby-section { padding: 2.7rem 0; border-bottom: .5px solid var(--kb-line); }
 .kerby-section h2 { margin: .45rem 0 1rem; font-size: clamp(1.5rem, 3vw, 1.9rem); font-weight: 300; line-height: 1.25; letter-spacing: -.02em; }
 .kerby-section p:not(.kerby-eyebrow):not(.kerby-aside) { max-width: 39rem; font-size: 1.0625rem; }

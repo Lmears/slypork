@@ -173,10 +173,44 @@ function initKerbyChangelog() {
     });
 }
 
+// The tour on /kerby/. Each opener is a link to the video, so a modified click, or a
+// browser without <dialog>, still gets the file.
+function initKerbyTour() {
+    var tour = document.getElementById('kerbyTour');
+    if (!tour || typeof HTMLDialogElement === 'undefined') return;
+
+    var video = tour.querySelector('video');
+
+    document.addEventListener('click', function (event) {
+        var opener = event.target.closest('[data-kerby-tour]');
+        if (!opener || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        event.preventDefault();
+        document.body.dispatchEvent(new CustomEvent('kerbyTourOpened'));
+        tour.showModal();
+        // load() starts it over, and picks the cut for the window as it is now, not as it
+        // was when the page loaded.
+        video.load();
+        video.play().catch(function () {}); // The controls are there if a browser refuses.
+    });
+
+    tour.querySelector('.lightbox-close').addEventListener('click', function () {
+        tour.close();
+    });
+    tour.addEventListener('click', function (event) {
+        if (event.target === tour) tour.close();
+    });
+    tour.addEventListener('close', function () {
+        video.pause();
+    });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initKerbyReference);
     document.addEventListener('DOMContentLoaded', initKerbyChangelog);
+    document.addEventListener('DOMContentLoaded', initKerbyTour);
 } else {
     initKerbyReference();
     initKerbyChangelog();
+    initKerbyTour();
 }

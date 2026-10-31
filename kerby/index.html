@@ -109,6 +109,11 @@
                             <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
                             <a class="link-underline" href="#kerby-try">Play it here</a>
                         </div>
+                        <p class="kerby-tour-row">
+                            <a class="kerby-button kerby-button-quiet" href="/assets/video/kerby-tour-landscape.mp4"
+                                data-kerby-tour><span class="kerby-play-mark" aria-hidden="true"></span>Watch the tour</a>
+                            <span>54 seconds, with sound</span>
+                        </p>
                         <!-- release.sh keeps the version current, and the link leads to the notes
                              on /kerby/whats-new/. Don't spell out its marker attribute in a comment
                              on this page: the release's sed would match the comment. -->
@@ -132,6 +137,8 @@
                             </picture>
                         </a>
                         <figcaption><span>Click to take a closer look <span aria-hidden="true">↑</span></span>
+                            <a class="link-underline" href="/assets/video/kerby-tour-landscape.mp4"
+                                data-kerby-tour>Watch the tour</a>
                         </figcaption>
                     </figure>
 
@@ -371,6 +378,13 @@
             </section>
         </section>
     </main>
+    <dialog id="kerbyTour" class="lightbox" aria-label="KerBy tour">
+        <button type="button" class="lightbox-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <video controls playsinline preload="none">
+            <source media="(max-width: 767px)" src="/assets/video/kerby-tour-vertical.mp4" type="video/mp4">
+            <source src="/assets/video/kerby-tour-landscape.mp4" type="video/mp4">
+        </video>
+    </dialog>
     <script src="../assets/js/kerby.js"></script>
     <script src="../assets/kerby-demo/demo.js" type="module"></script>
     <script src="../assets/js/script.js"></script>
