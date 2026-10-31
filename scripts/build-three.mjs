@@ -6,7 +6,8 @@ await build({
     stdin: {
         contents: `
             export { Scene, Group, Box3, Vector3, PerspectiveCamera,
-                WebGLRenderer, DirectionalLight,
+                WebGLRenderer, DirectionalLight, Mesh, BufferGeometry,
+                Float32BufferAttribute,
                 EquirectangularReflectionMapping, SRGBColorSpace,
                 AgXToneMapping } from 'three';
             export { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';

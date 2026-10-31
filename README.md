@@ -27,6 +27,9 @@ The skin's procedural colour is transferred
 onto the original vertices, including crease shading, without removing faces,
 decimating the model or baking normal maps. Blender's subsurface scattering and
 procedural pore bump are not reproduced by the standard glTF materials.
+The curly tail is Canopy's, built in `pig.js` rather than the GLB, so every
+detail level shares it and re-exporting the model keeps it. Set `SHOW_TAIL` to
+`false` there to take it off.
 
 To update the model, export `slypork_pig.glb` from Blender, then run:
 
