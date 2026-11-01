@@ -32,7 +32,7 @@ function initDemo(root) {
     // The keyboard's octave for each preset, as Live names them (C1 is MIDI 36, where most of the
     // factory presets are voiced); anything else starts at C1. Switching preset moves a held note
     // with it.
-    const PRESET_OCTAVE = { 'Kerb Stomper': 0, 'Techno 1': 0, 'DnB': 0, 'Donk': 0 };
+    const PRESET_OCTAVE = { 'Kerb Stomper': 0, 'Techno 1': 0, 'DnB': 0, 'Dubstep': 0, 'Donk': 0 };
     const DEFAULT_OCTAVE = 1;
     const noteName = note => `${NAMES[note % 12]}${Math.floor(note / 12) - 2}`;
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
