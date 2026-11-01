@@ -2,8 +2,10 @@
 // audio thread) behind a small interface in KerBy's own look - Play, the two voices' Rate and
 // Glitch knobs, the house button, a keyboard, presets and tempo.
 //
-// The keys play as KerBy does with the DAW stopped: hold one and both voices pulse from that
-// moment until you let go, so taps play freely. Play starts the transport and holds G for you:
+// The keys play as KerBy does with a note pressed at the top of a bar: hold one and both voices
+// pulse from that moment until you let go, so taps play freely, and the worklet starts the clock
+// from the bar's top with it so a patch's transport-synced modulators play the same every time
+// (see worklet.js). Play starts the transport and holds G for you:
 // the latched note keeps both voices pulsing in time, a key switches it, and Stop lets go. That's
 // KerBy's Live mode with a held note, which a phone can't otherwise do while a thumb turns Rate.
 //

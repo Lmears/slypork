@@ -2,6 +2,11 @@
 // 128 frames at a time. The page sends it notes, tempo and control changes; it sends back the
 // values the page draws (after a preset or Return Home moves them) and the two voices' scopes.
 //
+// The engine's clock runs while Play is on or a key is held. A key pressed with nothing else
+// sounding starts it from the top of the bar, as pressing a note at bar 1 with Live playing does,
+// so a patch whose modulators follow the transport (Dubstep's wobble) plays the same whenever the
+// key goes down, instead of carrying on from wherever its free-running LFOs had got to.
+//
 // engine.js and kerby.wasm are built in the slypork-plugins repository (web/kerby-demo, `build.sh
 // install`); don't edit them here.
 import { KerByEngine } from './engine.js';
@@ -19,8 +24,9 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.waiting = [];
         this.blocks = 0;
         this.scopeBlocksLeft = 0;
-        this.playing = false;
+        this.playing = false; // the page's Play
         this.held = new Set();
+        this.bpm = 128;
         this.port.onmessage = event => (this.engine ? this.handle(event.data) : this.waiting.push(event.data));
         KerByEngine.create(options.processorOptions.wasm, sampleRate, BLOCK).then(engine => {
             this.engine = engine;
@@ -36,6 +42,11 @@ class KerByWorklet extends AudioWorkletProcessor {
         return { values, slots: { kick: this.engine.rateSlots('kick'), bass: this.engine.rateSlots('bass') } };
     }
 
+    /** Runs the engine's clock while Play is on or a key is held; starting it goes to the top of the bar. */
+    runClock() {
+        this.engine.setTransport(this.bpm, this.playing || this.held.size > 0);
+    }
+
     settleScopes() {
         if (this.playing || this.held.size) this.scopeBlocksLeft = Infinity;
         else if (this.scopeBlocksLeft === Infinity) this.scopeBlocksLeft = Math.ceil(sampleRate / BLOCK);
@@ -44,21 +55,24 @@ class KerByWorklet extends AudioWorkletProcessor {
     handle(message) {
         const engine = this.engine;
         switch (message.type) {
-            // The scopes run while the transport does or a key is held (the keys play with it stopped),
-            // and a second after both stop, to let the last bar draw.
+            // The scopes run while Play is on or a key is held, and a second after both stop, to let
+            // the last bar draw.
             case 'note-on':
-                engine.noteOn(message.note, message.velocity ?? 100);
                 this.held.add(message.note);
+                this.runClock();
+                engine.noteOn(message.note, message.velocity ?? 100);
                 this.scopeBlocksLeft = Infinity;
                 break;
             case 'note-off':
                 engine.noteOff(message.note);
                 this.held.delete(message.note);
+                this.runClock();
                 this.settleScopes();
                 break;
             case 'transport':
-                engine.setTransport(message.bpm, message.playing);
+                this.bpm = message.bpm;
                 this.playing = message.playing;
+                this.runClock();
                 this.settleScopes();
                 break;
             case 'set': engine.set(message.id, message.value); break;
