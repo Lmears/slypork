@@ -252,8 +252,6 @@ h1 {
 
 /* Homepage: wordmark above the 3D hero, navigation below it. */
 #container.home-page {
-    --hero-warm: rgba(235, 133, 157, 0.14);
-    --hero-cool: rgba(118, 155, 224, 0.12);
     display: flex;
     flex-direction: column;
     max-width: 1280px;
@@ -293,27 +291,6 @@ h1 {
     background: transparent;
     border-radius: 50%;
     touch-action: manipulation;
-    isolation: isolate;
-}
-
-/* Ambient colour echoes the model's rim lights, behind the transparent canvas. */
-.pig-stage::before {
-    content: '';
-    position: absolute;
-    inset: 8% 0;
-    z-index: -1;
-    border-radius: 50%;
-    background:
-        radial-gradient(ellipse at var(--hero-warm-x, 35%) var(--hero-warm-y, 55%), var(--hero-warm), transparent 65%),
-        radial-gradient(ellipse at var(--hero-cool-x, 68%) var(--hero-cool-y, 42%), var(--hero-cool), transparent 65%);
-    filter: blur(clamp(24px, 4vw, 64px)) brightness(1);
-    opacity: 0;
-    transition: opacity 1s ease, filter 0.4s ease;
-    pointer-events: none;
-}
-
-.pig-ready::before {
-    opacity: var(--flock-glow, 1);
 }
 
 .pig-hint {
@@ -347,19 +324,6 @@ h1 {
 .pig-ready:not(:disabled):not([aria-expanded="true"]):focus-visible .pig-hint {
     opacity: 0.6;
     transform: translate(-50%, 0);
-}
-
-@media (prefers-color-scheme: dark) {
-    #container.home-page {
-        --hero-warm: rgba(205, 84, 132, 0.14);
-        --hero-cool: rgba(89, 126, 222, 0.14);
-    }
-}
-
-@media (prefers-color-scheme: dark) and (hover: hover) and (pointer: fine) {
-    .pig-ready:not(:disabled):hover::before {
-        filter: blur(clamp(24px, 4vw, 64px)) brightness(1.2);
-    }
 }
 
 .pig-stage:not(:disabled) {
@@ -408,8 +372,7 @@ h1 {
 .home-nav.is-open li:nth-child(6) { transition-delay: 175ms; }
 
 @media (prefers-reduced-motion: reduce) {
-    .home-nav, .home-nav li, .home-nav.is-open li,
-    .pig-stage::before, .pig-hint {
+    .home-nav, .home-nav li, .home-nav.is-open li, .pig-hint {
         transition: none;
     }
 }

@@ -177,40 +177,17 @@ async function mountPig(stage) {
     const blueRim = new DirectionalLight(0x5599ff, 3.0);
     scene.add(key, fill, redRim, blueRim);
 
-    const glow = new Map();
-    const appliedGlow = new Map();
-    let lastGlowTime = -Infinity;
-    function paintGlow() {
-        const now = performance.now();
-        // Blurred gradients are costly to repaint. Keep lighting at full frame
-        // rate but update the soft backdrop at 15 Hz on the lower quality tiers.
-        if (quality.level > 0 && now - lastGlowTime < 1000 / 15) return;
-        lastGlowTime = now;
-        for (const [name, value] of glow) {
-            if (appliedGlow.get(name) === value) continue;
-            stage.style.setProperty(name, value);
-            appliedGlow.set(name, value);
-        }
-    }
-
     // The coloured lights orbit behind the head relative to the cursor's key
     // light, with a small idle drift, as in the original homepage animation.
     function positionRims(time = 0) {
         const angle = Math.atan2(key.position.y, key.position.x);
         const drift = reducedMotion.matches ? 0 : 0.35 * Math.sin(time * 0.21);
-        const restAngle = Math.atan2(4, -3);
-        const place = (light, offset, lift, colour, originX, originY) => {
+        const place = (light, offset, lift) => {
             const a = angle + offset + drift;
             light.position.set(Math.cos(a) * 3, (Math.sin(a) + lift) * 3, -2.2);
-            // Gently shift the ambient glow with its rim light, relative to
-            // the authored resting centre. CSS's vertical axis points down.
-            const glowX = originX + (Math.cos(a) - Math.cos(restAngle + offset)) * 4.5;
-            const glowY = originY - (Math.sin(a) - Math.sin(restAngle + offset)) * 3.6;
-            glow.set(`--hero-${colour}-x`, `${glowX.toFixed(2)}%`);
-            glow.set(`--hero-${colour}-y`, `${glowY.toFixed(2)}%`);
         };
-        place(redRim, Math.PI, 0.2, 'warm', 35, 55);
-        place(blueRim, Math.PI * 0.45, -0.1, 'cool', 68, 42);
+        place(redRim, Math.PI, 0.2);
+        place(blueRim, Math.PI * 0.45, -0.1);
     }
     positionRims();
 
@@ -530,9 +507,6 @@ async function mountPig(stage) {
         heroField.available = heroField.x >= 0 && heroField.x <= innerWidth
             && heroField.y >= 0 && heroField.y <= innerHeight;
         setPointedAt(flockActive && pointer.active && heroPigAt(pointer.x, pointer.y, pointer.target));
-        glow.set('--flock-glow', String(1 - amount));
-        // All layout reads are complete before changing the backdrop's styles.
-        paintGlow();
         // Wait until pixels are ready; two animation frames give the browser
         // an opportunity to paint opacity 0 before starting the entrance fade.
         if (!entrancePending && !stage.classList.contains('pig-ready')) {
