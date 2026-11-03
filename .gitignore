@@ -20,3 +20,6 @@ AGENTS.md
 *.pfx
 _site/
 .jekyll-cache/
+
+# Generated KerBy PDFs (scripts/build-kerby-pdfs.mjs)
+build/
