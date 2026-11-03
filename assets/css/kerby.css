@@ -406,3 +406,5 @@ a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: translateX(4px);
     .plugins-kerby-card, .plugins-kerby-cta span { transition: none; }
     a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: none; }
 }
+.kerby-terms-list { list-style: disc; padding-left: 1.3rem; margin: .85rem 0; }
+.kerby-terms-list li { margin: .5rem 0; padding-left: .2rem; }
