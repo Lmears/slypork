@@ -164,6 +164,15 @@
     -webkit-box-decoration-break: clone;
 }
 
+/* One of KerBy's own pictograms in running text (the Wave plot's padlock), drawn from the
+   plugin's geometry in the text colour, at the height of a capital. */
+.kerby-glyph {
+    display: inline-block;
+    width: .8em;
+    height: 1.04em;
+    vertical-align: -.12em;
+}
+
 /* A computer-keyboard key ("press I"): a keycap, so it can't pass for a control name or a word. */
 kbd {
     display: inline-block;

@@ -284,7 +284,7 @@
                                 <dd>In each <span class="kerby-ui">More</span> tab. MIDI follows played notes; a fixed
                                     note keeps that voice on one
                                     pitch while you play the other. With a scale on, its menu greys out notes
-                                    outside the scale.</dd>
+                                    outside the scale, unless a fixed Key plays a sample.</dd>
                                 <dt>Tune</dt>
                                 <dd>Transposes a voice in semitones. With a scale on, it steps through the scale,
                                     counted from <span class="kerby-ui">Key</span> or the scale’s root.</dd>
@@ -405,8 +405,13 @@
                             <p>Drop an audio file onto either voice’s <span class="kerby-ui">Wave</span> tab, or use its
                                 file button. The voice plays
                                 it as a one-shot in place of the drawn oscillator. A new pulse retriggers it; played
-                                pitch changes playback speed.</p>
+                                pitch changes playback speed. C0 plays a sample at its recorded speed, and each octave
+                                up halves its length.</p>
                             <dl>
+                                <dt>Padlock</dt>
+                                <dd>Open, the sample follows the played note. Closed, it plays at its recorded pitch
+                                    whatever you play, which sets <span class="kerby-ui">Key</span> to C0 and ignores
+                                    the scale. Loading a sample leaves it open.</dd>
                                 <dt>Start</dt>
                                 <dd>Moves the beginning of playback into the file.</dd>
                                 <dt>Pitch and Filter after loading</dt>
@@ -420,8 +425,9 @@
                                 <dt>Saving</dt>
                                 <dd>Sample audio is embedded in presets and session state.</dd>
                             </dl>
-                            <p class="kerby-related"><a href="/kerby/learn/layer-a-click/" class="link-underline">Guide:
-                                    when to use Wave or Click</a></p>
+                            <p class="kerby-related"><a href="/kerby/learn/own-sounds/" class="link-underline">Guide:
+                                    use your own kick and bass sounds</a><a href="/kerby/learn/layer-a-click/"
+                                    class="link-underline">Guide: when to use Wave or Click</a></p>
                         </section>
                         <section id="click" data-reference>
                             <h2><a href="#click" class="link-underline">The Click layer</a></h2>

@@ -39,6 +39,7 @@ const DOCS = [
             '/kerby/learn/first-pattern/',
             '/kerby/learn/shape-the-duck/',
             '/kerby/learn/layer-a-click/',
+            '/kerby/learn/own-sounds/',
             '/kerby/learn/duck-your-mix/',
             '/kerby/reference/',
             '/kerby/reference/signal-flow/',

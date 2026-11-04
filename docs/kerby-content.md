@@ -14,7 +14,8 @@ competing top-level destination.
 
 ## Guides
 
-The guides cover a first pattern, balancing the duck, layering a sampled attack, and
+The guides cover a first pattern, balancing the duck, layering a sampled attack, playing your
+own kick and bass sounds from the Wave tab, and
 ducking other tracks to the kick with DucKy following KerBy (KerBy's MIDI out, for other
 duckers, is a callout there). They are starting techniques, not claims
 of tested presets or ideal settings.
