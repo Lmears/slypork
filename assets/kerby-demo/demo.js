@@ -27,12 +27,12 @@ function initDemo(root) {
     }
 
     // Tempo for each preset (by name), for the genre it was made for; anything else plays at 128.
-    const PRESET_BPM = { 'Init': 160, 'Kerb Stomper': 160, 'DnB': 172, 'Dubstep': 140, 'Donk': 160 };
+    const PRESET_BPM = { 'Slambient': 240, 'Init': 160, 'Kerb Stomper': 160, 'DnB': 172, 'Dubstep': 140, 'Donk': 160 };
     const DEFAULT_BPM = 128, MIN_BPM = 60, MAX_BPM = 300;
     // The keyboard's octave for each preset, as Live names them (C1 is MIDI 36, where most of the
     // factory presets are voiced); anything else starts at C1. Switching preset moves a held note
     // with it.
-    const PRESET_OCTAVE = { 'Kerb Stomper': 0, 'Techno 1': 0, 'DnB': 0, 'Dubstep': 0, 'Donk': 0 };
+    const PRESET_OCTAVE = { 'Slambient': 0, 'Kerb Stomper': 0, 'Techno 1': 0, 'DnB': 0, 'Dubstep': 0, 'Donk': 0 };
     const DEFAULT_OCTAVE = 1;
     const noteName = note => `${NAMES[note % 12]}${Math.floor(note / 12) - 2}`;
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
@@ -564,7 +564,10 @@ function initDemo(root) {
                 node.port.onmessage = ({ data }) => {
                     if (data.type === 'ready') {
                         presets = data.presets;
-                        presetOrder = [-1, ...presets.keys()]; // Init first, as KerBy opens
+                        // presets.txt's first preset (Slambient) leads, where KerBy shines most, then
+                        // Init (the demo's Psy) and the rest: the arrows show the range from there.
+                        presetOrder = [...presets.keys()];
+                        presetOrder.splice(presetOrder.length ? 1 : 0, 0, -1);
                         applyState(data, true);
                         resolve();
                     } else if (data.type === 'error') reject(new Error(data.message));
