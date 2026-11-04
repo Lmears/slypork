@@ -97,6 +97,13 @@ async function build(browser, base, doc) {
     // match the printed layout.
     await page.setViewport({ width: 841, height: 1200 });
     await page.emulateMediaType('screen');
+    // The page light whatever this machine's appearance is set to (its screenshots are made dark
+    // below), and each animation's still: a page prints an animated image's first frame. Every
+    // <picture> holding an animation has a reduced-motion source for this (docs/kerby-content.md).
+    await page.emulateMediaFeatures([
+        { name: 'prefers-color-scheme', value: 'light' },
+        { name: 'prefers-reduced-motion', value: 'reduce' },
+    ]);
     await page.goto(base + doc.pages[0], { waitUntil: 'networkidle0' });
 
     await page.evaluate(async ({ pages, title }) => {
@@ -113,6 +120,11 @@ async function build(browser, base, doc) {
             const slug = href.replace(/\W+/g, '-');
             part.querySelectorAll('[id]').forEach((el) => { el.id = slug + el.id; });
             part.querySelectorAll('a[href^="#"]').forEach((a) => { a.setAttribute('href', '#' + slug + a.getAttribute('href').slice(1)); });
+            // Dark screenshots on the light page, as the PDF has always had: each dark source always
+            // matches (it comes before its light one).
+            part.querySelectorAll('source[media*="prefers-color-scheme: dark"]').forEach((s) => {
+                s.media = s.media.replace('(prefers-color-scheme: dark)', '(min-width: 0)');
+            });
             parts.push(part);
         }
         frame.replaceChildren(...parts);
@@ -159,6 +171,13 @@ async function build(browser, base, doc) {
     });
     const broken = await page.$$eval('.kerby-frame img', (imgs) => imgs.filter((i) => !i.naturalWidth).map((i) => i.src));
     if (broken.length) throw new Error(`${doc.file}: images failed to load:\n  ${broken.join('\n  ')}`);
+    const shown = await page.$$eval('.kerby-frame img', (imgs) => imgs.map((i) => new URL(i.currentSrc).pathname));
+    const moving = [];
+    for (const src of new Set(shown)) {
+        const head = (await fs.readFile(path.join(root, decodeURIComponent(src)))).subarray(0, 64).toString('latin1');
+        if (head.startsWith('RIFF') && head.includes('ANIM')) moving.push(src);
+    }
+    if (moving.length) throw new Error(`${doc.file}: animations with no reduced-motion still, which would print their first frame:\n  ${moving.join('\n  ')}`);
     const deadJumps = await page.$$eval('.kerby-frame a[href^="#"]', (links) => links
         .filter((a) => !document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1))))
         .map((a) => `${a.textContent.trim()} -> ${a.getAttribute('href')}`));
