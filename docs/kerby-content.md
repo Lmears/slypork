@@ -91,6 +91,21 @@ simplifying or redrawing the diagram.
   check a UI change, run `python3 scripts/site-images.py` there with `KERBY_SITE_ROOT` set to
   this repo. A new KerBy image gets a recipe in that script rather than a one-off crop.
   The third-party screenshots (`live-*`, `shaperbox-*`, `thumb-midi`) are made by hand.
+- An animation goes where a step is a gesture or a change a still can't show (the step row's
+  drags, merging the scopes, dropping a sample). Gestures need a pointer, which screenshot mode
+  doesn't draw, so Learn's are cut from the tutorial's OBS takes (`kerby-steps-edit`,
+  `kerby-scope-merge`) by `reels/tutorial/learn/build.py` in the kerby-promo repo: dark only, and
+  the 25 Oct build, so recut them if the step row or the scopes change look. The same script has
+  kbrender play Init for `kerby-scope-kick-length` and `kerby-scope-duck-later`, one overlap taken
+  away from either side in the same frame as the merge. `kerby-bass-wave-drop` was cut by hand. A
+  setting swept across values with no pointer in light and dark (Reference's Rate,
+  `kerby-bass-rate-reach-*`) stays a site-images.py recipe.
+- Every animation has a still in its `<picture>`, a `(prefers-reduced-motion: reduce)` source
+  named `…-still`: usually its last frame, or its ends side by side when one frame can't show the
+  change. Visitors who ask for less motion see it, and the PDFs print it:
+  `scripts/build-kerby-pdfs.mjs` asks for reduced motion, and stops on an animation with no still,
+  since a page prints an animated image's first frame. The PDFs keep dark screenshots on the light
+  page whatever the machine's appearance; a PDF can't follow the reader's.
 - DucKy (`/ducky/`) is one page in KerBy's layout, recoloured by the `.ducky` class in
   `kerby.css`. Its full captures (`DucKy_*mode.png`) are the KerBy-trigger pair
   (`DucKy_editor_kerby*.png`, KerBy being what sets DucKy apart) of the 2x screenshots DucKy's

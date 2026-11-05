@@ -7,11 +7,11 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width">
     <title>Find the space between the hits | KerBy | Slypork</title>
-    <meta name="description" content="Balance kick length, bass length and ducking in KerBy.">
+    <meta name="description" content="See where the kick and bass overlap in KerBy, then end the kick sooner or start the bass later.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Slypork">
     <meta property="og:title" content="Find the space between the hits | KerBy">
-    <meta property="og:description" content="Balance kick length, bass length and ducking in KerBy.">
+    <meta property="og:description" content="See where the kick and bass overlap in KerBy, then end the kick sooner or start the bass later.">
     <meta property="og:url" content="https://slypork.net/kerby/learn/shape-the-duck/">
     <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
     <meta property="og:image:width" content="1800">
@@ -101,57 +101,63 @@
                         <h1 class="kerby-doc-title">Find the space between the hits</h1>
                     </header>
                     <article class="kerby-prose">
-                        <p class="kerby-standfirst">The kick’s tail, the bass and the duck share the same moment. Shape
-                            them together, with both voices playing.</p>
+                        <p class="kerby-standfirst">A long kick’s tail runs into the bass. For more space between them,
+                            end the kick sooner or start the bass later.</p>
                         <ol class="kerby-recipe">
                             <li>
-                                <h2>Get a loop going.</h2>
+                                <h2>Start with a long kick.</h2>
                                 <p>Hold a note on Init, as in <a href="/kerby/learn/first-pattern/"
-                                        class="link-underline">your first pattern</a>. Ducking is already on.</p>
+                                        class="link-underline">your first pattern</a>. On the kick’s <span
+                                        class="kerby-ui">Amp</span> tab, raise <span class="kerby-ui">Length</span> a
+                                    little.</p>
                             </li>
                             <li>
-                                <h2>Decide where the kick ends.</h2>
-                                <p>On the kick’s <span class="kerby-ui">Amp</span> tab, shorten the curve’s tail or its
-                                    <span class="kerby-ui">Length</span>. A shorter kick leaves the bass more room.</p>
+                                <h2>See where they meet.</h2>
+                                <p>Click the <span class="kerby-ui">+</span> between the scopes to merge them: the kick
+                                    in pink, the bass in purple, and a bold line where they overlap.</p>
                                 <figure class="kerby-shot">
                                     <picture>
-                                        <source media="(prefers-color-scheme: dark)"
-                                            srcset="/assets/images/software/kerby-learn/kerby-kick-amp-dark.webp">
-                                        <img src="/assets/images/software/kerby-learn/kerby-kick-amp-light.webp"
-                                            width="510" height="257" alt="The kick’s Amp tab: a volume curve that
-                                            dips twice at the start, then decays to silence across the plot, over the last hit’s waveform, with
-                                            Length at the bottom right.">
+                                        <source media="(max-width: 767px) and (prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-merge-phone-still.webp" width="606" height="1028">
+                                        <source media="(max-width: 767px)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-merge-phone.webp" width="606" height="1028">
+                                        <source media="(prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-merge-still.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-scope-merge.webp"
+                                            width="892" height="528" loading="lazy" alt="The pointer clicks the plus between the kick’s scope and the bass’s, and they merge into one: the kick in pink, the bass in purple, and a bold white line where the kick’s tail overlaps the first bass hit.">
                                     </picture>
-                                    <figcaption>The faint waveform is the last hit.</figcaption>
                                 </figure>
                             </li>
                             <li>
-                                <h2>Draw how the bass comes back.</h2>
-                                <p>Open the bass’s <span class="kerby-ui">Duck</span> tab. The curve is the bass’s volume
-                                    after each kick.</p>
+                                <h2>If it needs more space, pick a side.</h2>
+                                <p>End the kick sooner: on the kick’s <span class="kerby-ui">Amp</span> tab, bring <span
+                                        class="kerby-ui">Length</span> down.</p>
                                 <figure class="kerby-shot">
                                     <picture>
-                                        <source media="(prefers-color-scheme: dark)"
-                                            srcset="/assets/images/software/kerby-learn/kerby-bass-duck-dark.webp">
-                                        <img src="/assets/images/software/kerby-learn/kerby-bass-duck-light.webp"
-                                            width="510" height="257" loading="lazy" alt="The bass’s Duck tab: the
-                                            Duck knob at 100%, and a curve that stays at silence briefly, rises
-                                            steeply, peaks halfway and eases down. Below it, Duck Rate at 1/4 and
-                                            Smooth at 0%.">
+                                        <source media="(max-width: 767px) and (prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-kick-length-phone-still.webp" width="606" height="1028">
+                                        <source media="(max-width: 767px)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-kick-length-phone.webp" width="606" height="1028">
+                                        <source media="(prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-kick-length-still.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-scope-kick-length.webp"
+                                            width="892" height="528" loading="lazy" alt="The kick’s Length comes down from 12.5% to 6.25%. In the merged scope the kick’s tail shortens and the bold line goes: the kick now ends where the first bass hit begins.">
                                     </picture>
-                                    <figcaption>Init’s curve: silent under the kick, full by the middle of the
-                                        beat.</figcaption>
                                 </figure>
-                                <p>Move the rise earlier for a tight bass, later for more space. Bend a line to change
-                                    how it returns, or pull the end down for a pump.</p>
-                                <p>The <span class="kerby-ui">Duck</span> knob sets the depth; lower it to keep some bass
-                                    under the kick.</p>
-                            </li>
-                            <li>
-                                <h2>Check the first bass hit.</h2>
-                                <p>A bass hit that starts with the kick can end before the duck lets it through.
-                                    Lengthen the bass or move the rise earlier. Later hits in a held note land after the
-                                    duck has recovered.</p>
+                                <p>Or start the bass later: on the bass’s <span class="kerby-ui">Duck</span> tab, drag the
+                                    curve’s rise later.</p>
+                                <figure class="kerby-shot">
+                                    <picture>
+                                        <source media="(max-width: 767px) and (prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-duck-later-phone-still.webp" width="606" height="1028">
+                                        <source media="(max-width: 767px)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-duck-later-phone.webp" width="606" height="1028">
+                                        <source media="(prefers-reduced-motion: reduce)"
+                                            srcset="/assets/images/software/kerby-learn/kerby-scope-duck-later-still.webp">
+                                        <img src="/assets/images/software/kerby-learn/kerby-scope-duck-later.webp"
+                                            width="892" height="528" loading="lazy" alt="The rise on the bass’s Duck curve moves later, with the kick’s Length left at 12.5%. In the merged scope the kick keeps its tail, the first bass hit drops out and the bold line goes.">
+                                    </picture>
+                                </figure>
                             </li>
                         </ol>
                         <aside class="kerby-callout">
