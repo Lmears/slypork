@@ -448,8 +448,11 @@ function initDemo(root) {
         stop();
         releaseAll();
     }
+    // Play carries on in another tab, as a video would: the browser marks a tab making sound, and
+    // once Play's off the engine sleeps as usual (sleep(), below). Only held keys let go, as their
+    // key-ups would land in the other tab.
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden) silence();
+        if (document.hidden) releaseAll();
     });
     document.body.addEventListener('kerbyTourOpened', silence);
 
