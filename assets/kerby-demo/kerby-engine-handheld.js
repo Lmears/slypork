@@ -161286,9 +161286,10 @@ const SCOPE_EVERY = 8;    // blocks between scope updates: about 40 a second at 
 // Less of a hit than this gets through the duck, and it's lost under it, so it lights nothing (kerby_hit_level).
 const HEARD = 0.1;
 const QUIET_BLOCKS = Math.ceil(sampleRate / 2 / BLOCK); // half a second of silence is quiet
-// A shot's note waits this long after its mute: KerBy fades a voice out over 20 ms (PulseVoice gainSmoothingSeconds).
+// A shot's note waits this long after a mute: KerBy fades a voice out over 20 ms (PulseVoice gainSmoothingSeconds).
 const SHOT_FADE = Math.ceil(sampleRate * .03 / BLOCK);
 const SHOT_LONGEST = Math.ceil(sampleRate * 2 / BLOCK); // a step lane that lets nothing through: let go anyway
+const SHOT_MOVES = ['KICK_ENABLED', 'BASS_ENABLED', 'BASS_DUCK_ON']; // what a shot sets aside, and puts back
 const SILENT = 1e-5;      // -100 dBFS
 
 class KerByWorklet extends AudioWorkletProcessor {
@@ -161343,8 +161344,8 @@ class KerByWorklet extends AudioWorkletProcessor {
                 return;
             }
             // Anything that would play over it or set a new patch: what it moved goes back first. Other settings, a
-            // key let go or a new tempo leave it be.
-            if (!['set', 'note-off'].includes(message.type) && !(message.type === 'transport' && !message.playing))
+            // key let go or a new tempo leave it be, and another shot takes over from it (startShot()).
+            if (!['set', 'note-off', 'shot'].includes(message.type) && !(message.type === 'transport' && !message.playing))
                 this.endShot();
         }
         if (message.type === 'shot') return this.startShot(message);
@@ -161381,19 +161382,32 @@ class KerByWorklet extends AudioWorkletProcessor {
         }
     }
 
-    /** One voice's hit on its own, as a note from silence plays it: the first its step lane lets through, from the top
-        of the bar, and nothing of the other voice. That's muted, and the duck switched off, a fade's length before the
-        note goes down, so none of the other's first hit gets through the fade; and the note is let go the block the
-        voice fires, so it fires once and rings out. Only from silence: never over a key or Play. What it moved goes back
-        once all is quiet, the other's muted hit long over by then, or before a key, Play, a preset or another shot. */
+    /** One hit of a voice on its own ('kick', 'bass'), or of both together ('both', the pig's), as a note from silence
+        plays it: each voice's first hit its step lane lets through, from the top of the bar, and nothing of a voice left
+        out. That one's muted, and the duck switched off, a fade's length before the note goes down, so none of its first
+        hit gets through the fade; and the note is let go once each voice has fired, so each fires once and rings out.
+        Only from silence: never over a key or Play. A shot asked for while one's going takes over from it, keeping what
+        that one set aside, so a run of clicks plays a hit each, however fast. What it moved goes back once all is
+        quiet, a muted voice's hit long over by then, or before a key, Play, a preset or Home. */
     startShot({ voice, note }) {
-        if (this.playing || this.held.size) return;
-        const put = {};
-        for (const id of [voice === 'kick' ? 'BASS_ENABLED' : 'KICK_ENABLED', 'BASS_DUCK_ON']) {
-            put[id] = this.engine.get(id);
-            this.engine.set(id, 0);
+        const was = this.shot;
+        this.shot = null;
+        if (was?.down) this.letGo(was);
+        if (this.playing || this.held.size) {
+            if (was) this.putBack(was.put);
+            return;
         }
-        this.shot = { voice, note, put, wait: SHOT_FADE, down: false, blocks: 0 };
+        const put = was ? was.put : {};
+        for (const id of SHOT_MOVES) if (!(id in put)) put[id] = this.engine.get(id);
+        // the voices asked for, as the patch has them: one it has switched off plays nothing
+        const voices = (voice === 'both' ? ['kick', 'bass'] : [voice]).filter(v => put[v.toUpperCase() + '_ENABLED']);
+        let muting = false;
+        for (const id of SHOT_MOVES) {
+            const value = voices.some(v => id === v.toUpperCase() + '_ENABLED') ? put[id] : 0;
+            if (id.endsWith('_ENABLED') && this.engine.get(id) && !value) muting = true;
+            this.engine.set(id, value);
+        }
+        this.shot = { voices, note, put, wait: muting ? SHOT_FADE : 1, down: false, fired: new Set(), blocks: 0 };
     }
 
     followShot() {
@@ -161405,7 +161419,14 @@ class KerByWorklet extends AudioWorkletProcessor {
             this.runClock();
             this.engine.noteOn(shot.note, 100);
             this.scopeBlocksLeft = Infinity;
-        } else if (shot.down && (this.engine.fired(shot.voice) || ++shot.blocks > SHOT_LONGEST)) this.letGo(shot);
+            return;
+        }
+        if (!shot.down) return;
+        for (const v of shot.voices) if (this.engine.fired(v)) shot.fired.add(v);
+        // Let go once each has fired; or as one that has is about to fire again, if the other's first is later still
+        // (both, on a patch whose bass waits for an offbeat behind a fast kick).
+        const again = shot.voices.some(v => shot.fired.has(v) && this.engine.nextHit(v) < 2000 * BLOCK / sampleRate);
+        if (shot.fired.size === shot.voices.length || again || ++shot.blocks > SHOT_LONGEST) this.letGo(shot);
     }
 
     letGo(shot) {
@@ -161420,7 +161441,11 @@ class KerByWorklet extends AudioWorkletProcessor {
         const shot = this.shot;
         this.shot = null;
         if (shot.down) this.letGo(shot);
-        for (const [id, value] of Object.entries(shot.put)) this.engine.set(id, value);
+        this.putBack(shot.put);
+    }
+
+    putBack(put) {
+        for (const [id, value] of Object.entries(put)) this.engine.set(id, value);
     }
 
     process(inputs, outputs) {
@@ -161461,7 +161486,7 @@ class KerByWorklet extends AudioWorkletProcessor {
     reportHits() {
         for (const voice of ['kick', 'bass'])
             if (this.engine.fired(voice) && this.engine.hitLevel(voice) >= HEARD)
-                this.port.postMessage({ type: 'hit', voice, time: currentTime, next: this.engine.nextHit(voice) });
+                this.port.postMessage({ type: 'hit', voice, time: currentTime, next: this.engine.nextHit(voice), shot: !!this.shot });
     }
 }
 
