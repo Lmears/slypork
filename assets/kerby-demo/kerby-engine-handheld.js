@@ -161259,7 +161259,7 @@ function warmUp(engine) {
     const silent = [new Float32Array(BLOCK), new Float32Array(BLOCK)];
     engine.setTransport(140, true);
     engine.noteOn(36, 100);
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 600; i++) {
         engine.process(silent);
         for (const voice of ['kick', 'bass']) {
             if (engine.fired(voice)) {
@@ -161275,7 +161275,10 @@ function warmUp(engine) {
     }
     engine.noteOff(36);
     engine.setTransport(140, false);
-    for (let i = 0; i < 400; i++) engine.process(silent);
+    for (let i = 0, quiet = 0; i < 400 && quiet < 20; i++) {
+        engine.process(silent);
+        quiet = silent.every(channel => channel.every(v => Math.abs(v) <= SILENT)) ? quiet + 1 : 0;
+    }
 }
 
 // The controls the page shows. Their values come back after anything that can move them.
@@ -161287,7 +161290,7 @@ const SCOPE_EVERY = 8;    // blocks between scope updates: about 40 a second at 
 const HEARD = 0.1;
 const QUIET_BLOCKS = Math.ceil(sampleRate / 2 / BLOCK); // half a second of silence is quiet
 // Before every shot, let Enabled gain settle in both directions (PulseVoice gainSmoothingSeconds is 20 ms).
-// Even unchanged parameters can have a pending fade: quiet restores them just before the context sleeps.
+// The same after a shot puts them back: a key or Play waits that long, and so does the page's sleep.
 const SHOT_FADE = Math.ceil(sampleRate * .03 / BLOCK);
 const SHOT_LONGEST = Math.ceil(sampleRate * 2 / BLOCK); // a step lane that lets nothing through: let go anyway
 const SHOT_MOVES = ['KICK_ENABLED', 'BASS_ENABLED', 'BASS_DUCK_ON']; // what a shot sets aside, and puts back
@@ -161305,6 +161308,8 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.bpm = 128;
         this.heard = 0;       // messages from the page, for it to match a quiet against what it's sent
         this.quietBlocks = 0; // silent blocks since the last sound or message
+        this.settling = 0;    // blocks until what a shot put back has faded in
+        this.waitingToPlay = []; // messages held till then (handle())
         this.port.onmessage = event => {
             this.heard++;
             this.quietBlocks = 0;
@@ -161348,6 +161353,12 @@ class KerByWorklet extends AudioWorkletProcessor {
             // key let go or a new tempo leave it be, and another shot takes over from it (startShot()).
             if (!['set', 'note-off', 'shot'].includes(message.type) && !(message.type === 'transport' && !message.playing))
                 this.endShot();
+        }
+        // What a shot put back fades in for SHOT_FADE: a key or Play waits for it, or its first kick would fade in
+        // too (Kick, pig, cab, then a key). Whatever comes after one waiting waits as well, to keep the order.
+        if (this.settling > 0 && (this.waitingToPlay.length || message.type === 'note-on' || (message.type === 'transport' && message.playing))) {
+            this.waitingToPlay.push(message);
+            return;
         }
         if (message.type === 'shot') return this.startShot(message);
         switch (message.type) {
@@ -161444,8 +161455,10 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.putBack(shot.put);
     }
 
+    /** What a shot moved, back as it was; a key or Play waits SHOT_FADE for it to fade in (handle()). */
     putBack(put) {
         for (const [id, value] of Object.entries(put)) this.engine.set(id, value);
+        this.settling = SHOT_FADE;
     }
 
     process(inputs, outputs) {
@@ -161454,6 +161467,11 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.engine.process(output);
         this.reportHits();
         if (this.shot) this.followShot();
+        if (this.settling > 0 && --this.settling === 0) {
+            const waited = this.waitingToPlay;
+            this.waitingToPlay = [];
+            for (const message of waited) this.handle(message);
+        }
         if (this.scopeBlocksLeft > 0 && ++this.blocks % SCOPE_EVERY === 0) {
             this.scopeBlocksLeft -= SCOPE_EVERY;
             const kick = this.engine.line('kick', SCOPE_POINTS).slice();
@@ -161476,6 +161494,11 @@ class KerByWorklet extends AudioWorkletProcessor {
         }
         if (++this.quietBlocks > QUIET_BLOCKS) {
             if (this.shot) this.endShot(); // before the page puts the context to sleep
+            // and not until what it put back has faded in: asleep, the fade would wait for the next key
+            if (this.settling > 0) {
+                this.quietBlocks = QUIET_BLOCKS;
+                return;
+            }
             this.port.postMessage({ type: 'quiet', heard: this.heard });
         }
     }
