@@ -161286,7 +161286,8 @@ const SCOPE_EVERY = 8;    // blocks between scope updates: about 40 a second at 
 // Less of a hit than this gets through the duck, and it's lost under it, so it lights nothing (kerby_hit_level).
 const HEARD = 0.1;
 const QUIET_BLOCKS = Math.ceil(sampleRate / 2 / BLOCK); // half a second of silence is quiet
-// A shot's note waits this long after a mute: KerBy fades a voice out over 20 ms (PulseVoice gainSmoothingSeconds).
+// Before every shot, let Enabled gain settle in both directions (PulseVoice gainSmoothingSeconds is 20 ms).
+// Even unchanged parameters can have a pending fade: quiet restores them just before the context sleeps.
 const SHOT_FADE = Math.ceil(sampleRate * .03 / BLOCK);
 const SHOT_LONGEST = Math.ceil(sampleRate * 2 / BLOCK); // a step lane that lets nothing through: let go anyway
 const SHOT_MOVES = ['KICK_ENABLED', 'BASS_ENABLED', 'BASS_DUCK_ON']; // what a shot sets aside, and puts back
@@ -161384,8 +161385,9 @@ class KerByWorklet extends AudioWorkletProcessor {
 
     /** One hit of a voice on its own ('kick', 'bass'), or of both together ('both', the pig's), as a note from silence
         plays it: each voice's first hit its step lane lets through, from the top of the bar, and nothing of a voice left
-        out. That one's muted, and the duck switched off, a fade's length before the note goes down, so none of its first
-        hit gets through the fade; and the note is let go once each voice has fired, so each fires once and rings out.
+        out. That one's muted, and the duck switched off, a fade's length before the note goes down. A voice brought
+        back also gets that time, so its first transient isn't faded in. The note is let go once each voice has fired,
+        so each fires once and rings out.
         Only from silence: never over a key or Play. A shot asked for while one's going takes over from it, keeping what
         that one set aside, so a run of clicks plays a hit each, however fast. What it moved goes back once all is
         quiet, a muted voice's hit long over by then, or before a key, Play, a preset or Home. */
@@ -161401,13 +161403,11 @@ class KerByWorklet extends AudioWorkletProcessor {
         for (const id of SHOT_MOVES) if (!(id in put)) put[id] = this.engine.get(id);
         // the voices asked for, as the patch has them: one it has switched off plays nothing
         const voices = (voice === 'both' ? ['kick', 'bass'] : [voice]).filter(v => put[v.toUpperCase() + '_ENABLED']);
-        let muting = false;
         for (const id of SHOT_MOVES) {
             const value = voices.some(v => id === v.toUpperCase() + '_ENABLED') ? put[id] : 0;
-            if (id.endsWith('_ENABLED') && this.engine.get(id) && !value) muting = true;
             this.engine.set(id, value);
         }
-        this.shot = { asked: voice, voices, note, put, wait: muting ? SHOT_FADE : 1, down: false, fired: new Set(), blocks: 0 };
+        this.shot = { asked: voice, voices, note, put, wait: SHOT_FADE, down: false, fired: new Set(), blocks: 0 };
     }
 
     followShot() {
