@@ -161407,7 +161407,7 @@ class KerByWorklet extends AudioWorkletProcessor {
             if (id.endsWith('_ENABLED') && this.engine.get(id) && !value) muting = true;
             this.engine.set(id, value);
         }
-        this.shot = { voices, note, put, wait: muting ? SHOT_FADE : 1, down: false, fired: new Set(), blocks: 0 };
+        this.shot = { asked: voice, voices, note, put, wait: muting ? SHOT_FADE : 1, down: false, fired: new Set(), blocks: 0 };
     }
 
     followShot() {
@@ -161482,11 +161482,12 @@ class KerByWorklet extends AudioWorkletProcessor {
 
     /** Each voice's hits, from the engine itself, as they fire, stamped with the time the block they fired in plays on
         the context's clock, so the page can draw them as they're heard rather than as they arrive, and with how long
-        until the next, so a reaction fits in what it's got. */
+        until the next, so a reaction fits in what it's got; and, for a shot's, which was asked for ('kick', 'bass' or
+        'both'), so the page can move only the one of the gang that was clicked. */
     reportHits() {
         for (const voice of ['kick', 'bass'])
             if (this.engine.fired(voice) && this.engine.hitLevel(voice) >= HEARD)
-                this.port.postMessage({ type: 'hit', voice, time: currentTime, next: this.engine.nextHit(voice), shot: !!this.shot });
+                this.port.postMessage({ type: 'hit', voice, time: currentTime, next: this.engine.nextHit(voice), shot: this.shot ? this.shot.asked : false });
     }
 }
 
