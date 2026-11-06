@@ -16,6 +16,8 @@ const SHOWN = ['KICK_RATE', 'BASS_RATE', 'KICK_GLITCH', 'BASS_GLITCH'];
 const BLOCK = 128;
 const SCOPE_POINTS = 512; // the page's scopes: the engine's 2048-bucket bar, four buckets a point
 const SCOPE_EVERY = 8;    // blocks between scope updates: about 40 a second at 44.1 or 48 kHz
+const QUIET_BLOCKS = Math.ceil(sampleRate / 2 / BLOCK); // half a second of silence is quiet
+const SILENT = 1e-5;      // -100 dBFS
 
 class KerByWorklet extends AudioWorkletProcessor {
     constructor(options) {
@@ -27,7 +29,13 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.playing = false; // the page's Play
         this.held = new Set();
         this.bpm = 128;
-        this.port.onmessage = event => (this.engine ? this.handle(event.data) : this.waiting.push(event.data));
+        this.heard = 0;       // messages from the page, for it to match a quiet against what it's sent
+        this.quietBlocks = 0; // silent blocks since the last sound or message
+        this.port.onmessage = event => {
+            this.heard++;
+            this.quietBlocks = 0;
+            this.engine ? this.handle(event.data) : this.waiting.push(event.data);
+        };
         KerByEngine.create(options.processorOptions.wasm, sampleRate, BLOCK).then(engine => {
             this.engine = engine;
             this.port.postMessage({ type: 'ready', presets: engine.description.presets, ...this.state() });
@@ -97,7 +105,21 @@ class KerByWorklet extends AudioWorkletProcessor {
             const bass = this.points(this.engine.scope('bass'));
             this.port.postMessage({ type: 'scope', kick, bass }, [kick.buffer, bass.buffer]);
         }
+        this.listenForQuiet(output);
         return true;
+    }
+
+    /** Says so once the engine has gone quiet: Play off, no key held, the scopes settled and the
+        output silent for half a second, so the reverb's tail has died away. The page suspends the
+        context then (demo.js sleep()), so the engine isn't run on silence while the tab is open.
+        Again after any message, which may have woken it. */
+    listenForQuiet(output) {
+        if (this.playing || this.held.size || this.scopeBlocksLeft > 0) { this.quietBlocks = 0; return; }
+        if (this.quietBlocks > QUIET_BLOCKS) return;
+        for (const channel of output) for (let i = 0; i < channel.length; i++) {
+            if (Math.abs(channel[i]) > SILENT) { this.quietBlocks = 0; return; }
+        }
+        if (++this.quietBlocks > QUIET_BLOCKS) this.port.postMessage({ type: 'quiet', heard: this.heard });
     }
 
     /** The bar at the page's resolution: each point the bucket furthest from zero in its group, so

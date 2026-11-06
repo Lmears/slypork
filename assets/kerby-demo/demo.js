@@ -41,7 +41,16 @@ function initDemo(root) {
     let context = null, node = null, loading = null;
     let presets = [], presetOrder = [], presetAt = 0;
     let playing = false, latched = null, bpm = DEFAULT_BPM;
-    const send = message => node?.port.postMessage(message);
+    // Once the engine has gone quiet the context is suspended (sleep(), below), and anything sent
+    // to it wakes it. Every message is counted, so a quiet the engine said before the latest one
+    // can be told apart.
+    let sent = 0, asleep = false;
+    const send = message => {
+        if (!node) return;
+        sent++;
+        if (asleep) { asleep = false; context.resume(); }
+        node.port.postMessage(message);
+    };
 
     // ---- Colours: KerBy's theme (KerbyLookAndFeel), from the CSS so dark mode follows ----------
     let colours = {};
@@ -525,6 +534,7 @@ function initDemo(root) {
     let unlocked = false;
     function unlockAudio() {
         prepare();
+        asleep = false;
         context.resume(); // inside the tap, every time: a phone call or another tab can suspend it
         if (unlocked) return;
         unlocked = true;
@@ -566,7 +576,8 @@ function initDemo(root) {
                 };
             });
             node.port.onmessage = ({ data }) => {
-                if (data.type === 'scope') {
+                if (data.type === 'quiet') sleep(data.heard);
+                else if (data.type === 'scope') {
                     for (const s of scopes) s.points = data[s.voice];
                     redrawScopes();
                 } else if (data.type === 'state') applyState(data, data.preset);
@@ -586,6 +597,17 @@ function initDemo(root) {
     }
 
     const audioReady = () => prepare();
+
+    /** The engine has gone quiet (worklet.js listenForQuiet()): Play off, no key held, its tail died
+        away. If nothing has been sent since, the context is suspended until the next message or tap.
+        A running context runs the engine on silence for as long as the tab is open, and on a Mac each
+        block it runs late is an overload coreaudiod reports: a tab left open on the Gumroad page's
+        plain JavaScript engine, about 24 a second, kept coreaudiod at a full core for days (6 Nov 2026). */
+    function sleep(heard) {
+        if (heard !== sent || asleep || playing || held.size) return;
+        asleep = true;
+        context.suspend();
+    }
 
     function applyState({ values, slots }, newHomes) {
         for (const k of knobs) {
