@@ -5,7 +5,7 @@
 // The keys play as KerBy does with a note pressed at the top of a bar: hold one and both voices
 // pulse from that moment until you let go, so taps play freely, and the worklet starts the clock
 // from the bar's top with it so a patch's transport-synced modulators play the same every time
-// (see worklet.js). Play starts the transport and holds G for you:
+// (see worklet.js). Play starts the transport and holds A for you, A0 on the C0 presets as in the plugin:
 // the latched note keeps both voices pulsing in time, a key switches it, and Stop lets go. That's
 // KerBy's Live mode with a held note, which a phone can't otherwise do while a thumb turns Rate.
 //
@@ -38,7 +38,7 @@ function initDemo(root) {
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
     let lowest = (DEFAULT_OCTAVE + 2) * 12;
     const VELOCITY = 100;
-    const PLAY_KEY = 7; // the note Play holds: G, above the keyboard's C
+    const PLAY_KEY = 9; // the note Play holds: A, above the keyboard's C (A0 in the C0 presets, as in KerBy)
 
     let context = null, node = null, loading = null;
     let presets = [], presetOrder = [], presetAt = 0;
