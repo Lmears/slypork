@@ -5,7 +5,7 @@
 // The keys play as KerBy does with a note pressed at the top of a bar: hold one and both voices
 // pulse from that moment until you let go, so taps play freely, and the worklet starts the clock
 // from the bar's top with it so a patch's transport-synced modulators play the same every time
-// (see worklet.js). Play starts the transport and holds A for you, A0 on the C0 presets as in the plugin:
+// (see worklet.js). Play starts the transport and holds A0 for you, as the plugin's Play does:
 // the latched note keeps both voices pulsing in time, a key switches it, and Stop lets go. That's
 // KerBy's Live mode with a held note, which a phone can't otherwise do while a thumb turns Rate.
 //
@@ -29,16 +29,14 @@ function initDemo(root) {
     // Tempo for each preset (by name), for the genre it was made for; anything else plays at 128.
     const PRESET_BPM = { 'Slambient': 240, 'Init': 160, 'Kerb Stomper': 160, 'DnB': 172, 'Dubstep': 140, 'Donk': 160 };
     const DEFAULT_BPM = 128, MIN_BPM = 60, MAX_BPM = 300;
-    // The keyboard's octave for each preset, as Live names them (C1 is MIDI 36, where most of the
-    // factory presets are voiced); anything else starts at C1. Switching preset moves a held note
-    // with it.
-    const PRESET_OCTAVE = { 'Slambient': 0, 'Init': 0, 'Kerb Stomper': 0, 'Techno 1': 0, 'DnB': 0, 'Dubstep': 0, 'Donk': 0 };
-    const DEFAULT_OCTAVE = 1;
+    // The keyboard's octave, as Live names them (C0 is MIDI 24): every preset in the demo is voiced
+    // there, so the keys never move.
+    const OCTAVE = 0;
     const noteName = note => `${NAMES[note % 12]}${Math.floor(note / 12) - 2}`;
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-    let lowest = (DEFAULT_OCTAVE + 2) * 12;
+    const lowest = (OCTAVE + 2) * 12;
     const VELOCITY = 100;
-    const PLAY_KEY = 9; // the note Play holds: A, above the keyboard's C (A0 in the C0 presets, as in KerBy)
+    const PLAY_KEY = 9; // the note Play holds: A0, as in KerBy
 
     let context = null, node = null, loading = null;
     let presets = [], presetOrder = [], presetAt = 0;
@@ -277,7 +275,7 @@ function initDemo(root) {
     new ResizeObserver(() => { knobs.forEach(k => k.draw()); scopes.forEach(s => s.draw()); }).observe(root);
 
     // ---- Keys -------------------------------------------------------------------------------------
-    // One octave and a C, from the preset's octave (PRESET_OCTAVE). On a computer keyboard, A to K
+    // One octave and a C, from OCTAVE. On a computer keyboard, A to K
     // are the white keys and W E T Y U the black ones, as in Live.
     const keysElement = $('.kd-keys');
     const COMPUTER_KEYS = 'awsedftgyhujk';
@@ -384,6 +382,9 @@ function initDemo(root) {
     // The keys held while Play is off, by what holds them (a pointer, a computer key or a focused
     // key button), each to its note.
     const held = new Map();
+    // Each press's number, by what's pressing, so a press waiting on the engine knows if it's been pressed since.
+    const latestPress = new Map();
+    let presses = 0;
 
     /** A key going down: while Play is on it switches the held note; otherwise it plays until it's let go. */
     async function pressKey(note, by) {
@@ -391,8 +392,11 @@ function initDemo(root) {
         if (playing) return start(note);
         if (held.has(by)) return;
         held.set(by, note);
+        const press = ++presses;
+        latestPress.set(by, press);
         showLatched();
-        if (!(await audioReady()) || held.get(by) !== note) return; // let go while the engine loaded
+        // Let go while the engine loaded, or pressed again: only the latest press still down plays, once.
+        if (!(await audioReady()) || held.get(by) !== note || latestPress.get(by) !== press) return;
         send({ type: 'note-on', note, velocity: VELOCITY });
     }
 
@@ -469,18 +473,6 @@ function initDemo(root) {
         presetName.textContent = DISPLAY_NAME[nameOf(index)] ?? nameOf(index);
         setTempo(PRESET_BPM[nameOf(index)] ?? DEFAULT_BPM);
         send({ type: 'preset', index });
-        const shift = ((PRESET_OCTAVE[nameOf(index)] ?? DEFAULT_OCTAVE) + 2) * 12 - lowest;
-        if (shift) {
-            lowest += shift;
-            labelKeys();
-            for (const [by, note] of held) { // a held key moves with the keyboard, like the latched note
-                send({ type: 'note-on', note: note + shift, velocity: VELOCITY });
-                send({ type: 'note-off', note });
-                held.set(by, note + shift);
-            }
-            if (latched !== null) start(latched + shift);
-            else showLatched();
-        }
     }
     $('.kd-preset-prev').addEventListener('click', () => choosePreset(presetAt - 1));
     $('.kd-preset-next').addEventListener('click', () => choosePreset(presetAt + 1));
