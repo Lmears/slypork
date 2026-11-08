@@ -18,28 +18,28 @@
     <h4 class="text-base pt-3 opacity-75">The sound</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
         <li><strong>Draw your own wave or drop in a sample</strong>, mono or stereo, on either voice's Wave tab.</li>
-        <li><strong>Samples follow your notes from C0.</strong> Close the tab's padlock to keep one at its recorded pitch.</li>
-        <li><strong>Amp, Pitch and Filter shapes</strong> for each hit.</li>
+        <li><strong>Samples follow your notes from C0.</strong> Close the tab's padlock to pin one to its original pitch.</li>
+        <li><strong>Amp, Pitch and Filter envelopes</strong> for each hit.</li>
         <li><strong>A Click layer on the Kick</strong>, for layering a sample over it.</li>
         <li><strong>FM, saturation, noise and downsampling</strong>, and a reverb on the Kick for a low rumble.</li>
-        <li><strong>Drag a bar from any scope into your DAW as audio</strong>, or back onto a Wave tab to play it as a sample.</li>
+        <li><strong>Drag a bar from any scope into your DAW as audio</strong>, or back onto a voice to play it as a sample.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Sidechain</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
         <li><strong>The Bass ducks under the Kick automatically</strong>, on a curve you can redraw.</li>
         <li><strong>Merge the scopes</strong> to see where the two overlap.</li>
         <li><strong>MIDI out, one short note per Kick pulse</strong>, for sidechaining anything to the Kick. In Live, use the VST3 for it.</li>
-        <li><strong>DucKy, a free ducking plugin</strong>, pay what you want, ducks the rest of your mix to KerBy's Kick with no routing: slypork.net/ducky</li>
+        <li><strong>DucKy, a free ducking plugin</strong>, pay what you want, ducks the rest of your mix to KerBy's Kick with no routing: <a href="https://slypork.net/ducky" class="link-underline">slypork.net/ducky</a></li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Modulation</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
         <li><strong>A Matrix page.</strong> Press N, or click the page icons in the footer. Eight macros, eight LFOs, both voices' envelopes, velocity and both wheels can each drive nearly any control, in up to 32 routes.</li>
         <li><strong>Drag a macro's name or an LFO's label onto a control to route it</strong>, or right-click the control and choose "Modulate with".</li>
-        <li><strong>Each LFO's Shape morphs from your drawing into the preset shapes</strong>, and a voice's Wave Shape does the same with its wave. Route a modulator to either to move it.</li>
+        <li><strong>Morph an LFO or a voice's wave from your drawing into the preset shapes</strong>: drag a macro or another LFO onto its plot.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Presets</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>29 factory presets</strong>: kick and bass grooves, drums, FX and modulation.</li>
+        <li><strong>29 factory presets</strong>: kick and bass grooves, drums and FX.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">What it runs on</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
@@ -58,7 +58,7 @@
         <li><strong>A Play button in the header gets a groove going with one click.</strong> Any key moves its note and letting go of the key doesn't stop it. On a one-shot preset it plays one hit.</li>
         <li><strong>Duck Rate on the Duck tab is one value you drag up for faster and down for slower</strong>, in place of the /2 and x2 buttons either side of it. Click it to pick from the list, or double-click it to go back to 1/4.</li>
         <li><strong>Cross on a PS5 controller works as the Play button does</strong>: either starts or stops the same note, and your keys move it as the D-pad does. It plays one hit on a one-shot preset.</li>
-        <li><strong>Wave and Click samples now follow your notes from C0.</strong> Close either tab's padlock to keep that sample at its recorded pitch.</li>
+        <li><strong>Wave and Click samples now follow your notes from C0.</strong> Close either tab's padlock to pin that sample to its original pitch.</li>
         <li><strong>Scale lock no longer changes a sample's pitch when Key is set to a note.</strong></li>
         <li><strong>Stereo samples retain their left and right channels in Wave and Click.</strong></li>
         <li><strong>The keyboard has no octave labels.</strong> Hover a key to see its note and frequency; Key's tooltip shows the same for a pinned note.</li>
@@ -70,6 +70,11 @@
         <li><strong>The waveform behind Amp, Pitch and Filter draws out as a note rings, like the scope does.</strong></li>
         <li><strong>A PS5 controller plays the KerBys whose windows are open</strong>, so it follows the track you select in Live, and plays both layers of a rack together.</li>
         <li><strong>A random LFO's levels land on its grid's Y lines</strong>, as its steps follow X: at Y 1 it jumps between the bottom and the top alone. Presets saved before this open at Y 32.</li>
+        <li><strong>Length</strong> goes up to 200%, two bars, so a Bass can last all the way to the next Kick at 2/1. Length automation drawn in an older project plays back different.</li>
+        <li><strong>Matrix</strong>: choosing an LFO that isn't showing yet as a route's source scrolls the LFO row to its new panel, the way the + does.</li>
+        <li><strong>Phase</strong> on each voice's Wave tab and on every LFO: look for a 0° in their respective strips.</li>
+        <li><strong>The Wave tab's padlock</strong> works on a drawn wave too. Closing it pins Key on the More tab to C0, and opening it sets Key back to MIDI. The Kick's padlock and the Click's are independent, so a pinned Kick can have a Click that follows your notes.</li>
+        <li><strong>Presets</strong>: Kick &amp; Bass is the first Factory folder, ahead of Drums and FX, so Next from Init lands on a kick-and-bass patch.</li>
     </ul>
     <details class="pt-6">
         <summary class="text-base font-light cursor-pointer">Earlier versions</summary>
