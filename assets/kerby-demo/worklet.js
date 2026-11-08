@@ -13,6 +13,9 @@ import { KerByEngine } from './engine.js';
 
 // The controls the page shows. Their values come back after anything that can move them.
 const SHOWN = ['KICK_RATE', 'BASS_RATE', 'KICK_GLITCH', 'BASS_GLITCH'];
+// The knobs, whose modulation rings (a preset's routes, Acid Glitch's random LFO on Kick Rate) come
+// back with every scope update, and once after a preset or Return Home.
+const KNOBS = ['KICK_RATE', 'BASS_RATE', 'KICK_GLITCH', 'BASS_GLITCH'];
 const BLOCK = 128;
 const SCOPE_POINTS = 512; // the page's scopes: the engine's 2048-bucket bar, four buckets a point
 const SCOPE_EVERY = 8;    // blocks between scope updates: about 40 a second at 44.1 or 48 kHz
@@ -26,6 +29,7 @@ class KerByWorklet extends AudioWorkletProcessor {
         this.waiting = [];
         this.blocks = 0;
         this.scopeBlocksLeft = 0;
+        this.ringsDue = false; // the rings to send after the next block: a new patch's routes have run once by then
         this.playing = false; // the page's Play
         this.held = new Set();
         this.bpm = 128;
@@ -39,6 +43,7 @@ class KerByWorklet extends AudioWorkletProcessor {
         KerByEngine.create(options.processorOptions.wasm, sampleRate, BLOCK).then(engine => {
             this.engine = engine;
             this.port.postMessage({ type: 'ready', presets: engine.description.presets, ...this.state() });
+            this.ringsDue = true;
             for (const message of this.waiting) this.handle(message);
             this.waiting = [];
         }, error => this.port.postMessage({ type: 'error', message: String(error) }));
@@ -87,10 +92,12 @@ class KerByWorklet extends AudioWorkletProcessor {
             case 'preset':
                 engine.loadPreset(message.index);
                 this.port.postMessage({ type: 'state', preset: true, ...this.state() });
+                this.ringsDue = true;
                 break;
             case 'home':
                 engine.goHome();
                 this.port.postMessage({ type: 'state', ...this.state() });
+                this.ringsDue = true;
                 break;
         }
     }
@@ -104,9 +111,20 @@ class KerByWorklet extends AudioWorkletProcessor {
             const kick = this.points(this.engine.scope('kick'));
             const bass = this.points(this.engine.scope('bass'));
             this.port.postMessage({ type: 'scope', kick, bass }, [kick.buffer, bass.buffer]);
+            this.ringsDue = true;
         }
+        if (this.ringsDue) this.sendRings();
         this.listenForQuiet(output);
         return true;
+    }
+
+    /** Each knob's modulation ring, as KerBy draws it round a modulated knob: { low, high, now } as
+        0..1 of its travel, or null for a knob no route reaches. */
+    sendRings() {
+        this.ringsDue = false;
+        const rings = {};
+        for (const id of KNOBS) rings[id] = this.engine.modulation(id);
+        this.port.postMessage({ type: 'modulation', rings });
     }
 
     /** Says so once the engine has gone quiet: Play off, no key held, the scopes settled and the

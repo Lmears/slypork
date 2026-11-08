@@ -71,6 +71,9 @@ function initDemo(root) {
     // from twelve o'clock; a 4px track and value arc 3px inside the dial, their round caps kept
     // within the angles; a 4px pill pointer 0.6 of the radius long; KerBy's home tick across the
     // track. Rate steps through its divisions, skipping any its straight/triplet setting hides.
+    // A modulated knob also gets KerbyLookAndFeel's ring: just outside the dial, the reach of the
+    // routes that move it, and a dot where they have it now, so a knob a patch moves by itself
+    // (Acid Glitch's Kick Rate) shows that it's being moved, as it does in the plugin.
     const START = Math.PI * 1.2, END = Math.PI * 2.8;
     const RATE_PX_PER_STEP = 14, GLITCH_PX_FULL_RANGE = 200;
 
@@ -87,6 +90,7 @@ function initDemo(root) {
             this.value = this.default = Number(element.dataset.default);
             this.home = null;
             this.slots = null;
+            this.modulation = null; // { low, high, now } as 0..1 of the travel, from the engine
             this.listen();
         }
 
@@ -109,6 +113,21 @@ function initDemo(root) {
             if (value === this.value) return;
             this.value = value;
             send({ type: 'set', id: this.id, value });
+            this.draw();
+        }
+
+        /** The engine's ring for this knob, or null: redrawn only when it has moved. */
+        modulate(ring) {
+            // A Rate plays whole divisions, so its ring runs between the ones it can reach: the
+            // matrix's reach is continuous, and Acid Glitch's dot sat past the end of it on 1/8.
+            if (ring && this.rate) {
+                const snap = p => Math.round(p * this.max) / this.max;
+                ring = { low: snap(ring.low), high: snap(ring.high), now: ring.now < 0 ? -1 : snap(ring.now) };
+            }
+            const was = this.modulation;
+            if (!ring && !was) return;
+            if (ring && was && ring.low === was.low && ring.high === was.high && ring.now === was.now) return;
+            this.modulation = ring;
             this.draw();
         }
 
@@ -204,6 +223,29 @@ function initDemo(root) {
             g.globalAlpha = 1;
             const p = this.proportion(this.value);
             if (p > 0) arc(START, angleOf(p), colours.strong);
+
+            if (this.modulation) {
+                const { low, high, now } = this.modulation, ringRadius = radius + 2;
+                // The ring is outside the dial, on whatever the knob stands on: a page can set its
+                // colours for that (--kd-ring, --kd-ring-dot on .kd-knob), the theme's otherwise.
+                const style = getComputedStyle(this.element);
+                const ringColour = style.getPropertyValue('--kd-ring').trim() || colours.strong;
+                const dotColour = style.getPropertyValue('--kd-ring-dot').trim() || colours.text;
+                if (high > low) {
+                    g.beginPath();
+                    g.arc(centre, centre, ringRadius, angleOf(low) - Math.PI / 2, angleOf(high) - Math.PI / 2);
+                    g.strokeStyle = ringColour;
+                    g.lineWidth = 2.5;
+                    g.lineCap = 'round';
+                    g.stroke();
+                }
+                if (now >= 0) {
+                    g.beginPath();
+                    g.arc(...at(angleOf(now), ringRadius), 2.5, 0, Math.PI * 2);
+                    g.fillStyle = dotColour;
+                    g.fill();
+                }
+            }
 
             if (this.home !== null) {
                 const angle = angleOf(this.proportion(this.home));
@@ -579,6 +621,7 @@ function initDemo(root) {
             });
             node.port.onmessage = ({ data }) => {
                 if (data.type === 'quiet') sleep(data.heard);
+                else if (data.type === 'modulation') for (const k of knobs) k.modulate(data.rings[k.id]);
                 else if (data.type === 'scope') {
                     for (const s of scopes) s.points = data[s.voice];
                     redrawScopes();

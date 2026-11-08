@@ -115,6 +115,13 @@ export class KerByEngine {
     /** A voice's scope: its last bar, scopeSize signed samples (a view: copy it to keep it). */
     scope(voice) { return this.#floats(this.#exports.kerby_scope(voice === 'kick' ? 0 : 1), this.scopeSize); }
 
+    /** A control's modulation ring, by ID, as 0..1 of its travel: { low, high, now } (now -1 while
+        nothing moves it this block), or null where no route reaches it. */
+    modulation(id) {
+        const [low, high, now] = this.#floats(this.#exports.kerby_modulation(this.#ids.get(id)), 3);
+        return low < 0 ? null : { low, high, now };
+    }
+
     /** The house button: Return Home. */
     goHome() { this.#exports.kerby_go_home(); }
 }
