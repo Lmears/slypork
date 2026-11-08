@@ -569,10 +569,9 @@ function initDemo(root) {
                 node.port.onmessage = ({ data }) => {
                     if (data.type === 'ready') {
                         presets = data.presets;
-                        // presets.txt's first preset (Slambient) leads, where KerBy shines most, then
-                        // Init (the demo's Psy) and the rest: the arrows show the range from there.
+                        // Follow presets.txt's order, with Init (shown as Psy) after Kerb Stomper.
                         presetOrder = [...presets.keys()];
-                        presetOrder.splice(presetOrder.length ? 1 : 0, 0, -1);
+                        presetOrder.splice(presetOrder.findIndex(index => nameOf(index) === 'Kerb Stomper') + 1, 0, -1);
                         applyState(data, true);
                         resolve();
                     } else if (data.type === 'error') reject(new Error(data.message));
