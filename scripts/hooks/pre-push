@@ -1,15 +1,16 @@
 #!/bin/sh
-# Rebuilds KerBy's Quick Start and User Manual on Gumroad when a push to master changes what they're
-# made from (see scripts/sync-kerby-pdfs.mjs). A failed sync never blocks the push.
+# Rebuilds KerBy's Quick Start and User Manual, and DucKy's Quick Start, on Gumroad when a push to
+# master changes what they're made from (see scripts/sync-kerby-pdfs.mjs). A failed sync never
+# blocks the push.
 # Turn it on once per clone: git config core.hooksPath scripts/hooks
 zero=0000000000000000000000000000000000000000
 while read -r local_ref local_sha remote_ref remote_sha; do
     [ "$remote_ref" = refs/heads/master ] && [ "$local_sha" != "$zero" ] || continue
     if [ "$remote_sha" != "$zero" ] && git diff --quiet "$remote_sha" "$local_sha" -- \
-        kerby assets/css assets/images/software scripts/build-kerby-pdfs.mjs; then
+        kerby ducky assets/css assets/images/software scripts/build-kerby-pdfs.mjs; then
         continue
     fi
     node scripts/sync-kerby-pdfs.mjs --commit "$local_sha" ||
-        echo "KerBy PDFs: sync failed (above); the push goes ahead. Rerun: node scripts/sync-kerby-pdfs.mjs" >&2
+        echo "Gumroad PDFs: sync failed (above); the push goes ahead. Rerun: node scripts/sync-kerby-pdfs.mjs" >&2
 done
 exit 0

@@ -1,6 +1,6 @@
-// Builds KerBy's Quick Start and User Manual PDFs from this site's /kerby/ pages, for the files
-// buyers get on Gumroad. The pages stay the only source: rerun this after editing them and the
-// PDFs follow.
+// Builds KerBy's Quick Start and User Manual PDFs from this site's /kerby/ pages, and DucKy's Quick
+// Start from /ducky/quick-start/, for the files buyers get on Gumroad (sync-kerby-pdfs.mjs uploads
+// them). The pages stay the only source: rerun this after editing them and the PDFs follow.
 //
 //   node scripts/build-kerby-pdfs.mjs [--root <dir>] [outDir]      (default out: build/kerby-pdfs)
 //
