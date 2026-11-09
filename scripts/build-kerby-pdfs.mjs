@@ -31,6 +31,12 @@ const DOCS = [
         pages: ['/kerby/install/'],
     },
     {
+        file: 'DucKy Quick Start.pdf',
+        title: 'DucKy Quick Start',
+        url: 'slypork.net/ducky',
+        pages: ['/ducky/quick-start/'],
+    },
+    {
         file: 'KerBy User Manual.pdf',
         title: 'KerBy User Manual',
         pages: [
@@ -106,7 +112,7 @@ async function build(browser, base, doc) {
     ]);
     await page.goto(base + doc.pages[0], { waitUntil: 'networkidle0' });
 
-    await page.evaluate(async ({ pages, title }) => {
+    await page.evaluate(async ({ pages, title, url }) => {
         const frame = document.querySelector('.kerby-frame');
         const parts = [];
         for (const href of pages) {
@@ -131,8 +137,9 @@ async function build(browser, base, doc) {
 
         const cover = document.createElement('div');
         cover.className = 'pdf-cover';
-        cover.innerHTML = '<h1></h1><p>slypork.net/kerby</p>';
+        cover.innerHTML = '<h1></h1><p></p>';
         cover.querySelector('h1').textContent = title;
+        cover.querySelector('p').textContent = url;
         parts[0].prepend(cover);
 
         // script.js fills in data-email links on load; these arrived after it ran.
@@ -154,7 +161,7 @@ async function build(browser, base, doc) {
         });
         frame.querySelectorAll('img').forEach((img) => { img.loading = 'eager'; });
         await Promise.all([...frame.querySelectorAll('img')].map((img) => img.decode().catch(() => {})));
-    }, { pages: doc.pages, title: doc.title });
+    }, { pages: doc.pages, title: doc.title, url: doc.url ?? 'slypork.net/kerby' });
 
     await page.addStyleTag({ content: PRINT_CSS });
     // Floating extras (the easter egg and the like) would print on every sheet.
