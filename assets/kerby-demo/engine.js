@@ -101,6 +101,11 @@ export class KerByEngine {
     /** Tempo in BPM, and whether the transport runs; starting it goes back to the top of the bar. */
     setTransport(bpm, playing) { this.#exports.kerby_set_transport(bpm, playing ? 1 : 0); }
 
+    /** Nonblocking transition, driven between process() calls by the worklet. */
+    beginPresetChange() { return this.#exports.kerby_begin_preset_change() === 1; }
+    presetChangeReady() { return this.#exports.kerby_preset_change_ready() === 1; }
+    finishPresetChange() { this.#exports.kerby_finish_preset_change(); }
+
     /** A demo preset by its index in description.presets, or -1 for Init. */
     loadPreset(index) { return this.#exports.kerby_load_preset(index) === 1; }
 

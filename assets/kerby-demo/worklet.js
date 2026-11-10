@@ -66,6 +66,19 @@ class KerByWorklet extends AudioWorkletProcessor {
     }
 
     handle(message) {
+        if (this.switching) {
+            if (message.type === 'preset') this.switching = { message, after: [] };
+            else this.switching.after.push(message);
+            return;
+        }
+        if (message.type === 'preset' && this.engine.beginPresetChange()) {
+            this.switching = { message, after: [] };
+            return;
+        }
+        this.applyMessage(message);
+    }
+
+    applyMessage(message) {
         const engine = this.engine;
         switch (message.type) {
             // The scopes run while Play is on or a key is held, and a second after both stop, to let
@@ -103,6 +116,13 @@ class KerByWorklet extends AudioWorkletProcessor {
     }
 
     process(inputs, outputs) {
+        if (this.switching && this.engine.presetChangeReady()) {
+            const { message, after } = this.switching;
+            this.switching = null;
+            this.applyMessage(message);
+            this.engine.finishPresetChange();
+            for (const waited of after) this.handle(waited);
+        }
         const output = outputs[0];
         if (!this.engine || output[0].length !== BLOCK) return true;
         this.engine.process(output);
