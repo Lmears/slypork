@@ -172379,21 +172379,32 @@ function warmUp(engine) {
         return least;
     };
     engine.clockStep = clockStep();
-    let spent = 0;
-    for (let preset = last; preset >= -1; preset--) {
-        if (engine.beginPresetChange()) {
-            for (let i = 0; i < 200 && !engine.presetChangeReady(); i++) play(1);
-            engine.loadPreset(preset);
-            engine.finishPresetChange();
-        } else engine.loadPreset(preset);
-        const from = Date.now();
-        play(WARM_UP_BLOCKS);
-        spent += Date.now() - from;
+    const timed = engine.clockStep <= 2, began = Date.now();
+    // What a block will cost once the page plays, in milliseconds, or 0 where the clock can't say: a round's cost
+    // once the rounds have settled; before that, a first round's is twice it and a later one's about a fifth over
+    // (on an M1 Pro, round by round: 0.68, 0.39 to 0.59, 0.48, 0.35, 0.33 ms in V8; 0.43, 0.38, 0.37, 0.32 in
+    // JavaScriptCore).
+    engine.warmUpCost = 0;
+    engine.warmUpSettled = false;
+    for (let round = 1, best = Infinity; round <= WARM_UP_ROUNDS; round++) {
+        let spent = 0;
+        for (let preset = last; preset >= -1; preset--) {
+            if (engine.beginPresetChange()) {
+                for (let i = 0; i < 200 && !engine.presetChangeReady(); i++) play(1);
+                engine.loadPreset(preset);
+                engine.finishPresetChange();
+            } else engine.loadPreset(preset);
+            const from = Date.now();
+            play(WARM_UP_BLOCKS);
+            spent += Date.now() - from;
+        }
+        if (!timed) break;
+        const cost = spent / (WARM_UP_BLOCKS * (last + 2));
+        engine.warmUpSettled = round > 1 && cost > best * WARM_UP_SETTLED;
+        best = Math.min(best, cost);
+        engine.warmUpCost = engine.warmUpSettled ? best : round === 1 ? best / 2 : best / 1.2;
+        if (engine.warmUpSettled || (round === 1 && cost <= WARM_UP_FAST * BLOCK_MS) || Date.now() - began > WARM_UP_LONGEST) break;
     }
-    // What a block cost the second time round, in milliseconds: about twice what it costs once the page plays (0.7
-    // against 0.3 on an M1 Pro), the browser still compiling. A device far over the 2.67 ms it has even so starts
-    // at half the rate (the worklet's START_SLOW).
-    engine.warmUpCost = spent / (WARM_UP_BLOCKS * (last + 2));
     engine.noteOff(36);
     engine.setTransport(140, false);
     engine.reset();
@@ -172404,6 +172415,10 @@ function warmUp(engine) {
     }
 }
 const WARM_UP_BLOCKS = 20;
+const WARM_UP_FAST = 0.35;     // of a block's time: under it in the first timed round, the device is fast enough as it is
+const WARM_UP_ROUNDS = 5;
+const WARM_UP_SETTLED = 0.9;   // a round within a tenth of the best so far: it has stopped getting quicker
+const WARM_UP_LONGEST = 2500;  // milliseconds of rounds, on a device so slow that it's never done
 
 // The controls the page shows. Their values come back after anything that can move them.
 const SHOWN = ['KICK_RATE', 'BASS_RATE', 'KICK_GLITCH', 'BASS_GLITCH', 'KICK_RATE_ON', 'BASS_RATE_ON'];
@@ -172432,7 +172447,14 @@ const WATCH_BLOCKS = Math.ceil(sampleRate / 4 / BLOCK); // a quarter of a second
 const LATE_MS = 5;      // a stretch ending this much further behind the clock than the one before has dropped out
 const FORGET = 8;       // stretches, 2 s: two that dropped out no further apart than this, and the rate is halved
 const STALLED_MS = 100; // this long between two blocks is the context suspended or the device stalling, not the engine
-const START_SLOW = 1.5; // the warm-up's blocks at this many times what a block has: half the rate from the start
+// The rate it starts at, from what the warm-up found a block will cost (warmUp()): the full rate if that's under ROOM
+// of the time a block has; or else half, unless at half it would still be over CROWDED, and then a quarter. It's
+// the mean of the presets: the heaviest costs a third more, and a first note more again, so a mean of 0.4 has a
+// first note near 0.8. Half gets the higher bar because a quarter gives up more of the sound; the clock is still
+// watched after (watchClock()).
+const ROOM = 0.4;
+const CROWDED = 0.55;
+const HALF_COSTS = 0.7; // what a block costs at half the rate, of what it does at the full one (measured: 0.69)
 const SLOWEST = 4;      // a quarter of the context's rate, and no lower
 // A half-band filter's taps either side of the middle, the ones that aren't 0: a Kaiser-windowed sinc, flat within
 // 0.01 dB to 0.38 of the lower rate, and what it adds above 0.62 of it 80 dB down (handheld-engine.mjs measures both).
@@ -172506,7 +172528,9 @@ class KerByWorklet extends AudioWorkletProcessor {
             this.engine = engine;
             this.port.postMessage({ type: 'ready', presets: engine.description.presets, ...this.state() });
             this.timedBy = engine.clockStep <= 2;
-            if (this.timedBy && engine.warmUpCost > START_SLOW * BLOCK_MS) this.halve();
+            if (engine.warmUpCost > ROOM * BLOCK_MS) this.halve();
+            if (engine.warmUpCost * HALF_COSTS > CROWDED * BLOCK_MS) this.halve();
+            this.port.postMessage({ type: 'rate', divide: this.divide, cost: engine.warmUpCost, settled: engine.warmUpSettled, step: engine.clockStep });
             this.ringsDue = true;
             for (const message of this.waiting) this.handle(message);
             this.waiting = [];
@@ -172798,7 +172822,7 @@ class KerByWorklet extends AudioWorkletProcessor {
     reportHits() {
         for (const voice of ['kick', 'bass'])
             if (this.engine.fired(voice) && this.engine.hitLevel(voice) >= HEARD)
-                this.port.postMessage({ type: 'hit', voice, time: currentTime, next: this.engine.nextHit(voice), shot: this.shot ? this.shot.asked : false });
+                this.port.postMessage({ type: 'hit', voice, time: currentTime, sent: Date.now(), next: this.engine.nextHit(voice), shot: this.shot ? this.shot.asked : false });
     }
 }
 
