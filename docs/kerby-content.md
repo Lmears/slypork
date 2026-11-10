@@ -4,7 +4,7 @@ The product area has three destinations. Keep the distinction when adding materi
 
 | Destination | Reader's question | What belongs here |
 | --- | --- | --- |
-| `/kerby/` — Overview | What is it, and would I use it? | Short introduction, current interface, core benefits, requirements, launch sign-up, updates. |
+| `/kerby/` — Overview | What is it, and would I use it? | Short introduction, current interface, core benefits, requirements, a buyer's common questions, launch sign-up, updates. |
 | `/kerby/learn/` — Learn | How do I use it, and what could I try? | Illustrated explanation and links to practical guides. The original product page's explanatory figures live here. |
 | `/kerby/reference/` — Reference | What does this control do? | The wiki/reference layer: searchable topics, stable heading links, precise behaviour. |
 
@@ -113,8 +113,8 @@ simplifying or redrawing the diagram.
   with a KerBy running so its cell is solid); `ducky/ducky-header-kerby-*` is cropped from the
   KerBy one with KerBy's highlight recipe (the preset button and logo faded), and
   `ducky/ducky-mode-*` crops the Tempo/MIDI/KerBy pill from each as KerBy's Live/Draw selector is
-  cropped. There's no site-images recipe for DucKy yet. Its hero's "Get notified at launch" goes to
-  KerBy's signup form (one list, one launch day).
+  cropped. There's no site-images recipe for DucKy yet. Its hero's "Get DucKy" goes to its Gumroad
+  page, `ducky.slypork.net`.
 - OrBy has no page yet, only a card on `/plugins/`, hidden until KerBy is out (Companion's plan
   says when). The card isn't a link; it has its own "Get updates" signup to the same Buttondown
   list as KerBy's (accepted signups still land on `/kerby/check-inbox/`). `OrBy_*mode.webp`

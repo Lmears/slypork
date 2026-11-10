@@ -2,7 +2,7 @@
      release.sh runs as part of cutting a drop. kerby.js fetches this into
      kerby/whats-new/. Don't hand-edit; edit CHANGELOG.md. -->
 <div class="text-lg font-light">
-    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v1.2.0</span><span class="text-base opacity-75"> &middot; 2026-11-07</span></h3>
+    <h3 class="text-lg pt-4"><span class="text-kerbyRed dark:text-kerbyDarkText">v1.2.0</span><span class="text-base opacity-75"> &middot; 2026-11-10</span></h3>
     <p class="pt-2">KerBy is a kick and bass instrument: you hold a single note and you get a kick and bass groove. This is its first public release, and this is what's in it.</p>
     <h4 class="text-base pt-3 opacity-75">Playing it</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
@@ -26,10 +26,11 @@
     </ul>
     <h4 class="text-base pt-3 opacity-75">Sidechain</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
+        <li><strong>Auto-align</strong>, on the right-click menu of the Bass's Phase: every Bass hit starts in phase with the Kick's tail, whatever note you play, to prevent phase cancellation. It also compensates for the phase shift caused by filtering.</li>
         <li><strong>The Bass ducks under the Kick automatically</strong>, on a curve you can redraw.</li>
         <li><strong>Merge the scopes</strong> to see where the two overlap.</li>
         <li><strong>MIDI out, one short note per Kick pulse</strong>, for sidechaining anything to the Kick. In Live, use the VST3 for it.</li>
-        <li><strong>DucKy, a free ducking plugin</strong>, pay what you want, ducks the rest of your mix to KerBy's Kick with no routing: <a href="https://slypork.net/ducky" class="link-underline">slypork.net/ducky</a></li>
+        <li><strong>DucKy, a free ducking plugin</strong>, pay what you want, ducks the rest of your mix to KerBy's Kick with no routing: <a href="https://ducky.slypork.net/" class="link-underline">ducky.slypork.net</a></li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">Modulation</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
@@ -39,7 +40,7 @@
     </ul>
     <h4 class="text-base pt-3 opacity-75">Presets</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
-        <li><strong>29 factory presets</strong>: kick and bass grooves, drums and FX.</li>
+        <li><strong>30 factory presets</strong>: kick and bass grooves, drums and FX.</li>
     </ul>
     <h4 class="text-base pt-3 opacity-75">What it runs on</h4>
     <ul class="list-disc pl-5 pt-1 space-y-2">
@@ -75,6 +76,8 @@
         <li><strong>Phase</strong> on each voice's Wave tab and on every LFO: look for a 0° in their respective strips.</li>
         <li><strong>The Wave tab's padlock</strong> works on a drawn wave too. Closing it pins Key on the More tab to C0, and opening it sets Key back to MIDI. The Kick's padlock and the Click's are independent, so a pinned Kick can have a Click that follows your notes.</li>
         <li><strong>Presets</strong>: Kick &amp; Bass is the first Factory folder, ahead of Drums and FX, so Next from Init lands on a kick-and-bass patch.</li>
+        <li><strong>Link to Rate</strong>, in Length's right-click menu: keep each hit's length proportional as you turn Rate.</li>
+        <li><strong>Auto-align</strong>, on the right-click menu of the Bass's Phase: every Bass hit starts in phase with the Kick's tail, whatever note you play, to prevent phase cancellation. It also compensates for the phase shift caused by filtering.</li>
     </ul>
     <details class="pt-6">
         <summary class="text-base font-light cursor-pointer">Earlier versions</summary>

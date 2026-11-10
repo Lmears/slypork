@@ -87,8 +87,8 @@
     font-weight: 300;
 }
 .kerby-email::placeholder { color: var(--kb-muted); }
-/* The hero's "Get notified at launch" button jumps here, so leave the form some air
-   above it rather than landing it hard against the top of the viewport. */
+/* Links to #notifyForm jump here, so leave the form some air above it rather than
+   landing it hard against the top of the viewport. */
 .kerby-signup { scroll-margin-top: 2rem; }
 .kerby-signup :is(input, button):focus-visible {
     outline: 2px solid var(--kb-ink);
@@ -108,6 +108,11 @@
 @media (max-width: 767px) {
     #kerbyTour video { width: min(95vw, calc(92vh * 9 / 16)); aspect-ratio: 9 / 16; }
 }
+/* Under the buy button at body size, so a buyer in a regional-pricing country sees it before the
+   US$ price puts them off. Gumroad's checkout shows their own price; no page of ours can. */
+.kerby-regional { margin-top: 1rem; font-size: .95rem; }
+.kerby-regional + .kerby-price { margin-top: .4rem; }
+.kerby-price { max-width: 37rem; margin-top: 1rem; color: var(--kb-muted); font-size: .85rem; }
 .kerby-availability { margin-top: 1.1rem; color: var(--kb-muted); font-size: .78rem; }
 .kerby-availability > span { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
@@ -132,6 +137,14 @@
 .kerby-aside { margin-top: 1.2rem; color: var(--kb-muted); font-size: .92rem; }
 .kerby-play-modes .kerby-aside { margin-top: .4rem; }
 .kerby-section p + p:not(.kerby-aside):not(.kerby-intro) { margin-top: .9rem; }
+/* The Overview's questions open in place. The + and − are drawn, not read out. */
+.kerby-faq details { max-width: 39rem; }
+.kerby-faq summary { display: flex; gap: .75rem; padding: .5rem 0; cursor: pointer; font-size: 1.0625rem; font-weight: 500; list-style: none; }
+.kerby-faq summary::-webkit-details-marker { display: none; }
+.kerby-faq summary::before { content: '+'; content: '+' / ''; flex: 0 0 .85rem; color: var(--kb-ink); }
+.kerby-faq details[open] > summary::before { content: '−'; content: '−' / ''; }
+.kerby-faq summary:hover { color: var(--kb-ink); }
+.kerby-faq details p { margin: 0 0 .9rem 1.6rem; }
 .kerby-page :is(a, input):focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 5px; }
 @media (max-width: 767px) {
     .kerby-page { margin: 0 .5rem; }

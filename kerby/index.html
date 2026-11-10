@@ -9,12 +9,12 @@
     <meta name="viewport" content="width=device-width">
     <title>KerBy — Kick &amp; Bass | Slypork</title>
     <meta name="description"
-        content="KerBy is a kick and bass instrument. Hold a note to play a pattern in time with your DAW and turn Rate for stutters, or write each hit in. Draw your own sounds or load samples; the bass ducks under every kick. macOS and Windows. Out 10 November.">
+        content="KerBy is a kick and bass instrument. Hold a note to play a pattern in time with your DAW and turn Rate for stutters, or write each hit in. Draw your own sounds or load samples; the bass ducks under every kick. macOS and Windows.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Slypork">
     <meta property="og:title" content="KerBy — Kick &amp; Bass">
     <meta property="og:description"
-        content="KerBy is a kick and bass instrument. Hold a note to play a pattern in time with your DAW and turn Rate for stutters, or write each hit in. Draw your own sounds or load samples; the bass ducks under every kick. macOS and Windows. Out 10 November.">
+        content="KerBy is a kick and bass instrument. Hold a note to play a pattern in time with your DAW and turn Rate for stutters, or write each hit in. Draw your own sounds or load samples; the bass ducks under every kick. macOS and Windows.">
     <meta property="og:url" content="https://slypork.net/kerby/">
     <meta property="og:image" content="https://slypork.net/assets/images/software/KerBy_lightmode.png">
     <meta property="og:image:width" content="1800">
@@ -107,9 +107,14 @@
                         <p class="kerby-intro">Hold a note to get a pattern going, or write each hit in your DAW.
                             Draw your own sounds, bring in samples, and shape how the two voices fit together.</p>
                         <div class="kerby-actions">
-                            <a class="kerby-button" href="#notifyForm" id="kerbyNotifyCta">Get notified at launch</a>
+                            <a class="kerby-button" href="https://shop.slypork.net/l/kerby?wanted=true">Get KerBy · US$39</a>
                             <a class="link-underline" href="#kerby-try">Play it here</a>
                         </div>
+                        <p class="kerby-regional">Cheaper in many countries: checkout shows your price.</p>
+                        <p class="kerby-price">US$39 until 24 November, then US$49, plus local tax where it applies.
+                            You can also pay in <a class="link-underline"
+                                href="https://shop.slypork.net/l/kerby?wanted=true&amp;pay_in_installments=true">four
+                                monthly payments</a>.</p>
                         <p class="kerby-tour-row">
                             <a class="kerby-button kerby-button-quiet" href="/assets/video/kerby-tour-landscape.mp4"
                                 data-kerby-tour><span class="kerby-play-mark" aria-hidden="true"></span>Watch the
@@ -119,7 +124,7 @@
                         <!-- release.sh keeps the version current, and the link leads to the notes
                              on /kerby/whats-new/. Don't spell out its marker attribute in a comment
                              on this page: the release's sed would match the comment. -->
-                        <p class="kerby-availability">Out 10 November · <a href="/kerby/whats-new/"
+                        <p class="kerby-availability"><a href="/kerby/whats-new/"
                                 class="link-underline" title="What's new" data-kerby-version>v1.2.0</a>
                             <span>macOS 11+ · AU / VST3</span>
                             <span>Windows 10+ · VST3</span>
@@ -353,6 +358,46 @@
                         <p>The voices are called Kick and Bass, but the sounds and patterns can go well beyond
                             either.</p>
                     </section>
+
+                    <!-- The answers repeat the licence page (refunds, one copy a person) and the install
+                         page (DAWs, updates): change them together. -->
+                    <section class="kerby-section kerby-faq" aria-labelledby="kerby-faq-heading">
+                        <p class="kerby-eyebrow">Before you buy</p>
+                        <h2 id="kerby-faq-heading">Common questions.</h2>
+                        <details>
+                            <summary>Which DAWs does it work in?</summary>
+                            <p>Any DAW that loads VST3 or AU instruments. There’s no AAX version, so it won’t run in
+                                Pro Tools. Here’s <a class="link-underline" href="/kerby/install/">how to install
+                                    it</a>.</p>
+                        </details>
+                        <details>
+                            <summary>Can I try it before I buy?</summary>
+                            <p>There’s no trial version, but you can play part of it <a class="link-underline"
+                                    href="#kerby-try">right here</a>. And if KerBy isn’t for you, you can <a
+                                    class="link-underline" href="/kerby/licence/#refunds">ask for a refund</a> within
+                                30 days of buying it, no questions asked.</p>
+                        </details>
+                        <details>
+                            <summary>What if I can’t afford it?</summary>
+                            <p>Prices adjust automatically in many countries, and you can split the cost into four
+                                monthly payments at checkout. If it’s still out of reach, there’s a pay-it-forward
+                                pool: every five copies sold adds a free one. Email <a class="link-underline"
+                                    data-email="payitforward">payitforward [at] slypork [dot] net</a> and I’ll send you
+                                one if any are left. There are only so many, so please leave them for people who need
+                                them. I reply once a week.</p>
+                        </details>
+                        <details>
+                            <summary>Are updates free?</summary>
+                            <p>Yes, every one. Your download link always has the latest, and you’ll get an email
+                                when one’s out.</p>
+                        </details>
+                        <details>
+                            <summary>Can I install it on more than one computer?</summary>
+                            <p>Yes, on every computer you use yourself, Mac or Windows. Studios and schools need a copy
+                                for each person using it: if that’s you, email <a class="link-underline"
+                                    data-email="dev">dev [at] slypork [dot] net</a>.</p>
+                        </details>
+                    </section>
                     <aside class="kerby-next" aria-label="Explore KerBy">
                         <a href="/kerby/learn/"><span class="kerby-eyebrow">Learn</span><strong>Get to know the
                                 instrument</strong><span>An
@@ -369,19 +414,18 @@
                          The newsletter's subscription_redirect_url returns accepted signups to
                          /kerby/check-inbox/, with or without JavaScript.
 
-                         One list for the launch announcement and each version's changelog. It
-                         used to double as beta sign-up; testers are now recruited directly, so
-                         the copy promises no build. The hero's "Get notified at launch" button
-                         scrolls here. -->
+                         One list for each version's changelog (it also carried the launch
+                         announcement). It used to double as beta sign-up; testers are now
+                         recruited directly, so the copy promises no build. DucKy's Gumroad
+                         description links to #notifyForm: keep the id. -->
                     <form id="notifyForm" class="kerby-signup pt-8"
                         action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
                         <label for="notifyEmail" class="block text-lg font-light">
-                            Get notified at launch:
+                            Get updates:
                         </label>
                         <p class="text-base font-light pt-1 opacity-75">
-                            One email when KerBy is out, then
-                            <a href="/kerby/whats-new/" class="link-underline">the changelog</a> as each
-                            new version lands.
+                            <a href="/kerby/whats-new/" class="link-underline">The changelog</a> by email as
+                            each new version lands.
                         </p>
                         <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
                             <input type="email" id="notifyEmail" name="email" required autocomplete="email"

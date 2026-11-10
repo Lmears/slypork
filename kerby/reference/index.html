@@ -100,7 +100,7 @@
                         <p class="kerby-eyebrow">KerBy reference</p>
                         <h1 class="kerby-doc-title">Find a control.</h1>
                         <p class="kerby-lead">Search by name, or open a topic below.</p>
-                        <p class="kerby-doc-meta">Checked against KerBy 1.0.0 · 28 October 2026</p>
+                        <p class="kerby-doc-meta">Checked against KerBy 1.2.0 · 10 November 2026</p>
                     </header>
                     <a class="kerby-reference-map" href="/kerby/reference/signal-flow/"><span
                             class="kerby-eyebrow">Signal flow</span><strong>Where does the sound go?
@@ -121,7 +121,8 @@
                             href="#samples" class="link-underline">Wave samples</a><a href="#click"
                             class="link-underline">The Click
                             layer</a><a href="#colour" class="link-underline">Tone, FM, Noise &amp; Crush</a><a
-                            href="#duck-reverb" class="link-underline">Duck &amp; Reverb</a><a href="#steps"
+                            href="#duck-reverb" class="link-underline">Duck &amp; Reverb</a><a href="#auto-align"
+                            class="link-underline">Auto-align</a><a href="#steps"
                             class="link-underline">The bass step row</a><a href="#performance"
                             class="link-underline">Glitch, Bend, Reverse &amp; MIDI out</a><a href="#controller"
                             class="link-underline">PS5 controller</a><a href="#matrix" class="link-underline">The
@@ -207,11 +208,17 @@
                                     between them. Automation, macros and routes on <span class="kerby-ui">Rate</span>
                                     keep to the same divisions.</dd>
                                 <dt>Length</dt>
-                                <dd>How much of a bar a pulse lasts, independently of
+                                <dd>How much of a bar a pulse lasts, up to 200% (two bars), independently of
                                     <span class="kerby-ui">Rate</span>. The shape stretches to fill it, so the longer
                                     it is, the more of the shape the next pulse cuts off. The part that’s cut off is
                                     dimmed.
                                 </dd>
+                                <dt>Link to Rate</dt>
+                                <dd>In <span class="kerby-ui">Length</span>’s right-click menu, on each voice.
+                                    <span class="kerby-ui">Length</span> becomes a share of the voice’s
+                                    <span class="kerby-ui">Rate</span> instead of a bar: at 100% each hit lasts until
+                                    the next, at 50% half that, whatever the <span class="kerby-ui">Rate</span>. Switching it
+                                    keeps the length you hear. A filled % means it’s on.</dd>
                                 <dt>Q — Quantize</dt>
                                 <dd>While the DAW is playing, moves a note that arrives off the beat forward to the next
                                     division of that voice’s <span class="kerby-ui">Rate</span>, so a late press still
@@ -387,6 +394,10 @@
                                     holding
                                     it. A loaded sample ignores it.
                                 </dd>
+                                <dt>Phase</dt>
+                                <dd>Where in the cycle every hit starts, 0° to 360°: the box left of the
+                                    <span class="kerby-ui">Wave</span> tab’s grid. It hides while a sample is loaded. On the
+                                    bass, its right-click menu has <a href="#auto-align" class="link-underline">Auto-align</a>.</dd>
                                 <dt>Amp</dt>
                                 <dd>The level over the duration of a hit.</dd>
                                 <dt>Filter</dt>
@@ -567,6 +578,43 @@
                             <p class="kerby-related"><a href="/kerby/learn/shape-the-duck/"
                                     class="link-underline">Guide: find the space between hits</a></p>
                         </section>
+                        <section id="auto-align" data-reference>
+                            <h2><a href="#auto-align" class="link-underline">Auto-align</a></h2>
+                            <figure class="kerby-shot">
+                                <picture>
+                                    <source media="(prefers-reduced-motion: reduce)"
+                                        srcset="/assets/images/software/kerby-learn/kerby-auto-align-still.webp">
+                                    <img src="/assets/images/software/kerby-learn/kerby-auto-align.webp" width="1784"
+                                        height="1132" loading="lazy"
+                                        alt="KerBy playing Techno 1, its kick and bass in one scope, zoomed in where the kick’s tail meets the bass. With Auto-align off, their sum, the white line, barely moves: the two cancel out. The pointer right-clicks the bass’s Phase box and chooses Auto-align, and the white line swings several times as wide. On a new note it stays that wide.">
+                                </picture>
+                            </figure>
+                            <p>Where the kick’s tail runs into a bass hit, the two can cancel out. The
+                                <span class="kerby-ui">Phase</span> that avoids it changes with every note and
+                                tempo, so Auto-align works it out on each bass hit: it lines the bass up with the
+                                tail as the hit starts, then stops the bass’s filter pulling it out of line.</p>
+                            <dl>
+                                <dt>The start</dt>
+                                <dd>Each bass hit starts at the phase that adds the most low end with the kick’s tail
+                                    across the whole overlap. The bass’s <span class="kerby-ui">Phase</span> becomes an
+                                    offset from there: 0° is in phase, 180° deliberately against.</dd>
+                                <dt>The filter</dt>
+                                <dd>As a low-pass cutoff closes through a note, it delays the note more and more,
+                                    pulling it flat and out of phase. Until the kick’s tail ends, Auto-align raises the
+                                    bass’s pitch by the same amount, so the note stays on pitch and in phase.</dd>
+                                <dt>On and off</dt>
+                                <dd>Right-click the bass’s <span class="kerby-ui">Phase</span>. It’s on by default,
+                                    shown by a filled °.</dd>
+                                <dt>Held notes</dt>
+                                <dd>A bass note held through a kick it didn’t start on is realigned at that kick, only
+                                    while the duck holds it silent, so the jump is never heard.</dd>
+                                <dt>A muted kick</dt>
+                                <dd>The bass still aligns to it, so soloing the bass plays it as it sounds in the
+                                    mix.</dd>
+                            </dl>
+                            <p class="kerby-related"><a href="/kerby/learn/shape-the-duck/"
+                                    class="link-underline">Guide: find the space between hits</a></p>
+                        </section>
                         <section id="steps" data-reference>
                             <h2><a href="#steps" class="link-underline">The bass step row</a></h2>
                             <figure class="kerby-shot kerby-step-toggle">
@@ -695,7 +743,7 @@
                         <section id="matrix" data-reference>
                             <h2><a href="#matrix" class="link-underline">The Matrix</a></h2>
                             <p>The modulation page. Open it from the pair of icons in the footer, or press N. Up to
-                                sixteen routes each connect a source to nearly any control on either voice.</p>
+                                32 routes each connect a source to nearly any control on either voice.</p>
                             <figure class="kerby-shot">
                                 <picture>
                                     <source media="(prefers-color-scheme: dark)"
@@ -712,11 +760,14 @@
                                     more, and right-clicking one hides it. A hidden macro keeps working. Click a macro’s
                                     name to rename it.</dd>
                                 <dt>LFOs</dt>
-                                <dd>Up to four drawn modulators, added with <span class="kerby-ui">+</span>. Each has a
+                                <dd>Up to eight drawn modulators, added with <span class="kerby-ui">+</span>. Each has a
                                     rate, Sync or Free, and a
                                     curve you draw in the same editor as the voices’ shapes, or a live random mode. Its
                                     restart menu picks when it starts again: with the transport, on each note, on each
                                     kick or bass step, or once per note.</dd>
+                                <dt>LFO Phase</dt>
+                                <dd>Where in its curve an LFO starts at each restart, 0° to 360°: the degree box in its
+                                    strip.</dd>
                                 <dt>Shape</dt>
                                 <dd>Morphs an LFO from your drawing through Sine, Triangle, Ramp Up, Ramp Down, Square
                                     and Sidechain Duck, and is itself something a route can move. Each voice’s <a
