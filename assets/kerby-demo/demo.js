@@ -512,6 +512,46 @@ function initDemo(root) {
         send({ type: 'home' });
     });
 
+    // ---- A tap with another finger down -----------------------------------------------------------
+    // A phone makes a click only from a finger that's alone on the screen. With a key held, or a
+    // thumb on a Rate, a tap on the house, Play or a preset arrow did nothing until the other finger
+    // let go (11 Nov 2026), and that's the gesture the house is for. So a touch that shared the screen
+    // with another, and went down and came up on one of the demo's buttons, is clicked from here; the
+    // browser's own click for it, where one comes after all, is dropped. The keys take their own
+    // touches.
+    {
+        const touching = new Map(); // each touch that's down: its button, where it landed, whether it has had company
+        let made = null, madeAt = 0;
+        const buttonOf = target => {
+            const button = target instanceof Element ? target.closest('button') : null;
+            return button && root.contains(button) && !button.classList.contains('kd-key') ? button : null;
+        };
+        document.addEventListener('pointerdown', event => {
+            if (event.pointerType !== 'touch') return;
+            if (event.isPrimary) touching.clear(); // the first of a new set of touches: none of an old set is still down
+            touching.set(event.pointerId, { button: buttonOf(event.target), x: event.clientX, y: event.clientY, shared: false });
+            if (touching.size > 1) for (const touch of touching.values()) touch.shared = true;
+        }, true);
+        const lift = event => {
+            const touch = touching.get(event.pointerId);
+            if (!touch) return;
+            touching.delete(event.pointerId);
+            if (event.type !== 'pointerup' || !touch.shared || !touch.button || touch.button.disabled) return;
+            if (Math.hypot(event.clientX - touch.x, event.clientY - touch.y) > 12) return; // it moved: not a tap
+            if (!touch.button.contains(document.elementFromPoint(event.clientX, event.clientY))) return;
+            made = touch.button;
+            madeAt = performance.now();
+            touch.button.click();
+        };
+        document.addEventListener('pointerup', lift, true);
+        document.addEventListener('pointercancel', lift, true);
+        document.addEventListener('click', event => {
+            if (!event.isTrusted || !made || performance.now() - madeAt > 400 || !made.contains(event.target)) return;
+            event.stopImmediatePropagation();
+            event.preventDefault();
+        }, true);
+    }
+
     // ---- Presets and tempo ------------------------------------------------------------------------
     const presetName = $('.kd-preset-name');
     const tempoInput = $('.kd-tempo input');
