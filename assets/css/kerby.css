@@ -108,11 +108,6 @@
 @media (max-width: 767px) {
     #kerbyTour video { width: min(95vw, calc(92vh * 9 / 16)); aspect-ratio: 9 / 16; }
 }
-/* Under the buy button at body size, so a buyer in a regional-pricing country sees it before the
-   US$ price puts them off. Gumroad's checkout shows their own price; no page of ours can. */
-.kerby-regional { margin-top: 1rem; font-size: .95rem; }
-.kerby-regional + .kerby-price { margin-top: .4rem; }
-.kerby-price { max-width: 37rem; margin-top: 1rem; color: var(--kb-muted); font-size: .85rem; }
 .kerby-availability { margin-top: 1.1rem; color: var(--kb-muted); font-size: .78rem; }
 .kerby-availability > span { display: block; margin-top: .2rem; }
 .kerby-preview { margin: .4rem 0 0; }
