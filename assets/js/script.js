@@ -1,3 +1,12 @@
+// Cloudflare Web Analytics, only on the live site: local previews, PDF builds and page tests aren't visits.
+if (location.hostname === 'slypork.net') {
+    const beacon = document.createElement('script');
+    beacon.type = 'module';
+    beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+    beacon.dataset.cfBeacon = '{"token": "7b8f70bafd74472d9cb7a1873b1347fa"}';
+    document.head.appendChild(beacon);
+}
+
 // Utility functions
 function getLogoPath(file) {
     return '/assets/images/' + file;

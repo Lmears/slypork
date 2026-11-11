@@ -6,6 +6,8 @@ from urllib.parse import urljoin, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://slypork.net"
+# Cloudflare Web Analytics' beacon, which assets/js/script.js adds on slypork.net itself.
+CLOUDFLARE = "https://static.cloudflareinsights.com"
 
 
 class Page(HTMLParser):
@@ -41,7 +43,7 @@ class Page(HTMLParser):
                 "default-src": ["'none'"],
                 # The KerBy page runs the instrument's engine as WebAssembly (assets/kerby-demo).
                 # 'wasm-unsafe-eval' lets it compile that and nothing else: JavaScript eval stays blocked.
-                "script-src": ["'self'", "'wasm-unsafe-eval'"] if kerby else ["'self'"],
+                "script-src": ["'self'", "'wasm-unsafe-eval'", CLOUDFLARE] if kerby else ["'self'", CLOUDFLARE],
                 "object-src": ["'none'"], "base-uri": ["'none'"],
                 # Chromium also checks the destination of form redirects. Only the
                 # KerBy signup page needs to return to our own confirmation instructions.
