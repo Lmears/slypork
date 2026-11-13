@@ -63,25 +63,11 @@ simplifying or redrawing the diagram.
   every page. Update all copies when changing its destinations.
 - `assets/css/kerby.css` is served directly and owns the product area's styles.
   Existing utility styles still come from the committed Tailwind `output.css`.
-- `assets/js/kerby.js` owns signup, changelog loading and reference search.
+- `assets/js/kerby.js` owns the demo link, changelog loading and reference search.
   New functions should return early on pages without their controls.
-- Signup uses a native HTML POST to Buttondown, including with JavaScript enabled.
-  Keep the hero button's synchronous email-field focus for mobile. Do not intercept
-  submission with `fetch`: Buttondown may return a validation or CAPTCHA page that
-  the visitor must see. Its embed endpoint is not a JSON success API; HTTP 400 was
-  previously observed for a pending-confirmation page, but treating every response
-  below 500 as success also hides genuine rejections and rate limits. Follow
-  [Buttondown's embed instructions](https://docs.buttondown.com/building-your-subscriber-base).
-- Links to `/kerby/#notifyForm`, including the check-inbox page's retry link, scroll
-  to the form and focus its email field on arrival and history restoration. Mobile
-  browsers may require a fresh tap to open the keyboard after crossing pages.
-- After accepted signup, Buttondown's newsletter setting `subscription_redirect_url`
-  must point to `https://slypork.net/kerby/check-inbox/`. Publish that static page before
-  enabling the redirect. It explains email confirmation without claiming activation,
-  works without JavaScript, and is excluded from search indexing. Keep
-  `subscription_confirmation_redirect_url` separate: that is for the later email click.
-  The Overview's `form-action` also permits `'self'` so Chromium allows the return redirect.
-  See [Buttondown's redirect settings](https://docs.buttondown.com/api-newsletters-update).
+- The Buttondown signup is retired: buyers get Gumroad's update emails. Links already shared
+  to `/kerby/#notifyForm` land on the FAQ's "Are updates free?", which carries that id, and
+  `/kerby/check-inbox/` (Buttondown's old redirect target) now says updates come from Gumroad.
 - Every image KerBy draws itself is generated, not hand-made: the Overview's full captures
   (`KerBy_*mode.png`, `KerBy_matrix_*`, `KerBy_duck_*`), every `kerby-learn/kerby-*` crop and
   strip, the `thumb-rates`, `thumb-duck` and `thumb-click` thumbnails, and Reference's PS5
@@ -116,8 +102,7 @@ simplifying or redrawing the diagram.
   cropped. There's no site-images recipe for DucKy yet. Its hero's "Get DucKy" goes to its Gumroad
   page, `ducky.slypork.net`.
 - OrBy has no page yet, only a card on `/plugins/`, hidden until KerBy is out (Companion's plan
-  says when). The card isn't a link; it has its own "Get updates" signup to the same Buttondown
-  list as KerBy's (accepted signups still land on `/kerby/check-inbox/`). `OrBy_*mode.webp`
+  says when). The card isn't a link. `OrBy_*mode.webp`
   are OrBy's First Light editor screenshots, from `ORBY_EDITOR_SHOTS=<dir>
   build-dev/tests/orby_editor_tests` in slypork-plugins' `OrBy/`, scaled to 1800 px wide and
   converted with `cwebp -q 88` (as PNGs they're over 1 MB).
@@ -137,7 +122,7 @@ simplifying or redrawing the diagram.
   against the panel background.
 - New nested pages use root-relative assets and navigation. Shared logo hover and boid
   image loading also use root-relative paths so they work at any route depth.
-- Keep the version markers and signup on `/kerby/`, and the changelog container on
+- Keep the version markers on `/kerby/`, and the changelog container on
   `/kerby/whats-new/`. The plugin release scripts own the generated changelog and check for that
   container there; the reference's review date is maintained separately. Do not move the
   changelog without changing and verifying that integration.

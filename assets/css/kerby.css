@@ -75,7 +75,7 @@
     transition: transform .18s ease, box-shadow .18s ease;
 }
 .kerby-button:disabled { opacity: .6; }
-/* Preserve the landing position of the retired signup fragment. */
+/* The retired signup's fragment now lands on the updates question. */
 #notifyForm { scroll-margin-top: 2rem; }
 .kerby-button:hover { transform: translateY(-2px); box-shadow: 0 4px 0 var(--kb-accent-line); }
 .kerby-text-link { font-size: 1rem; }
