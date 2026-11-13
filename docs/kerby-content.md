@@ -102,7 +102,8 @@ simplifying or redrawing the diagram.
   cropped. There's no site-images recipe for DucKy yet. Its hero's "Get DucKy" goes to its Gumroad
   page, `ducky.slypork.net`.
 - OrBy has no page yet, only a card on `/plugins/`, hidden until KerBy is out (Companion's plan
-  says when). The card isn't a link. `OrBy_*mode.webp`
+  says when). The card isn't a link; its last line goes to `shop.slypork.net/subscribe`, Gumroad's
+  follow page, and followers are emailed with `gumroad emails create --audience followers`. `OrBy_*mode.webp`
   are OrBy's First Light editor screenshots, from `ORBY_EDITOR_SHOTS=<dir>
   build-dev/tests/orby_editor_tests` in slypork-plugins' `OrBy/`, scaled to 1800 px wide and
   converted with `cwebp -q 88` (as PNGs they're over 1 MB).

@@ -395,13 +395,15 @@ a.plugins-kerby-card:hover { border-color: var(--kb-ink); }
 .plugins-kerby .kerby-availability { margin-top: .5rem; }
 .plugins-kerby-cta { margin-top: 1.2rem; color: var(--kb-ink); font-size: .95rem; font-weight: 500; }
 .plugins-kerby-cta span { display: inline-block; vertical-align: 2px; transition: transform .18s ease; }
-a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: translate(3px, -3px); }
+a.plugins-kerby-card:hover .plugins-kerby-cta span,
+.plugins-kerby-cta a:hover span { transform: translate(3px, -3px); }
+.plugins-kerby-cta a { color: inherit; }
 @media (max-width: 767px) {
     .plugins-kerby-card { grid-template-columns: 1fr; padding: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     .plugins-kerby-card, .plugins-kerby-cta span { transition: none; }
-    a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: none; }
+    a.plugins-kerby-card:hover .plugins-kerby-cta span, .plugins-kerby-cta a:hover span { transform: none; }
 }
 .kerby-terms-list { list-style: disc; padding-left: 1.3rem; margin: .85rem 0; }
 .kerby-terms-list li { margin: .5rem 0; padding-left: .2rem; }
