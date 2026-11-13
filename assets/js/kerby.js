@@ -1,65 +1,8 @@
-// /kerby/'s "follow along" signup and product illustrations.
-//
-// One list, two things arriving on it: word when KerBy is released, and a changelog
-// email with each new version. The page's copy names both - a signup that promised
-// only the release would make the build notes read as spam to whoever didn't ask.
-//
-// The form posts to Buttondown's public embed endpoint, which needs no API key -
-// so nothing secret ends up in the page source. Without JS the form still submits
-// normally; Buttondown redirects accepted signups to our check-inbox page and
-// renders any validation or CAPTCHA page itself.
-// Keep that navigation even with JS: fetching the embed endpoint hides challenges
-// visitors may need to complete. A response below HTTP 500 does not mean success.
-// https://docs.buttondown.com/building-your-subscriber-base
-
-function initNotifyForm() {
-    var form = document.getElementById('notifyForm');
-    if (!form) return;
-
-    var input = document.getElementById('notifyEmail');
-    var cta = document.getElementById('kerbyNotifyCta');
-
-    function focusSignup() {
-        form.scrollIntoView({ block: 'start' });
-        input.focus({ preventScroll: true });
-    }
-
-    function focusLinkedSignup() {
-        if (location.hash === '#notifyForm') focusSignup();
-    }
-
-    // The hero button is an anchor to this form, so without JS it still jumps there.
-    // With JS it also puts the cursor in the field, so a visitor can tap the button and
-    // start typing. The focus has to happen synchronously inside the click: iOS (and
-    // Instagram's in-app browser, where most of these visits come from) only raises
-    // the keyboard for a focus() made during the user's own tap, and silently ignored
-    // the old setTimeout one. So the scroll is done here too rather than left to the
-    // browser, and preventScroll keeps focus() from making a jump of its own.
-    // The hero action leaves the URL as it was.
-    if (cta) cta.addEventListener('click', function (event) {
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        focusSignup();
-    });
-
-    // Links from other pages (including "try again") should focus the same field.
-    // Mobile browsers may still require another tap to open the keyboard after navigation.
-    focusLinkedSignup();
-    window.addEventListener('hashchange', focusLinkedSignup);
-    window.addEventListener('pageshow', focusLinkedSignup);
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNotifyForm);
-} else {
-    initNotifyForm();
-}
-
 // The hero's "Play it here" is an anchor to the web demo, so without JS it jumps
 // there with the demo's top edge at the top of the window. With JS the demo lands
 // in the middle of the window instead, where the eye already is. A window too short
 // to hold all of it (a phone on its side) still gets the top edge, so Play stays
-// in view. Like the signup button, it leaves the URL as it was.
+// in view. It leaves the URL as it was.
 //
 // A link from elsewhere to /kerby/#kerby-try (the Instagram Story's sticker) lands
 // the same way, with the pinned nav tucked away (script.js's navTuck), so the demo

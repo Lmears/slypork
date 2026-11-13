@@ -408,33 +408,15 @@
             <section class="visual-container-bottom" id="kerbyDetail">
                 <div class="mx-2 md:mx-4 my-4 md:my-8">
 
-                    <!-- Native POST preserves Buttondown validation and CAPTCHA pages.
-                         The newsletter's subscription_redirect_url returns accepted signups to
-                         /kerby/check-inbox/, with or without JavaScript.
-
-                         One list for each version's changelog (it also carried the launch
-                         announcement). It used to double as beta sign-up; testers are now
-                         recruited directly, so the copy promises no build. DucKy's Gumroad
-                         description links to #notifyForm: keep the id. -->
-                    <form id="notifyForm" class="kerby-signup pt-8"
-                        action="https://buttondown.com/api/emails/embed-subscribe/slypork" method="post">
-                        <label for="notifyEmail" class="block text-lg font-light">
-                            Get updates:
-                        </label>
+                    <!-- Keep the old signup fragment working for links already shared. -->
+                    <div id="notifyForm" class="pt-8">
+                        <p class="text-lg font-light">Updates by email</p>
                         <p class="text-base font-light pt-1 opacity-75">
-                            <a href="/kerby/whats-new/" class="link-underline">The changelog</a> by email as
-                            each new version lands.
+                            Buyers receive an email from Gumroad when a new version is out.
+                            Get KerBy at <a href="https://kerby.slypork.net/" class="link-underline">kerby.slypork.net</a>,
+                            or read <a href="/kerby/whats-new/" class="link-underline">the changelog</a>.
                         </p>
-                        <div class="flex flex-col sm:flex-row gap-3 pt-3 max-w-md">
-                            <input type="email" id="notifyEmail" name="email" required autocomplete="email"
-                                placeholder="you@example.com" class="kerby-email">
-                            <input type="hidden" name="embed" value="1">
-                            <button type="submit" id="notifyButton"
-                                class="kerby-button flex items-center justify-center text-center">
-                                Send
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                     <p class="text-base font-light pt-8 opacity-75">Runs on macOS 11 or later, Apple Silicon or
                         Intel, and 64-bit Windows 10 or later.
                         <a href="/kerby/install/#requirements" class="link-underline">What you need</a>

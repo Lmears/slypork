@@ -1,7 +1,7 @@
 /* KerBy overview, guides and reference. Served directly, like the page's JavaScript. */
 .kerby-content { min-width: 0; }
 .kerby-page { --kb-image-radius: 8px; /* KerbyLookAndFeel::panelCornerRadius, used by the scopes. */ }
-.kerby-page, .kerby-signup {
+.kerby-page {
     --kb-ink: #91344e;
     --kb-accent: #ff6f91;
     --kb-accent-line: #e7c1cc;
@@ -75,25 +75,8 @@
     transition: transform .18s ease, box-shadow .18s ease;
 }
 .kerby-button:disabled { opacity: .6; }
-.kerby-signup .kerby-email {
-    flex: 1;
-    min-width: 0;
-    border: 1px solid var(--kb-accent-line);
-    border-radius: .35rem;
-    padding: .65rem .75rem;
-    background: var(--kb-panel);
-    color: var(--kb-ink);
-    font-size: 1rem;
-    font-weight: 300;
-}
-.kerby-email::placeholder { color: var(--kb-muted); }
-/* Links to #notifyForm jump here, so leave the form some air above it rather than
-   landing it hard against the top of the viewport. */
-.kerby-signup { scroll-margin-top: 2rem; }
-.kerby-signup :is(input, button):focus-visible {
-    outline: 2px solid var(--kb-ink);
-    outline-offset: 4px;
-}
+/* Preserve the landing position of the retired signup fragment. */
+#notifyForm { scroll-margin-top: 2rem; }
 .kerby-button:hover { transform: translateY(-2px); box-shadow: 0 4px 0 var(--kb-accent-line); }
 .kerby-text-link { font-size: 1rem; }
 .kerby-tour-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-top: 1rem; color: var(--kb-muted); font-size: .78rem; }
@@ -152,7 +135,7 @@
 }
 @media (prefers-color-scheme: dark) {
     .kerby-header { --kb-ink: #ffc2d1; }
-    .kerby-page, .kerby-signup { --kb-ink: #ffc2d1; --kb-accent: #ff7d9c; --kb-accent-line: #63434f; --kb-panel: #2b2226; --kb-line: rgba(230, 231, 227, .5); --kb-muted: #bbb2b5; }
+    .kerby-page { --kb-ink: #ffc2d1; --kb-accent: #ff7d9c; --kb-accent-line: #63434f; --kb-panel: #2b2226; --kb-line: rgba(230, 231, 227, .5); --kb-muted: #bbb2b5; }
     .kerby-fig { --kerby-home-icon: var(--kerby-accent); }
 }
 
@@ -367,7 +350,7 @@ kbd {
 .ducky .kerby-section:last-child { border-bottom: 0; }
 
 /* OrBy's card in its Lake inks: ink A, its text and grid mixes, and the paper (OrBy's Palette.h). */
-.kerby-page.orby, .orby .kerby-signup {
+.kerby-page.orby {
     --kb-ink: #1a447e;
     --kb-accent: #235ba8;
     --kb-accent-line: #b7c4d3;
@@ -375,7 +358,7 @@ kbd {
     --kb-muted: #565a61;
 }
 @media (prefers-color-scheme: dark) {
-    .kerby-page.orby, .orby .kerby-signup {
+    .kerby-page.orby {
         --kb-ink: #9ebef2; --kb-accent: #8db2f0; --kb-accent-line: #3c475c; --kb-panel: #1c1d22; --kb-muted: #b3b6bd;
     }
 }
@@ -413,9 +396,6 @@ a.plugins-kerby-card:hover { border-color: var(--kb-ink); }
 .plugins-kerby-cta { margin-top: 1.2rem; color: var(--kb-ink); font-size: .95rem; font-weight: 500; }
 .plugins-kerby-cta span { display: inline-block; vertical-align: 2px; transition: transform .18s ease; }
 a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: translate(3px, -3px); }
-/* A card with no page (OrBy's) isn't a link, and signs up for updates in place of one. */
-.plugins-kerby-signup { margin-top: 1.2rem; }
-.plugins-kerby-signup .plugins-kerby-cta { margin-top: 0; }
 @media (max-width: 767px) {
     .plugins-kerby-card { grid-template-columns: 1fr; padding: 1rem; }
 }
