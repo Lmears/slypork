@@ -17,15 +17,14 @@ Changes are local until committed and pushed to `master`.
 | Unnecessary local process runner | `concurrently` existed only to launch the CSS watcher and preview server together | Removed it and 25 locked packages; watcher and server now use separate commands |
 | No ongoing dependency checks or credential ignore patterns | Future maintenance risk | Added weekly npm audit, Dependabot, static security checks and common credential-file ignores |
 
-CSP explicitly permits the existing embedded services, the Buttondown form,
-and integrity-checked Font Awesome CSS. It blocks unapproved scripts, frames,
-connections, forms, base URL changes, and objects. Inline styles remain allowed
-because existing layout code and SVG illustrations use them. This policy is
-specific to the portfolio and must not be copied onto Jellyfin.
+CSP explicitly permits the existing embedded services and integrity-checked
+Font Awesome CSS. It blocks unapproved scripts, frames, connections, forms,
+base URL changes, and objects. Inline styles remain allowed because existing
+layout code and SVG illustrations use them. This policy is specific to the
+portfolio and must not be copied onto Jellyfin.
 
 The DOM review found no demonstrated user-input-to-HTML execution path. Existing
-`innerHTML` uses insert fixed markup or the repository's own SVG sprite. The
-Buttondown embed endpoint is intentionally public and contains no API secret.
+`innerHTML` uses insert fixed markup or the repository's own SVG sprite.
 The history scan found no matches for the tested private-key, GitHub/AWS token,
 Cloudflare credential, or quoted credential-assignment patterns. This is a
 limited pattern scan, not proof that no secret has ever been exposed. It excludes

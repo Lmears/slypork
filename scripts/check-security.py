@@ -45,9 +45,7 @@ class Page(HTMLParser):
                 # 'wasm-unsafe-eval' lets it compile that and nothing else: JavaScript eval stays blocked.
                 "script-src": ["'self'", "'wasm-unsafe-eval'", CLOUDFLARE] if kerby else ["'self'", CLOUDFLARE],
                 "object-src": ["'none'"], "base-uri": ["'none'"],
-                # Chromium also checks the destination of form redirects. Only the
-                # KerBy signup page needs to return to our own confirmation instructions.
-                "form-action": ["'self'", "https://buttondown.com"] if kerby else ["https://buttondown.com"],
+                "form-action": ["'none'"],
             }.items():
                 self.check(self.policy.get(directive) == expected, f"unsafe {directive}")
             self.check("frame-ancestors" not in self.policy, "frame-ancestors needs an HTTP header")
