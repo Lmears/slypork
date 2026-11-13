@@ -149,7 +149,17 @@ function initDemo(root) {
         listen() {
             const el = this.element;
             let drag = null, lastTap = 0;
-            el.addEventListener('pointerdown', event => {
+            // Turning a knob from silence starts Play, so the change can be heard. Only a real change by a real
+            // gesture: a click that doesn't move it, a preset or Return Home don't, and a key held keeps playing
+            // under it. A page that starts Play its own way sets root.kbKnobsPlay to false.
+            const heard = handler => event => {
+                const before = this.value;
+                handler(event);
+                if (this.value === before || !event.isTrusted || playing || held.size || root.kbKnobsPlay === false) return;
+                unlockAudio();
+                start();
+            };
+            el.addEventListener('pointerdown', heard(event => {
                 if (event.button !== 0) return;
                 el.setPointerCapture(event.pointerId);
                 const now = performance.now();
@@ -159,32 +169,32 @@ function initDemo(root) {
                 lastTap = now;
                 drag = { x: event.clientX, y: event.clientY, value: this.value, moved: false };
                 el.classList.add('kd-dragging');
-            });
-            el.addEventListener('pointermove', event => {
+            }));
+            el.addEventListener('pointermove', heard(event => {
                 if (!drag || !el.hasPointerCapture(event.pointerId)) return;
                 const travel = (drag.y - event.clientY) + (event.clientX - drag.x);
                 if (Math.abs(travel) > 3) { drag.moved = true; lastTap = 0; }
                 if (this.rate) this.set(drag.value + Math.round(travel / RATE_PX_PER_STEP));
                 else this.set(drag.value + travel * (this.max / GLITCH_PX_FULL_RANGE) * (event.shiftKey ? 0.25 : 1));
-            });
+            }));
             const end = () => { drag = null; el.classList.remove('kd-dragging'); };
             el.addEventListener('pointerup', end);
             el.addEventListener('pointercancel', end);
             let wheel = 0;
-            el.addEventListener('wheel', event => {
+            el.addEventListener('wheel', heard(event => {
                 event.preventDefault();
                 wheel += event.deltaY;
                 while (Math.abs(wheel) >= 40) {
                     this.step(wheel < 0 ? 1 : -1);
                     wheel -= Math.sign(wheel) * 40;
                 }
-            }, { passive: false });
-            el.addEventListener('keydown', event => {
+            }), { passive: false });
+            el.addEventListener('keydown', heard(event => {
                 const direction = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[event.key];
                 if (direction) { event.preventDefault(); this.step(direction); }
                 else if (event.key === 'Home') { event.preventDefault(); this.set(this.min); }
                 else if (event.key === 'End') { event.preventDefault(); this.set(this.max); }
-            });
+            }));
         }
 
         draw() {
@@ -556,7 +566,7 @@ function initDemo(root) {
 
     // ---- Presets and tempo ------------------------------------------------------------------------
     const presetName = $('.kd-preset-name');
-    const tempoInput = $('.kd-tempo input');
+    const tempoInput = $('.kd-tempo input'), tempoControl = $('.kd-tempo');
     const nameOf = index => (index < 0 ? 'Init' : presets[index].split('/').pop());
     // What the demo calls a preset where the factory name only makes sense in the plugin: Init is
     // the factory bank's Psy patch, and the bank's Techno 1 is the demo's only techno.
@@ -582,28 +592,53 @@ function initDemo(root) {
 
     // KerBy's value fields (slypork::InlineValueControl): drag the number up or down to change it,
     // measured from where the drag began, or click it to type. Arrows and the wheel step it by one.
+    // The whole plate drags, its BPM and padding too. Typing in the number keeps its selection; a
+    // press elsewhere on the plate leaves typing and starts a fresh drag.
     const BPM_PX_PER_STEP = 3;
     let tempoDrag = null;
-    tempoInput.addEventListener('pointerdown', event => {
-        if (document.activeElement === tempoInput || event.button !== 0) return; // typing: leave it be
+    tempoControl.title = tempoInput.title = 'Drag to change BPM. Double-click for the preset’s tempo';
+    // Two taps within 300 ms go back to the preset's own tempo, as a Knob's go home, not on dblclick,
+    // which iPhones don't send. Typing's first click arrives with the input focused, so that's counted
+    // too. A phone's click after the second tap can focus it again, and so can Chrome's selection
+    // just after it, hence the later blurs.
+    let tempoTap = 0, tempoReset = false;
+    tempoControl.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+        const now = performance.now();
+        tempoReset = now - tempoTap < 300;
+        tempoTap = tempoReset ? 0 : now;
+        if (tempoReset) {
+            event.preventDefault();
+            tempoDrag = null;
+            setTempo(PRESET_BPM[presetOrder.length ? nameOf(presetOrder[presetAt]) : 'Slambient'] ?? DEFAULT_BPM);
+            tempoInput.blur();
+            return;
+        }
+        if (document.activeElement === tempoInput && event.target === tempoInput) return; // typing: leave it be
+        tempoInput.blur();
         event.preventDefault();
-        tempoInput.setPointerCapture(event.pointerId);
+        tempoControl.setPointerCapture(event.pointerId);
         tempoDrag = { y: event.clientY, x: event.clientX, bpm, moved: false };
     });
-    tempoInput.addEventListener('pointermove', event => {
+    tempoControl.addEventListener('pointermove', event => {
         if (!tempoDrag) return;
         const travel = (tempoDrag.y - event.clientY) + (event.clientX - tempoDrag.x);
-        if (Math.abs(travel) > 3) tempoDrag.moved = true;
+        if (Math.abs(travel) > 3) { tempoDrag.moved = true; tempoTap = 0; }
         if (tempoDrag.moved) setTempo(tempoDrag.bpm + Math.round(travel / BPM_PX_PER_STEP));
     });
-    tempoInput.addEventListener('pointerup', () => {
+    tempoControl.addEventListener('pointerup', () => {
         if (tempoDrag && !tempoDrag.moved) {
             tempoInput.focus();
             tempoInput.select();
         }
         tempoDrag = null;
     });
-    tempoInput.addEventListener('pointercancel', () => { tempoDrag = null; });
+    tempoControl.addEventListener('pointercancel', () => { tempoDrag = null; tempoTap = 0; });
+    tempoControl.addEventListener('click', event => {
+        if (event.target !== tempoInput) event.preventDefault(); // no label-forwarded click after a drag
+        if (tempoReset) { tempoInput.blur(); setTimeout(() => tempoInput.blur()); }
+        tempoReset = false;
+    });
     tempoInput.addEventListener('keydown', event => {
         const direction = { ArrowUp: 1, ArrowDown: -1 }[event.key];
         if (direction) { event.preventDefault(); setTempo(bpm + direction); }

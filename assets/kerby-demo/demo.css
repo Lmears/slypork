@@ -98,8 +98,11 @@
     border: 1px solid var(--kd-mid);
     border-radius: 5px;
     padding: 0 .5rem 0 .3rem;
+    /* The whole plate is the tempo's gesture, its BPM and padding too (demo.js). */
+    cursor: ns-resize;
+    touch-action: none;
+    user-select: none;
 }
-.kd-tempo span { opacity: .75; }
 .kd-tempo input {
     width: 2.1rem;
     height: 100%;
@@ -110,6 +113,7 @@
     font-variant-numeric: tabular-nums;
     cursor: ns-resize;
     touch-action: none;
+    user-select: text;
     -moz-appearance: textfield;
     appearance: textfield;
 }
