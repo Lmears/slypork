@@ -411,7 +411,7 @@ a.plugins-kerby-card:hover { border-color: var(--kb-ink); }
 .plugins-kerby-tagline { font-size: 1.2rem; line-height: 1.4; }
 .plugins-kerby .kerby-availability { margin-top: .5rem; }
 .plugins-kerby-cta { margin-top: 1.2rem; color: var(--kb-ink); font-size: .95rem; font-weight: 500; }
-.plugins-kerby-cta span { display: inline-block; transition: transform .18s ease; }
+.plugins-kerby-cta span { display: inline-block; vertical-align: 2px; transition: transform .18s ease; }
 a.plugins-kerby-card:hover .plugins-kerby-cta span { transform: translate(3px, -3px); }
 /* A card with no page (OrBy's) isn't a link, and signs up for updates in place of one. */
 .plugins-kerby-signup { margin-top: 1.2rem; }
