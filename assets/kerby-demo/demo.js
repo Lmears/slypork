@@ -153,7 +153,9 @@ function initDemo(root) {
                 if (event.button !== 0) return;
                 el.setPointerCapture(event.pointerId);
                 const now = performance.now();
-                if (now - lastTap < 300) { this.set(this.default); lastTap = 0; drag = null; return; }
+                // Two taps go home, as a double-click does in the plugin: a Rate's home is where the preset has
+                // it (applyState()), not the markup's default, which is Init's.
+                if (now - lastTap < 300) { this.set(this.home ?? this.default); lastTap = 0; drag = null; return; }
                 lastTap = now;
                 drag = { x: event.clientX, y: event.clientY, value: this.value, moved: false };
                 el.classList.add('kd-dragging');
