@@ -93,14 +93,15 @@ simplifying or redrawing the diagram.
   since a page prints an animated image's first frame. The PDFs keep dark screenshots on the light
   page whatever the machine's appearance; a PDF can't follow the reader's.
 - DucKy (`/ducky/`) is one page in KerBy's layout, recoloured by the `.ducky` class in
-  `kerby.css`. Its full captures (`DucKy_*mode.png`) are the KerBy-trigger pair
-  (`DucKy_editor_kerby*.png`, KerBy being what sets DucKy apart) of the 2x screenshots DucKy's
-  `ducky_editor_tests` writes to `build-dev/screenshots/` (`DucKy_editor*.png`, one per trigger,
-  with a KerBy running so its cell is solid); `ducky/ducky-header-kerby-*` is cropped from the
-  KerBy one with KerBy's highlight recipe (the preset button and logo faded), and
-  `ducky/ducky-mode-*` crops the Tempo/MIDI/KerBy pill from each as KerBy's Live/Draw selector is
-  cropped. There's no site-images recipe for DucKy yet. Its hero's "Get DucKy" goes to its Gumroad
-  page, `ducky.slypork.net`.
+  `kerby.css`. Its images use the same build, capture, pixel comparison and release publication
+  pipeline as KerBy's (`shared/scripts/site_images.py` and `site-release.sh` in slypork-plugins).
+  `DucKy/scripts/site-images.py` owns its recipes: the three-band 2x editor capture for
+  `DucKy_*mode.png` and the Tempo/MIDI/KerBy captures for the trigger pills. The guide's existing
+  header and thumbnails are kept as authored assets, outside regeneration. The editor harness
+  links the release's own library, so the generated images show what ships. `SLYPORK_SITE_ROOT`,
+  `DUCKY_SITE_ROOT` or the existing `KERBY_SITE_ROOT` points it here; `--stage <dir>` previews
+  without publishing.
+  Its hero's "Get DucKy" goes to `ducky.slypork.net`.
 - OrBy has no page yet, only a card on `/plugins/`, hidden until KerBy is out (Companion's plan
   says when). The card isn't a link; its last line goes to `shop.slypork.net/subscribe`, Gumroad's
   follow page, and followers are emailed with `gumroad emails create --audience followers`. `OrBy_*mode.webp`
