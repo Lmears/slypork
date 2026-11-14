@@ -80,7 +80,7 @@ simplifying or redrawing the diagram.
 - An animation goes where a step is a gesture or a change a still can't show (the step row's
   drags, merging the scopes, dropping a sample). Gestures need a pointer, which screenshot mode
   doesn't draw, so Learn's are cut from the tutorial's OBS takes (`kerby-steps-edit`,
-  `kerby-scope-merge`) by `reels/tutorial/learn/build.py` in the kerby-promo repo: dark only, and
+  `kerby-scope-merge`) by `marketing/reels/tutorial/learn/build.py` in the slypork-plugins repo: dark only, and
   the 25 Oct build, so recut them if the step row or the scopes change look. The same script has
   kbrender play Init for `kerby-scope-kick-length` and `kerby-scope-duck-later`, one overlap taken
   away from either side in the same frame as the merge. `kerby-bass-wave-drop` was cut by hand. A
