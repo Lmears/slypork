@@ -5,8 +5,9 @@
 // The keys play as KerBy does with a note pressed at the top of a bar: hold one and both voices
 // pulse from that moment until you let go, so taps play freely, and the worklet starts the clock
 // from the bar's top with it so a patch's transport-synced modulators play the same every time
-// (see worklet.js). Play starts the transport and holds A0 for you, as the plugin's Play does:
-// the latched note keeps both voices pulsing in time, a key switches it, and Stop lets go. That's
+// (see worklet.js). Play starts the transport and holds the last note played (A0 before any) for
+// you, as the plugin's Play does: the latched note keeps both voices pulsing in time, a key
+// switches it, and Stop lets go. That's
 // KerBy's Live mode with a held note, which a phone can't otherwise do while a thumb turns Rate.
 //
 // The engine loads as the demo nears the screen, so its knobs show the preset before anyone
@@ -36,11 +37,13 @@ function initDemo(root) {
     const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
     const lowest = (OCTAVE + 2) * 12;
     const VELOCITY = 100;
-    const PLAY_KEY = 9; // the note Play holds: A0, as in KerBy
+    const PLAY_KEY = 9; // the note Play holds before any key has been played: A0, as in KerBy
 
     let context = null, node = null, loading = null;
     let presets = [], presetOrder = [], presetAt = 0;
     let playing = false, latched = null, bpm = DEFAULT_BPM;
+    // The last note played, from any key: Play holds it, as KerBy's Play holds the last note it heard.
+    let lastNote = lowest + PLAY_KEY;
     // Once the engine has gone quiet the context is suspended (sleep(), below), and anything sent
     // to it wakes it. Every message is counted, so a quiet the engine said before the latest one
     // can be told apart.
@@ -418,7 +421,7 @@ function initDemo(root) {
         showLatched();
     }
 
-    async function start(note = latched ?? lowest + PLAY_KEY) {
+    async function start(note = latched ?? lastNote) {
         if (!(await audioReady())) return;
         if (!playing) {
             releaseAll(); // Play takes over from any key still held
@@ -428,7 +431,7 @@ function initDemo(root) {
         if (note !== null && note !== latched) {
             send({ type: 'note-on', note, velocity: VELOCITY }); // the new note first: a legato change
             if (latched !== null) send({ type: 'note-off', note: latched });
-            latched = note;
+            latched = lastNote = note;
         }
         showPlaying();
     }
@@ -455,6 +458,7 @@ function initDemo(root) {
         if (playing) return start(note);
         if (held.has(by)) return;
         held.set(by, note);
+        lastNote = note;
         const press = ++presses;
         latestPress.set(by, press);
         showLatched();
@@ -477,6 +481,7 @@ function initDemo(root) {
         const old = held.get(by);
         if (old === undefined) return;
         held.set(by, note);
+        lastNote = note;
         if (![...held.values()].includes(old)) send({ type: 'note-off', note: old });
         send({ type: 'note-on', note, velocity: VELOCITY });
         showLatched();
