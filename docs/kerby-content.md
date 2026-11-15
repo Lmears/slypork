@@ -96,8 +96,9 @@ simplifying or redrawing the diagram.
   `kerby.css`. Its images use the same build, capture, pixel comparison and release publication
   pipeline as KerBy's (`shared/scripts/site_images.py` and `site-release.sh` in slypork-plugins).
   `DucKy/scripts/site-images.py` owns its recipes: the three-band 2x editor capture for
-  `DucKy_*mode.png` and the Tempo/MIDI/KerBy captures for the trigger pills. The guide's existing
-  header and thumbnails are kept as authored assets, outside regeneration. The editor harness
+  `DucKy_*mode.png`, widened to the shape of OrBy's shot so it fills its `/plugins/` card, and
+  the Tempo/MIDI/KerBy captures for the trigger pills. The guide's existing header and
+  thumbnails are kept as authored assets, outside regeneration. The editor harness
   links the release's own library, so the generated images show what ships. `SLYPORK_SITE_ROOT`,
   `DUCKY_SITE_ROOT` or the existing `KERBY_SITE_ROOT` points it here; `--stage <dir>` previews
   without publishing.
