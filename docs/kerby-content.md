@@ -69,8 +69,8 @@ simplifying or redrawing the diagram.
   to `/kerby/#notifyForm` land on the FAQ's "Are updates free?", which carries that id, and
   `/kerby/check-inbox/` (Buttondown's old redirect target) now says updates come from Gumroad.
 - Every image KerBy draws itself is generated, not hand-made: the Overview's full captures
-  (`KerBy_*mode.png`, `KerBy_matrix_*`, `KerBy_duck_*`), every `kerby-learn/kerby-*` crop and
-  strip, the `thumb-rates`, `thumb-duck` and `thumb-click` thumbnails, and Reference's PS5
+  (`KerBy_*mode.png`, `KerBy_matrix_*`, `KerBy_duck_*`), `/plugins/`' card (`KerBy_wide_*`, the
+  editor widened to the card's frame, as DucKy's is), every `kerby-learn/kerby-*` crop and strip, the `thumb-rates`, `thumb-duck` and `thumb-click` thumbnails, and Reference's PS5
   controller window. `scripts/site-images.py` in the plugin repo (KerBy folder) holds each as a
   recipe over the plugin's offscreen screenshot mode, and every release runs it against the
   build it ships, writing only the images whose pixels changed. To refresh them by hand, or to
