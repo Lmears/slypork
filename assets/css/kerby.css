@@ -379,9 +379,15 @@ kbd {
 }
 a.plugins-kerby-card:hover { border-color: var(--kb-ink); }
 .plugins-kerby-card:focus-visible { outline: 2px solid var(--kb-ink); outline-offset: 4px; }
+/* Every shot sits in OrBy's widest frame, so the cards match in height; taller shots centre in it. */
+.plugins-kerby-shot { aspect-ratio: 1800 / 1105; text-align: center; }
 .plugins-kerby-shot img {
-    width: 100%;
+    width: auto;
     height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    margin-inline: auto;
+    vertical-align: top;
     border: 1px solid var(--kb-accent-line);
     border-radius: var(--kb-image-radius);
 }
